@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  # vet resolves opmodel.dev/core@v0 and cue.dev/x/k8s.io@v0 from the registry.
+  # opmodel.dev -> GHCR; everything else from registry.cue.works.
+  CUE_REGISTRY: 'opmodel.dev=ghcr.io/open-platform-model,registry.cue.works'
+
+jobs:
+  ci:
+    name: Validate catalog
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone the code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup CUE
+        uses: cue-lang/setup-cue@a93fa358375740cd8b0078f76355512b9208acb1 # v1.0.1
+        with:
+          version: v0.16.0
+
+      - name: Install Task
+        uses: go-task/setup-task@3be4020d41929789a01026e0e427a4321ce0ad44 # v2.0.0
+        with:
+          version: 3.x
+
+      - name: Login to GHCR (read deps)
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Check CUE formatting
+        run: task fmt:check
+
+      - name: Vet CUE catalog
+        run: task vet
+
+      - name: Verify src/INDEX.md is up to date
+        run: task generate:index:check
