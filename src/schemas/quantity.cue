@@ -18,7 +18,7 @@ import (
 	if (in & number) != _|_ {
 		let m = math.Round(in * 1000)
 		if math.Mod(m, 1000) == 0 {
-			out: strconv.FormatInt(m div 1000, 10)
+			out: strconv.FormatInt(div(m, 1000), 10)
 		}
 		if math.Mod(m, 1000) != 0 {
 			out: strconv.FormatInt(m, 10) + "m"
@@ -27,7 +27,7 @@ import (
 	if (in & string) != _|_ {
 		let m = strconv.Atoi(strings.TrimSuffix(in & =~"^[0-9]+m$", "m"))
 		if math.Mod(m, 1000) == 0 {
-			out: strconv.FormatInt(m div 1000, 10)
+			out: strconv.FormatInt(div(m, 1000), 10)
 		}
 		if math.Mod(m, 1000) != 0 {
 			out: strconv.FormatInt(m, 10) + "m"
