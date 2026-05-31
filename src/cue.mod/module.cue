@@ -11,6 +11,6 @@ deps: {
 		default: true
 	}
 	"opmodel.dev/core@v0": {
-		v: "v0.3.0"
+		v: "v0.4.0"
 	}
 }
