@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/open-platform-model/catalog_opm/compare/v0.5.0...v0.5.1) (2026-06-13)
+
+
+### Bug Fixes
+
+* **resources:** add resource concrete defaults ([#4](https://github.com/open-platform-model/catalog_opm/issues/4)) ([8bd9eb3](https://github.com/open-platform-model/catalog_opm/commit/8bd9eb38e80dff638963c9b84e37818ec0e74066))
+
 ## [0.5.0](https://github.com/open-platform-model/catalog_opm/compare/v0.4.0...v0.5.0) (2026-05-31)
 
 
