@@ -70,9 +70,14 @@ import (
 // `data` holds either #Secret entries (auto-discovered via #AutoSecrets) or plain strings.
 // `name` is auto-populated from the map key in the resource spec.
 #SecretSchema: {
-	name!:     string
-	type:      "Opaque" | "kubernetes.io/service-account-token" | "kubernetes.io/dockercfg" | "kubernetes.io/dockerconfigjson" | "kubernetes.io/basic-auth" | "kubernetes.io/ssh-auth" | "kubernetes.io/tls" | "bootstrap.kubernetes.io/token"
-	immutable: bool
+	name!: string
+	// Default Opaque so a secret that omits `type` renders concrete (same
+	// non-concrete-field hazard as `immutable` below).
+	type: *"Opaque" | "kubernetes.io/service-account-token" | "kubernetes.io/dockercfg" | "kubernetes.io/dockerconfigjson" | "kubernetes.io/basic-auth" | "kubernetes.io/ssh-auth" | "kubernetes.io/tls" | "bootstrap.kubernetes.io/token"
+	// Default false so a secret that omits `immutable` still renders a concrete
+	// value — a bare `bool` leaves the field non-concrete and the release fails
+	// to compile ("incomplete value bool").
+	immutable: bool | *false
 	data: [string]: #Secret | string
 }
 

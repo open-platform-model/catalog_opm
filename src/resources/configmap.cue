@@ -34,8 +34,11 @@ import (
 // ConfigMap specification.
 // `name` is auto-populated from the map key in the resource spec.
 #ConfigMapSchema: {
-	name!:     string
-	immutable: bool
+	name!: string
+	// Default false so a module that omits `immutable` still renders a
+	// concrete value — a bare `bool` leaves the field non-concrete and the
+	// release fails to compile ("incomplete value bool").
+	immutable: bool | *false
 	data: [string]: string
 }
 
