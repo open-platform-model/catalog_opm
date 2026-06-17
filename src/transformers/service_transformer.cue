@@ -84,6 +84,13 @@ import (
 			spec: {
 				type: _expose.type
 
+				// Headless Service when clusterIP is pinned to "None" (no virtual
+				// IP; DNS resolves to backing pods). Omitted otherwise so the API
+				// server allocates a cluster IP as usual.
+				if _expose.clusterIP != _|_ {
+					clusterIP: _expose.clusterIP
+				}
+
 				selector: #context.componentLabels
 
 				ports: _ports
