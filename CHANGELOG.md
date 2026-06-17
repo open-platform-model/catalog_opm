@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.2](https://github.com/open-platform-model/catalog_opm/compare/v0.5.1...v0.5.2) (2026-06-17)
+
+
+### Miscellaneous
+
+* release 0.5.2 ([6dd070d](https://github.com/open-platform-model/catalog_opm/commit/6dd070df23fe15af5db8d5d5671e57ef6477e0b0))
+
 ## [0.5.1](https://github.com/open-platform-model/catalog_opm/compare/v0.5.0...v0.5.1) (2026-06-13)
 
 
