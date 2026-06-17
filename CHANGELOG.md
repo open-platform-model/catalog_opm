@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/open-platform-model/catalog_opm/compare/v0.5.2...v0.6.0) (2026-06-17)
+
+
+### Features
+
+* support headless Services via expose clusterIP ([#8](https://github.com/open-platform-model/catalog_opm/issues/8)) ([0fee31e](https://github.com/open-platform-model/catalog_opm/commit/0fee31ecc9f02ccb4e9405607e4b4a0720831e42))
+
 ## [0.5.2](https://github.com/open-platform-model/catalog_opm/compare/v0.5.1...v0.5.2) (2026-06-17)
 
 
