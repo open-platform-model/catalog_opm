@@ -2,7 +2,7 @@ package transformers
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v0"
+	c "opmodel.dev/core@v1"
 	res "opmodel.dev/catalogs/opm/resources"
 )
 
@@ -60,10 +60,10 @@ _testSAResourceComponent: res.#ServiceAccount & {
 _testSAResourceTransformer: (#ServiceAccountResourceTransformer.#transform & {
 	#component: _testSAResourceComponent
 	#context: {
-		#moduleReleaseMetadata: {
-			name:      "test-release"
+		#moduleInstanceMetadata: {
+			name:      "test-instance"
 			namespace: "ci"
-			fqn:       "opmodel.dev/catalogs/opm/test-release@0.1.0"
+			fqn:       "opmodel.dev/catalogs/opm/test-instance@0.1.0"
 			version:   "0.1.0"
 			uuid:      "00000000-0000-0000-0000-000000000000"
 		}

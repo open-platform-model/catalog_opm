@@ -2,7 +2,7 @@ package transformers
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v0"
+	c "opmodel.dev/core@v1"
 	res "opmodel.dev/catalogs/opm/resources"
 	k8scorev1 "opmodel.dev/catalogs/opm/schemas/kubernetes/core/v1"
 )
@@ -53,8 +53,8 @@ import (
 					apiVersion: "v1"
 					kind:       "PersistentVolumeClaim"
 					metadata: {
-						name:      "\(#context.#moduleReleaseMetadata.name)-\(#context.#componentMetadata.name)-\(volumeName)"
-						namespace: #context.#moduleReleaseMetadata.namespace
+						name:      "\(#context.#moduleInstanceMetadata.name)-\(#context.#componentMetadata.name)-\(volumeName)"
+						namespace: #context.#moduleInstanceMetadata.namespace
 						labels:    #context.labels
 						if len(#context.componentAnnotations) > 0 {
 							annotations: #context.componentAnnotations

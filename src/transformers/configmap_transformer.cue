@@ -2,7 +2,7 @@ package transformers
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v0"
+	c "opmodel.dev/core@v1"
 	res "opmodel.dev/catalogs/opm/resources"
 	k8scorev1 "opmodel.dev/catalogs/opm/schemas/kubernetes/core/v1"
 )
@@ -39,10 +39,10 @@ import (
 
 		_configMaps: #component.spec.configMaps
 
-		// Build the release-scoped prefix: {releaseName}-{componentName}
+		// Build the instance-scoped prefix: {instanceName}-{componentName}
 		// Mirrors the secret-transformer convention so all config resources
-		// share the same namespace-isolation guarantee across releases.
-		let _relName = #context.#moduleReleaseMetadata.name
+		// share the same namespace-isolation guarantee across instances.
+		let _relName = #context.#moduleInstanceMetadata.name
 		let _compName = #context.#componentMetadata.name
 
 		// Emit one K8s ConfigMap per entry in the component's configMaps map.
@@ -62,7 +62,7 @@ import (
 					kind:       "ConfigMap"
 					metadata: {
 						name:      _k8sName
-						namespace: #context.#moduleReleaseMetadata.namespace
+						namespace: #context.#moduleInstanceMetadata.namespace
 						labels:    #context.labels
 						if len(#context.componentAnnotations) > 0 {
 							annotations: #context.componentAnnotations

@@ -1,6 +1,6 @@
 # catalog_opm — Definition Index
 
-CUE module: `opmodel.dev/catalogs/opm@v0`
+CUE module: `opmodel.dev/catalogs/opm@v1`
 
 ---
 

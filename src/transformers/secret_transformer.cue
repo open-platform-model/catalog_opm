@@ -2,7 +2,7 @@ package transformers
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v0"
+	c "opmodel.dev/core@v1"
 	res "opmodel.dev/catalogs/opm/resources"
 	k8scorev1 "opmodel.dev/catalogs/opm/schemas/kubernetes/core/v1"
 )
@@ -49,16 +49,16 @@ import (
 		// #SecretK8sRef entries are skipped (resource pre-exists in cluster).
 		// Output is a list of resources; the renderer dispatches on cue.Kind
 		// and produces one Compiled per list element.
-		let _relName = #context.#moduleReleaseMetadata.name
+		let _relName = #context.#moduleInstanceMetadata.name
 		let _compName = #context.#componentMetadata.name
 
 		output: [
 			for _, secret in _secrets
 
 			// Naming scheme:
-			//   opm-secrets component → {releaseName}-{secretName}
+			//   opm-secrets component → {instanceName}-{secretName}
 			//     (cross-component env var refs resolve to this shape)
-			//   other components → {releaseName}-{componentName}-{secretName}
+			//   other components → {instanceName}-{componentName}-{secretName}
 			//     (component-local volume refs resolve to this shape)
 			let _baseName = {
 				if _compName == "opm-secrets" {out: "\(_relName)-\(secret.name)"}
@@ -95,7 +95,7 @@ import (
 					kind:       "Secret"
 					metadata: {
 						name:      _k8sName
-						namespace: #context.#moduleReleaseMetadata.namespace
+						namespace: #context.#moduleInstanceMetadata.namespace
 						labels:    #context.labels
 						if len(#context.componentAnnotations) > 0 {
 							annotations: #context.componentAnnotations

@@ -66,5 +66,5 @@ jobs:
           # version output is X.Y.Z (no leading v); the publish task stamps the
           # bare SemVer into identity/ and tags the OCI artifact v-prefixed.
           VERSION="v${{ needs.release-please.outputs.version }}"
-          echo "Publishing opmodel.dev/catalogs/opm@v0 at ${VERSION}"
+          echo "Publishing opmodel.dev/catalogs/opm@v1 at ${VERSION}"
           task publish VERSION="${VERSION}"

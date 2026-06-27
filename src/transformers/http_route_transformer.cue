@@ -2,7 +2,7 @@ package transformers
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v0"
+	c "opmodel.dev/core@v1"
 	tr "opmodel.dev/catalogs/opm/traits"
 )
 
@@ -36,7 +36,7 @@ import (
 		#context:   c.#TransformerContext
 
 		_httpRoute: #component.spec.httpRoute
-		_name:      "\(#context.#moduleReleaseMetadata.name)-\(#component.metadata.name)"
+		_name:      "\(#context.#moduleInstanceMetadata.name)-\(#component.metadata.name)"
 
 		// TLS hints: Gateway API HTTPRoute has no tls field (TLS lives on the
 		// Gateway listener), so surface the trait's tls attachment as
@@ -69,7 +69,7 @@ import (
 			kind:       "HTTPRoute"
 			metadata: {
 				name:      _name
-				namespace: #context.#moduleReleaseMetadata.namespace
+				namespace: #context.#moduleInstanceMetadata.namespace
 				labels:    #context.labels
 				if len(_routeAnnotations) > 0 {
 					annotations: _routeAnnotations
