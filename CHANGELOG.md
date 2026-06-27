@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.0-alpha](https://github.com/open-platform-model/catalog_opm/compare/v0.6.0...v1.0.0-alpha) (2026-06-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* **catalog-opm:** adopt core@v1 instance vocabulary, bump to @v1 ([#10](https://github.com/open-platform-model/catalog_opm/issues/10))
+
+### Features
+
+* **catalog-opm:** adopt core@v1 instance vocabulary, bump to [@v1](https://github.com/v1) ([#10](https://github.com/open-platform-model/catalog_opm/issues/10)) ([c0cd3ec](https://github.com/open-platform-model/catalog_opm/commit/c0cd3ecbb4aa92850f7d238a88a5c111c3d4d41a))
+
 ## [0.6.0](https://github.com/open-platform-model/catalog_opm/compare/v0.5.2...v0.6.0) (2026-06-17)
 
 
