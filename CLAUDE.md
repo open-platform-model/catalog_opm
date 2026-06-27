@@ -2,9 +2,9 @@
 
 ## Purpose
 
-This repo defines and publishes the **OPM core catalog** as a versioned CUE module (`opmodel.dev/catalogs/opm@v0`).
+This repo defines and publishes the **OPM core catalog** as a versioned CUE module (`opmodel.dev/catalogs/opm@v1`).
 
-The catalog is the canonical set of OPM Kubernetes building blocks — `#Resource`s, `#Trait`s, `#Blueprint`s, and `#ComponentTransformer`s — that platform and module authors consume to model and render workloads. It is typed entirely against the `core` schema (`opmodel.dev/core@v0`) and instantiates its constructs; it does **not** define new core constructs.
+The catalog is the canonical set of OPM Kubernetes building blocks — `#Resource`s, `#Trait`s, `#Blueprint`s, and `#ComponentTransformer`s — that platform and module authors consume to model and render workloads. It is typed entirely against the `core` schema (`opmodel.dev/core@v1`) and instantiates its constructs; it does **not** define new core constructs.
 
 This is a pure CUE repository: catalog definitions plus the tooling to validate, index, and publish them. No Go code.
 
@@ -14,9 +14,9 @@ This is a pure CUE repository: catalog definitions plus the tooling to validate,
 
 - Authority is this file and `Taskfile.yml`. If they disagree with anything below, they win.
 - Keep changes small. Split broad requests into tiny, independently verifiable steps.
-- The catalog is a published contract — downstream platforms and modules pin `opmodel.dev/catalogs/opm@v0`. Prefer additive evolution.
+- The catalog is a published contract — downstream platforms and modules pin `opmodel.dev/catalogs/opm@v1`. Prefer additive evolution.
 - Never run the publish flow against a live registry manually — let CI publish.
-- Tags stay within `v0.x.x`. The CUE module is pinned to major `@v0` and we are pre-1.0, so minors may carry breaking changes (`bump-minor-pre-major: true`).
+- The CUE module is pinned to major `@v1` and ships on the v1 prerelease line (`v1.x.x-alpha.x`) for the post-rename rollout — release-please is configured with `versioning: prerelease` + `prerelease-type: alpha` (enhancement 0002 / D14). Was: major `@v0`, tags within `v0.x.x` (`bump-minor-pre-major: true`).
 
 ## Entrypoint
 
@@ -30,7 +30,7 @@ Read these on entry:
 ## Repository Layout
 
 ```text
-src/cue.mod/module.cue   CUE module manifest — opmodel.dev/catalogs/opm@v0
+src/cue.mod/module.cue   CUE module manifest — opmodel.dev/catalogs/opm@v1
 src/catalog.cue          catalog manifest (bare c.#Catalog, enumerates transformers)
 src/identity/            ModulePath + Version (publish-time stamping anchor)
 src/resources/           #Resource definitions (+ #Component wrappers)
@@ -42,13 +42,13 @@ src/INDEX.md             generated definition index (ships inside the CUE module
 .tasks/                  Taskfile script fragments (index + branch-tag)
 ```
 
-`src/` is the CUE module root: the catalog package and `cue.mod/` both live there, so the import path stays `opmodel.dev/catalogs/opm@v0` with no per-version subdirectory. Internal imports (`opmodel.dev/catalogs/opm/identity`, `.../resources`, `.../traits`, …) resolve relative to the module root. Repo-level material (README, Taskfile, CI workflows) sits at the repo root. A breaking revision bumps the module major (`@v0` → `@v1`); it does not add a sibling package.
+`src/` is the CUE module root: the catalog package and `cue.mod/` both live there, so the import path stays `opmodel.dev/catalogs/opm@v1` with no per-version subdirectory. Internal imports (`opmodel.dev/catalogs/opm/identity`, `.../resources`, `.../traits`, …) resolve relative to the module root. Repo-level material (README, Taskfile, CI workflows) sits at the repo root. A breaking revision bumps the module major (`@v1` → `@v2`); it does not add a sibling package.
 
 All raw `cue` invocations run from `src/`. The Taskfile handles this via `dir: src` / `cd src`.
 
 ## Dependencies
 
-- `opmodel.dev/core@v0` — the OPM schema this catalog instantiates.
+- `opmodel.dev/core@v1` — the OPM schema this catalog instantiates.
 - `cue.dev/x/k8s.io@v0` — vendored Kubernetes types used by `schemas/kubernetes/**` and transformers.
 
 `cue vet` therefore needs a reachable registry. Export the workspace registry vars from the root `CLAUDE.md` (`CUE_REGISTRY`, `OPM_REGISTRY`) before running raw `cue` outside `task`.

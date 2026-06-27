@@ -2,7 +2,7 @@ package resources
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v0"
+	c "opmodel.dev/core@v1"
 )
 
 /////////////////////////////////////////////////////////////////

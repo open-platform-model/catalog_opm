@@ -17,15 +17,16 @@ import (
 //   fieldRef?         -> { name, valueFrom: { fieldRef: ... } }
 //   resourceFieldRef? -> { name, valueFrom: { resourceFieldRef: ... } }
 //
-// When #releasePrefix is set, it is prepended to the secretKeyRef name for
+// When #instancePrefix is set, it is prepended to the secretKeyRef name for
 // auto-generated secrets (#SecretLiteral). Pre-existing K8s
 // Secret references (#SecretK8sRef) are never prefixed.
+// Was: #releasePrefix (renamed in enhancement 0002).
 //
 // Usage:
-//   (#ToK8sContainer & {"in": _container, #releasePrefix: "my-release"}).out
+//   (#ToK8sContainer & {"in": _container, #instancePrefix: "my-instance"}).out
 #ToK8sContainer: {
-	X="in":          res.#ContainerSchema
-	#releasePrefix?: string
+	X="in":           res.#ContainerSchema
+	#instancePrefix?: string
 
 	out: k8scorev1.#Container & {
 		name:            X.name
@@ -68,17 +69,17 @@ import (
 					}
 
 					// #SecretLiteral: use $secretName / $dataKey.
-					// When #releasePrefix is set, prepend it to the secret name so
-					// that multiple releases of the same module can coexist in one
+					// When #instancePrefix is set, prepend it to the secret name so
+					// that multiple instances of the same module can coexist in one
 					// namespace without their auto-generated secrets colliding.
 					if e.from.secretName == _|_ {
-						if #releasePrefix != _|_ {
+						if #instancePrefix != _|_ {
 							valueFrom: secretKeyRef: {
-								name: "\(#releasePrefix)-\(e.from.$secretName)"
+								name: "\(#instancePrefix)-\(e.from.$secretName)"
 								key:  e.from.$dataKey
 							}
 						}
-						if #releasePrefix == _|_ {
+						if #instancePrefix == _|_ {
 							valueFrom: secretKeyRef: {
 								name: e.from.$secretName
 								key:  e.from.$dataKey
@@ -214,12 +215,12 @@ import (
 // #ToK8sContainers converts a list of OPM containers to Kubernetes containers.
 //
 // Usage:
-//   (#ToK8sContainers & {"in": _initContainers, #releasePrefix: "my-release"}).out
+//   (#ToK8sContainers & {"in": _initContainers, #instancePrefix: "my-instance"}).out
 #ToK8sContainers: {
 	X="in": [...res.#ContainerSchema]
-	_prefix=#releasePrefix?: string
+	_prefix=#instancePrefix?: string
 	out: [for c in X {
-		(#ToK8sContainer & {"in": c, #releasePrefix: _prefix}).out
+		(#ToK8sContainer & {"in": c, #instancePrefix: _prefix}).out
 	}]
 }
 
@@ -232,10 +233,10 @@ import (
 // resolve correctly without any extra wiring in the component.
 //
 // Usage:
-//   (#ToK8sVolumes & {"in": _component.spec.volumes, #releasePrefix: "my-release"}).out
+//   (#ToK8sVolumes & {"in": _component.spec.volumes, #instancePrefix: "my-instance"}).out
 #ToK8sVolumes: {
 	X="in": [string]: res.#VolumeSchema
-	_prefix=#releasePrefix?: string
+	_prefix=#instancePrefix?: string
 
 	out: [for vName, vol in X {
 		name: vol.name | *vName
@@ -254,7 +255,7 @@ import (
 		}
 		if vol.configMap != _|_ {
 			// Compute the same K8s name the configmap-transformer will generate:
-			//   {releasePrefix}-{configmap.name}[-{contenthash}]
+			//   {instancePrefix}-{configmap.name}[-{contenthash}]
 			// #ImmutableName handles both mutable (stable name) and
 			// immutable (content-hash suffix) ConfigMaps transparently.
 			//
@@ -273,7 +274,7 @@ import (
 		if vol.secret != _|_ {
 			secret: {
 				// Compute the same K8s name the secret-transformer will generate:
-				//   {releasePrefix}-{secret.name}[-{contenthash}]
+				//   {instancePrefix}-{secret.name}[-{contenthash}]
 				// #SecretImmutableName handles both mutable (stable name) and
 				// immutable (content-hash suffix) secrets transparently.
 				let _k8sName = (res.#SecretImmutableName & {
@@ -343,8 +344,8 @@ _testToK8sVolumesSecret: {
 	}
 
 	out: (#ToK8sVolumes & {
-		"in":           in
-		#releasePrefix: "registry"
+		"in":            in
+		#instancePrefix: "registry"
 	}).out
 
 	out: [{
@@ -380,8 +381,8 @@ _testToK8sVolumesSecretImmutable: {
 	}
 
 	out: (#ToK8sVolumes & {
-		"in":           in
-		#releasePrefix: "myapp-mycomponent"
+		"in":            in
+		#instancePrefix: "myapp-mycomponent"
 	}).out
 
 	out: [{
@@ -413,14 +414,14 @@ _testToK8sVolumesConfigMapImmutable: {
 	}
 
 	out: (#ToK8sVolumes & {
-		"in":           in
-		#releasePrefix: "wolf-release-wolf"
+		"in":            in
+		#instancePrefix: "wolf-instance-wolf"
 	}).out
 
 	out: [{
 		name: "config"
 		configMap: name: (res.#ImmutableName & {
-			baseName: "wolf-release-wolf-wolf-config-toml"
+			baseName: "wolf-instance-wolf-wolf-config-toml"
 			data: {"wolf.toml": "[wolf]\nenabled = true"}
 			immutable: true
 		}).out

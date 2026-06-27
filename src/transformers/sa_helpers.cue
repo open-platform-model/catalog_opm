@@ -1,7 +1,7 @@
 package transformers
 
 import (
-	c "opmodel.dev/core@v0"
+	c "opmodel.dev/core@v1"
 	k8scorev1 "opmodel.dev/catalogs/opm/schemas/kubernetes/core/v1"
 )
 
@@ -25,7 +25,7 @@ import (
 		kind:       "ServiceAccount"
 		metadata: {
 			name:      X.name
-			namespace: context.#moduleReleaseMetadata.namespace
+			namespace: context.#moduleInstanceMetadata.namespace
 			labels:    context.labels
 			if len(context.componentAnnotations) > 0 {
 				annotations: context.componentAnnotations

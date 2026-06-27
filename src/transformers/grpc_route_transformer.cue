@@ -2,7 +2,7 @@ package transformers
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v0"
+	c "opmodel.dev/core@v1"
 	tr "opmodel.dev/catalogs/opm/traits"
 )
 
@@ -35,7 +35,7 @@ import (
 		#context:   c.#TransformerContext
 
 		_grpcRoute: #component.spec.grpcRoute
-		_name:      "\(#context.#moduleReleaseMetadata.name)-\(#component.metadata.name)"
+		_name:      "\(#context.#moduleInstanceMetadata.name)-\(#component.metadata.name)"
 
 		_tlsAnnotations: {
 			if _grpcRoute.tls != _|_ {
@@ -65,7 +65,7 @@ import (
 			kind:       "GRPCRoute"
 			metadata: {
 				name:      _name
-				namespace: #context.#moduleReleaseMetadata.namespace
+				namespace: #context.#moduleInstanceMetadata.namespace
 				labels:    #context.labels
 				if len(_routeAnnotations) > 0 {
 					annotations: _routeAnnotations

@@ -2,7 +2,7 @@ package transformers
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v0"
+	c "opmodel.dev/core@v1"
 	res "opmodel.dev/catalogs/opm/resources"
 )
 
@@ -51,7 +51,7 @@ import (
 		_k8sSubjects: [for s in _role.subjects {
 			kind:      "ServiceAccount"
 			name:      s.name
-			namespace: #context.#moduleReleaseMetadata.namespace
+			namespace: #context.#moduleInstanceMetadata.namespace
 		}]
 
 		// Common metadata for both objects
@@ -71,7 +71,7 @@ import (
 				kind:       "Role"
 				metadata: {
 					name:      _role.name
-					namespace: #context.#moduleReleaseMetadata.namespace
+					namespace: #context.#moduleInstanceMetadata.namespace
 					labels:    _commonLabels
 					if len(_commonAnnotations) > 0 {
 						annotations: _commonAnnotations
@@ -84,7 +84,7 @@ import (
 				kind:       "RoleBinding"
 				metadata: {
 					name:      _role.name
-					namespace: #context.#moduleReleaseMetadata.namespace
+					namespace: #context.#moduleInstanceMetadata.namespace
 					labels:    _commonLabels
 					if len(_commonAnnotations) > 0 {
 						annotations: _commonAnnotations

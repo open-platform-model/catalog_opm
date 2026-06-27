@@ -4,7 +4,7 @@ import (
 	id "opmodel.dev/catalogs/opm/identity"
 	"list"
 	k8sbatchv1 "opmodel.dev/catalogs/opm/schemas/kubernetes/batch/v1"
-	c "opmodel.dev/core@v0"
+	c "opmodel.dev/core@v1"
 	res "opmodel.dev/catalogs/opm/resources"
 	tr "opmodel.dev/catalogs/opm/traits"
 )
@@ -73,7 +73,7 @@ import (
 		}
 
 		// Build main container: base conversion via helper, unified with trait fields
-		_mainContainer: (#ToK8sContainer & {"in": _container, #releasePrefix: #context.#moduleReleaseMetadata.name}).out
+		_mainContainer: (#ToK8sContainer & {"in": _container, #instancePrefix: #context.#moduleInstanceMetadata.name}).out
 
 		// Extract optional sidecar and init containers with defaults
 		_sidecarContainers: [...]
@@ -90,8 +90,8 @@ import (
 			apiVersion: "batch/v1"
 			kind:       "CronJob"
 			metadata: {
-				name:      "\(#context.#moduleReleaseMetadata.name)-\(#component.metadata.name)"
-				namespace: #context.#moduleReleaseMetadata.namespace
+				name:      "\(#context.#moduleInstanceMetadata.name)-\(#component.metadata.name)"
+				namespace: #context.#moduleInstanceMetadata.namespace
 				labels:    #context.labels
 				// Include component annotations if present
 				if len(#context.componentAnnotations) > 0 {
@@ -125,11 +125,11 @@ import (
 						template: {
 							metadata: labels: #context.componentLabels
 							spec: {
-								_convertedSidecars: (#ToK8sContainers & {"in": _sidecarContainers, #releasePrefix: #context.#moduleReleaseMetadata.name}).out
+								_convertedSidecars: (#ToK8sContainers & {"in": _sidecarContainers, #instancePrefix: #context.#moduleInstanceMetadata.name}).out
 								containers: list.Concat([[_mainContainer], _convertedSidecars])
 
 								if len(_initContainers) > 0 {
-									initContainers: (#ToK8sContainers & {"in": _initContainers, #releasePrefix: #context.#moduleReleaseMetadata.name}).out
+									initContainers: (#ToK8sContainers & {"in": _initContainers, #instancePrefix: #context.#moduleInstanceMetadata.name}).out
 								}
 
 								restartPolicy: _restartPolicy

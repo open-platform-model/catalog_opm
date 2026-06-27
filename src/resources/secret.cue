@@ -7,7 +7,7 @@ import (
 	"list"
 	"strings"
 
-	c "opmodel.dev/core@v0"
+	c "opmodel.dev/core@v1"
 	schemas "opmodel.dev/catalogs/opm/schemas"
 )
 
@@ -75,7 +75,7 @@ import (
 	// non-concrete-field hazard as `immutable` below).
 	type: *"Opaque" | "kubernetes.io/service-account-token" | "kubernetes.io/dockercfg" | "kubernetes.io/dockerconfigjson" | "kubernetes.io/basic-auth" | "kubernetes.io/ssh-auth" | "kubernetes.io/tls" | "bootstrap.kubernetes.io/token"
 	// Default false so a secret that omits `immutable` still renders a concrete
-	// value — a bare `bool` leaves the field non-concrete and the release fails
+	// value — a bare `bool` leaves the field non-concrete and the instance fails
 	// to compile ("incomplete value bool").
 	immutable: bool | *false
 	data: [string]: #Secret | string

@@ -6,7 +6,7 @@ on:
   pull_request:
 
 env:
-  # vet resolves opmodel.dev/core@v0 and cue.dev/x/k8s.io@v0 from the registry.
+  # vet resolves opmodel.dev/core@v1 and cue.dev/x/k8s.io@v0 from the registry.
   # opmodel.dev -> GHCR; everything else from registry.cue.works.
   CUE_REGISTRY: 'opmodel.dev=ghcr.io/open-platform-model,registry.cue.works'
 

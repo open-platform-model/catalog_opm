@@ -2,7 +2,7 @@ package resources
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v0"
+	c "opmodel.dev/core@v1"
 )
 
 /////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ import (
 	name!: string
 	// Default false so a module that omits `immutable` still renders a
 	// concrete value — a bare `bool` leaves the field non-concrete and the
-	// release fails to compile ("incomplete value bool").
+	// instance fails to compile ("incomplete value bool").
 	immutable: bool | *false
 	data: [string]: string
 }

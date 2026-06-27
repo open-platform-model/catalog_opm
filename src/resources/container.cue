@@ -4,7 +4,7 @@ import (
 	id "opmodel.dev/catalogs/opm/identity"
 	"strings"
 
-	c "opmodel.dev/core@v0"
+	c "opmodel.dev/core@v1"
 )
 
 /////////////////////////////////////////////////////////////////
