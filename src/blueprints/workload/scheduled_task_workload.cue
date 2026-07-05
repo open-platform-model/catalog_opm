@@ -50,19 +50,23 @@ import (
 	tr.#SidecarContainers
 	tr.#InitContainers
 
-	// Override spec to propagate values from scheduledTaskWorkload
+	// Override spec to propagate values from scheduledTaskWorkload.
+	//
+	// Guards hoisted at component level — do not move back inside the spec
+	// block (CUE v0.17.0 closedness regression; see
+	// docs/cue-guard-closedness-workaround.md in the catalog_opm repo).
 	spec: {
 		scheduledTaskWorkload: #ScheduledTaskWorkloadSchema
 		container:             spec.scheduledTaskWorkload.container
 		cronJobConfig:         spec.scheduledTaskWorkload.cronJobConfig
-		if spec.scheduledTaskWorkload.restartPolicy != _|_ {
-			restartPolicy: spec.scheduledTaskWorkload.restartPolicy
-		}
-		if spec.scheduledTaskWorkload.sidecarContainers != _|_ {
-			sidecarContainers: spec.scheduledTaskWorkload.sidecarContainers
-		}
-		if spec.scheduledTaskWorkload.initContainers != _|_ {
-			initContainers: spec.scheduledTaskWorkload.initContainers
-		}
+	}
+	if spec.scheduledTaskWorkload.restartPolicy != _|_ {
+		spec: restartPolicy: spec.scheduledTaskWorkload.restartPolicy
+	}
+	if spec.scheduledTaskWorkload.sidecarContainers != _|_ {
+		spec: sidecarContainers: spec.scheduledTaskWorkload.sidecarContainers
+	}
+	if spec.scheduledTaskWorkload.initContainers != _|_ {
+		spec: initContainers: spec.scheduledTaskWorkload.initContainers
 	}
 }

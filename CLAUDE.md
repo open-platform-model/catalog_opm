@@ -17,6 +17,7 @@ This is a pure CUE repository: catalog definitions plus the tooling to validate,
 - The catalog is a published contract — downstream platforms and modules pin `opmodel.dev/catalogs/opm@v1`. Prefer additive evolution.
 - Never run the publish flow against a live registry manually — let CI publish.
 - The CUE module is pinned to major `@v1` and ships on the v1 prerelease line (`v1.x.x-alpha.x`) for the post-rename rollout — release-please is configured with `versioning: prerelease` + `prerelease-type: alpha` (enhancement 0002 / D14). Was: major `@v0`, tags within `v0.x.x` (`bump-minor-pre-major: true`).
+- **CUE authoring pitfall:** never place an `if spec.<nested>.<field> != _|_` guard *inside* a component's `spec` block when `<field>` is struct- or list-valued — hoist it to component level (`if … { spec: <field>: … }`). The in-spec form trips a CUE v0.17.0 evaluator closedness regression ("field not allowed"). See `docs/cue-guard-closedness-workaround.md`.
 
 ## Entrypoint
 

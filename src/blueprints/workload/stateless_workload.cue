@@ -56,24 +56,31 @@ import (
 	tr.#SidecarContainers
 	tr.#InitContainers
 
-	// Override spec to propagate values from statelessWorkload
+	// Override spec to propagate values from statelessWorkload.
+	//
+	// The `if … != _|_` guards MUST stay hoisted at component level (outside
+	// the spec block): a guard whose condition references a nested non-scalar
+	// field from *inside* the spec struct trips a CUE evaluator closedness
+	// regression (v0.17.0-alpha.2 through v0.17.0) that rejects the guarded
+	// field as "field not allowed". Hoisting is semantics-preserving.
+	// See docs/cue-guard-closedness-workaround.md in the catalog_opm repo.
 	spec: {
 		statelessWorkload: #StatelessWorkloadSchema
 		container:         spec.statelessWorkload.container
-		if spec.statelessWorkload.scaling != _|_ {
-			scaling: spec.statelessWorkload.scaling
-		}
-		if spec.statelessWorkload.restartPolicy != _|_ {
-			restartPolicy: spec.statelessWorkload.restartPolicy
-		}
-		if spec.statelessWorkload.updateStrategy != _|_ {
-			updateStrategy: spec.statelessWorkload.updateStrategy
-		}
-		if spec.statelessWorkload.sidecarContainers != _|_ {
-			sidecarContainers: spec.statelessWorkload.sidecarContainers
-		}
-		if spec.statelessWorkload.initContainers != _|_ {
-			initContainers: spec.statelessWorkload.initContainers
-		}
+	}
+	if spec.statelessWorkload.scaling != _|_ {
+		spec: scaling: spec.statelessWorkload.scaling
+	}
+	if spec.statelessWorkload.restartPolicy != _|_ {
+		spec: restartPolicy: spec.statelessWorkload.restartPolicy
+	}
+	if spec.statelessWorkload.updateStrategy != _|_ {
+		spec: updateStrategy: spec.statelessWorkload.updateStrategy
+	}
+	if spec.statelessWorkload.sidecarContainers != _|_ {
+		spec: sidecarContainers: spec.statelessWorkload.sidecarContainers
+	}
+	if spec.statelessWorkload.initContainers != _|_ {
+		spec: initContainers: spec.statelessWorkload.initContainers
 	}
 }
