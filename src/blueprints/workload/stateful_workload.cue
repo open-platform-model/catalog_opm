@@ -56,27 +56,31 @@ import (
 	tr.#SidecarContainers
 	tr.#InitContainers
 
-	// Override spec to propagate values from statefulWorkload
+	// Override spec to propagate values from statefulWorkload.
+	//
+	// Guards hoisted at component level — do not move back inside the spec
+	// block (CUE v0.17.0 closedness regression; see
+	// docs/cue-guard-closedness-workaround.md in the catalog_opm repo).
 	spec: {
 		statefulWorkload: #StatefulWorkloadSchema
 		container:        spec.statefulWorkload.container
-		if spec.statefulWorkload.volumes != _|_ {
-			volumes: spec.statefulWorkload.volumes
-		}
-		if spec.statefulWorkload.scaling != _|_ {
-			scaling: spec.statefulWorkload.scaling
-		}
-		if spec.statefulWorkload.restartPolicy != _|_ {
-			restartPolicy: spec.statefulWorkload.restartPolicy
-		}
-		if spec.statefulWorkload.updateStrategy != _|_ {
-			updateStrategy: spec.statefulWorkload.updateStrategy
-		}
-		if spec.statefulWorkload.sidecarContainers != _|_ {
-			sidecarContainers: spec.statefulWorkload.sidecarContainers
-		}
-		if spec.statefulWorkload.initContainers != _|_ {
-			initContainers: spec.statefulWorkload.initContainers
-		}
+	}
+	if spec.statefulWorkload.volumes != _|_ {
+		spec: volumes: spec.statefulWorkload.volumes
+	}
+	if spec.statefulWorkload.scaling != _|_ {
+		spec: scaling: spec.statefulWorkload.scaling
+	}
+	if spec.statefulWorkload.restartPolicy != _|_ {
+		spec: restartPolicy: spec.statefulWorkload.restartPolicy
+	}
+	if spec.statefulWorkload.updateStrategy != _|_ {
+		spec: updateStrategy: spec.statefulWorkload.updateStrategy
+	}
+	if spec.statefulWorkload.sidecarContainers != _|_ {
+		spec: sidecarContainers: spec.statefulWorkload.sidecarContainers
+	}
+	if spec.statefulWorkload.initContainers != _|_ {
+		spec: initContainers: spec.statefulWorkload.initContainers
 	}
 }

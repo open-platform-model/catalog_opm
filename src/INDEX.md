@@ -7,6 +7,7 @@ CUE module: `opmodel.dev/catalogs/opm@v1`
 ## Project Structure
 
 ```
++-- docs/
 ```
 
 ---
