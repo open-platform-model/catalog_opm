@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-alpha.1](https://github.com/open-platform-model/catalog_opm/compare/v1.0.0-alpha...v1.0.0-alpha.1) (2026-07-06)
+
+
+### Bug Fixes
+
+* **blueprints:** hoist spec propagation guards to component level ([#13](https://github.com/open-platform-model/catalog_opm/issues/13)) ([81641e0](https://github.com/open-platform-model/catalog_opm/commit/81641e09ed81dfd45b7221319dcafbc895741af0))
+
 ## [1.0.0-alpha](https://github.com/open-platform-model/catalog_opm/compare/v0.6.0...v1.0.0-alpha) (2026-06-27)
 
 
