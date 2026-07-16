@@ -10,7 +10,7 @@ permissions:
   packages: write
 
 env:
-  CUE_VERSION: 'v0.17.0-alpha.1'
+  CUE_VERSION: 'v0.17.1'
   # opmodel.dev -> GHCR resolves both the core@v0 dependency and the catalog's
   # own dev publish target; cue.dev / others fall through to registry.cue.works.
   CUE_REGISTRY: 'opmodel.dev=ghcr.io/open-platform-model,registry.cue.works'
