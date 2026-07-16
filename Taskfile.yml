@@ -4,9 +4,8 @@ version: "3"
 silent: true
 
 vars:
-  CUE_VERSION: v0.16.0
   # Default registry for local publishing; CI overrides CUE_REGISTRY in the
-  # environment (GHCR mapping). opmodel.dev resolves the core@v0 dependency and
+  # environment (GHCR mapping). opmodel.dev resolves the core@v1 dependency and
   # this catalog's own publish target; cue.dev / others fall through.
   CUE_LOCAL_REGISTRY: 'opmodel.dev=localhost:5000+insecure,registry.cue.works'
 
