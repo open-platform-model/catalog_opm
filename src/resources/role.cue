@@ -31,10 +31,22 @@ import (
 //// Role Schemas
 /////////////////////////////////////////////////////////////////
 
-// Single RBAC permission rule.
-#PolicyRuleSchema: {
+// Single RBAC permission rule — exactly one of the two k8s forms.
+#PolicyRuleSchema: #ResourcePolicyRuleSchema | #NonResourcePolicyRuleSchema
+
+#ResourcePolicyRuleSchema: {
 	apiGroups!: [...string]
 	resources!: [...string]
+	verbs!: [...string]
+	// Optional whitelist of object names within the resources above.
+	// For `signers`, the apiserver special-cases "<domain>/*" wildcards
+	// (e.g. "issuers.cert-manager.io/*") — passed through verbatim.
+	resourceNames?: [...string]
+}
+
+// ClusterRole (scope: "cluster") only — enforced in review/docs, not schema.
+#NonResourcePolicyRuleSchema: {
+	nonResourceURLs!: [_, ...] & [...string]
 	verbs!: [...string]
 }
 

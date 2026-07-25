@@ -40,11 +40,17 @@ import (
 
 		_role: #component.spec.role
 
-		// Build k8s-shaped rules from OPM PolicyRules
+		// Build k8s-shaped rules from OPM PolicyRules. Conditional passthrough
+		// dispatches on the two #PolicyRuleSchema forms (resource rules vs
+		// nonResourceURLs rules).
 		_k8sRules: [for r in _role.rules {
-			apiGroups: r.apiGroups
-			resources: r.resources
-			verbs:     r.verbs
+			if r.apiGroups != _|_ {
+				apiGroups: r.apiGroups
+				resources: r.resources
+			}
+			if r.resourceNames != _|_ {resourceNames: r.resourceNames}
+			if r.nonResourceURLs != _|_ {nonResourceURLs: r.nonResourceURLs}
+			verbs: r.verbs
 		}]
 
 		// Build k8s-shaped subjects from CUE-referenced identities
@@ -185,3 +191,83 @@ _testClusterRoleTransformer: (#RoleTransformer.#transform & {
 		componentAnnotations: {}
 	}
 }).output
+
+// Test: cluster-scoped role exercising both extended #PolicyRuleSchema forms —
+// resourceNames passthrough (cert-manager signer-approval shape), a
+// nonResourceURLs rule, and a legacy 3-field rule for backward compatibility.
+_testExtendedRulesComponent: res.#Role & {
+	spec: role: {
+		name:  "cert-manager-controller-approve"
+		scope: "cluster"
+		rules: [{
+			apiGroups: ["cert-manager.io"]
+			resources: ["signers"]
+			verbs: ["approve"]
+			resourceNames: ["issuers.cert-manager.io/*", "clusterissuers.cert-manager.io/*"]
+		}, {
+			nonResourceURLs: ["/metrics"]
+			verbs: ["get"]
+		}, {
+			apiGroups: [""]
+			resources: ["events"]
+			verbs: ["create", "patch"]
+		}]
+		subjects: [{
+			name:           "cert-manager"
+			automountToken: false
+		}]
+	}
+}
+
+_testExtendedRulesTransformer: (#RoleTransformer.#transform & {
+	#component: _testExtendedRulesComponent
+	#context: {
+		namespace: "cert-manager"
+		labels: app: "cert-manager"
+		componentAnnotations: {}
+	}
+}).output
+
+// Golden fixture — resourceNames passed through verbatim, the
+// nonResourceURLs rule rendered without apiGroups/resources keys, and the
+// legacy rule rendered without any of the new keys.
+_testExtendedRulesTransformer: [
+	{
+		apiVersion: "rbac.authorization.k8s.io/v1"
+		kind:       "ClusterRole"
+		metadata: {
+			name: "cert-manager-controller-approve"
+			labels: app: "cert-manager"
+		}
+		rules: [{
+			apiGroups: ["cert-manager.io"]
+			resources: ["signers"]
+			verbs: ["approve"]
+			resourceNames: ["issuers.cert-manager.io/*", "clusterissuers.cert-manager.io/*"]
+		}, {
+			nonResourceURLs: ["/metrics"]
+			verbs: ["get"]
+		}, {
+			apiGroups: [""]
+			resources: ["events"]
+			verbs: ["create", "patch"]
+		}]
+	},
+	{
+		apiVersion: "rbac.authorization.k8s.io/v1"
+		kind:       "ClusterRoleBinding"
+		metadata: {
+			name: "cert-manager-controller-approve"
+			labels: app: "cert-manager"
+		}
+		roleRef: {
+			apiGroup: "rbac.authorization.k8s.io"
+			kind:     "ClusterRole"
+			name:     "cert-manager-controller-approve"
+		}
+		subjects: [{
+			kind: "ServiceAccount"
+			name: "cert-manager"
+		}]
+	},
+]

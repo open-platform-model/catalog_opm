@@ -71,7 +71,9 @@ CUE module: `opmodel.dev/catalogs/opm@v1`
 | `#CRDVersionSchema` | `resources/crd.cue` | A single version entry in a CRD |
 | `#CRDs` | `resources/crd.cue` |  |
 | `#CRDsResource` | `resources/crd.cue` |  |
-| `#PolicyRuleSchema` | `resources/role.cue` | Single RBAC permission rule |
+| `#NonResourcePolicyRuleSchema` | `resources/role.cue` | ClusterRole (scope: "cluster") only — enforced in review/docs, not schema |
+| `#PolicyRuleSchema` | `resources/role.cue` | Single RBAC permission rule — exactly one of the two k8s forms |
+| `#ResourcePolicyRuleSchema` | `resources/role.cue` |  |
 | `#Role` | `resources/role.cue` |  |
 | `#RoleDefaults` | `resources/role.cue` |  |
 | `#RoleResource` | `resources/role.cue` |  |
