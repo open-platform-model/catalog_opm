@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.0-alpha.2](https://github.com/open-platform-model/catalog_opm/compare/v1.0.0-alpha.1...v1.0.0-alpha.2) (2026-07-27)
+
+
+### Features
+
+* exact-name ConfigMaps/Services and projected + external volume sources ([4e2c519](https://github.com/open-platform-model/catalog_opm/commit/4e2c51979584aa5159896d7cf304182e3dfa77fc))
+* support resourceNames and nonResourceURLs in Role policy rules ([e46d110](https://github.com/open-platform-model/catalog_opm/commit/e46d1109228cba36bbcc635db9824ee807d161a3))
+
 ## [1.0.0-alpha.1](https://github.com/open-platform-model/catalog_opm/compare/v1.0.0-alpha...v1.0.0-alpha.1) (2026-07-06)
 
 
