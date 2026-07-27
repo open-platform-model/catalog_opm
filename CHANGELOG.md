@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-alpha.3](https://github.com/open-platform-model/catalog_opm/compare/v1.0.0-alpha.2...v1.0.0-alpha.3) (2026-07-27)
+
+
+### Bug Fixes
+
+* emit exposedPort and non-TCP protocol on Services; carry CRD listKind + selectableFields ([#17](https://github.com/open-platform-model/catalog_opm/issues/17)) ([3c22f26](https://github.com/open-platform-model/catalog_opm/commit/3c22f26b2a42e77f47479536b5c1757f26e7c4bb))
+
 ## [1.0.0-alpha.2](https://github.com/open-platform-model/catalog_opm/compare/v1.0.0-alpha.1...v1.0.0-alpha.2) (2026-07-27)
 
 
