@@ -41,14 +41,29 @@ import (
 	}
 	subresources?: {...}
 	additionalPrinterColumns?: [...{...}]
+
+	// Fields the API server accepts in a `--field-selector` for this version.
+	// Vendored operator CRDs increasingly declare these (cert-manager scopes
+	// every issuerRef field), and a field selector on an undeclared field is
+	// rejected — so dropping them changes cluster behaviour, not just fidelity.
+	selectableFields?: [...{jsonPath!: string}]
+
+	// Marks the version deprecated; deprecationWarning overrides the default
+	// warning the API server returns to clients using it.
+	deprecated?:         bool
+	deprecationWarning?: string
 }
 
 // Kubernetes CustomResourceDefinition. Vendor operator CRDs alongside your module.
 #CRDSchema: {
 	group!: string
 	names!: {
-		kind!:     string
-		plural!:   string
+		kind!:   string
+		plural!: string
+		// Kind of the list type. The API server defaults it to "<kind>List",
+		// which is what upstream CRDs nearly always spell out — set it only to
+		// keep a vendored CRD byte-identical to its source manifest.
+		listKind?: string
 		singular?: string
 		shortNames?: [...string]
 		categories?: [...string]

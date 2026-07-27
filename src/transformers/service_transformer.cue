@@ -57,10 +57,25 @@ import (
 			for portName, portConfig in _expose.ports {
 				{
 					name: portName
-					// Service port: use exposedPort if specified, else targetPort
-					port:       portConfig.exposedPort | *portConfig.targetPort
+					// Service port: exposedPort when the author set one, else targetPort.
+					//
+					// The list-index form is load-bearing. The obvious spelling,
+					// `portConfig.exposedPort | *portConfig.targetPort`, reads as
+					// "exposedPort, defaulting to targetPort" but means the
+					// opposite: a default arm wins over a concrete one, so
+					// `443 | *10250` resolves to 10250 and EVERY exposedPort was
+					// silently discarded. Unification-based goldens cannot catch
+					// it either — `(443 | *10250) & 443` succeeds — hence the
+					// resolution guard in the test data below.
+					port: [
+						if portConfig.exposedPort != _|_ {portConfig.exposedPort},
+						portConfig.targetPort,
+					][0]
 					targetPort: portConfig.targetPort
-					protocol:   portConfig.protocol | *"TCP"
+					// #PortSchema already defaults protocol to TCP; taking it
+					// verbatim is what preserves an author's UDP/SCTP (the same
+					// `| *"TCP"` bug forced every Service port back to TCP).
+					protocol: portConfig.protocol
 					if _expose.type == "NodePort" && portConfig.exposedPort != _|_ {
 						nodePort: portConfig.exposedPort
 					}
@@ -235,3 +250,70 @@ _testServiceExactNameTransformer: {
 		]
 	}
 }
+
+// Non-TCP protocol survives to the Service.
+_testServiceUDPComponent: {
+	res.#Container
+	tr.#Expose
+
+	metadata: {
+		name: "coredns"
+		labels: "core.opmodel.dev/workload-type": "stateless"
+	}
+
+	spec: {
+		container: {
+			name: "coredns"
+			image: {
+				repository: "registry.k8s.io/coredns/coredns"
+				tag:        "v1.13.1"
+				digest:     ""
+			}
+			ports: "dns-udp": {
+				name:       "dns-udp"
+				targetPort: 5353
+				protocol:   "UDP"
+			}
+		}
+		expose: {
+			name: "kube-dns"
+			type: "ClusterIP"
+			ports: "dns-udp": {
+				targetPort:  5353
+				exposedPort: 53
+				protocol:    "UDP"
+			}
+		}
+	}
+}
+
+_testServiceUDPTransformer: (#ServiceTransformer.#transform & {
+	#component: _testServiceUDPComponent
+	#context: {
+		#moduleInstanceMetadata: {
+			name:      "coredns"
+			namespace: "kube-system"
+			fqn:       "opmodel.dev/catalogs/opm/coredns@0.1.0"
+			version:   "0.1.0"
+			uuid:      "00000000-0000-0000-0000-000000000000"
+		}
+		#componentMetadata: name: "coredns"
+		#runtimeName: "opm-test"
+		componentAnnotations: {}
+	}
+}).output
+
+// Resolution guards — deliberately NOT written as a golden.
+//
+// A golden only unifies, and unification is blind to a wrong default arm:
+// `(443 | *15017) & 443` succeeds and reports 443 while the exported value is
+// 15017. That is exactly how the `exposedPort | *targetPort` bug survived the
+// istiod golden above, which asserts port 443. Worse, the assertion can
+// *repair* the value it is meant to check, so a golden on this component would
+// be vacuous too.
+//
+// Arithmetic and string interpolation collapse the disjunction to its default
+// before comparison, and neither is invertible — so these two fail loudly if
+// the transformer ever regresses to `x | *y`.
+_testServiceUDPPortResolves:     (_testServiceUDPTransformer.spec.ports[0].port + 0) & 53
+_testServiceUDPProtocolResolves: "\(_testServiceUDPTransformer.spec.ports[0].protocol)" & "UDP"

@@ -55,6 +55,9 @@ import (
 						names: {
 							kind:   crd.names.kind
 							plural: crd.names.plural
+							if crd.names.listKind != _|_ {
+								listKind: crd.names.listKind
+							}
 							if crd.names.singular != _|_ {
 								singular: crd.names.singular
 							}
@@ -73,3 +76,95 @@ import (
 		]
 	}
 }
+
+/////////////////////////////////////////////////////////////////
+//// Test Data
+////
+//// Golden mirrors a vendored cert-manager CRD: the fields an upstream
+//// manifest actually carries, including listKind and the issuerRef
+//// selectableFields (a field selector on an undeclared field is
+//// rejected by the API server, so dropping them is a behaviour change).
+/////////////////////////////////////////////////////////////////
+
+_testCRDComponent: {
+	res.#CRDs
+
+	metadata: {
+		name: "crds"
+		labels: "core.opmodel.dev/workload-type": "stateless"
+	}
+
+	spec: crds: "orders.acme.cert-manager.io": {
+		group: "acme.cert-manager.io"
+		names: {
+			kind:     "Order"
+			listKind: "OrderList"
+			plural:   "orders"
+			singular: "order"
+			categories: ["cert-manager", "cert-manager-acme"]
+		}
+		scope: "Namespaced"
+		versions: [{
+			name:    "v1"
+			served:  true
+			storage: true
+			schema: openAPIV3Schema: type: "object"
+			subresources: status: {}
+			selectableFields: [
+				{jsonPath: ".spec.issuerRef.group"},
+				{jsonPath: ".spec.issuerRef.kind"},
+				{jsonPath: ".spec.issuerRef.name"},
+			]
+		}]
+	}
+}
+
+_testCRDTransformer: (#CRDTransformer.#transform & {
+	#component: _testCRDComponent
+	#context: {
+		#moduleInstanceMetadata: {
+			name:      "cert-manager"
+			namespace: "cert-manager"
+			fqn:       "opmodel.dev/catalogs/opm/cert-manager@0.1.0"
+			version:   "0.1.0"
+			uuid:      "00000000-0000-0000-0000-000000000000"
+		}
+		#componentMetadata: name: "crds"
+		#runtimeName: "opm-test"
+		componentAnnotations: {}
+	}
+}).output
+
+_testCRDTransformer: [{
+	apiVersion: "apiextensions.k8s.io/v1"
+	kind:       "CustomResourceDefinition"
+	metadata: name: "orders.acme.cert-manager.io"
+	spec: {
+		group: "acme.cert-manager.io"
+		names: {
+			kind:     "Order"
+			plural:   "orders"
+			singular: "order"
+		}
+		scope: "Namespaced"
+	}
+}]
+
+// Presence guards for the two fields this change adds, kept OUT of the golden
+// above on purpose: unification ADDS a field the output is missing rather than
+// rejecting it, so a golden naming listKind would silently repair a
+// transformer that dropped it.
+//
+// The comprehension form is what makes absence fail: an unset optional field
+// is merely incomplete, so `"\(…listKind)" & "OrderList"` passes plain
+// `cue vet` (only -c would catch it), whereas an empty list against a
+// one-element list is a hard length conflict at every vet level.
+_testCRDListKindPresent: [
+	if _testCRDTransformer[0].spec.names.listKind != _|_ {_testCRDTransformer[0].spec.names.listKind},
+] & ["OrderList"]
+
+_testCRDSelectableFieldsPresent: [
+	if _testCRDTransformer[0].spec.versions[0].selectableFields != _|_ {
+		len(_testCRDTransformer[0].spec.versions[0].selectableFields)
+	},
+] & [3]
