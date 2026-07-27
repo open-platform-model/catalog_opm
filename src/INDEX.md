@@ -100,15 +100,20 @@ CUE module: `opmodel.dev/catalogs/opm@v1`
 | `#WorkloadIdentitySchema` | `resources/service_account.cue` | Workload identity — used by #WorkloadIdentityTrait and as a #RoleSubjectSchema variant |
 | `#EmptyDirDefaults` | `resources/volume.cue` |  |
 | `#EmptyDirSchema` | `resources/volume.cue` |  |
+| `#ExternalObjectVolumeSourceSchema` | `resources/volume.cue` | Reference to a cluster object this module does not own, mounted by its exact name (never instance-prefixed) |
 | `#FileMode` | `resources/volume.cue` |  |
 | `#HostPathDefaults` | `resources/volume.cue` |  |
 | `#HostPathSchema` | `resources/volume.cue` | Mounts a file or directory from the host node |
 | `#NFSVolumeSourceSchema` | `resources/volume.cue` | Mounts a directory from an NFS server |
+| `#ObjectProjectionSchema` | `resources/volume.cue` |  |
 | `#PersistentClaimDefaults` | `resources/volume.cue` |  |
 | `#PersistentClaimSchema` | `resources/volume.cue` | To mount a CIFS/SMB share use a storageClass that matches a pre-installed SMB StorageClass (e |
+| `#ProjectedSourceSchema` | `resources/volume.cue` | One entry in a projected volume |
+| `#ProjectedVolumeSourceSchema` | `resources/volume.cue` | Combines several sources into a single mounted directory |
 | `#SecretVolumeItemSchema` | `resources/volume.cue` |  |
 | `#SecretVolumeSourceDefaults` | `resources/volume.cue` |  |
 | `#SecretVolumeSourceSchema` | `resources/volume.cue` |  |
+| `#ServiceAccountTokenProjectionSchema` | `resources/volume.cue` | A short-lived, audience-bound ServiceAccount token |
 | `#VolumeDefaults` | `resources/volume.cue` |  |
 | `#VolumeMountDefaults` | `resources/volume.cue` |  |
 | `#VolumeMountSchema` | `resources/volume.cue` | Volume mount spec — defines container mount point |
@@ -581,6 +586,8 @@ CUE module: `opmodel.dev/catalogs/opm@v1`
 | `#ConfigMapTransformer` | `transformers/configmap_transformer.cue` | ConfigMapTransformer converts ConfigMaps resources to Kubernetes ConfigMaps |
 | `#ToK8sContainer` | `transformers/container_helpers.cue` | #ToK8sContainer converts an OPM #ContainerSchema to a Kubernetes #Container |
 | `#ToK8sContainers` | `transformers/container_helpers.cue` | #ToK8sContainers converts a list of OPM containers to Kubernetes containers |
+| `#ToK8sKeyToPath` | `transformers/container_helpers.cue` | #ToK8sKeyToPath converts OPM key/path/mode items to K8s KeyToPath entries |
+| `#ToK8sObjectProjection` | `transformers/container_helpers.cue` | #ToK8sObjectProjection converts an OPM object projection (configMap or secret source inside a projected volume) to its K8s shape |
 | `#ToK8sVolumes` | `transformers/container_helpers.cue` | #ToK8sVolumes converts OPM volumes map to Kubernetes volumes list |
 | `#CRDTransformer` | `transformers/crd_transformer.cue` | CRDTransformer converts CRDs resources to Kubernetes CustomResourceDefinitions |
 | `#CronJobTransformer` | `transformers/cronjob_transformer.cue` | CronJobTransformer converts scheduled task components to Kubernetes CronJobs |

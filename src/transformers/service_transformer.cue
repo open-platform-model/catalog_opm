@@ -73,7 +73,13 @@ import (
 			apiVersion: "v1"
 			kind:       "Service"
 			metadata: {
-				name:      "\(#context.#moduleInstanceMetadata.name)-\(#component.metadata.name)"
+				// An explicit expose.name renders verbatim — for Services whose
+				// in-cluster DNS identity is a contract outside the module.
+				// Default stays instance-scoped.
+				name: [
+					if _expose.name != _|_ {_expose.name},
+					"\(#context.#moduleInstanceMetadata.name)-\(#component.metadata.name)",
+				][0]
 				namespace: #context.#moduleInstanceMetadata.namespace
 				labels:    #context.labels
 				// Include component annotations if present
@@ -96,5 +102,136 @@ import (
 				ports: _ports
 			}
 		}
+	}
+}
+
+/////////////////////////////////////////////////////////////////
+//// Test Data
+/////////////////////////////////////////////////////////////////
+
+// Default naming: Service renders instance-scoped.
+_testServiceDefaultNameComponent: {
+	res.#Container
+	tr.#Expose
+
+	metadata: {
+		name: "web"
+		labels: "core.opmodel.dev/workload-type": "stateless"
+	}
+
+	spec: {
+		container: {
+			name: "web"
+			image: {
+				repository: "nginx"
+				tag:        "1.27"
+				digest:     ""
+			}
+			ports: http: {
+				name:       "http"
+				targetPort: 8080
+			}
+		}
+		expose: {
+			type: "ClusterIP"
+			ports: http: {
+				targetPort:  8080
+				exposedPort: 80
+			}
+		}
+	}
+}
+
+_testServiceDefaultNameTransformer: (#ServiceTransformer.#transform & {
+	#component: _testServiceDefaultNameComponent
+	#context: {
+		#moduleInstanceMetadata: {
+			name:      "shop"
+			namespace: "apps"
+			fqn:       "opmodel.dev/catalogs/opm/shop@0.1.0"
+			version:   "0.1.0"
+			uuid:      "00000000-0000-0000-0000-000000000000"
+		}
+		#componentMetadata: name: "web"
+		#runtimeName: "opm-test"
+		componentAnnotations: {}
+	}
+}).output
+
+_testServiceDefaultNameTransformer: metadata: name: "shop-web"
+
+// Exact naming: expose.name renders verbatim. Golden mirrors the live istiod
+// Service on an ambient mesh — istiod.<ns>.svc is hard-coded by its webhook
+// configs, CA clients, and proxies, so the instance prefix cannot appear.
+_testServiceExactNameComponent: {
+	res.#Container
+	tr.#Expose
+
+	metadata: {
+		name: "istiod"
+		labels: "core.opmodel.dev/workload-type": "stateless"
+	}
+
+	spec: {
+		container: {
+			name: "discovery"
+			image: {
+				repository: "docker.io/istio/pilot"
+				tag:        "1.28.10"
+				digest:     ""
+			}
+			ports: "https-dns": {
+				name:       "https-dns"
+				targetPort: 15012
+			}
+		}
+		expose: {
+			name: "istiod"
+			type: "ClusterIP"
+			ports: {
+				"grpc-xds": {targetPort: 15010}
+				"https-dns": {targetPort: 15012}
+				"https-webhook": {
+					targetPort:  15017
+					exposedPort: 443
+				}
+				"http-monitoring": {targetPort: 15014}
+			}
+		}
+	}
+}
+
+_testServiceExactNameTransformer: (#ServiceTransformer.#transform & {
+	#component: _testServiceExactNameComponent
+	#context: {
+		#moduleInstanceMetadata: {
+			name:      "istio"
+			namespace: "istio-system"
+			fqn:       "opmodel.dev/catalogs/opm/istio@0.1.0"
+			version:   "0.1.0"
+			uuid:      "00000000-0000-0000-0000-000000000000"
+		}
+		#componentMetadata: name: "istiod"
+		#runtimeName: "opm-test"
+		componentAnnotations: {}
+	}
+}).output
+
+// Golden: exact name, and each port keeps its upstream port/targetPort pair.
+_testServiceExactNameTransformer: {
+	apiVersion: "v1"
+	kind:       "Service"
+	metadata: {
+		name:      "istiod"
+		namespace: "istio-system"
+	}
+	spec: {
+		type: "ClusterIP"
+		ports: [
+			{name: "grpc-xds", port: 15010, targetPort: 15010, protocol: "TCP"},
+			{name: "https-dns", port: 15012, targetPort: 15012, protocol: "TCP"},
+			{name: "https-webhook", port: 443, targetPort: 15017, protocol: "TCP"},
+			{name: "http-monitoring", port: 15014, targetPort: 15014, protocol: "TCP"},
+		]
 	}
 }

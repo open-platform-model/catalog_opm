@@ -37,4 +37,17 @@ import (
 	// Service for a StatefulSet's stable per-pod network identity. Omit for a
 	// normal virtual-IP Service. Only meaningful with type "ClusterIP".
 	clusterIP?: "None"
+
+	// Explicit Service name, rendered verbatim instead of the default
+	// instance-scoped {instance}-{component}. Opt-in, and only correct when
+	// the name is a contract with something OUTSIDE the module — a
+	// well-known in-cluster DNS identity (istiod's `istiod.<ns>.svc`, which
+	// its webhook configs, CA clients, and proxies all hard-code).
+	// Exact names are not instance-safe: two instances of the same module in
+	// one namespace would collide, so the default stays prefixed.
+	//
+	// Spelled as an explicit name rather than a boolean-plus-implicit-source
+	// so the contract is readable at the call site and does not silently
+	// depend on what the component happens to be called.
+	name?: string
 }

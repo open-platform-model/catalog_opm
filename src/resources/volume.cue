@@ -63,6 +63,71 @@ import (
 	optional: false
 }
 
+/////////////////////////////////////////////////////////////////
+//// External Object Volume Sources
+////
+//// `configMap`/`secret` above mount objects THIS module declares —
+//// their rendered names are instance-scoped, and the volume ref
+//// recomputes that name. The sources below mount objects the module
+//// does NOT create, addressed by their exact cluster name: created at
+//// runtime by a controller (e.g. istiod writes the `istio-ca-root-cert`
+//// ConfigMap), or provisioned out-of-band (SOPS/bootstrap secrets).
+/////////////////////////////////////////////////////////////////
+
+// Reference to a cluster object this module does not own, mounted by its
+// exact name (never instance-prefixed). `optional: true` lets the pod start
+// before the object exists — required when a controller creates it lazily.
+#ExternalObjectVolumeSourceSchema: {
+	name!: string
+	items?: [...#SecretVolumeItemSchema]
+	defaultMode?: #FileMode
+	optional?:    bool
+}
+
+/////////////////////////////////////////////////////////////////
+//// Projected Volume Sources
+/////////////////////////////////////////////////////////////////
+
+// A short-lived, audience-bound ServiceAccount token. Distinct from the
+// legacy auto-mounted SA token: the audience scopes the token to one
+// verifier (e.g. "istio-ca") and the kubelet rotates it in place.
+#ServiceAccountTokenProjectionSchema: {
+	audience!: string
+	// Kubernetes enforces a 10-minute floor.
+	expirationSeconds?: int & >=600
+	path!:              string
+}
+
+// One entry in a projected volume. Exactly one source kind must be set.
+// Object references here are external/exact-name (same rationale as
+// #ExternalObjectVolumeSourceSchema); per-source defaultMode is not a
+// Kubernetes projection field — set it on the projected volume instead.
+#ProjectedSourceSchema: {
+	serviceAccountToken?: #ServiceAccountTokenProjectionSchema
+	configMap?:           #ObjectProjectionSchema
+	secret?:              #ObjectProjectionSchema
+
+	matchN(1, [
+		{serviceAccountToken!: _},
+		{configMap!: _},
+		{secret!: _},
+	])
+}
+
+#ObjectProjectionSchema: {
+	name!: string
+	items?: [...#SecretVolumeItemSchema]
+	optional?: bool
+}
+
+// Combines several sources into a single mounted directory.
+// downwardAPI and clusterTrustBundle projections are deliberately omitted —
+// no consumer needs them yet; add when one does.
+#ProjectedVolumeSourceSchema: {
+	sources!: [_, ...] & [...#ProjectedSourceSchema]
+	defaultMode?: #FileMode
+}
+
 // Volume specification — defines storage source. Exactly one source must be set.
 #VolumeSchema: {
 	name!: string
@@ -74,6 +139,12 @@ import (
 	hostPath?:        #HostPathSchema
 	nfs?:             #NFSVolumeSourceSchema
 
+	// External (module doesn't own it) — mounted by exact name.
+	configMapRef?: #ExternalObjectVolumeSourceSchema
+	secretRef?:    #ExternalObjectVolumeSourceSchema
+
+	projected?: #ProjectedVolumeSourceSchema
+
 	matchN(1, [
 		{emptyDir!: _},
 		{persistentClaim!: _},
@@ -81,6 +152,9 @@ import (
 		{secret!: _},
 		{hostPath!: _},
 		{nfs!: _},
+		{configMapRef!: _},
+		{secretRef!: _},
+		{projected!: _},
 	])
 
 	mountPath?: string

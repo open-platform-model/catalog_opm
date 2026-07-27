@@ -224,6 +224,36 @@ import (
 	}]
 }
 
+// #ToK8sKeyToPath converts OPM key/path/mode items to K8s KeyToPath entries.
+// Shared by the inline-secret, external-object, and projection branches of
+// #ToK8sVolumes.
+#ToK8sKeyToPath: {
+	X="in": [...res.#SecretVolumeItemSchema]
+	out: [for item in X {
+		key:  item.key
+		path: item.path
+		if item.mode != _|_ {
+			mode: item.mode
+		}
+	}]
+}
+
+// #ToK8sObjectProjection converts an OPM object projection (configMap or
+// secret source inside a projected volume) to its K8s shape. Both K8s
+// projection types are LocalObjectReference-based, so both use `name`.
+#ToK8sObjectProjection: {
+	X="in": res.#ObjectProjectionSchema
+	out: {
+		name: X.name
+		if X.items != _|_ {
+			items: (#ToK8sKeyToPath & {"in": X.items}).out
+		}
+		if X.optional != _|_ {
+			optional: X.optional
+		}
+	}
+}
+
 // #ToK8sVolumes converts OPM volumes map to Kubernetes volumes list.
 // Handles all volume source types: emptyDir, persistentClaim, configMap, secret.
 //
@@ -258,18 +288,82 @@ import (
 			//   {instancePrefix}-{configmap.name}[-{contenthash}]
 			// #ImmutableName handles both mutable (stable name) and
 			// immutable (content-hash suffix) ConfigMaps transparently.
+			// exactName short-circuits both (same branch the transformer takes).
 			//
 			// Note: `let _cmData` captures concrete field values before the
 			// definition boundary — same reason #ImmutableName uses `let _d = data`
 			// internally. Without this, CUE loses concrete entries through the
 			// open [string]: string pattern.
 			let _cmData = vol.configMap.data
-			let _k8sName = (res.#ImmutableName & {
-				baseName:  "\(_prefix)-\(vol.configMap.name)"
-				data:      _cmData
-				immutable: vol.configMap.immutable
-			}).out
+			let _k8sName = [
+				if vol.configMap.exactName {vol.configMap.name},
+				(res.#ImmutableName & {
+					baseName:  "\(_prefix)-\(vol.configMap.name)"
+					data:      _cmData
+					immutable: vol.configMap.immutable
+				}).out,
+			][0]
 			configMap: name: _k8sName
+		}
+
+		// External ConfigMap — exact name, module does not own the object.
+		if vol.configMapRef != _|_ {
+			configMap: {
+				name: vol.configMapRef.name
+				if vol.configMapRef.items != _|_ {
+					items: (#ToK8sKeyToPath & {"in": vol.configMapRef.items}).out
+				}
+				if vol.configMapRef.defaultMode != _|_ {
+					defaultMode: vol.configMapRef.defaultMode
+				}
+				if vol.configMapRef.optional != _|_ {
+					optional: vol.configMapRef.optional
+				}
+			}
+		}
+
+		// External Secret — exact name, module does not own the object.
+		if vol.secretRef != _|_ {
+			secret: {
+				secretName: vol.secretRef.name
+				if vol.secretRef.items != _|_ {
+					items: (#ToK8sKeyToPath & {"in": vol.secretRef.items}).out
+				}
+				if vol.secretRef.defaultMode != _|_ {
+					defaultMode: vol.secretRef.defaultMode
+				}
+				if vol.secretRef.optional != _|_ {
+					optional: vol.secretRef.optional
+				}
+			}
+		}
+
+		// Projected volume — several sources combined into one directory.
+		// Object references inside a projection are always external/exact-name
+		// and use `name` (K8s SecretProjection uses `name`, not `secretName`).
+		if vol.projected != _|_ {
+			projected: {
+				if vol.projected.defaultMode != _|_ {
+					defaultMode: vol.projected.defaultMode
+				}
+				sources: [for s in vol.projected.sources {
+					if s.serviceAccountToken != _|_ {
+						serviceAccountToken: {
+							audience: s.serviceAccountToken.audience
+							path:     s.serviceAccountToken.path
+							if s.serviceAccountToken.expirationSeconds != _|_ {
+								expirationSeconds: s.serviceAccountToken.expirationSeconds
+							}
+						}
+					}
+					if s.configMap != _|_ {
+						configMap: (#ToK8sObjectProjection & {"in": s.configMap}).out
+					}
+					if s.secret != _|_ {
+						secret: (#ToK8sObjectProjection & {"in": s.secret}).out
+					}
+				}]
+			}
 		}
 		if vol.secret != _|_ {
 			secret: {
@@ -284,13 +378,7 @@ import (
 				}).out
 				secretName: _k8sName
 				if vol.secret.items != _|_ {
-					items: [for item in vol.secret.items {
-						key:  item.key
-						path: item.path
-						if item.mode != _|_ {
-							mode: item.mode
-						}
-					}]
+					items: (#ToK8sKeyToPath & {"in": vol.secret.items}).out
 				}
 				if vol.secret.defaultMode != _|_ {
 					defaultMode: vol.secret.defaultMode
@@ -395,6 +483,133 @@ _testToK8sVolumesSecretImmutable: {
 			}).out
 			items: [{key: "config.json", path: "config.json"}]
 		}
+	}]
+}
+
+// Exact-name configMap: K8s name = the authored name, no instance prefix and
+// no content hash (istiod reads mesh config from the ConfigMap named `istio`).
+_testToK8sVolumesConfigMapExactName: {
+	in: {
+		config: {
+			name: "config"
+			configMap: {
+				name:      "istio"
+				exactName: true
+				data: mesh: "defaultConfig: {}"
+			}
+		}
+	}
+
+	out: (#ToK8sVolumes & {
+		"in":            in
+		#instancePrefix: "istio-instance-istiod"
+	}).out
+
+	out: [{
+		name: "config"
+		configMap: name: "istio"
+	}]
+}
+
+// External/exact-name volume sources + a projected serviceAccountToken.
+// Golden values transcribed from the live ztunnel DaemonSet on a running
+// ambient mesh (istio 1.28.10): the CA-root ConfigMap is created by istiod at
+// runtime, so it can only be referenced by exact name, and the token is
+// audience-bound to istio-ca.
+_testToK8sVolumesExternalAndProjected: {
+	in: {
+		"istio-token": {
+			name: "istio-token"
+			projected: {
+				defaultMode: 420
+				sources: [{
+					serviceAccountToken: {
+						audience:          "istio-ca"
+						expirationSeconds: 43200
+						path:              "istio-token"
+					}
+				}]
+			}
+		}
+		"istiod-ca-cert": {
+			name: "istiod-ca-cert"
+			configMapRef: {
+				name:        "istio-ca-root-cert"
+				defaultMode: 420
+			}
+		}
+		cacerts: {
+			name: "cacerts"
+			secretRef: {
+				name:        "cacerts"
+				defaultMode: 420
+				optional:    true
+			}
+		}
+	}
+
+	out: (#ToK8sVolumes & {
+		"in":            in
+		#instancePrefix: "istio-instance-istiod"
+	}).out
+
+	// Order follows the authored map's declaration order.
+	out: [
+		{
+			name: "istio-token"
+			projected: {
+				defaultMode: 420
+				sources: [{
+					serviceAccountToken: {
+						audience:          "istio-ca"
+						path:              "istio-token"
+						expirationSeconds: 43200
+					}
+				}]
+			}
+		},
+		{
+			name: "istiod-ca-cert"
+			configMap: {
+				name:        "istio-ca-root-cert"
+				defaultMode: 420
+			}
+		},
+		{
+			name: "cacerts"
+			secret: {
+				secretName:  "cacerts"
+				defaultMode: 420
+				optional:    true
+			}
+		},
+	]
+}
+
+// Projected volume combining a token with configMap/secret projections —
+// both use `name` (K8s projection types are LocalObjectReference-based) and
+// carry no per-source defaultMode.
+_testToK8sVolumesProjectedMultiSource: {
+	in: {
+		bundle: {
+			name: "bundle"
+			projected: sources: [
+				{serviceAccountToken: {audience: "vault", path: "token"}},
+				{configMap: {name: "trust-bundle", items: [{key: "ca.crt", path: "ca.crt", mode: 292}]}},
+				{secret: {name: "client-cert", optional: true}},
+			]
+		}
+	}
+
+	out: (#ToK8sVolumes & {"in": in}).out
+
+	out: [{
+		name: "bundle"
+		projected: sources: [
+			{serviceAccountToken: {audience: "vault", path: "token"}},
+			{configMap: {name: "trust-bundle", items: [{key: "ca.crt", path: "ca.crt", mode: 292}]}},
+			{secret: {name: "client-cert", optional: true}},
+		]
 	}]
 }
 
