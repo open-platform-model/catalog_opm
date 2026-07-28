@@ -28,8 +28,10 @@ metadata: {
 	(t.#DaemonSetTransformer.metadata.fqn):              t.#DaemonSetTransformer
 	(t.#DeploymentTransformer.metadata.fqn):             t.#DeploymentTransformer
 	(t.#GrpcRouteTransformer.metadata.fqn):              t.#GrpcRouteTransformer
+	(t.#HPATransformer.metadata.fqn):                    t.#HPATransformer
 	(t.#HttpRouteTransformer.metadata.fqn):              t.#HttpRouteTransformer
 	(t.#JobTransformer.metadata.fqn):                    t.#JobTransformer
+	(t.#PDBTransformer.metadata.fqn):                    t.#PDBTransformer
 	(t.#PVCTransformer.metadata.fqn):                    t.#PVCTransformer
 	(t.#RoleTransformer.metadata.fqn):                   t.#RoleTransformer
 	(t.#SecretTransformer.metadata.fqn):                 t.#SecretTransformer

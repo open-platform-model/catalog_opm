@@ -38,6 +38,22 @@ import (
 	mountPath!: string
 	subPath?:   string
 	readOnly:   bool
+
+	// How mounts created on the host after this container starts become
+	// visible inside it. Kubernetes defaults to "None", which gives the
+	// container a snapshot of the mount tree taken at start-up — anything the
+	// host bind-mounts underneath the path later is invisible forever.
+	//
+	// "HostToContainer" is required whenever a controller populates a hostPath
+	// lazily: Istio's CNI agent mounts /host/var/run/netns to enter pod network
+	// namespaces, and the container runtime bind-mounts those entries as pods
+	// are created — i.e. after the agent is already running. Without
+	// propagation the agent silently never sees pods created after it started,
+	// which presents as a network fault rather than a config error.
+	//
+	// "Bidirectional" additionally propagates the container's own mounts back
+	// to the host and requires a privileged container.
+	mountPropagation?: "None" | "HostToContainer" | "Bidirectional"
 }
 
 #VolumeMountDefaults: #VolumeMountSchema & {

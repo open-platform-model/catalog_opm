@@ -192,6 +192,11 @@ import (
 				mountPath: vm.mountPath
 				if vm.subPath != _|_ {subPath: vm.subPath}
 				if vm.readOnly == true {readOnly: vm.readOnly}
+
+				// Guarded, not defaulted: emitting an explicit "None" on every
+				// mount would be noise on the ~100% of mounts that want the
+				// Kubernetes default.
+				if vm.mountPropagation != _|_ {mountPropagation: vm.mountPropagation}
 			}]
 		}
 

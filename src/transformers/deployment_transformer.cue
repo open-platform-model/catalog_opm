@@ -54,6 +54,9 @@ import (
 		(tr.#HostPIDTrait.metadata.fqn):           tr.#HostPIDTrait
 		(tr.#HostIPCTrait.metadata.fqn):           tr.#HostIPCTrait
 		(tr.#GracefulShutdownTrait.metadata.fqn):  tr.#GracefulShutdownTrait
+		(tr.#ResourceNameTrait.metadata.fqn):      tr.#ResourceNameTrait
+		(tr.#PodSchedulingTrait.metadata.fqn):     tr.#PodSchedulingTrait
+		(tr.#PodMetadataTrait.metadata.fqn):       tr.#PodMetadataTrait
 	}
 
 	// Transform function
@@ -66,10 +69,13 @@ import (
 
 		// Apply defaults for optional traits (defaults inlined post-014; #defaults
 		// field on Trait was a v1alpha1 idiom, retired in v1alpha2).
+		// When `auto` is set the HPA owns the replica count. Emitting
+		// `replicas` too would put this transformer and the autoscaler in a
+		// permanent server-side-apply tug-of-war on every reconcile, so the
+		// field is omitted entirely (see _hasAuto below).
+		_hasAuto: #component.spec.scaling != _|_ && #component.spec.scaling.auto != _|_
+
 		_scalingCount: int | *1
-		if #component.spec.scaling != _|_ if #component.spec.scaling.auto != _|_ {
-			_scalingCount: #component.spec.scaling.auto.min
-		}
 		if #component.spec.scaling != _|_ if #component.spec.scaling.auto == _|_ {
 			_scalingCount: #component.spec.scaling.count
 		}
@@ -109,7 +115,10 @@ import (
 			apiVersion: "apps/v1"
 			kind:       "Deployment"
 			metadata: {
-				name:      "\(#context.#moduleInstanceMetadata.name)-\(#component.metadata.name)"
+				name: (#WorkloadName & {
+					#comp:     #component
+					#instance: #context.#moduleInstanceMetadata.name
+				}).out
 				namespace: #context.#moduleInstanceMetadata.namespace
 				labels:    #context.labels
 				// Include component annotations if present
@@ -118,11 +127,18 @@ import (
 				}
 			}
 			spec: {
-				replicas: _scalingCount
+				if !_hasAuto {
+					replicas: _scalingCount
+				}
 				selector: matchLabels: #context.componentLabels
 				template: {
-					metadata: labels: #context.componentLabels
+					metadata: (#PodTemplateMetadata & {
+						#comp:   #component
+						#labels: #context.componentLabels
+					}).out
 					spec: {
+						(#PodSchedulingFields & {#comp: #component}).out
+
 						_convertedSidecars: (#ToK8sContainers & {"in": _sidecarContainers, #instancePrefix: #context.#moduleInstanceMetadata.name}).out
 						containers: list.Concat([[_mainContainer], _convertedSidecars])
 
@@ -193,3 +209,162 @@ import (
 		}
 	}
 }
+
+/////////////////////////////////////////////////////////////////
+//// Test Data
+////
+//// Guard idioms, and why they are not plain goldens:
+////   - wrong VALUE  -> force resolution with string interpolation or
+////     arithmetic. `"\(x)" & "want"` is non-invertible, so it cannot repair
+////     the value it is checking. A bare golden `name: "want"` WOULD repair a
+////     regression to `x | *y` and pass against broken code.
+////   - ABSENT field -> empty comprehension against a one-element list. An
+////     unset optional is merely incomplete, which plain `cue vet` accepts;
+////     a list-length conflict fails at every vet level.
+////   - LEAKED field -> empty comprehension against an empty list.
+/////////////////////////////////////////////////////////////////
+
+// Shared stub context. componentLabels resolves to exactly two entries:
+// app.kubernetes.io/name=istiod and module-instance.opmodel.dev/name=istio.
+_testDeployContext: {
+	#moduleInstanceMetadata: {
+		name:      "istio"
+		namespace: "istio-system"
+		fqn:       "opmodel.dev/catalogs/opm/istio@0.1.0"
+		version:   "0.1.0"
+		uuid:      "00000000-0000-0000-0000-000000000000"
+	}
+	#componentMetadata: name: "istiod"
+	#runtimeName: "opm-test"
+	componentAnnotations: {}
+}
+
+_testDeployContainer: {
+	name: "discovery"
+	image: {
+		repository: "docker.io/istio/pilot"
+		tag:        "1.30.3-distroless"
+		digest:     ""
+	}
+}
+
+// ---- Default naming: no #ResourceNameTrait -> instance-scoped ----------------
+_testDeployDefaultNameComponent: {
+	res.#Container
+
+	metadata: {
+		name: "istiod"
+		labels: "core.opmodel.dev/workload-type": "stateless"
+	}
+
+	spec: container: _testDeployContainer
+}
+
+_testDeployDefaultNameTransformer: (#DeploymentTransformer.#transform & {
+	#component: _testDeployDefaultNameComponent
+	#context:   _testDeployContext
+}).output
+
+_testDeployDefaultNameResolves: "\(_testDeployDefaultNameTransformer.metadata.name)" & "istio-istiod"
+
+// A component with none of the three new traits must not grow any of their
+// output. These are the guards that catch an unguarded passthrough.
+_testDeployNoPodAnnotations: [
+	if _testDeployDefaultNameTransformer.spec.template.metadata.annotations != _|_ {"leaked"},
+] & []
+
+_testDeployNoNodeSelector: [
+	if _testDeployDefaultNameTransformer.spec.template.spec.nodeSelector != _|_ {"leaked"},
+] & []
+
+_testDeployNoTolerations: [
+	if _testDeployDefaultNameTransformer.spec.template.spec.tolerations != _|_ {"leaked"},
+] & []
+
+_testDeployNoPriorityClass: [
+	if _testDeployDefaultNameTransformer.spec.template.spec.priorityClassName != _|_ {"leaked"},
+] & []
+
+// ---- Exact name + pod metadata + scheduling ---------------------------------
+// Mirrors the live istiod Deployment on an ambient mesh: the workload renders
+// unprefixed, `istio.io/dataplane-mode: none` is a POD label (it must never
+// reach the immutable selector), and the prometheus annotations are pod-only.
+_testDeployExactComponent: {
+	res.#Container
+	tr.#ResourceName
+	tr.#PodMetadata
+	tr.#PodScheduling
+
+	metadata: {
+		name: "istiod"
+		labels: "core.opmodel.dev/workload-type": "stateless"
+	}
+
+	spec: {
+		container:    _testDeployContainer
+		resourceName: "istiod"
+		podMetadata: {
+			labels: {
+				"sidecar.istio.io/inject": "false"
+				"istio.io/dataplane-mode": "none"
+			}
+			annotations: {
+				"prometheus.io/scrape": "true"
+				"prometheus.io/port":   "15014"
+			}
+		}
+		podScheduling: {
+			nodeSelector: "kubernetes.io/os": "linux"
+			tolerations: [{key: "cni.istio.io/not-ready", operator: "Exists"}]
+			priorityClassName: "system-node-critical"
+		}
+	}
+}
+
+_testDeployExactTransformer: (#DeploymentTransformer.#transform & {
+	#component: _testDeployExactComponent
+	#context:   _testDeployContext
+}).output
+
+_testDeployExactNameResolves: "\(_testDeployExactTransformer.metadata.name)" & "istiod"
+
+// The whole point of #PodMetadata: pod labels grow, the SELECTOR does not.
+// Arithmetic on the lengths is non-invertible, so a leak into the selector
+// cannot be repaired by the assertion.
+_testDeploySelectorStaysTwo: (len(_testDeployExactTransformer.spec.selector.matchLabels) + 0) & 2
+_testDeployPodLabelsAreFour: (len(_testDeployExactTransformer.spec.template.metadata.labels) + 0) & 4
+
+_testDeployPodLabelPresent: [
+	if _testDeployExactTransformer.spec.template.metadata.labels["istio.io/dataplane-mode"] != _|_ {
+		_testDeployExactTransformer.spec.template.metadata.labels["istio.io/dataplane-mode"]
+	},
+] & ["none"]
+
+// ...and that label must NOT have reached the selector.
+_testDeploySelectorUnpolluted: [
+	if _testDeployExactTransformer.spec.selector.matchLabels["istio.io/dataplane-mode"] != _|_ {"leaked"},
+] & []
+
+_testDeployPodAnnotationPresent: [
+	if _testDeployExactTransformer.spec.template.metadata.annotations["prometheus.io/port"] != _|_ {
+		_testDeployExactTransformer.spec.template.metadata.annotations["prometheus.io/port"]
+	},
+] & ["15014"]
+
+_testDeployNodeSelectorPresent: [
+	if _testDeployExactTransformer.spec.template.spec.nodeSelector["kubernetes.io/os"] != _|_ {
+		_testDeployExactTransformer.spec.template.spec.nodeSelector["kubernetes.io/os"]
+	},
+] & ["linux"]
+
+_testDeployTolerationPresent: [
+	if _testDeployExactTransformer.spec.template.spec.tolerations != _|_ {
+		_testDeployExactTransformer.spec.template.spec.tolerations[0].key
+	},
+] & ["cni.istio.io/not-ready"]
+
+_testDeployPriorityClassPresent: [
+	if _testDeployExactTransformer.spec.template.spec.priorityClassName != _|_ {
+		_testDeployExactTransformer.spec.template.spec.priorityClassName
+	},
+] & ["system-node-critical"]

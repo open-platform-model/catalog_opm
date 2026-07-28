@@ -495,6 +495,16 @@ CUE module: `opmodel.dev/catalogs/opm@v1`
 | `#ServiceCIDRSpec` | `schemas/kubernetes/networking/v1/types.cue` |  |
 | `#ServiceCIDRStatus` | `schemas/kubernetes/networking/v1/types.cue` |  |
 
+### kubernetes/policy/v1
+
+| Definition | File | Description |
+|---|---|---|
+| `#Eviction` | `schemas/kubernetes/policy/v1/types.cue` |  |
+| `#PodDisruptionBudget` | `schemas/kubernetes/policy/v1/types.cue` |  |
+| `#PodDisruptionBudgetList` | `schemas/kubernetes/policy/v1/types.cue` |  |
+| `#PodDisruptionBudgetSpec` | `schemas/kubernetes/policy/v1/types.cue` |  |
+| `#PodDisruptionBudgetStatus` | `schemas/kubernetes/policy/v1/types.cue` |  |
+
 ---
 
 ## Traits
@@ -541,6 +551,16 @@ CUE module: `opmodel.dev/catalogs/opm@v1`
 | `#JobConfig` | `traits/job_config.cue` |  |
 | `#JobConfigSchema` | `traits/job_config.cue` |  |
 | `#JobConfigTrait` | `traits/job_config.cue` |  |
+| `#PodMetadata` | `traits/pod_metadata.cue` |  |
+| `#PodMetadataSchema` | `traits/pod_metadata.cue` | Pod-template metadata, distinct from the workload object's own metadata |
+| `#PodMetadataTrait` | `traits/pod_metadata.cue` |  |
+| `#PodScheduling` | `traits/pod_scheduling.cue` |  |
+| `#PodSchedulingSchema` | `traits/pod_scheduling.cue` | Named `podScheduling`, not `scheduling`, because a one-character difference from the existing `scaling` trait is a reading hazard in module bodies |
+| `#PodSchedulingTrait` | `traits/pod_scheduling.cue` |  |
+| `#TolerationSchema` | `traits/pod_scheduling.cue` | A `key`-less toleration with operator "Exists" tolerates EVERY taint, which is why `key` is optional |
+| `#ResourceName` | `traits/resource_name.cue` |  |
+| `#ResourceNameSchema` | `traits/resource_name.cue` | Explicit workload name, rendered verbatim instead of the default instance-scoped {instance}-{component} |
+| `#ResourceNameTrait` | `traits/resource_name.cue` |  |
 | `#RestartPolicy` | `traits/restart_policy.cue` |  |
 | `#RestartPolicySchema` | `traits/restart_policy.cue` |  |
 | `#RestartPolicyTrait` | `traits/restart_policy.cue` |  |
@@ -594,8 +614,14 @@ CUE module: `opmodel.dev/catalogs/opm@v1`
 | `#DaemonSetTransformer` | `transformers/daemonset_transformer.cue` | DaemonSetTransformer converts daemon workload components to Kubernetes DaemonSets |
 | `#DeploymentTransformer` | `transformers/deployment_transformer.cue` | DeploymentTransformer converts stateless workload components to Kubernetes Deployments |
 | `#GrpcRouteTransformer` | `transformers/grpc_route_transformer.cue` | GrpcRouteTransformer creates Gateway API GRPCRoutes from components with GrpcRoute trait |
+| `#HPATransformer` | `transformers/hpa_transformer.cue` | HPATransformer realizes #ScalingTrait's `auto` block as a HorizontalPodAutoscaler |
+| `#ToK8sMetricTarget` | `transformers/hpa_transformer.cue` | #ToK8sMetricTarget maps OPM's #MetricTargetSpec to a Kubernetes MetricTarget |
 | `#HttpRouteTransformer` | `transformers/http_route_transformer.cue` | HttpRouteTransformer creates Gateway API HTTPRoutes from components with HttpRoute trait |
 | `#JobTransformer` | `transformers/job_transformer.cue` | JobTransformer converts task workload components to Kubernetes Jobs |
+| `#WorkloadName` | `transformers/name_helpers.cue` | #WorkloadName resolves a workload's rendered object name: the exact name from #ResourceNameTrait when set, otherwise the instance-scoped default |
+| `#PDBTransformer` | `transformers/pdb_transformer.cue` | PDBTransformer realizes #DisruptionBudgetTrait as a PodDisruptionBudget |
+| `#PodSchedulingFields` | `transformers/pod_helpers.cue` | Pod-spec scheduling fields from #PodSchedulingTrait |
+| `#PodTemplateMetadata` | `transformers/pod_helpers.cue` | Pod-template metadata: context labels merged with #PodMetadataTrait labels, plus pod-only annotations |
 | `#PVCTransformer` | `transformers/pvc_transformer.cue` | PVCTransformer creates standalone PersistentVolumeClaims from Volume resources |
 | `#RoleTransformer` | `transformers/role_transformer.cue` | RoleTransformer converts OPM Role resources to Kubernetes RBAC objects |
 | `#ToK8sServiceAccount` | `transformers/sa_helpers.cue` | #ToK8sServiceAccount converts an OPM identity spec (either #WorkloadIdentitySchema or #ServiceAccountSchema — both share the same shape) to a Kubernetes ServiceAccount |

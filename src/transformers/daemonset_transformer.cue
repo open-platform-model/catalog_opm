@@ -55,6 +55,9 @@ import (
 		(tr.#HostIPCTrait.metadata.fqn):           tr.#HostIPCTrait
 		(tr.#HostNetworkTrait.metadata.fqn):       tr.#HostNetworkTrait
 		(tr.#GracefulShutdownTrait.metadata.fqn):  tr.#GracefulShutdownTrait
+		(tr.#ResourceNameTrait.metadata.fqn):      tr.#ResourceNameTrait
+		(tr.#PodSchedulingTrait.metadata.fqn):     tr.#PodSchedulingTrait
+		(tr.#PodMetadataTrait.metadata.fqn):       tr.#PodMetadataTrait
 	}
 
 	#transform: {
@@ -100,7 +103,10 @@ import (
 			apiVersion: "apps/v1"
 			kind:       "DaemonSet"
 			metadata: {
-				name:      "\(#context.#moduleInstanceMetadata.name)-\(#component.metadata.name)"
+				name: (#WorkloadName & {
+					#comp:     #component
+					#instance: #context.#moduleInstanceMetadata.name
+				}).out
 				namespace: #context.#moduleInstanceMetadata.namespace
 				labels:    #context.labels
 				// Include component annotations if present
@@ -111,8 +117,13 @@ import (
 			spec: {
 				selector: matchLabels: #context.componentLabels
 				template: {
-					metadata: labels: #context.componentLabels
+					metadata: (#PodTemplateMetadata & {
+						#comp:   #component
+						#labels: #context.componentLabels
+					}).out
 					spec: {
+						(#PodSchedulingFields & {#comp: #component}).out
+
 						_convertedSidecars: (#ToK8sContainers & {"in": _sidecarContainers, #instancePrefix: #context.#moduleInstanceMetadata.name}).out
 						containers: list.Concat([[_mainContainer], _convertedSidecars])
 
@@ -185,3 +196,101 @@ import (
 		}
 	}
 }
+
+/////////////////////////////////////////////////////////////////
+//// Test Data
+/////////////////////////////////////////////////////////////////
+
+// Mirrors the live istio-cni-node DaemonSet on an ambient mesh. Two things are
+// load-bearing and both are asserted below:
+//
+//   1. The rendered name must be exactly `istio-cni-node`. The CNI plugin
+//      recognises its own agent pod by that name prefix
+//      (cni/pkg/plugin/plugin.go isCNIPod) and uses the check to let its
+//      replacement pod through when it cannot reach the API server. A
+//      prefixed name means the plugin blocks its own replacement.
+//   2. Exactly ONE mount carries mountPropagation: HostToContainer. The netns
+//      directory is bind-mounted by the runtime after the agent starts, so
+//      without propagation the agent never sees pods created later — and it
+//      presents as a network fault, not a config error.
+_testDSCNIComponent: {
+	res.#Container
+	res.#Volumes
+	tr.#ResourceName
+
+	metadata: {
+		name: "istio-cni"
+		labels: "core.opmodel.dev/workload-type": "daemon"
+	}
+
+	spec: {
+		resourceName: "istio-cni-node"
+
+		volumes: {
+			"cni-net-dir": {
+				name:     "cni-net-dir"
+				readOnly: false
+				hostPath: path: "/etc/cni/net.d"
+			}
+			"cni-netns-dir": {
+				name:     "cni-netns-dir"
+				readOnly: false
+				hostPath: {
+					path: "/var/run/netns"
+					type: "DirectoryOrCreate"
+				}
+			}
+		}
+
+		container: {
+			name: "install-cni"
+			image: {
+				repository: "docker.io/istio/install-cni"
+				tag:        "1.30.3-distroless"
+				digest:     ""
+			}
+			volumeMounts: {
+				"cni-net-dir": spec.volumes."cni-net-dir" & {
+					mountPath: "/host/etc/cni/net.d"
+				}
+				"cni-netns-dir": spec.volumes."cni-netns-dir" & {
+					mountPath:        "/host/var/run/netns"
+					mountPropagation: "HostToContainer"
+				}
+			}
+		}
+	}
+}
+
+_testDSCNITransformer: (#DaemonSetTransformer.#transform & {
+	#component: _testDSCNIComponent
+	#context: {
+		#moduleInstanceMetadata: {
+			name:      "istio"
+			namespace: "istio-system"
+			fqn:       "opmodel.dev/catalogs/opm/istio@0.1.0"
+			version:   "0.1.0"
+			uuid:      "00000000-0000-0000-0000-000000000000"
+		}
+		#componentMetadata: name: "istio-cni"
+		#runtimeName: "opm-test"
+		componentAnnotations: {}
+	}
+}).output
+
+// Interpolation forces resolution, so a regression to a defaulted disjunction
+// cannot be repaired by the assertion.
+_testDSCNINameResolves: "\(_testDSCNITransformer.metadata.name)" & "istio-cni-node"
+
+_testDSMounts: _testDSCNITransformer.spec.template.spec.containers[0].volumeMounts
+
+// Present on the netns mount...
+_testDSPropagationPresent: [
+	if _testDSMounts[1].mountPropagation != _|_ {_testDSMounts[1].mountPropagation},
+] & ["HostToContainer"]
+
+// ...and on NOTHING else. This is the guard that catches an unguarded
+// passthrough that stamps a value onto every mount.
+_testDSPropagationNotLeaked: [
+	if _testDSMounts[0].mountPropagation != _|_ {"leaked"},
+] & []
