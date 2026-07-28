@@ -495,6 +495,16 @@ CUE module: `opmodel.dev/catalogs/opm@v1`
 | `#ServiceCIDRSpec` | `schemas/kubernetes/networking/v1/types.cue` |  |
 | `#ServiceCIDRStatus` | `schemas/kubernetes/networking/v1/types.cue` |  |
 
+### kubernetes/policy/v1
+
+| Definition | File | Description |
+|---|---|---|
+| `#Eviction` | `schemas/kubernetes/policy/v1/types.cue` |  |
+| `#PodDisruptionBudget` | `schemas/kubernetes/policy/v1/types.cue` |  |
+| `#PodDisruptionBudgetList` | `schemas/kubernetes/policy/v1/types.cue` |  |
+| `#PodDisruptionBudgetSpec` | `schemas/kubernetes/policy/v1/types.cue` |  |
+| `#PodDisruptionBudgetStatus` | `schemas/kubernetes/policy/v1/types.cue` |  |
+
 ---
 
 ## Traits
@@ -604,9 +614,12 @@ CUE module: `opmodel.dev/catalogs/opm@v1`
 | `#DaemonSetTransformer` | `transformers/daemonset_transformer.cue` | DaemonSetTransformer converts daemon workload components to Kubernetes DaemonSets |
 | `#DeploymentTransformer` | `transformers/deployment_transformer.cue` | DeploymentTransformer converts stateless workload components to Kubernetes Deployments |
 | `#GrpcRouteTransformer` | `transformers/grpc_route_transformer.cue` | GrpcRouteTransformer creates Gateway API GRPCRoutes from components with GrpcRoute trait |
+| `#HPATransformer` | `transformers/hpa_transformer.cue` | HPATransformer realizes #ScalingTrait's `auto` block as a HorizontalPodAutoscaler |
+| `#ToK8sMetricTarget` | `transformers/hpa_transformer.cue` | #ToK8sMetricTarget maps OPM's #MetricTargetSpec to a Kubernetes MetricTarget |
 | `#HttpRouteTransformer` | `transformers/http_route_transformer.cue` | HttpRouteTransformer creates Gateway API HTTPRoutes from components with HttpRoute trait |
 | `#JobTransformer` | `transformers/job_transformer.cue` | JobTransformer converts task workload components to Kubernetes Jobs |
 | `#WorkloadName` | `transformers/name_helpers.cue` | #WorkloadName resolves a workload's rendered object name: the exact name from #ResourceNameTrait when set, otherwise the instance-scoped default |
+| `#PDBTransformer` | `transformers/pdb_transformer.cue` | PDBTransformer realizes #DisruptionBudgetTrait as a PodDisruptionBudget |
 | `#PodSchedulingFields` | `transformers/pod_helpers.cue` | Pod-spec scheduling fields from #PodSchedulingTrait |
 | `#PodTemplateMetadata` | `transformers/pod_helpers.cue` | Pod-template metadata: context labels merged with #PodMetadataTrait labels, plus pod-only annotations |
 | `#PVCTransformer` | `transformers/pvc_transformer.cue` | PVCTransformer creates standalone PersistentVolumeClaims from Volume resources |

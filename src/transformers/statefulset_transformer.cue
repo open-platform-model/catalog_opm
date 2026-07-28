@@ -69,10 +69,13 @@ import (
 		_container: #component.spec.container
 
 		// Apply defaults for optional traits (defaults inlined post-014).
+		// When `auto` is set the HPA owns the replica count. Emitting
+		// `replicas` too would put this transformer and the autoscaler in a
+		// permanent server-side-apply tug-of-war on every reconcile, so the
+		// field is omitted entirely (see _hasAuto below).
+		_hasAuto: #component.spec.scaling != _|_ && #component.spec.scaling.auto != _|_
+
 		_scalingCount: int | *1
-		if #component.spec.scaling != _|_ if #component.spec.scaling.auto != _|_ {
-			_scalingCount: #component.spec.scaling.auto.min
-		}
 		if #component.spec.scaling != _|_ if #component.spec.scaling.auto == _|_ {
 			_scalingCount: #component.spec.scaling.count
 		}
@@ -136,7 +139,9 @@ import (
 					if #component.spec.expose != _|_ if #component.spec.expose.name != _|_ {#component.spec.expose.name},
 					"\(#context.#moduleInstanceMetadata.name)-\(#component.metadata.name)",
 				][0]
-				replicas: _scalingCount
+				if !_hasAuto {
+					replicas: _scalingCount
+				}
 				selector: matchLabels: #context.componentLabels
 				template: {
 					metadata: (#PodTemplateMetadata & {
