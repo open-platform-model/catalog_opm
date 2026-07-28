@@ -31,6 +31,7 @@ metadata: {
 	(t.#HPATransformer.metadata.fqn):                    t.#HPATransformer
 	(t.#HttpRouteTransformer.metadata.fqn):              t.#HttpRouteTransformer
 	(t.#JobTransformer.metadata.fqn):                    t.#JobTransformer
+	(t.#NetworkPolicyTransformer.metadata.fqn):          t.#NetworkPolicyTransformer
 	(t.#PDBTransformer.metadata.fqn):                    t.#PDBTransformer
 	(t.#PVCTransformer.metadata.fqn):                    t.#PVCTransformer
 	(t.#RoleTransformer.metadata.fqn):                   t.#RoleTransformer
