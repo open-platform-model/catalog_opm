@@ -551,6 +551,13 @@ CUE module: `opmodel.dev/catalogs/opm@v1`
 | `#JobConfig` | `traits/job_config.cue` |  |
 | `#JobConfigSchema` | `traits/job_config.cue` |  |
 | `#JobConfigTrait` | `traits/job_config.cue` |  |
+| `#NetworkPolicy` | `traits/network_policy.cue` |  |
+| `#NetworkPolicyEgressRule` | `traits/network_policy.cue` |  |
+| `#NetworkPolicyIngressRule` | `traits/network_policy.cue` | An empty rule (`{}`) means "allow all in this direction" — the idiom istiod uses for egress, because features like JWKS resolution need to reach user-defined endpoints |
+| `#NetworkPolicyPeer` | `traits/network_policy.cue` |  |
+| `#NetworkPolicyPort` | `traits/network_policy.cue` |  |
+| `#NetworkPolicySchema` | `traits/network_policy.cue` |  |
+| `#NetworkPolicyTrait` | `traits/network_policy.cue` | #NetworkPolicyTrait attaches an ingress/egress policy to a workload |
 | `#PodMetadata` | `traits/pod_metadata.cue` |  |
 | `#PodMetadataSchema` | `traits/pod_metadata.cue` | Pod-template metadata, distinct from the workload object's own metadata |
 | `#PodMetadataTrait` | `traits/pod_metadata.cue` |  |
@@ -619,6 +626,7 @@ CUE module: `opmodel.dev/catalogs/opm@v1`
 | `#HttpRouteTransformer` | `transformers/http_route_transformer.cue` | HttpRouteTransformer creates Gateway API HTTPRoutes from components with HttpRoute trait |
 | `#JobTransformer` | `transformers/job_transformer.cue` | JobTransformer converts task workload components to Kubernetes Jobs |
 | `#WorkloadName` | `transformers/name_helpers.cue` | #WorkloadName resolves a workload's rendered object name: the exact name from #ResourceNameTrait when set, otherwise the instance-scoped default |
+| `#NetworkPolicyTransformer` | `transformers/network_policy_transformer.cue` | NetworkPolicyTransformer converts the #NetworkPolicyTrait to a Kubernetes NetworkPolicy whose podSelector is the workload's own rendered pod labels |
 | `#PDBTransformer` | `transformers/pdb_transformer.cue` | PDBTransformer realizes #DisruptionBudgetTrait as a PodDisruptionBudget |
 | `#PodSchedulingFields` | `transformers/pod_helpers.cue` | Pod-spec scheduling fields from #PodSchedulingTrait |
 | `#PodTemplateMetadata` | `transformers/pod_helpers.cue` | Pod-template metadata: context labels merged with #PodMetadataTrait labels, plus pod-only annotations |

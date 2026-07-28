@@ -58,6 +58,7 @@ import (
 		(tr.#ResourceNameTrait.metadata.fqn):      tr.#ResourceNameTrait
 		(tr.#PodSchedulingTrait.metadata.fqn):     tr.#PodSchedulingTrait
 		(tr.#PodMetadataTrait.metadata.fqn):       tr.#PodMetadataTrait
+		(tr.#NetworkPolicyTrait.metadata.fqn):     tr.#NetworkPolicyTrait
 	}
 
 	#transform: {
