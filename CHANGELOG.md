@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-alpha.4](https://github.com/open-platform-model/catalog_opm/compare/v1.0.0-alpha.3...v1.0.0-alpha.4) (2026-07-28)
+
+
+### Features
+
+* workload fidelity — exact names, pod metadata/scheduling, mount propagation, HPA and PDB ([#19](https://github.com/open-platform-model/catalog_opm/issues/19)) ([64b376f](https://github.com/open-platform-model/catalog_opm/commit/64b376f3771dfd2ddd21b5988cc8a1cc4ed3858a))
+
 ## [1.0.0-alpha.3](https://github.com/open-platform-model/catalog_opm/compare/v1.0.0-alpha.2...v1.0.0-alpha.3) (2026-07-27)
 
 
