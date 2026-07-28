@@ -43,12 +43,22 @@ import (
 		// on cue.Kind and produces one Compiled per list element.
 		output: [
 			for crdName, crd in _crds {
+				// Plain unification, so a key set on both sides with different
+				// values is a hard error rather than a silent win for either.
+				let _annotations = {
+					if len(#context.componentAnnotations) > 0 {#context.componentAnnotations}
+					if crd.annotations != _|_ {crd.annotations}
+				}
+
 				k8sapiextv1.#CustomResourceDefinition & {
 					apiVersion: "apiextensions.k8s.io/v1"
 					kind:       "CustomResourceDefinition"
 					metadata: {
 						name:   crdName
 						labels: #context.labels
+						if len(_annotations) > 0 {
+							annotations: _annotations
+						}
 					}
 					spec: {
 						group: crd.group
@@ -95,6 +105,13 @@ _testCRDComponent: {
 	}
 
 	spec: crds: "orders.acme.cert-manager.io": {
+		// A protected-group CRD would be REJECTED by the API server without
+		// api-approved.kubernetes.io; this mirrors what an upstream Gateway API
+		// manifest carries.
+		annotations: {
+			"api-approved.kubernetes.io":               "https://github.com/kubernetes-sigs/gateway-api/pull/4530"
+			"gateway.networking.k8s.io/bundle-version": "v1.5.1"
+		}
 		group: "acme.cert-manager.io"
 		names: {
 			kind:     "Order"
@@ -168,3 +185,66 @@ _testCRDSelectableFieldsPresent: [
 		len(_testCRDTransformer[0].spec.versions[0].selectableFields)
 	},
 ] & [3]
+
+// Same presence idiom for the CRD's own annotations. Interpolating the value
+// (rather than naming it in the golden) forces resolution, so a transformer
+// that dropped the key cannot have it handed back by unification.
+_testCRDAnnotationsPresent: [
+	if _testCRDTransformer[0].metadata.annotations != _|_ {
+		"\(_testCRDTransformer[0].metadata.annotations["api-approved.kubernetes.io"])"
+	},
+] & ["https://github.com/kubernetes-sigs/gateway-api/pull/4530"]
+
+_testCRDAnnotationCount: [
+	if _testCRDTransformer[0].metadata.annotations != _|_ {
+		len(_testCRDTransformer[0].metadata.annotations)
+	},
+] & [2]
+
+/////////////////////////////////////////////////////////////////
+//// Absence case
+////
+//// A CRD carrying no annotations, with no componentAnnotations either, must
+//// emit NO annotations key at all — an empty map would still be a diff against
+//// the vendored source on every server-side apply.
+/////////////////////////////////////////////////////////////////
+
+_testCRDBareComponent: {
+	res.#CRDs
+
+	metadata: name: "crds"
+
+	spec: crds: "widgets.example.com": {
+		group: "example.com"
+		names: {
+			kind:   "Widget"
+			plural: "widgets"
+		}
+		scope: "Cluster"
+		versions: [{
+			name:    "v1"
+			served:  true
+			storage: true
+		}]
+	}
+}
+
+_testCRDBareTransformer: (#CRDTransformer.#transform & {
+	#component: _testCRDBareComponent
+	#context: {
+		#moduleInstanceMetadata: {
+			name:      "example"
+			namespace: "default"
+			fqn:       "opmodel.dev/catalogs/opm/example@0.1.0"
+			version:   "0.1.0"
+			uuid:      "00000000-0000-0000-0000-000000000000"
+		}
+		#componentMetadata: name: "crds"
+		#runtimeName: "opm-test"
+		componentAnnotations: {}
+	}
+}).output
+
+_testCRDNoAnnotationLeak: [
+	if _testCRDBareTransformer[0].metadata.annotations != _|_ {"leaked"},
+] & []

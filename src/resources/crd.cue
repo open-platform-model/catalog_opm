@@ -56,6 +56,18 @@ import (
 
 // Kubernetes CustomResourceDefinition. Vendor operator CRDs alongside your module.
 #CRDSchema: {
+	// Annotations on the CRD object itself, carried through from the vendored
+	// source manifest.
+	//
+	// Not cosmetic, and for some groups not optional: the API server REJECTS
+	// any CRD in a protected group (`*.k8s.io` — e.g.
+	// gateway.networking.k8s.io) that lacks `api-approved.kubernetes.io`, so
+	// without this field OPM cannot install the Gateway API CRDs, or any other
+	// k8s.io-group CRD, at all. Upstream manifests also carry bundle markers
+	// here (gateway.networking.k8s.io/bundle-version, .../channel) that tooling
+	// reads to identify the installed bundle.
+	annotations?: [string]: string
+
 	group!: string
 	names!: {
 		kind!:   string
