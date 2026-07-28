@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-alpha.6](https://github.com/open-platform-model/catalog_opm/compare/v1.0.0-alpha.5...v1.0.0-alpha.6) (2026-07-28)
+
+
+### Features
+
+* port the NetworkPolicy trait from the experimental catalog ([#23](https://github.com/open-platform-model/catalog_opm/issues/23)) ([76fcca4](https://github.com/open-platform-model/catalog_opm/commit/76fcca4786c88466adf1b8e44dabd9584278f1b0))
+
 ## [1.0.0-alpha.5](https://github.com/open-platform-model/catalog_opm/compare/v1.0.0-alpha.4...v1.0.0-alpha.5) (2026-07-28)
 
 
