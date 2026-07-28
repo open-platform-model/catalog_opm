@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-alpha.5](https://github.com/open-platform-model/catalog_opm/compare/v1.0.0-alpha.4...v1.0.0-alpha.5) (2026-07-28)
+
+
+### Features
+
+* carry CRD annotations through to the emitted CustomResourceDefinition ([#21](https://github.com/open-platform-model/catalog_opm/issues/21)) ([72814e7](https://github.com/open-platform-model/catalog_opm/commit/72814e772665eaa5b7348ff27e2db0e9b365d091))
+
 ## [1.0.0-alpha.4](https://github.com/open-platform-model/catalog_opm/compare/v1.0.0-alpha.3...v1.0.0-alpha.4) (2026-07-28)
 
 
