@@ -55,6 +55,10 @@ import (
 		(tr.#HostPIDTrait.metadata.fqn):           tr.#HostPIDTrait
 		(tr.#HostIPCTrait.metadata.fqn):           tr.#HostIPCTrait
 		(tr.#GracefulShutdownTrait.metadata.fqn):  tr.#GracefulShutdownTrait
+		(tr.#ResourceNameTrait.metadata.fqn):      tr.#ResourceNameTrait
+		(tr.#PodSchedulingTrait.metadata.fqn):     tr.#PodSchedulingTrait
+		(tr.#PodMetadataTrait.metadata.fqn):       tr.#PodMetadataTrait
+		(tr.#ExposeTrait.metadata.fqn):            tr.#ExposeTrait
 	}
 
 	#transform: {
@@ -108,7 +112,10 @@ import (
 			apiVersion: "apps/v1"
 			kind:       "StatefulSet"
 			metadata: {
-				name:      "\(#context.#moduleInstanceMetadata.name)-\(#component.metadata.name)"
+				name: (#WorkloadName & {
+					#comp:     #component
+					#instance: #context.#moduleInstanceMetadata.name
+				}).out
 				namespace: #context.#moduleInstanceMetadata.namespace
 				labels:    #context.labels
 				// Include component annotations if present
@@ -117,12 +124,28 @@ import (
 				}
 			}
 			spec: {
-				serviceName: "\(#context.#moduleInstanceMetadata.name)-\(#component.metadata.name)"
-				replicas:    _scalingCount
+				// This is the governing Service's name, so it follows the
+				// SERVICE naming rule, not the workload one:
+				// service_transformer.cue honours `expose.name` and this did
+				// not, so any StatefulSet with an exact-name Service pointed
+				// its serviceName at a Service that does not exist.
+				//
+				// Deliberately NOT #ResourceNameTrait — that renames the
+				// StatefulSet object, not the Service it is governed by.
+				serviceName: [
+					if #component.spec.expose != _|_ if #component.spec.expose.name != _|_ {#component.spec.expose.name},
+					"\(#context.#moduleInstanceMetadata.name)-\(#component.metadata.name)",
+				][0]
+				replicas: _scalingCount
 				selector: matchLabels: #context.componentLabels
 				template: {
-					metadata: labels: #context.componentLabels
+					metadata: (#PodTemplateMetadata & {
+						#comp:   #component
+						#labels: #context.componentLabels
+					}).out
 					spec: {
+						(#PodSchedulingFields & {#comp: #component}).out
+
 						_convertedSidecars: (#ToK8sContainers & {"in": _sidecarContainers, #instancePrefix: #context.#moduleInstanceMetadata.name}).out
 						containers: list.Concat([[_mainContainer], _convertedSidecars])
 
@@ -195,3 +218,99 @@ import (
 		}
 	}
 }
+
+/////////////////////////////////////////////////////////////////
+//// Test Data
+/////////////////////////////////////////////////////////////////
+
+_testSTSContext: {
+	#moduleInstanceMetadata: {
+		name:      "shop"
+		namespace: "apps"
+		fqn:       "opmodel.dev/catalogs/opm/shop@0.1.0"
+		version:   "0.1.0"
+		uuid:      "00000000-0000-0000-0000-000000000000"
+	}
+	#componentMetadata: name: "db"
+	#runtimeName: "opm-test"
+	componentAnnotations: {}
+}
+
+_testSTSContainer: {
+	name: "db"
+	image: {
+		repository: "postgres"
+		tag:        "17"
+		digest:     ""
+	}
+}
+
+// Default: neither trait attached — both names stay instance-scoped.
+_testSTSDefaultComponent: {
+	res.#Container
+	tr.#Expose
+
+	metadata: {
+		name: "db"
+		labels: "core.opmodel.dev/workload-type": "stateful"
+	}
+
+	spec: {
+		container: _testSTSContainer
+		expose: {
+			type:      "ClusterIP"
+			clusterIP: "None"
+			ports: pg: {
+				targetPort: 5432
+			}
+		}
+	}
+}
+
+_testSTSDefaultTransformer: (#StatefulsetTransformer.#transform & {
+	#component: _testSTSDefaultComponent
+	#context:   _testSTSContext
+}).output
+
+_testSTSDefaultName:        "\(_testSTSDefaultTransformer.metadata.name)" & "shop-db"
+_testSTSDefaultServiceName: "\(_testSTSDefaultTransformer.spec.serviceName)" & "shop-db"
+
+// The regression this fixes: serviceName names the GOVERNING SERVICE, so it
+// must follow expose.name — which service_transformer.cue honours and this
+// transformer previously did not, leaving every exact-name-Service StatefulSet
+// pointing at a Service that does not exist.
+//
+// #ResourceNameTrait is set to a DIFFERENT value on purpose: it renames the
+// StatefulSet object only. If the two ever collapse onto one name, one of
+// these two assertions fails.
+_testSTSExactComponent: {
+	res.#Container
+	tr.#Expose
+	tr.#ResourceName
+
+	metadata: {
+		name: "db"
+		labels: "core.opmodel.dev/workload-type": "stateful"
+	}
+
+	spec: {
+		container:    _testSTSContainer
+		resourceName: "database"
+		expose: {
+			type:      "ClusterIP"
+			clusterIP: "None"
+			name:      "database-headless"
+			ports: pg: {
+				targetPort: 5432
+			}
+		}
+	}
+}
+
+_testSTSExactTransformer: (#StatefulsetTransformer.#transform & {
+	#component: _testSTSExactComponent
+	#context:   _testSTSContext
+}).output
+
+_testSTSExactName:        "\(_testSTSExactTransformer.metadata.name)" & "database"
+_testSTSExactServiceName: "\(_testSTSExactTransformer.spec.serviceName)" & "database-headless"

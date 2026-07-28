@@ -54,6 +54,9 @@ import (
 		(tr.#HostPIDTrait.metadata.fqn):           tr.#HostPIDTrait
 		(tr.#HostIPCTrait.metadata.fqn):           tr.#HostIPCTrait
 		(tr.#GracefulShutdownTrait.metadata.fqn):  tr.#GracefulShutdownTrait
+		(tr.#ResourceNameTrait.metadata.fqn):      tr.#ResourceNameTrait
+		(tr.#PodSchedulingTrait.metadata.fqn):     tr.#PodSchedulingTrait
+		(tr.#PodMetadataTrait.metadata.fqn):       tr.#PodMetadataTrait
 	}
 
 	#transform: {
@@ -90,7 +93,10 @@ import (
 			apiVersion: "batch/v1"
 			kind:       "CronJob"
 			metadata: {
-				name:      "\(#context.#moduleInstanceMetadata.name)-\(#component.metadata.name)"
+				name: (#WorkloadName & {
+					#comp:     #component
+					#instance: #context.#moduleInstanceMetadata.name
+				}).out
 				namespace: #context.#moduleInstanceMetadata.namespace
 				labels:    #context.labels
 				// Include component annotations if present
@@ -123,8 +129,13 @@ import (
 				jobTemplate: {
 					spec: {
 						template: {
-							metadata: labels: #context.componentLabels
+							metadata: (#PodTemplateMetadata & {
+								#comp:   #component
+								#labels: #context.componentLabels
+							}).out
 							spec: {
+								(#PodSchedulingFields & {#comp: #component}).out
+
 								_convertedSidecars: (#ToK8sContainers & {"in": _sidecarContainers, #instancePrefix: #context.#moduleInstanceMetadata.name}).out
 								containers: list.Concat([[_mainContainer], _convertedSidecars])
 
