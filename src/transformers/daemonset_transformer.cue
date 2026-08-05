@@ -49,6 +49,7 @@ import (
 		(tr.#SidecarContainersTrait.metadata.fqn): tr.#SidecarContainersTrait
 		(tr.#InitContainersTrait.metadata.fqn):    tr.#InitContainersTrait
 		(tr.#SecurityContextTrait.metadata.fqn):   tr.#SecurityContextTrait
+		(tr.#RuntimeClassTrait.metadata.fqn):      tr.#RuntimeClassTrait
 		(tr.#WorkloadIdentityTrait.metadata.fqn):  tr.#WorkloadIdentityTrait
 		(tr.#ImagePullSecretsTrait.metadata.fqn):  tr.#ImagePullSecretsTrait
 		(tr.#HostPIDTrait.metadata.fqn):           tr.#HostPIDTrait
@@ -133,6 +134,12 @@ import (
 						}
 
 						restartPolicy: _restartPolicy
+
+						// The named RuntimeClass must already exist in the cluster;
+						// this only references it.
+						if #component.spec.runtimeClass != _|_ {
+							runtimeClassName: #component.spec.runtimeClass
+						}
 
 						if #component.spec.hostNetwork != _|_ {
 							hostNetwork: #component.spec.hostNetwork
@@ -294,4 +301,61 @@ _testDSPropagationPresent: [
 // passthrough that stamps a value onto every mount.
 _testDSPropagationNotLeaked: [
 	if _testDSMounts[0].mountPropagation != _|_ {"leaked"},
+] & []
+
+/////////////////////////////////////////////////////////////////
+//// RuntimeClass
+/////////////////////////////////////////////////////////////////
+
+_testDSRuntimeClassComponent: {
+	res.#Container
+	tr.#RuntimeClass
+
+	metadata: {
+		name: "nvidia-device-plugin"
+		labels: "core.opmodel.dev/workload-type": "daemon"
+	}
+
+	spec: {
+		runtimeClass: "nvidia"
+
+		container: {
+			name: "nvidia-device-plugin-ctr"
+			image: {
+				repository: "nvcr.io/nvidia/k8s-device-plugin"
+				tag:        "v0.17.4"
+				digest:     ""
+			}
+		}
+	}
+}
+
+_testDSRuntimeClassTransformer: (#DaemonSetTransformer.#transform & {
+	#component: _testDSRuntimeClassComponent
+	#context: {
+		#moduleInstanceMetadata: {
+			name:      "nvidia-device-plugin"
+			namespace: "kube-system"
+			fqn:       "opmodel.dev/catalogs/opm/test-instance@0.1.0"
+			version:   "0.1.0"
+			uuid:      "00000000-0000-0000-0000-000000000000"
+		}
+		#componentMetadata: name: "nvidia-device-plugin"
+		#runtimeName: "opm-test"
+		componentAnnotations: {}
+	}
+}).output
+
+// The trait reaches the rendered pod spec as runtimeClassName.
+_testDSRuntimeClassPresent: [
+	if _testDSRuntimeClassTransformer.spec.template.spec.runtimeClassName != _|_ {
+		_testDSRuntimeClassTransformer.spec.template.spec.runtimeClassName
+	},
+] & ["nvidia"]
+
+// ...and is absent when the trait is not applied. Without the `!= _|_` guard
+// this would render as an incomplete value rather than being omitted, which
+// Kubernetes rejects.
+_testDSRuntimeClassNotLeaked: [
+	if _testDSCNITransformer.spec.template.spec.runtimeClassName != _|_ {"leaked"},
 ] & []

@@ -574,6 +574,8 @@ CUE module: `opmodel.dev/catalogs/opm@v1`
 | `#RouteAttachmentSchema` | `traits/route_common.cue` | Shared attachment fields for route schemas (gateway, TLS, className) |
 | `#RouteHeaderMatch` | `traits/route_common.cue` | Header match for route rules |
 | `#RouteRuleBase` | `traits/route_common.cue` | Base fields shared by all route rules |
+| `#RuntimeClass` | `traits/runtime_class.cue` |  |
+| `#RuntimeClassTrait` | `traits/runtime_class.cue` | Selects the container runtime that executes the pod, by setting `runtimeClassName` on the pod spec |
 | `#AutoscalingSpec` | `traits/scaling.cue` |  |
 | `#MetricSpec` | `traits/scaling.cue` |  |
 | `#MetricTargetSpec` | `traits/scaling.cue` |  |

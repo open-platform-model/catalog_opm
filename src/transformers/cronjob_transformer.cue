@@ -49,6 +49,7 @@ import (
 		(tr.#SidecarContainersTrait.metadata.fqn): tr.#SidecarContainersTrait
 		(tr.#InitContainersTrait.metadata.fqn):    tr.#InitContainersTrait
 		(tr.#SecurityContextTrait.metadata.fqn):   tr.#SecurityContextTrait
+		(tr.#RuntimeClassTrait.metadata.fqn):      tr.#RuntimeClassTrait
 		(tr.#WorkloadIdentityTrait.metadata.fqn):  tr.#WorkloadIdentityTrait
 		(tr.#ImagePullSecretsTrait.metadata.fqn):  tr.#ImagePullSecretsTrait
 		(tr.#HostPIDTrait.metadata.fqn):           tr.#HostPIDTrait
@@ -144,6 +145,12 @@ import (
 								}
 
 								restartPolicy: _restartPolicy
+
+								// The named RuntimeClass must already exist in the cluster;
+								// this only references it.
+								if #component.spec.runtimeClass != _|_ {
+									runtimeClassName: #component.spec.runtimeClass
+								}
 
 								if #component.spec.hostPid != _|_ {
 									hostPID: #component.spec.hostPid
