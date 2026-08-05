@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-alpha.7](https://github.com/open-platform-model/catalog_opm/compare/v1.0.0-alpha.6...v1.0.0-alpha.7) (2026-08-05)
+
+
+### Features
+
+* add the RuntimeClass trait ([ac40522](https://github.com/open-platform-model/catalog_opm/commit/ac40522bfba96b1c7b6a76decf69c63a64287094))
+
 ## [1.0.0-alpha.6](https://github.com/open-platform-model/catalog_opm/compare/v1.0.0-alpha.5...v1.0.0-alpha.6) (2026-07-28)
 
 
