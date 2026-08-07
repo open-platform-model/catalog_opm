@@ -151,6 +151,18 @@ import (
 					requests: {"\(X.resources.gpu.resource)": _gpuVal}
 					limits: {"\(X.resources.gpu.resource)": _gpuVal}
 				}
+
+				// Same rule per entry, for a container claiming devices from more
+				// than one plugin. The map key is a local label only — `resource`
+				// is the name that reaches Kubernetes, so two entries may share a
+				// resource and will unify rather than overwrite.
+				if X.resources.gpus != _|_ {
+					for _, _g in X.resources.gpus {
+						let _gVal = strconv.FormatInt(_g.count, 10)
+						requests: {"\(_g.resource)": _gVal}
+						limits: {"\(_g.resource)": _gVal}
+					}
+				}
 			}
 		}
 

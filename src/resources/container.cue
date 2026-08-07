@@ -150,7 +150,25 @@ import (
 		cpu?:    number | string & =~#"^([0-9]+(\.[0-9]+)?|[0-9]+m)$"#
 		memory?: number | string & =~"^[0-9]+[MG]i$"
 	}
+
+	// A single GPU claim. Kept exactly as-is: modules published against earlier
+	// catalog versions set it (jellyfin v2.4.0), and a module's resource FQNs
+	// embed the catalog version under exact-FQN transformer matching, so this
+	// field cannot be renamed or folded into `gpus` without stranding them.
 	gpu?: #GpuResourceSchema
+
+	// Several GPU claims, keyed by an arbitrary local name.
+	//
+	// Needed whenever one container must hold devices from two different device
+	// plugins at once — a transcoder offered both `nvidia.com/gpu` and
+	// `gpu.intel.com/i915`, picking per job which to drive. `gpu` cannot express
+	// that (it is one struct), and neither can `limits`: this is a closed
+	// definition, so an extended-resource key written there is rejected.
+	//
+	// Both fields may be set together; every claim is emitted independently. Two
+	// claims naming the same `resource` unify — equal counts collapse harmlessly,
+	// unequal counts fail the build instead of silently resolving last-one-wins.
+	gpus?: [Name=string]: #GpuResourceSchema
 }
 
 // Probe specification used by liveness/readiness/startup probes.
