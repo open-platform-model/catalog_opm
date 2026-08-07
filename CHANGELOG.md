@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-alpha.8](https://github.com/open-platform-model/catalog_opm/compare/v1.0.0-alpha.7...v1.0.0-alpha.8) (2026-08-07)
+
+
+### Features
+
+* **resources:** allow a container to claim several GPUs ([241b740](https://github.com/open-platform-model/catalog_opm/commit/241b7401421f3de9c4fcc6a151b56e4ba97106da))
+
 ## [1.0.0-alpha.7](https://github.com/open-platform-model/catalog_opm/compare/v1.0.0-alpha.6...v1.0.0-alpha.7) (2026-08-05)
 
 
