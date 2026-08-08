@@ -87,9 +87,29 @@ import (
 			_restartPolicy: #component.spec.restartPolicy
 		}
 
-		// Extract update strategy with defaults
-		_updateStrategy: *null | {
-			if #component.spec.updateStrategy != _|_ {
+		// Extract update strategy with defaults.
+		//
+		// ⚠ THE GUARD MUST BE A SEPARATE ASSIGNMENT, not an `if` nested inside
+		// the second disjunct. This was written as
+		//
+		//     _updateStrategy: *null | {
+		//         if #component.spec.updateStrategy != _|_ { type: ... }
+		//     }
+		//
+		// which silently resolved to `null` for EVERY component, so `strategy`
+		// was never emitted on any Deployment no matter what the module asked
+		// for. Nothing forces the struct arm there, and a marked default wins
+		// over a non-default arm — the same trap `name_helpers.cue` documents
+		// for `#comp.spec.resourceName | *"..."`. It went unnoticed because
+		// every module declared RollingUpdate, which is also the Kubernetes
+		// default; the modules asking for Recreate were the ones it broke.
+		//
+		// The form below is the idiom used by _restartPolicy and _scalingCount
+		// above: declare the default, then override in a guarded assignment at
+		// the same scope, where unification collapses the disjunction.
+		_updateStrategy: *null | {...}
+		if #component.spec.updateStrategy != _|_ {
+			_updateStrategy: {
 				type: #component.spec.updateStrategy.type
 				if #component.spec.updateStrategy.type == "RollingUpdate" {
 					rollingUpdate: #component.spec.updateStrategy.rollingUpdate
@@ -376,3 +396,59 @@ _testDeployPriorityClassPresent: [
 		_testDeployExactTransformer.spec.template.spec.priorityClassName
 	},
 ] & ["system-node-critical"]
+
+// ---- Update strategy: declared value must reach spec.strategy ---------------
+//
+// Regression guard for a bug that shipped silently through alpha.8: the
+// extraction was spelled `_updateStrategy: *null | { if ... }`, whose marked
+// default always won, so `strategy` was omitted from EVERY Deployment. No test
+// caught it because every module in the fleet declared RollingUpdate, which is
+// also the Kubernetes default — the omission was invisible until a module asked
+// for Recreate and silently got a rolling update instead.
+//
+// Recreate rather than RollingUpdate on purpose: it is the value that differs
+// from the Kubernetes default, so this fails if the field is dropped again.
+_testDeployRecreateComponent: {
+	res.#Container
+	tr.#UpdateStrategy
+
+	metadata: {
+		name: "istiod"
+		labels: "core.opmodel.dev/workload-type": "stateless"
+	}
+
+	spec: {
+		container: _testDeployContainer
+		updateStrategy: type: "Recreate"
+	}
+}
+
+_testDeployRecreateTransformer: (#DeploymentTransformer.#transform & {
+	#component: _testDeployRecreateComponent
+	#context:   _testDeployContext
+}).output
+
+// ABSENT-field guard, NOT the interpolation idiom. The failure mode being
+// guarded is an omitted `strategy`, and `"\(...spec.strategy.type)" & "Recreate"`
+// does NOT catch that: with the field absent the interpolation is merely
+// incomplete, which plain `cue vet` accepts — verified by reintroducing the bug
+// and watching vet still exit 0. The one-element-list form conflicts on length
+// instead, which fails at every vet level (see the idiom notes above).
+//
+// This doubles as the wrong-value guard: a strategy that renders with the wrong
+// type produces ["RollingUpdate"], which also conflicts.
+_testDeployRecreatePresent: [
+	if _testDeployRecreateTransformer.spec.strategy != _|_ {
+		_testDeployRecreateTransformer.spec.strategy.type
+	},
+] & ["Recreate"]
+
+// ABSENT-field guard: Recreate must not carry a rollingUpdate block.
+_testDeployRecreateHasNoRollingUpdate: [
+	if _testDeployRecreateTransformer.spec.strategy.rollingUpdate != _|_ {"leaked"},
+] & []
+
+// ...and a component that declares no strategy must not grow one.
+_testDeployNoStrategyLeak: [
+	if _testDeployDefaultNameTransformer.spec.strategy != _|_ {"leaked"},
+] & []
