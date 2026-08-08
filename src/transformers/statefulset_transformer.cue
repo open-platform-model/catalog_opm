@@ -87,9 +87,17 @@ import (
 			_restartPolicy: #component.spec.restartPolicy
 		}
 
-		// Extract update strategy with defaults
-		_updateStrategy: *null | {
-			if #component.spec.updateStrategy != _|_ {
+		// Extract update strategy with defaults.
+		//
+		// ⚠ THE GUARD MUST BE A SEPARATE ASSIGNMENT, not an `if` nested inside
+		// the second disjunct — see the long note on the identical block in
+		// deployment_transformer.cue. In short: the nested form resolved to
+		// `null` for every component, so `updateStrategy` was never emitted on
+		// any StatefulSet, and a module asking for OnDelete or Recreate got a
+		// silent RollingUpdate instead.
+		_updateStrategy: *null | {...}
+		if #component.spec.updateStrategy != _|_ {
+			_updateStrategy: {
 				type: #component.spec.updateStrategy.type
 				if #component.spec.updateStrategy.type == "RollingUpdate" {
 					rollingUpdate: #component.spec.updateStrategy.rollingUpdate
@@ -327,3 +335,49 @@ _testSTSExactTransformer: (#StatefulsetTransformer.#transform & {
 
 _testSTSExactName:        "\(_testSTSExactTransformer.metadata.name)" & "database"
 _testSTSExactServiceName: "\(_testSTSExactTransformer.spec.serviceName)" & "database-headless"
+
+// ---- Update strategy: declared value must reach spec.updateStrategy ---------
+//
+// Regression guard for the same alpha.8 bug fixed in this file and in
+// deployment_transformer.cue: `_updateStrategy: *null | { if ... }` always
+// resolved to its marked default, so the field was omitted from every
+// StatefulSet. jellystat's bundled Postgres asks for OnDelete-style handling
+// via Recreate and had been silently rolling instead.
+//
+// OnDelete rather than RollingUpdate on purpose: RollingUpdate is also the
+// Kubernetes default, so a test using it would pass against the broken code.
+_testSTSStrategyComponent: {
+	res.#Container
+	tr.#UpdateStrategy
+
+	metadata: {
+		name: "db"
+		labels: "core.opmodel.dev/workload-type": "stateful"
+	}
+
+	spec: {
+		container: _testSTSContainer
+		updateStrategy: type: "OnDelete"
+	}
+}
+
+_testSTSStrategyTransformer: (#StatefulsetTransformer.#transform & {
+	#component: _testSTSStrategyComponent
+	#context:   _testSTSContext
+}).output
+
+// One-element-list form, NOT interpolation. The failure mode is an ABSENT
+// field, and `"\(x.spec.updateStrategy.type)" & "OnDelete"` does not catch that
+// — an absent field is merely incomplete and plain `cue vet` accepts it
+// (verified by reintroducing the bug). A list-length conflict fails at every
+// vet level.
+_testSTSStrategyPresent: [
+	if _testSTSStrategyTransformer.spec.updateStrategy != _|_ {
+		_testSTSStrategyTransformer.spec.updateStrategy.type
+	},
+] & ["OnDelete"]
+
+// A component declaring no strategy must not grow one.
+_testSTSNoStrategyLeak: [
+	if _testSTSExactTransformer.spec.updateStrategy != _|_ {"leaked"},
+] & []
