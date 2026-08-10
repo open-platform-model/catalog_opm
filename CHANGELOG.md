@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0](https://github.com/open-platform-model/catalog_opm/compare/v1.0.0-alpha.9...v1.0.0) (2026-08-10)
+
+
+### Bug Fixes
+
+* **deps:** pin opmodel.dev/core@v1 to stable v1.1.0 ([25002c0](https://github.com/open-platform-model/catalog_opm/commit/25002c00814140d4cd6e9ac7213fa7b59fd6ffa9))
+
 ## [1.0.0-alpha.9](https://github.com/open-platform-model/catalog_opm/compare/v1.0.0-alpha.8...v1.0.0-alpha.9) (2026-08-08)
 
 
