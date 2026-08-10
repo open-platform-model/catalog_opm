@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0-alpha.2](https://github.com/open-platform-model/catalog_opm/compare/v2.0.0-alpha.1...v2.0.0-alpha.2) (2026-08-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* consolidate the first-party catalogs and adopt versioned filing ([#34](https://github.com/open-platform-model/catalog_opm/issues/34))
+
+### Features
+
+* consolidate the first-party catalogs and adopt versioned filing ([#34](https://github.com/open-platform-model/catalog_opm/issues/34)) ([8a5c484](https://github.com/open-platform-model/catalog_opm/commit/8a5c484303e359466484f9c150133643aab9af0b))
+
 ## [2.0.0-alpha.1](https://github.com/open-platform-model/catalog_opm/compare/v1.0.0-alpha.9...v2.0.0-alpha.1) (2026-08-10)
 
 
