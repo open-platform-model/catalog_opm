@@ -30,9 +30,13 @@ Version: #VersionType | *"2.0.0-alpha.1" // x-release-please-version
 // RegistryPath is the major-free OCI repository path.
 RegistryPath: "opmodel.dev/catalogs/opm"
 
-// kindPrefix mirrors core's #IdentityPackage.kindPrefix — exactly one prefix
-// per kind, no grouping segment beneath any of them (enhancement 0010 D42).
-// Every member's metadata.modulePath and authored fqn derive from this map.
+// kindPrefix mirrors core's #IdentityPackage.kindPrefix — one BASE prefix per
+// kind (enhancement 0010 D42 as amended by D49). Contract members file exactly
+// one segment beneath it, under their own apiVersion — a segment derived from
+// the member's key, so filing and key cannot drift — while transformers file
+// at the prefix itself. Every member's metadata.modulePath carries the
+// versioned path; authored fqns still derive from the base prefix, so the key
+// space stays flat.
 kindPrefix: {
 	resources:    RegistryPath + "/resources"
 	traits:       RegistryPath + "/traits"

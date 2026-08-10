@@ -5,7 +5,7 @@ import (
 
 	k8scorev1 "opmodel.dev/catalogs/opm/schemas/kubernetes/core/v1"
 	schemas "opmodel.dev/catalogs/opm/schemas"
-	res "opmodel.dev/catalogs/opm/resources"
+	res "opmodel.dev/catalogs/opm/resources/v1beta1"
 )
 
 // #ToK8sContainer converts an OPM #ContainerSchema to a Kubernetes #Container.

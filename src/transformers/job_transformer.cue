@@ -5,8 +5,8 @@ import (
 	"list"
 	k8sbatchv1 "opmodel.dev/catalogs/opm/schemas/kubernetes/batch/v1"
 	c "opmodel.dev/core@v2"
-	res "opmodel.dev/catalogs/opm/resources"
-	tr "opmodel.dev/catalogs/opm/traits"
+	res "opmodel.dev/catalogs/opm/resources/v1beta1"
+	tr "opmodel.dev/catalogs/opm/traits/v1beta1"
 )
 
 // JobTransformer converts task workload components to Kubernetes Jobs

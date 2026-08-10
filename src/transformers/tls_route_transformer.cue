@@ -3,7 +3,7 @@ package transformers
 import (
 	id "opmodel.dev/catalogs/opm/identity"
 	c "opmodel.dev/core@v2"
-	tr "opmodel.dev/catalogs/opm/traits"
+	tr "opmodel.dev/catalogs/opm/traits/v1beta1"
 )
 
 // TlsRouteTransformer creates Gateway API TLSRoutes from components with TlsRoute trait.

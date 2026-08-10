@@ -4,8 +4,8 @@ import (
 	id "opmodel.dev/catalogs/opm/identity"
 	k8sautoscalingv2 "opmodel.dev/catalogs/opm/schemas/kubernetes/autoscaling/v2"
 	c "opmodel.dev/core@v2"
-	res "opmodel.dev/catalogs/opm/resources"
-	tr "opmodel.dev/catalogs/opm/traits"
+	res "opmodel.dev/catalogs/opm/resources/v1beta1"
+	tr "opmodel.dev/catalogs/opm/traits/v1beta1"
 )
 
 // HPATransformer realizes #ScalingTrait's `auto` block as a HorizontalPodAutoscaler.
