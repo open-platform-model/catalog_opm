@@ -2,7 +2,7 @@ package resources
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 )
 
 /////////////////////////////////////////////////////////////////
@@ -11,10 +11,12 @@ import (
 
 #CRDsResource: c.#Resource & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/resources"
-		version:     id.Version
-		name:        "crds"
-		description: "One or more CustomResourceDefinitions to deploy to the cluster"
+		modulePath:     id.kindPrefix.resources
+		name:           "crds"
+		apiVersion:     "v1beta1"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.resources)/crds@v1beta1"
+		description:    "One or more CustomResourceDefinitions to deploy to the cluster"
 		labels: {
 			"resource.opmodel.dev/category": "extension"
 		}

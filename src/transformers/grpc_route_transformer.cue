@@ -2,7 +2,7 @@ package transformers
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 	tr "opmodel.dev/catalogs/opm/traits"
 )
 
@@ -10,10 +10,11 @@ import (
 // Untyped struct output — see #HttpRouteTransformer for rationale.
 #GrpcRouteTransformer: c.#ComponentTransformer & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/transformers"
-		version:     id.Version
-		name:        "grpc-route-transformer"
-		description: "Creates Gateway API GRPCRoutes for components with GrpcRoute trait"
+		modulePath:     id.kindPrefix.transformers
+		name:           "grpc-route-transformer"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.transformers)/grpc-route-transformer@\(id.Version)"
+		description:    "Creates Gateway API GRPCRoutes for components with GrpcRoute trait"
 
 		labels: {
 			"core.opmodel.dev/trait-type":    "network"

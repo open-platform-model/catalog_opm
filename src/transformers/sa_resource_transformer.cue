@@ -2,7 +2,7 @@ package transformers
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 	res "opmodel.dev/catalogs/opm/resources"
 )
 
@@ -11,10 +11,11 @@ import (
 // #ServiceAccountTransformer which handles trait-attached identities.
 #ServiceAccountResourceTransformer: c.#ComponentTransformer & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/transformers"
-		version:     id.Version
-		name:        "serviceaccount-resource-transformer"
-		description: "Converts standalone ServiceAccount resources to Kubernetes ServiceAccounts"
+		modulePath:     id.kindPrefix.transformers
+		name:           "serviceaccount-resource-transformer"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.transformers)/serviceaccount-resource-transformer@\(id.Version)"
+		description:    "Converts standalone ServiceAccount resources to Kubernetes ServiceAccounts"
 
 		labels: {
 			"core.opmodel.dev/resource-category": "security"

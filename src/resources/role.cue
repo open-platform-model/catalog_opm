@@ -2,7 +2,7 @@ package resources
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 )
 
 /////////////////////////////////////////////////////////////////
@@ -11,10 +11,12 @@ import (
 
 #RoleResource: c.#Resource & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/resources"
-		version:     id.Version
-		name:        "role"
-		description: "An RBAC Role definition with rules and CUE-referenced subjects"
+		modulePath:     id.kindPrefix.resources
+		name:           "role"
+		apiVersion:     "v1beta1"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.resources)/role@v1beta1"
+		description:    "An RBAC Role definition with rules and CUE-referenced subjects"
 		labels: {
 			"resource.opmodel.dev/category": "security"
 		}

@@ -2,7 +2,7 @@ package transformers
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 	res "opmodel.dev/catalogs/opm/resources"
 	k8scorev1 "opmodel.dev/catalogs/opm/schemas/kubernetes/core/v1"
 )
@@ -11,10 +11,11 @@ import (
 // Supports immutable ConfigMaps with content-hash naming.
 #ConfigMapTransformer: c.#ComponentTransformer & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/transformers"
-		version:     id.Version
-		name:        "configmap-transformer"
-		description: "Converts ConfigMaps resources to Kubernetes ConfigMaps"
+		modulePath:     id.kindPrefix.transformers
+		name:           "configmap-transformer"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.transformers)/configmap-transformer@\(id.Version)"
+		description:    "Converts ConfigMaps resources to Kubernetes ConfigMaps"
 
 		labels: {
 			"core.opmodel.dev/resource-category": "config"

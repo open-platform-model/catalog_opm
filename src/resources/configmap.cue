@@ -2,7 +2,7 @@ package resources
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 )
 
 /////////////////////////////////////////////////////////////////
@@ -11,10 +11,12 @@ import (
 
 #ConfigMapsResource: c.#Resource & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/resources"
-		version:     id.Version
-		name:        "config-maps"
-		description: "A ConfigMap definition for external configuration"
+		modulePath:     id.kindPrefix.resources
+		name:           "config-maps"
+		apiVersion:     "v1beta1"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.resources)/config-maps@v1beta1"
+		description:    "A ConfigMap definition for external configuration"
 		labels: {
 			"resource.opmodel.dev/category": "config"
 		}

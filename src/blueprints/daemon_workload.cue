@@ -1,8 +1,8 @@
-package workload
+package blueprints
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 	res "opmodel.dev/catalogs/opm/resources"
 	tr "opmodel.dev/catalogs/opm/traits"
 )
@@ -17,11 +17,20 @@ import (
 
 #DaemonWorkloadBlueprint: c.#Blueprint & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/blueprints/workload"
-		version:     id.Version
-		name:        "daemon-workload"
-		description: "A daemon workload that runs on all (or selected) nodes in a cluster"
+		modulePath:     id.kindPrefix.blueprints
+		name:           "daemon-workload"
+		apiVersion:     "v1beta1"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.blueprints)/daemon-workload@v1beta1"
+		description:    "A daemon workload that runs on all (or selected) nodes in a cluster"
 	}
+
+	// Answers the container resource's required matching key (0010 D36):
+	// attaching this blueprint is what completes a component's matching
+	// identity. Matching reads matchLabels; metadata.labels on the wrapper
+	// below stays as a transitional duplicate until the kernel's matcher
+	// flips its read (0010 library-matching).
+	matchLabels: "core.opmodel.dev/workload-type": "daemon"
 
 	composedResources: [
 		res.#ContainerResource,

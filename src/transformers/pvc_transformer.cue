@@ -2,7 +2,7 @@ package transformers
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 	res "opmodel.dev/catalogs/opm/resources"
 	k8scorev1 "opmodel.dev/catalogs/opm/schemas/kubernetes/core/v1"
 )
@@ -10,10 +10,11 @@ import (
 // PVCTransformer creates standalone PersistentVolumeClaims from Volume resources
 #PVCTransformer: c.#ComponentTransformer & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/transformers"
-		version:     id.Version
-		name:        "pvc-transformer"
-		description: "Creates standalone Kubernetes PersistentVolumeClaims from Volume resources"
+		modulePath:     id.kindPrefix.transformers
+		name:           "pvc-transformer"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.transformers)/pvc-transformer@\(id.Version)"
+		description:    "Creates standalone Kubernetes PersistentVolumeClaims from Volume resources"
 
 		labels: {
 			"core.opmodel.dev/resource-category": "storage"

@@ -4,7 +4,7 @@ import (
 	id "opmodel.dev/catalogs/opm/identity"
 	"strings"
 
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 )
 
 /////////////////////////////////////////////////////////////////
@@ -13,14 +13,20 @@ import (
 
 #ContainerResource: c.#Resource & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/resources"
-		version:     id.Version
-		name:        "container"
-		description: "A container definition for workloads"
+		modulePath:     id.kindPrefix.resources
+		name:           "container"
+		apiVersion:     "v1beta1"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.resources)/container@v1beta1"
+		description:    "A container definition for workloads"
 		labels: {
 			"resource.opmodel.dev/category": "workload"
 		}
 	}
+
+	// The matching key this catalog introduces (0010 D36). Required, so a
+	// component must answer it — typically by attaching a workload blueprint.
+	matchLabels: "core.opmodel.dev/workload-type"!: "stateless" | "stateful" | "daemon" | "task" | "scheduled-task"
 
 	spec: container: #ContainerSchema
 }

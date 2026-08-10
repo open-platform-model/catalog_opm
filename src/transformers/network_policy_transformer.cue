@@ -2,7 +2,7 @@ package transformers
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 	tr "opmodel.dev/catalogs/opm/traits"
 )
 
@@ -16,10 +16,11 @@ import (
 // cannot drift from the pods it is meant to protect.
 #NetworkPolicyTransformer: c.#ComponentTransformer & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/transformers"
-		version:     id.Version
-		name:        "network-policy-transformer"
-		description: "Converts the NetworkPolicy trait to a Kubernetes NetworkPolicy selecting the workload's pods"
+		modulePath:     id.kindPrefix.transformers
+		name:           "network-policy-transformer"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.transformers)/network-policy-transformer@\(id.Version)"
+		description:    "Converts the NetworkPolicy trait to a Kubernetes NetworkPolicy selecting the workload's pods"
 
 		labels: {
 			"core.opmodel.dev/resource-type": "networkpolicy"
@@ -137,5 +138,5 @@ _testNetPolTypesPresent: [
 ] & ["Egress"]
 
 // The blueprint-attachment test — the whole reason this trait was ported here —
-// lives in blueprints/workload/, because transformers does not import
+// lives in blueprints/, because transformers does not import
 // blueprints and should not start.

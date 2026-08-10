@@ -4,7 +4,7 @@ import (
 	id "opmodel.dev/catalogs/opm/identity"
 	"list"
 	k8sappsv1 "opmodel.dev/catalogs/opm/schemas/kubernetes/apps/v1"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 	res "opmodel.dev/catalogs/opm/resources"
 	tr "opmodel.dev/catalogs/opm/traits"
 )
@@ -12,10 +12,11 @@ import (
 // DeploymentTransformer converts stateless workload components to Kubernetes Deployments
 #DeploymentTransformer: c.#ComponentTransformer & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/transformers"
-		version:     id.Version
-		name:        "deployment-transformer"
-		description: "Converts stateless workload components with Container resource to Kubernetes Deployments"
+		modulePath:     id.kindPrefix.transformers
+		name:           "deployment-transformer"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.transformers)/deployment-transformer@\(id.Version)"
+		description:    "Converts stateless workload components with Container resource to Kubernetes Deployments"
 
 		labels: {
 			"core.opmodel.dev/workload-type": "stateless"

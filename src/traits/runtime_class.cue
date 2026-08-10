@@ -2,7 +2,7 @@ package traits
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 	res "opmodel.dev/catalogs/opm/resources"
 )
 
@@ -30,14 +30,20 @@ import (
 // https://github.com/open-platform-model/enhancements/issues/12.
 #RuntimeClassTrait: c.#Trait & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/traits"
-		version:     id.Version
-		name:        "runtime-class"
-		description: "Select the container runtime for the pod (runtimeClassName)"
+		modulePath:     id.kindPrefix.traits
+		name:           "runtime-class"
+		apiVersion:     "v1beta1"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.traits)/runtime-class@v1beta1"
+		description:    "Select the container runtime for the pod (runtimeClassName)"
 		labels: {
 			"trait.opmodel.dev/category": "runtime"
 		}
 	}
+
+	// Advisory posture (0010 D46): a workload without this trait still
+	// renders; a module may narrow the default at the attachment site.
+	optional: bool | *true
 
 	appliesTo: [res.#ContainerResource]
 

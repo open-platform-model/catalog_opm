@@ -55,9 +55,9 @@ it is permanent, outward-facing, and it reaches a third party who never opted in
 
 ## Purpose
 
-This repo defines and publishes the **OPM core catalog** as a versioned CUE module (`opmodel.dev/catalogs/opm@v1`).
+This repo defines and publishes the **OPM core catalog** as a versioned CUE module (`opmodel.dev/catalogs/opm@v2`). The retired v1 line lives on the `v1` maintenance branch (fixes only, `1.0.x` releases).
 
-The catalog is the canonical set of OPM Kubernetes building blocks — `#Resource`s, `#Trait`s, `#Blueprint`s, and `#ComponentTransformer`s — that platform and module authors consume to model and render workloads. It is typed entirely against the `core` schema (`opmodel.dev/core@v1`) and instantiates its constructs; it does **not** define new core constructs.
+The catalog is the canonical set of OPM Kubernetes building blocks — `#Resource`s, `#Trait`s, `#Blueprint`s, and `#ComponentTransformer`s — that platform and module authors consume to model and render workloads. It is typed entirely against the `core` schema (`opmodel.dev/core@v2`) and instantiates its constructs; it does **not** define new core constructs.
 
 This is a pure CUE repository: catalog definitions plus the tooling to validate, index, and publish them. No Go code.
 
@@ -67,9 +67,9 @@ This is a pure CUE repository: catalog definitions plus the tooling to validate,
 
 - Authority is this file and `Taskfile.yml`. If they disagree with anything below, they win.
 - Keep changes small. Split broad requests into tiny, independently verifiable steps.
-- The catalog is a published contract — downstream platforms and modules pin `opmodel.dev/catalogs/opm@v1`. Prefer additive evolution.
+- The catalog is a published contract — downstream platforms and modules pin `opmodel.dev/catalogs/opm@v2`. Prefer additive evolution; a contract's `apiVersion` moves only when that primitive's own shape breaks (0010 D4).
 - Never run the publish flow against a live registry manually — let CI publish. The only exception is a **local** publish (routes to `localhost:5000`) when the user explicitly asks for one in the current prompt — see Registry Policy rule 2 in the root `CLAUDE.md`.
-- The CUE module is pinned to major `@v1` and ships on the v1 prerelease line (`v1.x.x-alpha.x`) for the post-rename rollout — release-please is configured with `versioning: prerelease` + `prerelease-type: alpha` (enhancement 0002 / D14). Was: major `@v0`, tags within `v0.x.x` (`bump-minor-pre-major: true`).
+- The CUE module is pinned to major `@v2` and ships on the v2 prerelease line (`v2.x.x-alpha.x`) for the core-v2 rollout — release-please keeps `versioning: prerelease` + `prerelease-type: alpha`, and an `extra-files` generic updater owns `identity.Version` (the `x-release-please-version` annotation). The `v1` branch is the pinned maintenance line (`always-bump-patch`). Was: major `@v1`, tags within `v1.x.x-alpha.x`.
 - **CUE authoring pitfall:** never place an `if spec.<nested>.<field> != _|_` guard *inside* a component's `spec` block when `<field>` is struct- or list-valued — hoist it to component level (`if … { spec: <field>: … }`). The in-spec form trips a CUE evaluator closedness regression ("field not allowed") present from `v0.17.0-alpha.2` onward and **still unfixed in `v0.17.1`**, the version this repo's CI now uses — so the hoisted form is load-bearing, not precautionary. Do not "modernize" it away. See `docs/cue-guard-closedness-workaround.md`.
 
 ## Entrypoint
@@ -84,7 +84,7 @@ Read these on entry:
 ## Repository Layout
 
 ```text
-src/cue.mod/module.cue   CUE module manifest — opmodel.dev/catalogs/opm@v1
+src/cue.mod/module.cue   CUE module manifest — opmodel.dev/catalogs/opm@v2
 src/catalog.cue          catalog manifest (bare c.#Catalog, enumerates transformers)
 src/identity/            ModulePath + Version (publish-time stamping anchor)
 src/resources/           #Resource definitions (+ #Component wrappers)
@@ -96,26 +96,27 @@ src/INDEX.md             generated definition index (ships inside the CUE module
 .tasks/                  Taskfile script fragments (index + branch-tag)
 ```
 
-`src/` is the CUE module root: the catalog package and `cue.mod/` both live there, so the import path stays `opmodel.dev/catalogs/opm@v1` with no per-version subdirectory. Internal imports (`opmodel.dev/catalogs/opm/identity`, `.../resources`, `.../traits`, …) resolve relative to the module root. Repo-level material (README, Taskfile, CI workflows) sits at the repo root. A breaking revision bumps the module major (`@v1` → `@v2`); it does not add a sibling package.
+`src/` is the CUE module root: the catalog package and `cue.mod/` both live there, so the import path stays `opmodel.dev/catalogs/opm@v2` with no per-version subdirectory. Internal imports (`opmodel.dev/catalogs/opm/identity`, `.../resources`, `.../traits`, …) resolve relative to the module root. Repo-level material (README, Taskfile, CI workflows) sits at the repo root. A breaking revision bumps the module major (`@v1` → `@v2`); it does not add a sibling package.
 
 All raw `cue` invocations run from `src/`. The Taskfile handles this via `dir: src` / `cd src`.
 
 ## Dependencies
 
-- `opmodel.dev/core@v1` — the OPM schema this catalog instantiates.
+- `opmodel.dev/core@v2` — the OPM schema this catalog instantiates.
 - `cue.dev/x/k8s.io@v0` — vendored Kubernetes types used by `schemas/kubernetes/**` and transformers.
 
 `cue vet` therefore needs a reachable registry. Export the workspace registry vars from the root `CLAUDE.md` (`CUE_REGISTRY`, `OPM_REGISTRY`) before running raw `cue` outside `task`.
 
-## Version Stamping (important)
+## Version & Identity (important)
 
-The catalog uses **publish-time version stamping**, not plain `cue mod publish`:
+`src/identity/identity.cue` is the single source of the catalog's identity (0010 D5):
 
-- `src/identity/identity.cue` defines `ModulePath` and `Version`. Every resource/trait/blueprint/transformer threads its `metadata.version` from `identity.Version`.
-- The committed tree resolves `Version` to the `0.0.0-dev` sentinel.
-- `task publish VERSION=vX.Y.Z` copies `src/` to a transient build dir, writes `identity/version_override.cue` pinning the concrete bare SemVer, vets the build dir, then runs `cue mod publish vX.Y.Z`. The source tree is never mutated, and publishing the dev sentinel is refused.
+- `ModulePath` carries the full module path with major (`opmodel.dev/catalogs/opm@v2`); `kindPrefix` derives the per-kind package paths every member's `metadata.modulePath` and authored `fqn` use.
+- `Version` is COMMITTED as the real release version (a CUE *default*, so the publish-time override can still stamp `-dev.*` branch builds). release-please updates it in the release PR via the `x-release-please-version` annotation — never hand-edit it.
+- Transformers interpolate `Version` into their build-keyed `fqn` (`…/transformers/<name>@<version>`); primitives key their `fqn` by their own `apiVersion` (`…/resources/<name>@v1beta1`), which a release does NOT move.
+- `task publish VERSION=vX.Y.Z` still stages `src/` to a transient build dir and writes `identity/version_override.cue`; for a release the override unifies with the committed default (they must agree), for branch builds it stamps the `-dev.*` version. The dev sentinel guard remains.
 
-Never hand-edit `metadata.version` on definitions — change `identity` (or pass `VERSION` at publish).
+Never hand-edit `apiVersion`/`catalogVersion`/`fqn` to chase a release — only a primitive's own breaking shape change moves its `apiVersion` (and with it the contract key).
 
 ## Build And Dev Commands
 

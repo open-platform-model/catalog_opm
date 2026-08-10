@@ -2,7 +2,7 @@ package transformers
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 	res "opmodel.dev/catalogs/opm/resources"
 	tr "opmodel.dev/catalogs/opm/traits"
 	k8scorev1 "opmodel.dev/catalogs/opm/schemas/kubernetes/core/v1"
@@ -11,10 +11,11 @@ import (
 // ServiceTransformer creates Kubernetes Services from components with Expose trait
 #ServiceTransformer: c.#ComponentTransformer & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/transformers"
-		version:     id.Version
-		name:        "service-transformer"
-		description: "Creates Kubernetes Services for components with Expose trait"
+		modulePath:     id.kindPrefix.transformers
+		name:           "service-transformer"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.transformers)/service-transformer@\(id.Version)"
+		description:    "Creates Kubernetes Services for components with Expose trait"
 
 		labels: {
 			"core.opmodel.dev/trait-type":    "network"

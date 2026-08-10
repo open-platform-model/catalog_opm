@@ -2,7 +2,7 @@ package transformers
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 	tr "opmodel.dev/catalogs/opm/traits"
 )
 
@@ -11,10 +11,11 @@ import (
 // and the renderer dispatches on cue.Kind.
 #HttpRouteTransformer: c.#ComponentTransformer & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/transformers"
-		version:     id.Version
-		name:        "http-route-transformer"
-		description: "Creates Gateway API HTTPRoutes for components with HttpRoute trait"
+		modulePath:     id.kindPrefix.transformers
+		name:           "http-route-transformer"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.transformers)/http-route-transformer@\(id.Version)"
+		description:    "Creates Gateway API HTTPRoutes for components with HttpRoute trait"
 
 		labels: {
 			"core.opmodel.dev/trait-type":    "network"

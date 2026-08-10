@@ -2,20 +2,26 @@ package traits
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 	res "opmodel.dev/catalogs/opm/resources"
 )
 
 #WorkloadIdentityTrait: c.#Trait & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/traits"
-		version:     id.Version
-		name:        "workload-identity"
-		description: "A workload identity definition for service identity"
+		modulePath:     id.kindPrefix.traits
+		name:           "workload-identity"
+		apiVersion:     "v1beta1"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.traits)/workload-identity@v1beta1"
+		description:    "A workload identity definition for service identity"
 		labels: {
 			"trait.opmodel.dev/category": "security"
 		}
 	}
+
+	// Advisory posture (0010 D46): a workload without this trait still
+	// renders; a module may narrow the default at the attachment site.
+	optional: bool | *true
 
 	appliesTo: [res.#ContainerResource]
 

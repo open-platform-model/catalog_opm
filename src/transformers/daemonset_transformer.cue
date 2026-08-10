@@ -4,7 +4,7 @@ import (
 	id "opmodel.dev/catalogs/opm/identity"
 	"list"
 	k8sappsv1 "opmodel.dev/catalogs/opm/schemas/kubernetes/apps/v1"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 	res "opmodel.dev/catalogs/opm/resources"
 	tr "opmodel.dev/catalogs/opm/traits"
 )
@@ -12,10 +12,11 @@ import (
 // DaemonSetTransformer converts daemon workload components to Kubernetes DaemonSets
 #DaemonSetTransformer: c.#ComponentTransformer & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/transformers"
-		version:     id.Version
-		name:        "daemonset-transformer"
-		description: "Converts daemon workload components to Kubernetes DaemonSets"
+		modulePath:     id.kindPrefix.transformers
+		name:           "daemonset-transformer"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.transformers)/daemonset-transformer@\(id.Version)"
+		description:    "Converts daemon workload components to Kubernetes DaemonSets"
 
 		labels: {
 			"core.opmodel.dev/workload-type": "daemon"

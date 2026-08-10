@@ -2,7 +2,7 @@ package transformers
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 	tr "opmodel.dev/catalogs/opm/traits"
 )
 
@@ -10,10 +10,11 @@ import (
 // Untyped struct output — see #HttpRouteTransformer for rationale.
 #TcpRouteTransformer: c.#ComponentTransformer & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/transformers"
-		version:     id.Version
-		name:        "tcp-route-transformer"
-		description: "Creates Gateway API TCPRoutes for components with TcpRoute trait"
+		modulePath:     id.kindPrefix.transformers
+		name:           "tcp-route-transformer"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.transformers)/tcp-route-transformer@\(id.Version)"
+		description:    "Creates Gateway API TCPRoutes for components with TcpRoute trait"
 
 		labels: {
 			"core.opmodel.dev/trait-type":    "network"
