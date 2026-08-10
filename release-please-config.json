@@ -17,8 +17,7 @@
           "type": "generic",
           "path": "src/identity/identity.cue"
         }
-      ],
-      "release-as": "2.0.0-alpha.1"
+      ]
     }
   },
   "changelog-sections": [
