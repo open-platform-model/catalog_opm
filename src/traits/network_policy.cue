@@ -2,7 +2,7 @@ package traits
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 )
 
 // #NetworkPolicyTrait attaches an ingress/egress policy to a workload.
@@ -24,14 +24,20 @@ import (
 // catalog, but a TRAIT that has to ride a stable blueprint must live here.
 #NetworkPolicyTrait: c.#Trait & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/traits"
-		version:     id.Version
-		name:        "network-policy"
-		description: "Ingress and egress network policy for a workload's pods"
+		modulePath:     id.kindPrefix.traits
+		name:           "network-policy"
+		apiVersion:     "v1beta1"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.traits)/network-policy@v1beta1"
+		description:    "Ingress and egress network policy for a workload's pods"
 		labels: {
 			"trait.opmodel.dev/category": "network"
 		}
 	}
+
+	// Advisory posture (0010 D46): a workload without this trait still
+	// renders; a module may narrow the default at the attachment site.
+	optional: bool | *true
 
 	spec: networkPolicy: #NetworkPolicySchema
 }

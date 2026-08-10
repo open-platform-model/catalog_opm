@@ -1,4 +1,4 @@
-package workload
+package blueprints
 
 import (
 	tr "opmodel.dev/catalogs/opm/traits"

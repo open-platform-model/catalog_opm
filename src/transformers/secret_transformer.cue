@@ -2,7 +2,7 @@ package transformers
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 	res "opmodel.dev/catalogs/opm/resources"
 	k8scorev1 "opmodel.dev/catalogs/opm/schemas/kubernetes/core/v1"
 )
@@ -17,10 +17,11 @@ import (
 // create a K8s Secret, K8s refs are skipped.
 #SecretTransformer: c.#ComponentTransformer & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/transformers"
-		version:     id.Version
-		name:        "secret-transformer"
-		description: "Converts Secrets resources to Kubernetes Secrets"
+		modulePath:     id.kindPrefix.transformers
+		name:           "secret-transformer"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.transformers)/secret-transformer@\(id.Version)"
+		description:    "Converts Secrets resources to Kubernetes Secrets"
 
 		labels: {
 			"core.opmodel.dev/resource-category": "config"

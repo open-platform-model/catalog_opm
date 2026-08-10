@@ -2,20 +2,26 @@ package traits
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 	res "opmodel.dev/catalogs/opm/resources"
 )
 
 #TcpRouteTrait: c.#Trait & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/traits"
-		version:     id.Version
-		name:        "tcp-route"
-		description: "TCP port-forwarding rules for a workload"
+		modulePath:     id.kindPrefix.traits
+		name:           "tcp-route"
+		apiVersion:     "v1beta1"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.traits)/tcp-route@v1beta1"
+		description:    "TCP port-forwarding rules for a workload"
 		labels: {
 			"trait.opmodel.dev/category": "network"
 		}
 	}
+
+	// Advisory posture (0010 D46): a workload without this trait still
+	// renders; a module may narrow the default at the attachment site.
+	optional: bool | *true
 
 	appliesTo: [res.#ContainerResource]
 

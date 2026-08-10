@@ -2,7 +2,7 @@ package transformers
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 	res "opmodel.dev/catalogs/opm/resources"
 	k8sapiextv1 "opmodel.dev/catalogs/opm/schemas/kubernetes/apiextensions/v1"
 )
@@ -10,10 +10,11 @@ import (
 // CRDTransformer converts CRDs resources to Kubernetes CustomResourceDefinitions
 #CRDTransformer: c.#ComponentTransformer & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/transformers"
-		version:     id.Version
-		name:        "crd-transformer"
-		description: "Converts CRDs resources to Kubernetes CustomResourceDefinitions"
+		modulePath:     id.kindPrefix.transformers
+		name:           "crd-transformer"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.transformers)/crd-transformer@\(id.Version)"
+		description:    "Converts CRDs resources to Kubernetes CustomResourceDefinitions"
 
 		labels: {
 			"core.opmodel.dev/resource-category": "extension"

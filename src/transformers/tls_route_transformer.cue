@@ -2,7 +2,7 @@ package transformers
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 	tr "opmodel.dev/catalogs/opm/traits"
 )
 
@@ -10,10 +10,11 @@ import (
 // Untyped struct output — see #HttpRouteTransformer for rationale.
 #TlsRouteTransformer: c.#ComponentTransformer & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/transformers"
-		version:     id.Version
-		name:        "tls-route-transformer"
-		description: "Creates Gateway API TLSRoutes for components with TlsRoute trait"
+		modulePath:     id.kindPrefix.transformers
+		name:           "tls-route-transformer"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.transformers)/tls-route-transformer@\(id.Version)"
+		description:    "Creates Gateway API TLSRoutes for components with TlsRoute trait"
 
 		labels: {
 			"core.opmodel.dev/trait-type":    "network"

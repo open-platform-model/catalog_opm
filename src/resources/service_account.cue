@@ -2,7 +2,7 @@ package resources
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 )
 
 /////////////////////////////////////////////////////////////////
@@ -11,10 +11,12 @@ import (
 
 #ServiceAccountResource: c.#Resource & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/resources"
-		version:     id.Version
-		name:        "service-account"
-		description: "A standalone ServiceAccount definition for identity"
+		modulePath:     id.kindPrefix.resources
+		name:           "service-account"
+		apiVersion:     "v1beta1"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.resources)/service-account@v1beta1"
+		description:    "A standalone ServiceAccount definition for identity"
 		labels: {
 			"resource.opmodel.dev/category": "security"
 		}

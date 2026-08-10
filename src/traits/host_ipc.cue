@@ -2,7 +2,7 @@ package traits
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 	res "opmodel.dev/catalogs/opm/resources"
 )
 
@@ -11,14 +11,20 @@ import (
 // processes.
 #HostIPCTrait: c.#Trait & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/traits"
-		version:     id.Version
-		name:        "host-ipc"
-		description: "Share the node's IPC namespace (hostIPC: true)"
+		modulePath:     id.kindPrefix.traits
+		name:           "host-ipc"
+		apiVersion:     "v1beta1"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.traits)/host-ipc@v1beta1"
+		description:    "Share the node's IPC namespace (hostIPC: true)"
 		labels: {
 			"trait.opmodel.dev/category": "security"
 		}
 	}
+
+	// Advisory posture (0010 D46): a workload without this trait still
+	// renders; a module may narrow the default at the attachment site.
+	optional: bool | *true
 
 	appliesTo: [res.#ContainerResource]
 

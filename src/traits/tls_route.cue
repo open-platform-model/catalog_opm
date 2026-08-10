@@ -2,20 +2,26 @@ package traits
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 	res "opmodel.dev/catalogs/opm/resources"
 )
 
 #TlsRouteTrait: c.#Trait & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/traits"
-		version:     id.Version
-		name:        "tls-route"
-		description: "TLS routing rules (passthrough or terminate) for a workload"
+		modulePath:     id.kindPrefix.traits
+		name:           "tls-route"
+		apiVersion:     "v1beta1"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.traits)/tls-route@v1beta1"
+		description:    "TLS routing rules (passthrough or terminate) for a workload"
 		labels: {
 			"trait.opmodel.dev/category": "network"
 		}
 	}
+
+	// Advisory posture (0010 D46): a workload without this trait still
+	// renders; a module may narrow the default at the attachment site.
+	optional: bool | *true
 
 	appliesTo: [res.#ContainerResource]
 

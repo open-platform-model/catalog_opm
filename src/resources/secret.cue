@@ -7,7 +7,7 @@ import (
 	"list"
 	"strings"
 
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 	schemas "opmodel.dev/catalogs/opm/schemas"
 )
 
@@ -17,10 +17,12 @@ import (
 
 #SecretsResource: c.#Resource & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/resources"
-		version:     id.Version
-		name:        "secrets"
-		description: "A Secret definition for sensitive configuration"
+		modulePath:     id.kindPrefix.resources
+		name:           "secrets"
+		apiVersion:     "v1beta1"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.resources)/secrets@v1beta1"
+		description:    "A Secret definition for sensitive configuration"
 		labels: {
 			"resource.opmodel.dev/category": "config"
 		}

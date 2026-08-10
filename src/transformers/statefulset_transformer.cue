@@ -4,7 +4,7 @@ import (
 	id "opmodel.dev/catalogs/opm/identity"
 	"list"
 	k8sappsv1 "opmodel.dev/catalogs/opm/schemas/kubernetes/apps/v1"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 	res "opmodel.dev/catalogs/opm/resources"
 	tr "opmodel.dev/catalogs/opm/traits"
 )
@@ -12,10 +12,11 @@ import (
 // StatefulsetTransformer converts stateful workload components to Kubernetes StatefulSets
 #StatefulsetTransformer: c.#ComponentTransformer & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/transformers"
-		version:     id.Version
-		name:        "statefulset-transformer"
-		description: "Converts stateful workload components to Kubernetes StatefulSets"
+		modulePath:     id.kindPrefix.transformers
+		name:           "statefulset-transformer"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.transformers)/statefulset-transformer@\(id.Version)"
+		description:    "Converts stateful workload components to Kubernetes StatefulSets"
 
 		labels: {
 			"core.opmodel.dev/workload-type": "stateful"

@@ -1,8 +1,8 @@
-package workload
+package blueprints
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 	res "opmodel.dev/catalogs/opm/resources"
 	tr "opmodel.dev/catalogs/opm/traits"
 )
@@ -21,11 +21,20 @@ import (
 
 #StatelessWorkloadBlueprint: c.#Blueprint & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/blueprints/workload"
-		version:     id.Version
-		name:        "stateless-workload"
-		description: "A stateless workload with no requirement for stable identity or storage"
+		modulePath:     id.kindPrefix.blueprints
+		name:           "stateless-workload"
+		apiVersion:     "v1beta1"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.blueprints)/stateless-workload@v1beta1"
+		description:    "A stateless workload with no requirement for stable identity or storage"
 	}
+
+	// Answers the container resource's required matching key (0010 D36):
+	// attaching this blueprint is what completes a component's matching
+	// identity. Matching reads matchLabels; metadata.labels on the wrapper
+	// below stays as a transitional duplicate until the kernel's matcher
+	// flips its read (0010 library-matching).
+	matchLabels: "core.opmodel.dev/workload-type": "stateless"
 
 	composedResources: [
 		res.#ContainerResource,

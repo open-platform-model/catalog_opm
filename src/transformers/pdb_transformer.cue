@@ -3,7 +3,7 @@ package transformers
 import (
 	id "opmodel.dev/catalogs/opm/identity"
 	k8spolicyv1 "opmodel.dev/catalogs/opm/schemas/kubernetes/policy/v1"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 	res "opmodel.dev/catalogs/opm/resources"
 	tr "opmodel.dev/catalogs/opm/traits"
 )
@@ -22,10 +22,11 @@ import (
 // always covers exactly the workload's pods.
 #PDBTransformer: c.#ComponentTransformer & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/transformers"
-		version:     id.Version
-		name:        "pdb-transformer"
-		description: "Converts a workload's disruption budget to a Kubernetes PodDisruptionBudget"
+		modulePath:     id.kindPrefix.transformers
+		name:           "pdb-transformer"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.transformers)/pdb-transformer@\(id.Version)"
+		description:    "Converts a workload's disruption budget to a Kubernetes PodDisruptionBudget"
 
 		labels: {
 			"core.opmodel.dev/resource-type": "poddisruptionbudget"

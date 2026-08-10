@@ -11,7 +11,13 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "prerelease": true,
-      "prerelease-type": "alpha"
+      "prerelease-type": "alpha",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "src/identity/identity.cue"
+        }
+      ]
     }
   },
   "changelog-sections": [

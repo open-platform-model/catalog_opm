@@ -2,12 +2,14 @@
 // version. It sits at the bottom of the catalog's import graph (it imports
 // nothing within the module) so transformer/resource/trait/blueprint
 // subpackages can source `ModulePath`/`Version` without a circular import,
-// and the root `catalog.cue` can stamp transformer metadata in lockstep
-// (enhancement 0001 D19/D-A).
+// and the root `catalog.cue` can stamp transformer metadata in lockstep.
 //
-// Publish-time stamping writes a transient `version_override.cue` into this
-// package pinning a concrete SemVer; the committed tree always resolves
-// `Version` to the "0.0.0-dev" default.
+// Committed with the REAL values (enhancement 0010 D5): a checkout and a
+// published artifact compute the same FQNs — the `0.0.0-dev` sentinel is
+// gone. `Version` stays a CUE *default* so the publish task's transient
+// `version_override.cue` can still stamp `-dev.*` branch builds; release
+// publishes stamp the same value the tree already carries. release-please
+// owns the committed value via the x-release-please-version annotation.
 package identity
 
 // #VersionType mirrors core.#VersionType (SemVer 2.0). Duplicated here so the
@@ -15,10 +17,25 @@ package identity
 // mirror convention used by schemas/common.cue for #NameType.
 #VersionType: string & =~"^\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$"
 
-// ModulePath is the catalog's CUE module path (no @vN qualifier, no version).
-ModulePath: "opmodel.dev/catalogs/opm"
+// ModulePath is the catalog's complete CUE module path, major suffix included
+// — byte-identical to cue.mod's `module:` field (enhancement 0010 D1).
+ModulePath: "opmodel.dev/catalogs/opm@v2"
 
-// Version is the catalog's bare SemVer. Defaults to the dev sentinel in the
-// committed tree; a publish-time version_override.cue unifies it to a
-// concrete release version.
-Version: #VersionType | *"0.0.0-dev"
+// Version is the catalog's bare SemVer — the build every implementation key
+// interpolates. The default is the current release line's version; the major
+// MUST agree with ModulePath's (asserted by core's #IdentityPackage at
+// publish once 0011's publish gates land).
+Version: #VersionType | *"2.0.0-alpha.1" // x-release-please-version
+
+// RegistryPath is the major-free OCI repository path.
+RegistryPath: "opmodel.dev/catalogs/opm"
+
+// kindPrefix mirrors core's #IdentityPackage.kindPrefix — exactly one prefix
+// per kind, no grouping segment beneath any of them (enhancement 0010 D42).
+// Every member's metadata.modulePath and authored fqn derive from this map.
+kindPrefix: {
+	resources:    RegistryPath + "/resources"
+	traits:       RegistryPath + "/traits"
+	blueprints:   RegistryPath + "/blueprints"
+	transformers: RegistryPath + "/transformers"
+}

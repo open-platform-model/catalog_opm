@@ -1,6 +1,6 @@
 # catalog_opm — Definition Index
 
-CUE module: `opmodel.dev/catalogs/opm@v1`
+CUE module: `opmodel.dev/catalogs/opm@v2`
 
 ---
 
@@ -14,25 +14,23 @@ CUE module: `opmodel.dev/catalogs/opm@v1`
 
 ## Blueprints
 
-### workload
-
 | Definition | File | Description |
 |---|---|---|
-| `#DaemonWorkload` | `blueprints/workload/daemon_workload.cue` |  |
-| `#DaemonWorkloadBlueprint` | `blueprints/workload/daemon_workload.cue` |  |
-| `#DaemonWorkloadSchema` | `blueprints/workload/daemon_workload.cue` |  |
-| `#ScheduledTaskWorkload` | `blueprints/workload/scheduled_task_workload.cue` |  |
-| `#ScheduledTaskWorkloadBlueprint` | `blueprints/workload/scheduled_task_workload.cue` |  |
-| `#ScheduledTaskWorkloadSchema` | `blueprints/workload/scheduled_task_workload.cue` |  |
-| `#StatefulWorkload` | `blueprints/workload/stateful_workload.cue` |  |
-| `#StatefulWorkloadBlueprint` | `blueprints/workload/stateful_workload.cue` |  |
-| `#StatefulWorkloadSchema` | `blueprints/workload/stateful_workload.cue` |  |
-| `#StatelessWorkload` | `blueprints/workload/stateless_workload.cue` |  |
-| `#StatelessWorkloadBlueprint` | `blueprints/workload/stateless_workload.cue` |  |
-| `#StatelessWorkloadSchema` | `blueprints/workload/stateless_workload.cue` |  |
-| `#TaskWorkload` | `blueprints/workload/task_workload.cue` |  |
-| `#TaskWorkloadBlueprint` | `blueprints/workload/task_workload.cue` |  |
-| `#TaskWorkloadSchema` | `blueprints/workload/task_workload.cue` |  |
+| `#DaemonWorkload` | `blueprints/daemon_workload.cue` |  |
+| `#DaemonWorkloadBlueprint` | `blueprints/daemon_workload.cue` |  |
+| `#DaemonWorkloadSchema` | `blueprints/daemon_workload.cue` |  |
+| `#ScheduledTaskWorkload` | `blueprints/scheduled_task_workload.cue` |  |
+| `#ScheduledTaskWorkloadBlueprint` | `blueprints/scheduled_task_workload.cue` |  |
+| `#ScheduledTaskWorkloadSchema` | `blueprints/scheduled_task_workload.cue` |  |
+| `#StatefulWorkload` | `blueprints/stateful_workload.cue` |  |
+| `#StatefulWorkloadBlueprint` | `blueprints/stateful_workload.cue` |  |
+| `#StatefulWorkloadSchema` | `blueprints/stateful_workload.cue` |  |
+| `#StatelessWorkload` | `blueprints/stateless_workload.cue` |  |
+| `#StatelessWorkloadBlueprint` | `blueprints/stateless_workload.cue` |  |
+| `#StatelessWorkloadSchema` | `blueprints/stateless_workload.cue` |  |
+| `#TaskWorkload` | `blueprints/task_workload.cue` |  |
+| `#TaskWorkloadBlueprint` | `blueprints/task_workload.cue` |  |
+| `#TaskWorkloadSchema` | `blueprints/task_workload.cue` |  |
 
 ---
 

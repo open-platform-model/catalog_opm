@@ -2,7 +2,7 @@ package resources
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 )
 
 /////////////////////////////////////////////////////////////////
@@ -11,10 +11,12 @@ import (
 
 #VolumesResource: c.#Resource & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/resources"
-		version:     id.Version
-		name:        "volumes"
-		description: "A volume definition for workloads"
+		modulePath:     id.kindPrefix.resources
+		name:           "volumes"
+		apiVersion:     "v1beta1"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.resources)/volumes@v1beta1"
+		description:    "A volume definition for workloads"
 		labels: {
 			"resource.opmodel.dev/category": "storage"
 		}

@@ -2,7 +2,7 @@ package transformers
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 	res "opmodel.dev/catalogs/opm/resources"
 )
 
@@ -12,10 +12,11 @@ import (
 //   scope: "cluster"   → k8s ClusterRole + ClusterRoleBinding
 #RoleTransformer: c.#ComponentTransformer & {
 	metadata: {
-		modulePath:  "\(id.ModulePath)/transformers"
-		version:     id.Version
-		name:        "role-transformer"
-		description: "Converts Role resources to Kubernetes RBAC Role/ClusterRole and RoleBinding/ClusterRoleBinding"
+		modulePath:     id.kindPrefix.transformers
+		name:           "role-transformer"
+		catalogVersion: id.Version
+		fqn:            "\(id.kindPrefix.transformers)/role-transformer@\(id.Version)"
+		description:    "Converts Role resources to Kubernetes RBAC Role/ClusterRole and RoleBinding/ClusterRoleBinding"
 
 		labels: {
 			"core.opmodel.dev/resource-category": "security"

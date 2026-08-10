@@ -1,7 +1,7 @@
 package transformers
 
 import (
-	c "opmodel.dev/core@v1"
+	c "opmodel.dev/core@v2"
 	k8scorev1 "opmodel.dev/catalogs/opm/schemas/kubernetes/core/v1"
 )
 
