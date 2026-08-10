@@ -37,6 +37,21 @@ tasks:
     cmds:
       - cue vet ./...
 
+  vet:layering:
+    desc: >
+      Enforce the family layering rule (0010 D47): the abstraction family never
+      depends on the raw k8s-* family. No trait, blueprint, or non-k8s_
+      transformer may reference a k8s-* contract or a #K8s definition.
+    cmds:
+      - |
+        violations=$({ grep -rln '#K8s[A-Z]\|resources/k8s-' src/traits src/blueprints 2>/dev/null; \
+          grep -rln '#K8s[A-Z]\|resources/k8s-' src/transformers 2>/dev/null | grep -v '/k8s_'; } || true)
+        if [ -n "$violations" ]; then
+          echo "Layering violation — abstraction-family files referencing the raw k8s-* family:" >&2
+          echo "$violations" >&2
+          exit 1
+        fi
+
   tidy:
     desc: Tidy the CUE module manifest
     dir: src
@@ -159,8 +174,9 @@ tasks:
   ## Aggregate
 
   check:
-    desc: Format check, vet, and INDEX freshness
+    desc: Format check, vet, layering, and INDEX freshness
     cmds:
       - task: fmt:check
       - task: vet
+      - task: vet:layering
       - task: generate:index:check

@@ -14,23 +14,25 @@ CUE module: `opmodel.dev/catalogs/opm@v2`
 
 ## Blueprints
 
+### v1beta1
+
 | Definition | File | Description |
 |---|---|---|
-| `#DaemonWorkload` | `blueprints/daemon_workload.cue` |  |
-| `#DaemonWorkloadBlueprint` | `blueprints/daemon_workload.cue` |  |
-| `#DaemonWorkloadSchema` | `blueprints/daemon_workload.cue` |  |
-| `#ScheduledTaskWorkload` | `blueprints/scheduled_task_workload.cue` |  |
-| `#ScheduledTaskWorkloadBlueprint` | `blueprints/scheduled_task_workload.cue` |  |
-| `#ScheduledTaskWorkloadSchema` | `blueprints/scheduled_task_workload.cue` |  |
-| `#StatefulWorkload` | `blueprints/stateful_workload.cue` |  |
-| `#StatefulWorkloadBlueprint` | `blueprints/stateful_workload.cue` |  |
-| `#StatefulWorkloadSchema` | `blueprints/stateful_workload.cue` |  |
-| `#StatelessWorkload` | `blueprints/stateless_workload.cue` |  |
-| `#StatelessWorkloadBlueprint` | `blueprints/stateless_workload.cue` |  |
-| `#StatelessWorkloadSchema` | `blueprints/stateless_workload.cue` |  |
-| `#TaskWorkload` | `blueprints/task_workload.cue` |  |
-| `#TaskWorkloadBlueprint` | `blueprints/task_workload.cue` |  |
-| `#TaskWorkloadSchema` | `blueprints/task_workload.cue` |  |
+| `#DaemonWorkload` | `blueprints/v1beta1/daemon_workload.cue` |  |
+| `#DaemonWorkloadBlueprint` | `blueprints/v1beta1/daemon_workload.cue` |  |
+| `#DaemonWorkloadSchema` | `blueprints/v1beta1/daemon_workload.cue` |  |
+| `#ScheduledTaskWorkload` | `blueprints/v1beta1/scheduled_task_workload.cue` |  |
+| `#ScheduledTaskWorkloadBlueprint` | `blueprints/v1beta1/scheduled_task_workload.cue` |  |
+| `#ScheduledTaskWorkloadSchema` | `blueprints/v1beta1/scheduled_task_workload.cue` |  |
+| `#StatefulWorkload` | `blueprints/v1beta1/stateful_workload.cue` |  |
+| `#StatefulWorkloadBlueprint` | `blueprints/v1beta1/stateful_workload.cue` |  |
+| `#StatefulWorkloadSchema` | `blueprints/v1beta1/stateful_workload.cue` |  |
+| `#StatelessWorkload` | `blueprints/v1beta1/stateless_workload.cue` |  |
+| `#StatelessWorkloadBlueprint` | `blueprints/v1beta1/stateless_workload.cue` |  |
+| `#StatelessWorkloadSchema` | `blueprints/v1beta1/stateless_workload.cue` |  |
+| `#TaskWorkload` | `blueprints/v1beta1/task_workload.cue` |  |
+| `#TaskWorkloadBlueprint` | `blueprints/v1beta1/task_workload.cue` |  |
+| `#TaskWorkloadSchema` | `blueprints/v1beta1/task_workload.cue` |  |
 
 ---
 
@@ -44,80 +46,168 @@ CUE module: `opmodel.dev/catalogs/opm@v2`
 
 ## Resources
 
+### v1
+
 | Definition | File | Description |
 |---|---|---|
-| `#ConfigMapDefaults` | `resources/configmap.cue` |  |
-| `#ConfigMapSchema` | `resources/configmap.cue` | ConfigMap specification |
-| `#ConfigMaps` | `resources/configmap.cue` |  |
-| `#ConfigMapsResource` | `resources/configmap.cue` |  |
-| `#Container` | `resources/container.cue` |  |
-| `#ContainerResource` | `resources/container.cue` |  |
-| `#ContainerSchema` | `resources/container.cue` | Container specification |
-| `#EnvFromSource` | `resources/container.cue` | Bulk injection source — inject all keys from a ConfigMap or Secret as env vars |
-| `#EnvVarSchema` | `resources/container.cue` | Environment variable |
-| `#FieldRefDefaults` | `resources/container.cue` |  |
-| `#FieldRefSchema` | `resources/container.cue` | Downward API field reference |
-| `#GpuResourceSchema` | `resources/container.cue` | GPU extended resource claim |
-| `#Image` | `resources/container.cue` | Image specification for container images |
-| `#PortSchema` | `resources/container.cue` |  |
-| `#ProbeSchema` | `resources/container.cue` | Probe specification used by liveness/readiness/startup probes |
-| `#ResourceFieldRefSchema` | `resources/container.cue` | Container resource field reference |
-| `#ResourceRequirementsSchema` | `resources/container.cue` |  |
-| `#SecurityContextSchema` | `resources/container.cue` |  |
-| `#CRDDefaults` | `resources/crd.cue` |  |
-| `#CRDSchema` | `resources/crd.cue` | Kubernetes CustomResourceDefinition |
-| `#CRDVersionSchema` | `resources/crd.cue` | A single version entry in a CRD |
-| `#CRDs` | `resources/crd.cue` |  |
-| `#CRDsResource` | `resources/crd.cue` |  |
-| `#NonResourcePolicyRuleSchema` | `resources/role.cue` | ClusterRole (scope: "cluster") only — enforced in review/docs, not schema |
-| `#PolicyRuleSchema` | `resources/role.cue` | Single RBAC permission rule — exactly one of the two k8s forms |
-| `#ResourcePolicyRuleSchema` | `resources/role.cue` |  |
-| `#Role` | `resources/role.cue` |  |
-| `#RoleDefaults` | `resources/role.cue` |  |
-| `#RoleResource` | `resources/role.cue` |  |
-| `#RoleSchema` | `resources/role.cue` |  |
-| `#RoleSubjectSchema` | `resources/role.cue` | Role subject — embeds an identity directly via CUE reference |
-| `#AutoSecrets` | `resources/secret.cue` | Discover all #Secret instances from a resolved config and group by $secretName/$dataKey in one step |
-| `#ContentHash` | `resources/secret.cue` | Deterministic 10-character hex hash of a string data map |
-| `#DiscoverSecrets` | `resources/secret.cue` | Walk a resolved config (up to 10 levels) and collect all fields whose value is a #Secret |
-| `#GroupSecrets` | `resources/secret.cue` | Group a flat map of discovered secrets by $secretName, keyed by $dataKey |
-| `#ImmutableName` | `resources/secret.cue` | K8s resource name for a ConfigMap |
-| `#Secret` | `resources/secret.cue` |  |
-| `#SecretContentHash` | `resources/secret.cue` | Normalize #Secret entries and plain strings to a string map, then hash |
-| `#SecretDefaults` | `resources/secret.cue` |  |
-| `#SecretImmutableName` | `resources/secret.cue` | K8s resource name for a Secret |
-| `#SecretK8sRef` | `resources/secret.cue` | References a pre-existing K8s Secret |
-| `#SecretLiteral` | `resources/secret.cue` | User provides the actual value |
-| `#SecretSchema` | `resources/secret.cue` | `data` holds either #Secret entries (auto-discovered via #AutoSecrets) or plain strings |
-| `#SecretType` | `resources/secret.cue` |  |
-| `#Secrets` | `resources/secret.cue` |  |
-| `#SecretsResource` | `resources/secret.cue` |  |
-| `#ServiceAccount` | `resources/service_account.cue` |  |
-| `#ServiceAccountResource` | `resources/service_account.cue` |  |
-| `#ServiceAccountSchema` | `resources/service_account.cue` |  |
-| `#WorkloadIdentitySchema` | `resources/service_account.cue` | Workload identity — used by #WorkloadIdentityTrait and as a #RoleSubjectSchema variant |
-| `#EmptyDirDefaults` | `resources/volume.cue` |  |
-| `#EmptyDirSchema` | `resources/volume.cue` |  |
-| `#ExternalObjectVolumeSourceSchema` | `resources/volume.cue` | Reference to a cluster object this module does not own, mounted by its exact name (never instance-prefixed) |
-| `#FileMode` | `resources/volume.cue` |  |
-| `#HostPathDefaults` | `resources/volume.cue` |  |
-| `#HostPathSchema` | `resources/volume.cue` | Mounts a file or directory from the host node |
-| `#NFSVolumeSourceSchema` | `resources/volume.cue` | Mounts a directory from an NFS server |
-| `#ObjectProjectionSchema` | `resources/volume.cue` |  |
-| `#PersistentClaimDefaults` | `resources/volume.cue` |  |
-| `#PersistentClaimSchema` | `resources/volume.cue` | To mount a CIFS/SMB share use a storageClass that matches a pre-installed SMB StorageClass (e |
-| `#ProjectedSourceSchema` | `resources/volume.cue` | One entry in a projected volume |
-| `#ProjectedVolumeSourceSchema` | `resources/volume.cue` | Combines several sources into a single mounted directory |
-| `#SecretVolumeItemSchema` | `resources/volume.cue` |  |
-| `#SecretVolumeSourceDefaults` | `resources/volume.cue` |  |
-| `#SecretVolumeSourceSchema` | `resources/volume.cue` |  |
-| `#ServiceAccountTokenProjectionSchema` | `resources/volume.cue` | A short-lived, audience-bound ServiceAccount token |
-| `#VolumeDefaults` | `resources/volume.cue` |  |
-| `#VolumeMountDefaults` | `resources/volume.cue` |  |
-| `#VolumeMountSchema` | `resources/volume.cue` | Volume mount spec — defines container mount point |
-| `#VolumeSchema` | `resources/volume.cue` | Volume specification — defines storage source |
-| `#Volumes` | `resources/volume.cue` |  |
-| `#VolumesResource` | `resources/volume.cue` |  |
+| `#K8sAPIService` | `resources/v1/k8s_apiservice.cue` |  |
+| `#K8sAPIServiceResource` | `resources/v1/k8s_apiservice.cue` | #K8sAPIServiceResource defines a native Kubernetes APIService (apiregistration |
+| `#K8sClusterRole` | `resources/v1/k8s_cluster_role.cue` |  |
+| `#K8sClusterRoleResource` | `resources/v1/k8s_cluster_role.cue` | #K8sClusterRoleResource defines a native Kubernetes ClusterRole as an OPM resource |
+| `#K8sClusterRoleBinding` | `resources/v1/k8s_cluster_role_binding.cue` |  |
+| `#K8sClusterRoleBindingResource` | `resources/v1/k8s_cluster_role_binding.cue` | #K8sClusterRoleBindingResource defines a native Kubernetes ClusterRoleBinding as an OPM resource |
+| `#K8sConfigMap` | `resources/v1/k8s_configmap.cue` |  |
+| `#K8sConfigMapResource` | `resources/v1/k8s_configmap.cue` | #K8sConfigMapResource defines a native Kubernetes ConfigMap as an OPM resource |
+| `#K8sCronJob` | `resources/v1/k8s_cronjob.cue` |  |
+| `#K8sCronJobResource` | `resources/v1/k8s_cronjob.cue` | #K8sCronJobResource defines a native Kubernetes CronJob as an OPM resource |
+| `#K8sDaemonSet` | `resources/v1/k8s_daemonset.cue` |  |
+| `#K8sDaemonSetResource` | `resources/v1/k8s_daemonset.cue` | #K8sDaemonSetResource defines a native Kubernetes DaemonSet as an OPM resource |
+| `#K8sDeployment` | `resources/v1/k8s_deployment.cue` |  |
+| `#K8sDeploymentResource` | `resources/v1/k8s_deployment.cue` | #K8sDeploymentResource defines a native Kubernetes Deployment as an OPM resource |
+| `#K8sIngress` | `resources/v1/k8s_ingress.cue` |  |
+| `#K8sIngressResource` | `resources/v1/k8s_ingress.cue` | #K8sIngressResource defines a native Kubernetes Ingress as an OPM resource |
+| `#K8sIngressClass` | `resources/v1/k8s_ingressclass.cue` |  |
+| `#K8sIngressClassResource` | `resources/v1/k8s_ingressclass.cue` | #K8sIngressClassResource defines a native Kubernetes IngressClass as an OPM resource |
+| `#K8sJob` | `resources/v1/k8s_job.cue` |  |
+| `#K8sJobResource` | `resources/v1/k8s_job.cue` | #K8sJobResource defines a native Kubernetes Job as an OPM resource |
+| `#K8sMutatingWebhookConfiguration` | `resources/v1/k8s_mutating_webhook.cue` |  |
+| `#K8sMutatingWebhookConfigurationResource` | `resources/v1/k8s_mutating_webhook.cue` | #K8sMutatingWebhookConfigurationResource defines a native Kubernetes MutatingWebhookConfiguration as an OPM resource |
+| `#K8sNamespace` | `resources/v1/k8s_namespace.cue` |  |
+| `#K8sNamespaceResource` | `resources/v1/k8s_namespace.cue` | #K8sNamespaceResource defines a native Kubernetes Namespace as an OPM resource |
+| `#K8sNetworkPolicy` | `resources/v1/k8s_networkpolicy.cue` |  |
+| `#K8sNetworkPolicyResource` | `resources/v1/k8s_networkpolicy.cue` | #K8sNetworkPolicyResource defines a native Kubernetes NetworkPolicy as an OPM resource |
+| `#K8sObjectEntrySchema` | `resources/v1/k8s_object.cue` | A single arbitrary object plus its scope discriminator |
+| `#K8sObjects` | `resources/v1/k8s_object.cue` |  |
+| `#K8sObjectsResource` | `resources/v1/k8s_object.cue` | #K8sObjectsResource renders arbitrary Kubernetes objects — built-in kinds OR Custom Resource instances (Issuer, Gateway, MongoDBCommunity, VolumeSnapshotClass, …) |
+| `#K8sPodDisruptionBudget` | `resources/v1/k8s_pdb.cue` |  |
+| `#K8sPodDisruptionBudgetResource` | `resources/v1/k8s_pdb.cue` | #K8sPodDisruptionBudgetResource defines a native Kubernetes PodDisruptionBudget as an OPM resource |
+| `#K8sPod` | `resources/v1/k8s_pod.cue` |  |
+| `#K8sPodResource` | `resources/v1/k8s_pod.cue` | #K8sPodResource defines a native Kubernetes Pod as an OPM resource |
+| `#K8sPersistentVolume` | `resources/v1/k8s_pv.cue` |  |
+| `#K8sPersistentVolumeResource` | `resources/v1/k8s_pv.cue` | #K8sPersistentVolumeResource defines a native Kubernetes PV as an OPM resource |
+| `#K8sPersistentVolumeClaim` | `resources/v1/k8s_pvc.cue` |  |
+| `#K8sPersistentVolumeClaimResource` | `resources/v1/k8s_pvc.cue` | #K8sPersistentVolumeClaimResource defines a native Kubernetes PVC as an OPM resource |
+| `#K8sRole` | `resources/v1/k8s_role.cue` |  |
+| `#K8sRoleResource` | `resources/v1/k8s_role.cue` | #K8sRoleResource defines a native Kubernetes Role as an OPM resource |
+| `#K8sRoleBinding` | `resources/v1/k8s_role_binding.cue` |  |
+| `#K8sRoleBindingResource` | `resources/v1/k8s_role_binding.cue` | #K8sRoleBindingResource defines a native Kubernetes RoleBinding as an OPM resource |
+| `#K8sSecret` | `resources/v1/k8s_secret.cue` |  |
+| `#K8sSecretResource` | `resources/v1/k8s_secret.cue` | #K8sSecretResource defines a native Kubernetes Secret as an OPM resource |
+| `#K8sService` | `resources/v1/k8s_service.cue` |  |
+| `#K8sServiceResource` | `resources/v1/k8s_service.cue` | #K8sServiceResource defines a native Kubernetes Service as an OPM resource |
+| `#K8sServiceAccount` | `resources/v1/k8s_serviceaccount.cue` |  |
+| `#K8sServiceAccountResource` | `resources/v1/k8s_serviceaccount.cue` | #K8sServiceAccountResource defines a native Kubernetes ServiceAccount as an OPM resource |
+| `#K8sStatefulSet` | `resources/v1/k8s_statefulset.cue` |  |
+| `#K8sStatefulSetResource` | `resources/v1/k8s_statefulset.cue` | #K8sStatefulSetResource defines a native Kubernetes StatefulSet as an OPM resource |
+| `#K8sStorageClass` | `resources/v1/k8s_storageclass.cue` |  |
+| `#K8sStorageClassResource` | `resources/v1/k8s_storageclass.cue` | #K8sStorageClassResource defines a native Kubernetes StorageClass as an OPM resource |
+| `#K8sValidatingWebhookConfiguration` | `resources/v1/k8s_validating_webhook.cue` |  |
+| `#K8sValidatingWebhookConfigurationResource` | `resources/v1/k8s_validating_webhook.cue` | #K8sValidatingWebhookConfigurationResource defines a native Kubernetes ValidatingWebhookConfiguration as an OPM resource |
+
+### v1alpha1
+
+| Definition | File | Description |
+|---|---|---|
+| `#AdmissionResourceRule` | `resources/v1alpha1/admission_policy.cue` |  |
+| `#ValidatingAdmissionPolicies` | `resources/v1alpha1/admission_policy.cue` |  |
+| `#ValidatingAdmissionPoliciesResource` | `resources/v1alpha1/admission_policy.cue` | CEL-based admission validation, the in-process alternative to a validating webhook: no serving certificate, no CA bundle, no availability coupling to a pod |
+| `#ValidatingAdmissionPolicySchema` | `resources/v1alpha1/admission_policy.cue` |  |
+| `#NamespaceSchema` | `resources/v1alpha1/namespace.cue` | Kubernetes Namespace, emitted with its exact name |
+| `#Namespaces` | `resources/v1alpha1/namespace.cue` |  |
+| `#NamespacesResource` | `resources/v1alpha1/namespace.cue` |  |
+| `#MutatingWebhookConfigurationSchema` | `resources/v1alpha1/webhook.cue` |  |
+| `#MutatingWebhookSchema` | `resources/v1alpha1/webhook.cue` | Mutating-only extension: the mutating admission API additionally supports reinvocationPolicy |
+| `#MutatingWebhooks` | `resources/v1alpha1/webhook.cue` |  |
+| `#MutatingWebhooksResource` | `resources/v1alpha1/webhook.cue` |  |
+| `#ValidatingWebhookConfigurationSchema` | `resources/v1alpha1/webhook.cue` | The webhooks lists are declared per variant (not on the shared meta schema) so the mutating elements can carry reinvocationPolicy without fighting the closed base #WebhookSchema |
+| `#ValidatingWebhooks` | `resources/v1alpha1/webhook.cue` |  |
+| `#ValidatingWebhooksResource` | `resources/v1alpha1/webhook.cue` |  |
+| `#WebhookConfigurationMetaSchema` | `resources/v1alpha1/webhook.cue` | Shared config-level metadata |
+| `#WebhookSchema` | `resources/v1alpha1/webhook.cue` |  |
+
+### v1beta1
+
+| Definition | File | Description |
+|---|---|---|
+| `#ConfigMapDefaults` | `resources/v1beta1/configmap.cue` |  |
+| `#ConfigMapSchema` | `resources/v1beta1/configmap.cue` | ConfigMap specification |
+| `#ConfigMaps` | `resources/v1beta1/configmap.cue` |  |
+| `#ConfigMapsResource` | `resources/v1beta1/configmap.cue` |  |
+| `#Container` | `resources/v1beta1/container.cue` |  |
+| `#ContainerResource` | `resources/v1beta1/container.cue` |  |
+| `#ContainerSchema` | `resources/v1beta1/container.cue` | Container specification |
+| `#EnvFromSource` | `resources/v1beta1/container.cue` | Bulk injection source — inject all keys from a ConfigMap or Secret as env vars |
+| `#EnvVarSchema` | `resources/v1beta1/container.cue` | Environment variable |
+| `#FieldRefDefaults` | `resources/v1beta1/container.cue` |  |
+| `#FieldRefSchema` | `resources/v1beta1/container.cue` | Downward API field reference |
+| `#GpuResourceSchema` | `resources/v1beta1/container.cue` | GPU extended resource claim |
+| `#Image` | `resources/v1beta1/container.cue` | Image specification for container images |
+| `#PortSchema` | `resources/v1beta1/container.cue` |  |
+| `#ProbeSchema` | `resources/v1beta1/container.cue` | Probe specification used by liveness/readiness/startup probes |
+| `#ResourceFieldRefSchema` | `resources/v1beta1/container.cue` | Container resource field reference |
+| `#ResourceRequirementsSchema` | `resources/v1beta1/container.cue` |  |
+| `#SecurityContextSchema` | `resources/v1beta1/container.cue` |  |
+| `#CRDDefaults` | `resources/v1beta1/crd.cue` |  |
+| `#CRDSchema` | `resources/v1beta1/crd.cue` | Kubernetes CustomResourceDefinition |
+| `#CRDVersionSchema` | `resources/v1beta1/crd.cue` | A single version entry in a CRD |
+| `#CRDs` | `resources/v1beta1/crd.cue` |  |
+| `#CRDsResource` | `resources/v1beta1/crd.cue` |  |
+| `#NonResourcePolicyRuleSchema` | `resources/v1beta1/role.cue` | ClusterRole (scope: "cluster") only — enforced in review/docs, not schema |
+| `#PolicyRuleSchema` | `resources/v1beta1/role.cue` | Single RBAC permission rule — exactly one of the two k8s forms |
+| `#ResourcePolicyRuleSchema` | `resources/v1beta1/role.cue` |  |
+| `#Role` | `resources/v1beta1/role.cue` |  |
+| `#RoleDefaults` | `resources/v1beta1/role.cue` |  |
+| `#RoleResource` | `resources/v1beta1/role.cue` |  |
+| `#RoleSchema` | `resources/v1beta1/role.cue` |  |
+| `#RoleSubjectSchema` | `resources/v1beta1/role.cue` | Role subject — embeds an identity directly via CUE reference |
+| `#AutoSecrets` | `resources/v1beta1/secret.cue` | Discover all #Secret instances from a resolved config and group by $secretName/$dataKey in one step |
+| `#ContentHash` | `resources/v1beta1/secret.cue` | Deterministic 10-character hex hash of a string data map |
+| `#DiscoverSecrets` | `resources/v1beta1/secret.cue` | Walk a resolved config (up to 10 levels) and collect all fields whose value is a #Secret |
+| `#GroupSecrets` | `resources/v1beta1/secret.cue` | Group a flat map of discovered secrets by $secretName, keyed by $dataKey |
+| `#ImmutableName` | `resources/v1beta1/secret.cue` | K8s resource name for a ConfigMap |
+| `#Secret` | `resources/v1beta1/secret.cue` |  |
+| `#SecretContentHash` | `resources/v1beta1/secret.cue` | Normalize #Secret entries and plain strings to a string map, then hash |
+| `#SecretDefaults` | `resources/v1beta1/secret.cue` |  |
+| `#SecretImmutableName` | `resources/v1beta1/secret.cue` | K8s resource name for a Secret |
+| `#SecretK8sRef` | `resources/v1beta1/secret.cue` | References a pre-existing K8s Secret |
+| `#SecretLiteral` | `resources/v1beta1/secret.cue` | User provides the actual value |
+| `#SecretSchema` | `resources/v1beta1/secret.cue` | `data` holds either #Secret entries (auto-discovered via #AutoSecrets) or plain strings |
+| `#SecretType` | `resources/v1beta1/secret.cue` |  |
+| `#Secrets` | `resources/v1beta1/secret.cue` |  |
+| `#SecretsResource` | `resources/v1beta1/secret.cue` |  |
+| `#ServiceAccount` | `resources/v1beta1/service_account.cue` |  |
+| `#ServiceAccountResource` | `resources/v1beta1/service_account.cue` |  |
+| `#ServiceAccountSchema` | `resources/v1beta1/service_account.cue` |  |
+| `#WorkloadIdentitySchema` | `resources/v1beta1/service_account.cue` | Workload identity — used by #WorkloadIdentityTrait and as a #RoleSubjectSchema variant |
+| `#EmptyDirDefaults` | `resources/v1beta1/volume.cue` |  |
+| `#EmptyDirSchema` | `resources/v1beta1/volume.cue` |  |
+| `#ExternalObjectVolumeSourceSchema` | `resources/v1beta1/volume.cue` | Reference to a cluster object this module does not own, mounted by its exact name (never instance-prefixed) |
+| `#FileMode` | `resources/v1beta1/volume.cue` |  |
+| `#HostPathDefaults` | `resources/v1beta1/volume.cue` |  |
+| `#HostPathSchema` | `resources/v1beta1/volume.cue` | Mounts a file or directory from the host node |
+| `#NFSVolumeSourceSchema` | `resources/v1beta1/volume.cue` | Mounts a directory from an NFS server |
+| `#ObjectProjectionSchema` | `resources/v1beta1/volume.cue` |  |
+| `#PersistentClaimDefaults` | `resources/v1beta1/volume.cue` |  |
+| `#PersistentClaimSchema` | `resources/v1beta1/volume.cue` | To mount a CIFS/SMB share use a storageClass that matches a pre-installed SMB StorageClass (e |
+| `#ProjectedSourceSchema` | `resources/v1beta1/volume.cue` | One entry in a projected volume |
+| `#ProjectedVolumeSourceSchema` | `resources/v1beta1/volume.cue` | Combines several sources into a single mounted directory |
+| `#SecretVolumeItemSchema` | `resources/v1beta1/volume.cue` |  |
+| `#SecretVolumeSourceDefaults` | `resources/v1beta1/volume.cue` |  |
+| `#SecretVolumeSourceSchema` | `resources/v1beta1/volume.cue` |  |
+| `#ServiceAccountTokenProjectionSchema` | `resources/v1beta1/volume.cue` | A short-lived, audience-bound ServiceAccount token |
+| `#VolumeDefaults` | `resources/v1beta1/volume.cue` |  |
+| `#VolumeMountDefaults` | `resources/v1beta1/volume.cue` |  |
+| `#VolumeMountSchema` | `resources/v1beta1/volume.cue` | Volume mount spec — defines container mount point |
+| `#VolumeSchema` | `resources/v1beta1/volume.cue` | Volume specification — defines storage source |
+| `#Volumes` | `resources/v1beta1/volume.cue` |  |
+| `#VolumesResource` | `resources/v1beta1/volume.cue` |  |
+
+### v2
+
+| Definition | File | Description |
+|---|---|---|
+| `#K8sHorizontalPodAutoscaler` | `resources/v2/k8s_hpa.cue` |  |
+| `#K8sHorizontalPodAutoscalerResource` | `resources/v2/k8s_hpa.cue` | #K8sHorizontalPodAutoscalerResource defines a native Kubernetes HPA v2 as an OPM resource |
 
 ---
 
@@ -130,6 +220,37 @@ CUE module: `opmodel.dev/catalogs/opm@v2`
 | `#VersionSchema` | `schemas/common.cue` | Semantic version schema |
 | `#NormalizeCPU` | `schemas/quantity.cue` | #NormalizeCPU normalizes CPU input to Kubernetes canonical form |
 | `#NormalizeMemory` | `schemas/quantity.cue` | #NormalizeMemory normalizes memory input to Kubernetes binary format |
+
+### k8s
+
+| Definition | File | Description |
+|---|---|---|
+| `#MutatingWebhookConfigurationSchema` | `schemas/k8s/admission.cue` | #MutatingWebhookConfigurationSchema accepts the full Kubernetes MutatingWebhookConfiguration spec |
+| `#ValidatingWebhookConfigurationSchema` | `schemas/k8s/admission.cue` | #ValidatingWebhookConfigurationSchema accepts the full Kubernetes ValidatingWebhookConfiguration spec |
+| `#APIServiceSchema` | `schemas/k8s/apiregistration.cue` | #APIServiceSchema is an open schema for an aggregated APIService (apiregistration |
+| `#NamespaceSchema` | `schemas/k8s/cluster.cue` | #NamespaceSchema accepts the full Kubernetes Namespace spec |
+| `#ConfigMapSchema` | `schemas/k8s/config.cue` | #ConfigMapSchema accepts the full Kubernetes ConfigMap spec |
+| `#SecretSchema` | `schemas/k8s/config.cue` | #SecretSchema accepts the full Kubernetes Secret spec |
+| `#IngressClassSchema` | `schemas/k8s/network.cue` | #IngressClassSchema accepts the full Kubernetes IngressClass spec |
+| `#IngressSchema` | `schemas/k8s/network.cue` | #IngressSchema accepts the full Kubernetes Ingress spec |
+| `#NetworkPolicySchema` | `schemas/k8s/network.cue` | #NetworkPolicySchema accepts the full Kubernetes NetworkPolicy spec |
+| `#ServiceSchema` | `schemas/k8s/network.cue` | #ServiceSchema accepts the full Kubernetes Service spec |
+| `#HorizontalPodAutoscalerSchema` | `schemas/k8s/policy.cue` | #HorizontalPodAutoscalerSchema accepts the full Kubernetes HPA v2 spec |
+| `#PodDisruptionBudgetSchema` | `schemas/k8s/policy.cue` | #PodDisruptionBudgetSchema accepts the full Kubernetes PodDisruptionBudget spec |
+| `#ClusterRoleBindingSchema` | `schemas/k8s/rbac.cue` | #ClusterRoleBindingSchema accepts the full Kubernetes ClusterRoleBinding spec |
+| `#ClusterRoleSchema` | `schemas/k8s/rbac.cue` | #ClusterRoleSchema accepts the full Kubernetes ClusterRole spec |
+| `#RoleBindingSchema` | `schemas/k8s/rbac.cue` | #RoleBindingSchema accepts the full Kubernetes RoleBinding spec |
+| `#RoleSchema` | `schemas/k8s/rbac.cue` | #RoleSchema accepts the full Kubernetes Role spec |
+| `#ServiceAccountSchema` | `schemas/k8s/rbac.cue` | #ServiceAccountSchema accepts the full Kubernetes ServiceAccount spec |
+| `#PersistentVolumeClaimSchema` | `schemas/k8s/storage.cue` | #PersistentVolumeClaimSchema accepts the full Kubernetes PVC spec |
+| `#PersistentVolumeSchema` | `schemas/k8s/storage.cue` | #PersistentVolumeSchema accepts the full Kubernetes PV spec |
+| `#StorageClassSchema` | `schemas/k8s/storage.cue` | #StorageClassSchema accepts the full Kubernetes StorageClass spec |
+| `#CronJobSchema` | `schemas/k8s/workload.cue` | #CronJobSchema accepts the full Kubernetes CronJob spec |
+| `#DaemonSetSchema` | `schemas/k8s/workload.cue` | #DaemonSetSchema accepts the full Kubernetes DaemonSet spec |
+| `#DeploymentSchema` | `schemas/k8s/workload.cue` | #DeploymentSchema accepts the full Kubernetes Deployment spec |
+| `#JobSchema` | `schemas/k8s/workload.cue` | #JobSchema accepts the full Kubernetes Job spec |
+| `#PodSchema` | `schemas/k8s/workload.cue` | #PodSchema accepts the full Kubernetes Pod spec |
+| `#StatefulSetSchema` | `schemas/k8s/workload.cue` | #StatefulSetSchema accepts the full Kubernetes StatefulSet spec |
 
 ### kubernetes/apiextensions/v1
 
@@ -507,102 +628,104 @@ CUE module: `opmodel.dev/catalogs/opm@v2`
 
 ## Traits
 
+### v1beta1
+
 | Definition | File | Description |
 |---|---|---|
-| `#CronJobConfig` | `traits/cron_job_config.cue` |  |
-| `#CronJobConfigSchema` | `traits/cron_job_config.cue` |  |
-| `#CronJobConfigTrait` | `traits/cron_job_config.cue` |  |
-| `#DisruptionBudget` | `traits/disruption_budget.cue` |  |
-| `#DisruptionBudgetSchema` | `traits/disruption_budget.cue` | Exactly one of minAvailable or maxUnavailable must be set |
-| `#DisruptionBudgetTrait` | `traits/disruption_budget.cue` |  |
-| `#EncryptionConfig` | `traits/encryption.cue` |  |
-| `#EncryptionConfigSchema` | `traits/encryption.cue` |  |
-| `#EncryptionConfigTrait` | `traits/encryption.cue` |  |
-| `#Expose` | `traits/expose.cue` |  |
-| `#ExposeSchema` | `traits/expose.cue` | Service expose specification |
-| `#ExposeTrait` | `traits/expose.cue` |  |
-| `#GracefulShutdown` | `traits/graceful_shutdown.cue` |  |
-| `#GracefulShutdownSchema` | `traits/graceful_shutdown.cue` |  |
-| `#GracefulShutdownTrait` | `traits/graceful_shutdown.cue` |  |
-| `#GrpcRoute` | `traits/grpc_route.cue` |  |
-| `#GrpcRouteMatchSchema` | `traits/grpc_route.cue` |  |
-| `#GrpcRouteRuleSchema` | `traits/grpc_route.cue` |  |
-| `#GrpcRouteSchema` | `traits/grpc_route.cue` |  |
-| `#GrpcRouteTrait` | `traits/grpc_route.cue` |  |
-| `#HostIPC` | `traits/host_ipc.cue` |  |
-| `#HostIPCTrait` | `traits/host_ipc.cue` | Enables hostIPC: true on the pod spec, sharing the node's IPC namespace |
-| `#HostNetwork` | `traits/host_network.cue` |  |
-| `#HostNetworkTrait` | `traits/host_network.cue` | Enables hostNetwork: true on the pod spec, sharing the node's network namespace |
-| `#HostPID` | `traits/host_pid.cue` |  |
-| `#HostPIDTrait` | `traits/host_pid.cue` | Enables hostPID: true on the pod spec, sharing the node's PID namespace |
-| `#HttpRoute` | `traits/http_route.cue` |  |
-| `#HttpRouteMatchSchema` | `traits/http_route.cue` |  |
-| `#HttpRouteRuleSchema` | `traits/http_route.cue` |  |
-| `#HttpRouteSchema` | `traits/http_route.cue` |  |
-| `#HttpRouteTrait` | `traits/http_route.cue` |  |
-| `#ImagePullSecrets` | `traits/image_pull_secrets.cue` |  |
-| `#ImagePullSecretsSchema` | `traits/image_pull_secrets.cue` | References to pre-existing K8s Secrets |
-| `#ImagePullSecretsTrait` | `traits/image_pull_secrets.cue` | References pre-existing K8s Secrets (type kubernetes |
-| `#InitContainers` | `traits/init_containers.cue` |  |
-| `#InitContainersSchema` | `traits/init_containers.cue` | Init container shape — alias of #ContainerSchema |
-| `#InitContainersTrait` | `traits/init_containers.cue` |  |
-| `#JobConfig` | `traits/job_config.cue` |  |
-| `#JobConfigSchema` | `traits/job_config.cue` |  |
-| `#JobConfigTrait` | `traits/job_config.cue` |  |
-| `#NetworkPolicy` | `traits/network_policy.cue` |  |
-| `#NetworkPolicyEgressRule` | `traits/network_policy.cue` |  |
-| `#NetworkPolicyIngressRule` | `traits/network_policy.cue` | An empty rule (`{}`) means "allow all in this direction" — the idiom istiod uses for egress, because features like JWKS resolution need to reach user-defined endpoints |
-| `#NetworkPolicyPeer` | `traits/network_policy.cue` |  |
-| `#NetworkPolicyPort` | `traits/network_policy.cue` |  |
-| `#NetworkPolicySchema` | `traits/network_policy.cue` |  |
-| `#NetworkPolicyTrait` | `traits/network_policy.cue` | #NetworkPolicyTrait attaches an ingress/egress policy to a workload |
-| `#PodMetadata` | `traits/pod_metadata.cue` |  |
-| `#PodMetadataSchema` | `traits/pod_metadata.cue` | Pod-template metadata, distinct from the workload object's own metadata |
-| `#PodMetadataTrait` | `traits/pod_metadata.cue` |  |
-| `#PodScheduling` | `traits/pod_scheduling.cue` |  |
-| `#PodSchedulingSchema` | `traits/pod_scheduling.cue` | Named `podScheduling`, not `scheduling`, because a one-character difference from the existing `scaling` trait is a reading hazard in module bodies |
-| `#PodSchedulingTrait` | `traits/pod_scheduling.cue` |  |
-| `#TolerationSchema` | `traits/pod_scheduling.cue` | A `key`-less toleration with operator "Exists" tolerates EVERY taint, which is why `key` is optional |
-| `#ResourceName` | `traits/resource_name.cue` |  |
-| `#ResourceNameSchema` | `traits/resource_name.cue` | Explicit workload name, rendered verbatim instead of the default instance-scoped {instance}-{component} |
-| `#ResourceNameTrait` | `traits/resource_name.cue` |  |
-| `#RestartPolicy` | `traits/restart_policy.cue` |  |
-| `#RestartPolicySchema` | `traits/restart_policy.cue` |  |
-| `#RestartPolicyTrait` | `traits/restart_policy.cue` |  |
-| `#RouteAttachmentSchema` | `traits/route_common.cue` | Shared attachment fields for route schemas (gateway, TLS, className) |
-| `#RouteHeaderMatch` | `traits/route_common.cue` | Header match for route rules |
-| `#RouteRuleBase` | `traits/route_common.cue` | Base fields shared by all route rules |
-| `#RuntimeClass` | `traits/runtime_class.cue` |  |
-| `#RuntimeClassTrait` | `traits/runtime_class.cue` | Selects the container runtime that executes the pod, by setting `runtimeClassName` on the pod spec |
-| `#AutoscalingSpec` | `traits/scaling.cue` |  |
-| `#MetricSpec` | `traits/scaling.cue` |  |
-| `#MetricTargetSpec` | `traits/scaling.cue` |  |
-| `#Scaling` | `traits/scaling.cue` |  |
-| `#ScalingSchema` | `traits/scaling.cue` |  |
-| `#ScalingTrait` | `traits/scaling.cue` |  |
-| `#SecurityContext` | `traits/security_context.cue` |  |
-| `#SecurityContextTrait` | `traits/security_context.cue` |  |
-| `#SidecarContainers` | `traits/sidecar_containers.cue` |  |
-| `#SidecarContainersSchema` | `traits/sidecar_containers.cue` | Sidecar container shape — alias of #ContainerSchema |
-| `#SidecarContainersTrait` | `traits/sidecar_containers.cue` |  |
-| `#Sizing` | `traits/sizing.cue` |  |
-| `#SizingSchema` | `traits/sizing.cue` |  |
-| `#SizingTrait` | `traits/sizing.cue` |  |
-| `#VerticalScalingSchema` | `traits/sizing.cue` | Placeholder for future VPA support |
-| `#TcpRoute` | `traits/tcp_route.cue` |  |
-| `#TcpRouteRuleSchema` | `traits/tcp_route.cue` | No L7 match fields for TCP |
-| `#TcpRouteSchema` | `traits/tcp_route.cue` |  |
-| `#TcpRouteTrait` | `traits/tcp_route.cue` |  |
-| `#TlsRoute` | `traits/tls_route.cue` |  |
-| `#TlsRouteRuleSchema` | `traits/tls_route.cue` | No L7 match fields for TLS |
-| `#TlsRouteSchema` | `traits/tls_route.cue` |  |
-| `#TlsRouteTrait` | `traits/tls_route.cue` |  |
-| `#UpdateStrategy` | `traits/update_strategy.cue` |  |
-| `#UpdateStrategyDefaults` | `traits/update_strategy.cue` |  |
-| `#UpdateStrategySchema` | `traits/update_strategy.cue` |  |
-| `#UpdateStrategyTrait` | `traits/update_strategy.cue` |  |
-| `#WorkloadIdentity` | `traits/workload_identity.cue` |  |
-| `#WorkloadIdentityTrait` | `traits/workload_identity.cue` |  |
+| `#CronJobConfig` | `traits/v1beta1/cron_job_config.cue` |  |
+| `#CronJobConfigSchema` | `traits/v1beta1/cron_job_config.cue` |  |
+| `#CronJobConfigTrait` | `traits/v1beta1/cron_job_config.cue` |  |
+| `#DisruptionBudget` | `traits/v1beta1/disruption_budget.cue` |  |
+| `#DisruptionBudgetSchema` | `traits/v1beta1/disruption_budget.cue` | Exactly one of minAvailable or maxUnavailable must be set |
+| `#DisruptionBudgetTrait` | `traits/v1beta1/disruption_budget.cue` |  |
+| `#EncryptionConfig` | `traits/v1beta1/encryption.cue` |  |
+| `#EncryptionConfigSchema` | `traits/v1beta1/encryption.cue` |  |
+| `#EncryptionConfigTrait` | `traits/v1beta1/encryption.cue` |  |
+| `#Expose` | `traits/v1beta1/expose.cue` |  |
+| `#ExposeSchema` | `traits/v1beta1/expose.cue` | Service expose specification |
+| `#ExposeTrait` | `traits/v1beta1/expose.cue` |  |
+| `#GracefulShutdown` | `traits/v1beta1/graceful_shutdown.cue` |  |
+| `#GracefulShutdownSchema` | `traits/v1beta1/graceful_shutdown.cue` |  |
+| `#GracefulShutdownTrait` | `traits/v1beta1/graceful_shutdown.cue` |  |
+| `#GrpcRoute` | `traits/v1beta1/grpc_route.cue` |  |
+| `#GrpcRouteMatchSchema` | `traits/v1beta1/grpc_route.cue` |  |
+| `#GrpcRouteRuleSchema` | `traits/v1beta1/grpc_route.cue` |  |
+| `#GrpcRouteSchema` | `traits/v1beta1/grpc_route.cue` |  |
+| `#GrpcRouteTrait` | `traits/v1beta1/grpc_route.cue` |  |
+| `#HostIPC` | `traits/v1beta1/host_ipc.cue` |  |
+| `#HostIPCTrait` | `traits/v1beta1/host_ipc.cue` | Enables hostIPC: true on the pod spec, sharing the node's IPC namespace |
+| `#HostNetwork` | `traits/v1beta1/host_network.cue` |  |
+| `#HostNetworkTrait` | `traits/v1beta1/host_network.cue` | Enables hostNetwork: true on the pod spec, sharing the node's network namespace |
+| `#HostPID` | `traits/v1beta1/host_pid.cue` |  |
+| `#HostPIDTrait` | `traits/v1beta1/host_pid.cue` | Enables hostPID: true on the pod spec, sharing the node's PID namespace |
+| `#HttpRoute` | `traits/v1beta1/http_route.cue` |  |
+| `#HttpRouteMatchSchema` | `traits/v1beta1/http_route.cue` |  |
+| `#HttpRouteRuleSchema` | `traits/v1beta1/http_route.cue` |  |
+| `#HttpRouteSchema` | `traits/v1beta1/http_route.cue` |  |
+| `#HttpRouteTrait` | `traits/v1beta1/http_route.cue` |  |
+| `#ImagePullSecrets` | `traits/v1beta1/image_pull_secrets.cue` |  |
+| `#ImagePullSecretsSchema` | `traits/v1beta1/image_pull_secrets.cue` | References to pre-existing K8s Secrets |
+| `#ImagePullSecretsTrait` | `traits/v1beta1/image_pull_secrets.cue` | References pre-existing K8s Secrets (type kubernetes |
+| `#InitContainers` | `traits/v1beta1/init_containers.cue` |  |
+| `#InitContainersSchema` | `traits/v1beta1/init_containers.cue` | Init container shape — alias of #ContainerSchema |
+| `#InitContainersTrait` | `traits/v1beta1/init_containers.cue` |  |
+| `#JobConfig` | `traits/v1beta1/job_config.cue` |  |
+| `#JobConfigSchema` | `traits/v1beta1/job_config.cue` |  |
+| `#JobConfigTrait` | `traits/v1beta1/job_config.cue` |  |
+| `#NetworkPolicy` | `traits/v1beta1/network_policy.cue` |  |
+| `#NetworkPolicyEgressRule` | `traits/v1beta1/network_policy.cue` |  |
+| `#NetworkPolicyIngressRule` | `traits/v1beta1/network_policy.cue` | An empty rule (`{}`) means "allow all in this direction" — the idiom istiod uses for egress, because features like JWKS resolution need to reach user-defined endpoints |
+| `#NetworkPolicyPeer` | `traits/v1beta1/network_policy.cue` |  |
+| `#NetworkPolicyPort` | `traits/v1beta1/network_policy.cue` |  |
+| `#NetworkPolicySchema` | `traits/v1beta1/network_policy.cue` |  |
+| `#NetworkPolicyTrait` | `traits/v1beta1/network_policy.cue` | #NetworkPolicyTrait attaches an ingress/egress policy to a workload |
+| `#PodMetadata` | `traits/v1beta1/pod_metadata.cue` |  |
+| `#PodMetadataSchema` | `traits/v1beta1/pod_metadata.cue` | Pod-template metadata, distinct from the workload object's own metadata |
+| `#PodMetadataTrait` | `traits/v1beta1/pod_metadata.cue` |  |
+| `#PodScheduling` | `traits/v1beta1/pod_scheduling.cue` |  |
+| `#PodSchedulingSchema` | `traits/v1beta1/pod_scheduling.cue` | Named `podScheduling`, not `scheduling`, because a one-character difference from the existing `scaling` trait is a reading hazard in module bodies |
+| `#PodSchedulingTrait` | `traits/v1beta1/pod_scheduling.cue` |  |
+| `#TolerationSchema` | `traits/v1beta1/pod_scheduling.cue` | A `key`-less toleration with operator "Exists" tolerates EVERY taint, which is why `key` is optional |
+| `#ResourceName` | `traits/v1beta1/resource_name.cue` |  |
+| `#ResourceNameSchema` | `traits/v1beta1/resource_name.cue` | Explicit workload name, rendered verbatim instead of the default instance-scoped {instance}-{component} |
+| `#ResourceNameTrait` | `traits/v1beta1/resource_name.cue` |  |
+| `#RestartPolicy` | `traits/v1beta1/restart_policy.cue` |  |
+| `#RestartPolicySchema` | `traits/v1beta1/restart_policy.cue` |  |
+| `#RestartPolicyTrait` | `traits/v1beta1/restart_policy.cue` |  |
+| `#RouteAttachmentSchema` | `traits/v1beta1/route_common.cue` | Shared attachment fields for route schemas (gateway, TLS, className) |
+| `#RouteHeaderMatch` | `traits/v1beta1/route_common.cue` | Header match for route rules |
+| `#RouteRuleBase` | `traits/v1beta1/route_common.cue` | Base fields shared by all route rules |
+| `#RuntimeClass` | `traits/v1beta1/runtime_class.cue` |  |
+| `#RuntimeClassTrait` | `traits/v1beta1/runtime_class.cue` | Selects the container runtime that executes the pod, by setting `runtimeClassName` on the pod spec |
+| `#AutoscalingSpec` | `traits/v1beta1/scaling.cue` |  |
+| `#MetricSpec` | `traits/v1beta1/scaling.cue` |  |
+| `#MetricTargetSpec` | `traits/v1beta1/scaling.cue` |  |
+| `#Scaling` | `traits/v1beta1/scaling.cue` |  |
+| `#ScalingSchema` | `traits/v1beta1/scaling.cue` |  |
+| `#ScalingTrait` | `traits/v1beta1/scaling.cue` |  |
+| `#SecurityContext` | `traits/v1beta1/security_context.cue` |  |
+| `#SecurityContextTrait` | `traits/v1beta1/security_context.cue` |  |
+| `#SidecarContainers` | `traits/v1beta1/sidecar_containers.cue` |  |
+| `#SidecarContainersSchema` | `traits/v1beta1/sidecar_containers.cue` | Sidecar container shape — alias of #ContainerSchema |
+| `#SidecarContainersTrait` | `traits/v1beta1/sidecar_containers.cue` |  |
+| `#Sizing` | `traits/v1beta1/sizing.cue` |  |
+| `#SizingSchema` | `traits/v1beta1/sizing.cue` |  |
+| `#SizingTrait` | `traits/v1beta1/sizing.cue` |  |
+| `#VerticalScalingSchema` | `traits/v1beta1/sizing.cue` | Placeholder for future VPA support |
+| `#TcpRoute` | `traits/v1beta1/tcp_route.cue` |  |
+| `#TcpRouteRuleSchema` | `traits/v1beta1/tcp_route.cue` | No L7 match fields for TCP |
+| `#TcpRouteSchema` | `traits/v1beta1/tcp_route.cue` |  |
+| `#TcpRouteTrait` | `traits/v1beta1/tcp_route.cue` |  |
+| `#TlsRoute` | `traits/v1beta1/tls_route.cue` |  |
+| `#TlsRouteRuleSchema` | `traits/v1beta1/tls_route.cue` | No L7 match fields for TLS |
+| `#TlsRouteSchema` | `traits/v1beta1/tls_route.cue` |  |
+| `#TlsRouteTrait` | `traits/v1beta1/tls_route.cue` |  |
+| `#UpdateStrategy` | `traits/v1beta1/update_strategy.cue` |  |
+| `#UpdateStrategyDefaults` | `traits/v1beta1/update_strategy.cue` |  |
+| `#UpdateStrategySchema` | `traits/v1beta1/update_strategy.cue` |  |
+| `#UpdateStrategyTrait` | `traits/v1beta1/update_strategy.cue` |  |
+| `#WorkloadIdentity` | `traits/v1beta1/workload_identity.cue` |  |
+| `#WorkloadIdentityTrait` | `traits/v1beta1/workload_identity.cue` |  |
 
 ---
 
@@ -610,6 +733,7 @@ CUE module: `opmodel.dev/catalogs/opm@v2`
 
 | Definition | File | Description |
 |---|---|---|
+| `#AdmissionPolicyTransformer` | `transformers/admission_policy_transformer.cue` | AdmissionPolicyTransformer converts ValidatingAdmissionPolicies resources to Kubernetes ValidatingAdmissionPolicy + ValidatingAdmissionPolicyBinding pairs |
 | `#ConfigMapTransformer` | `transformers/configmap_transformer.cue` | ConfigMapTransformer converts ConfigMaps resources to Kubernetes ConfigMaps |
 | `#ToK8sContainer` | `transformers/container_helpers.cue` | #ToK8sContainer converts an OPM #ContainerSchema to a Kubernetes #Container |
 | `#ToK8sContainers` | `transformers/container_helpers.cue` | #ToK8sContainers converts a list of OPM containers to Kubernetes containers |
@@ -625,7 +749,36 @@ CUE module: `opmodel.dev/catalogs/opm@v2`
 | `#ToK8sMetricTarget` | `transformers/hpa_transformer.cue` | #ToK8sMetricTarget maps OPM's #MetricTargetSpec to a Kubernetes MetricTarget |
 | `#HttpRouteTransformer` | `transformers/http_route_transformer.cue` | HttpRouteTransformer creates Gateway API HTTPRoutes from components with HttpRoute trait |
 | `#JobTransformer` | `transformers/job_transformer.cue` | JobTransformer converts task workload components to Kubernetes Jobs |
+| `#K8sAPIServiceTransformer` | `transformers/k8s_apiservice_transformer.cue` | #K8sAPIServiceTransformer passes native Kubernetes APIService resources through with OPM context applied (labels) |
+| `#K8sClusterRoleBindingTransformer` | `transformers/k8s_cluster_role_binding_transformer.cue` | #K8sClusterRoleBindingTransformer passes native Kubernetes ClusterRoleBinding resources through with OPM context applied (name prefix, labels) |
+| `#K8sClusterRoleTransformer` | `transformers/k8s_cluster_role_transformer.cue` | #K8sClusterRoleTransformer passes native Kubernetes ClusterRole resources through with OPM context applied (name prefix, labels) |
+| `#K8sConfigMapTransformer` | `transformers/k8s_configmap_transformer.cue` | #K8sConfigMapTransformer passes native Kubernetes ConfigMap resources through with OPM context applied (name prefix, namespace, labels) |
+| `#K8sCronJobTransformer` | `transformers/k8s_cronjob_transformer.cue` | #K8sCronJobTransformer passes native Kubernetes CronJob resources through with OPM context applied (name prefix, namespace, labels) |
+| `#K8sDaemonSetTransformer` | `transformers/k8s_daemonset_transformer.cue` | #K8sDaemonSetTransformer passes native Kubernetes DaemonSet resources through with OPM context applied (name prefix, namespace, labels) |
+| `#K8sDeploymentTransformer` | `transformers/k8s_deployment_transformer.cue` | #K8sDeploymentTransformer passes native Kubernetes Deployment resources through with OPM context applied (name prefix, namespace, labels) |
+| `#K8sHorizontalPodAutoscalerTransformer` | `transformers/k8s_hpa_transformer.cue` | #K8sHorizontalPodAutoscalerTransformer passes native Kubernetes HPA resources through with OPM context applied (name prefix, namespace, labels) |
+| `#K8sIngressTransformer` | `transformers/k8s_ingress_transformer.cue` | #K8sIngressTransformer passes native Kubernetes Ingress resources through with OPM context applied (name prefix, namespace, labels) |
+| `#K8sIngressClassTransformer` | `transformers/k8s_ingressclass_transformer.cue` | #K8sIngressClassTransformer passes native Kubernetes IngressClass resources through with OPM context applied (name prefix, labels) |
+| `#K8sJobTransformer` | `transformers/k8s_job_transformer.cue` | #K8sJobTransformer passes native Kubernetes Job resources through with OPM context applied (name prefix, namespace, labels) |
+| `#K8sMutatingWebhookConfigurationTransformer` | `transformers/k8s_mutating_webhook_transformer.cue` | #K8sMutatingWebhookConfigurationTransformer passes native Kubernetes MutatingWebhookConfiguration resources through with OPM context applied |
+| `#K8sNamespaceTransformer` | `transformers/k8s_namespace_transformer.cue` | #K8sNamespaceTransformer passes native Kubernetes Namespace resources through with OPM context applied (name prefix, labels) |
+| `#K8sNetworkPolicyTransformer` | `transformers/k8s_networkpolicy_transformer.cue` | #K8sNetworkPolicyTransformer passes native Kubernetes NetworkPolicy resources through with OPM context applied (name prefix, namespace, labels) |
+| `#K8sObjectTransformer` | `transformers/k8s_object_transformer.cue` | #K8sObjectTransformer passes arbitrary Kubernetes objects — including Custom Resource instances — through with OPM context applied (name prefix, namespace for namespaced scope, merged labels/annotations) |
+| `#K8sPodDisruptionBudgetTransformer` | `transformers/k8s_pdb_transformer.cue` | #K8sPodDisruptionBudgetTransformer passes native Kubernetes PodDisruptionBudget resources through with OPM context applied (name prefix, namespace, labels) |
+| `#K8sPodTransformer` | `transformers/k8s_pod_transformer.cue` | #K8sPodTransformer passes native Kubernetes Pod resources through with OPM context applied (name prefix, namespace, labels) |
+| `#K8sPersistentVolumeTransformer` | `transformers/k8s_pv_transformer.cue` | #K8sPersistentVolumeTransformer passes native Kubernetes PV resources through with OPM context applied (name prefix, labels) |
+| `#K8sPersistentVolumeClaimTransformer` | `transformers/k8s_pvc_transformer.cue` | #K8sPersistentVolumeClaimTransformer passes native Kubernetes PVC resources through with OPM context applied (name prefix, namespace, labels) |
+| `#K8sRoleBindingTransformer` | `transformers/k8s_role_binding_transformer.cue` | #K8sRoleBindingTransformer passes native Kubernetes RoleBinding resources through with OPM context applied (name prefix, namespace, labels) |
+| `#K8sRoleTransformer` | `transformers/k8s_role_transformer.cue` | #K8sRoleTransformer passes native Kubernetes Role resources through with OPM context applied (name prefix, namespace, labels) |
+| `#K8sSecretTransformer` | `transformers/k8s_secret_transformer.cue` | #K8sSecretTransformer passes native Kubernetes Secret resources through with OPM context applied (name prefix, namespace, labels) |
+| `#K8sServiceTransformer` | `transformers/k8s_service_transformer.cue` | #K8sServiceTransformer passes native Kubernetes Service resources through with OPM context applied (name prefix, namespace, labels) |
+| `#K8sServiceAccountTransformer` | `transformers/k8s_serviceaccount_transformer.cue` | #K8sServiceAccountTransformer passes native Kubernetes ServiceAccount resources through with OPM context applied (name prefix, namespace, labels) |
+| `#K8sStatefulSetTransformer` | `transformers/k8s_statefulset_transformer.cue` | #K8sStatefulSetTransformer passes native Kubernetes StatefulSet resources through with OPM context applied (name prefix, namespace, labels) |
+| `#K8sStorageClassTransformer` | `transformers/k8s_storageclass_transformer.cue` | #K8sStorageClassTransformer passes native Kubernetes StorageClass resources through with OPM context applied (name prefix, labels) |
+| `#K8sValidatingWebhookConfigurationTransformer` | `transformers/k8s_validating_webhook_transformer.cue` | #K8sValidatingWebhookConfigurationTransformer passes native Kubernetes ValidatingWebhookConfiguration resources through with OPM context applied |
+| `#MutatingWebhookTransformer` | `transformers/mutating_webhook_transformer.cue` | MutatingWebhookTransformer converts MutatingWebhooks resources to Kubernetes MutatingWebhookConfigurations |
 | `#WorkloadName` | `transformers/name_helpers.cue` | #WorkloadName resolves a workload's rendered object name: the exact name from #ResourceNameTrait when set, otherwise the instance-scoped default |
+| `#NamespaceTransformer` | `transformers/namespace_transformer.cue` | NamespaceTransformer converts Namespaces resources to Kubernetes Namespaces |
 | `#NetworkPolicyTransformer` | `transformers/network_policy_transformer.cue` | NetworkPolicyTransformer converts the #NetworkPolicyTrait to a Kubernetes NetworkPolicy whose podSelector is the workload's own rendered pod labels |
 | `#PDBTransformer` | `transformers/pdb_transformer.cue` | PDBTransformer realizes #DisruptionBudgetTrait as a PodDisruptionBudget |
 | `#PodSchedulingFields` | `transformers/pod_helpers.cue` | Pod-spec scheduling fields from #PodSchedulingTrait |
@@ -639,6 +792,7 @@ CUE module: `opmodel.dev/catalogs/opm@v2`
 | `#StatefulsetTransformer` | `transformers/statefulset_transformer.cue` | StatefulsetTransformer converts stateful workload components to Kubernetes StatefulSets |
 | `#TcpRouteTransformer` | `transformers/tcp_route_transformer.cue` | TcpRouteTransformer creates Gateway API TCPRoutes from components with TcpRoute trait |
 | `#TlsRouteTransformer` | `transformers/tls_route_transformer.cue` | TlsRouteTransformer creates Gateway API TLSRoutes from components with TlsRoute trait |
+| `#ValidatingWebhookTransformer` | `transformers/validating_webhook_transformer.cue` | ValidatingWebhookTransformer converts ValidatingWebhooks resources to Kubernetes ValidatingWebhookConfigurations |
 
 ---
 
