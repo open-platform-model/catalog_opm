@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0-alpha.1](https://github.com/open-platform-model/catalog_opm/compare/v1.0.0-alpha.9...v2.0.0-alpha.1) (2026-08-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* author the catalog against core v2 on the module major v2 ([#30](https://github.com/open-platform-model/catalog_opm/issues/30))
+
+### Features
+
+* author the catalog against core v2 on the module major v2 ([#30](https://github.com/open-platform-model/catalog_opm/issues/30)) ([38ae2f1](https://github.com/open-platform-model/catalog_opm/commit/38ae2f19018f9537971c500db22114f601865bf4))
+
 ## [1.0.0-alpha.9](https://github.com/open-platform-model/catalog_opm/compare/v1.0.0-alpha.8...v1.0.0-alpha.9) (2026-08-08)
 
 
