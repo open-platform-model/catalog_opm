@@ -63,13 +63,25 @@ This is a pure CUE repository: catalog definitions plus the tooling to validate,
 
 > History: this content previously lived inside the `library` repo at `library/modules/opm/` and was published from there. It now has its own repo and release cadence. The legacy `catalog/` repo is deprecated/read-only and unrelated to this module.
 
+## Branch model (read before committing)
+
+| Branch | Module line | Purpose |
+| --- | --- | --- |
+| `main` | `opmodel.dev/catalogs/opm@v2` | Living development line, authored against `opmodel.dev/core@v2` (enhancement 0010 identity reshape). All new members and shape work. |
+| `v1` | `opmodel.dev/catalogs/opm@v1` | **Protected maintenance branch** — the stable v1 line (`1.0.x`), pinned to stable `opmodel.dev/core@v1`. release-please targets this branch; `versioning: always-bump-patch` means no commit type can cross the major, and the `@v1` module path refuses any tag outside major 1 at publish. |
+
+**You are on `v1`.** This branch exists so clusters pinning `opmodel.dev/catalogs/opm@v1`
+keep a release train: **maintenance fixes only** — no new members, no shape changes, no
+core major moves. Every merged fix releases the next `1.0.x` patch automatically.
+**Never merge `main` into this branch.**
+
 ## Repository Rules
 
 - Authority is this file and `Taskfile.yml`. If they disagree with anything below, they win.
 - Keep changes small. Split broad requests into tiny, independently verifiable steps.
 - The catalog is a published contract — downstream platforms and modules pin `opmodel.dev/catalogs/opm@v1`. Prefer additive evolution.
 - Never run the publish flow against a live registry manually — let CI publish. The only exception is a **local** publish (routes to `localhost:5000`) when the user explicitly asks for one in the current prompt — see Registry Policy rule 2 in the root `CLAUDE.md`.
-- **This is the `v1` MAINTENANCE branch.** The living catalog (core v2, `opmodel.dev/catalogs/opm@v2`) is on `main`. This branch exists so clusters pinning `opmodel.dev/catalogs/opm@v1` keep a release train: **maintenance fixes only** — no new members, no shape changes, no core version moves. release-please targets this branch with `versioning: always-bump-patch` (releases `1.0.x`; no commit type can cross the major), and the module path major (`@v1`) gates the publish — `cue mod publish` refuses a tag outside major 1. Never merge `main` into this branch.
+- This is the `v1` maintenance branch — see the Branch model section above before committing anything.
 - **CUE authoring pitfall:** never place an `if spec.<nested>.<field> != _|_` guard *inside* a component's `spec` block when `<field>` is struct- or list-valued — hoist it to component level (`if … { spec: <field>: … }`). The in-spec form trips a CUE evaluator closedness regression ("field not allowed") present from `v0.17.0-alpha.2` onward and **still unfixed in `v0.17.1`**, the version this repo's CI now uses — so the hoisted form is load-bearing, not precautionary. Do not "modernize" it away. See `docs/cue-guard-closedness-workaround.md`.
 
 ## Entrypoint
