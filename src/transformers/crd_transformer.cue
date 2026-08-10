@@ -3,7 +3,7 @@ package transformers
 import (
 	id "opmodel.dev/catalogs/opm/identity"
 	c "opmodel.dev/core@v2"
-	res "opmodel.dev/catalogs/opm/resources"
+	res "opmodel.dev/catalogs/opm/resources/v1beta1"
 	k8sapiextv1 "opmodel.dev/catalogs/opm/schemas/kubernetes/apiextensions/v1"
 )
 

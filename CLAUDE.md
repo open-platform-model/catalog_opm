@@ -59,9 +59,19 @@ it is permanent, outward-facing, and it reaches a third party who never opted in
 
 ## Purpose
 
-This repo defines and publishes the **OPM core catalog** as a versioned CUE module (`opmodel.dev/catalogs/opm@v2`). The retired v1 line lives on the `v1` maintenance branch (fixes only, `1.0.x` releases).
+This repo defines and publishes the **OPM catalog** as a versioned CUE module (`opmodel.dev/catalogs/opm@v2`) — since enhancement 0010 D47 the **single first-party catalog**, having absorbed `catalog_kubernetes` and `catalog_opm_experimental` on the v2 line. The retired v1 line lives on the `v1` maintenance branch (fixes only, `1.0.x` releases).
 
 The catalog is the canonical set of OPM Kubernetes building blocks — `#Resource`s, `#Trait`s, `#Blueprint`s, and `#ComponentTransformer`s — that platform and module authors consume to model and render workloads. It is typed entirely against the `core` schema (`opmodel.dev/core@v2`) and instantiates its constructs; it does **not** define new core constructs.
+
+### Two families, one key space
+
+- **Abstraction family** (bare names: `container`, `volume`, `scaling`, …) — intentional OPM abstractions that may differ from Kubernetes substantially; that divergence is the point. Experimental abstraction candidates live here too, at `v1alpha1` (alpha promises nothing — 0010 D34).
+- **Raw `k8s-*` family** (`k8s-deployment`, `k8s-object`, …) — native Kubernetes APIs passed through as-is; the **last resort** for what the abstractions do not model. Member names carry the `k8s-` prefix, definitions the `#K8s` prefix, files the `k8s_` prefix. Each member's contract `apiVersion` **mirrors the upstream Kubernetes API version at adoption** (0010 D48): apps/v1 → `@v1`, autoscaling/v2 → `@v2`. Graduation is upstream's act, never this repo's.
+- **Layering rule: the abstraction family never depends on the raw family.** No blueprint, trait, or abstraction transformer may reference a `k8s-*` contract; abstraction transformers emit Kubernetes types directly via `schemas/`. Modules may demand raw contracts — nothing inside the catalog builds on them.
+
+### Version-segment filing (0010 D49)
+
+Contract members (resources, traits, blueprints) file under `src/<kind>/<apiVersion>/` — e.g. `src/resources/v1beta1/configmap.cue`, `src/resources/v1/k8s_deployment.cue`, `src/resources/v1alpha1/namespace.cue` — with the package clause equal to the version segment (`package v1beta1`) and `metadata.modulePath` carrying it (`"\(id.kindPrefix.resources)/v1beta1"`). The segment is derived from the member's own `apiVersion` and **never enters the fqn** — the key space stays flat (`…/resources/configmap@v1beta1`). Transformers file flat under `src/transformers/` (they have no apiVersion). Consumers import a version package explicitly: `res "opmodel.dev/catalogs/opm/resources/v1beta1"`.
 
 This is a pure CUE repository: catalog definitions plus the tooling to validate, index, and publish them. No Go code.
 
@@ -91,11 +101,14 @@ Read these on entry:
 src/cue.mod/module.cue   CUE module manifest — opmodel.dev/catalogs/opm@v2
 src/catalog.cue          catalog manifest (bare c.#Catalog, enumerates transformers)
 src/identity/            ModulePath + Version (publish-time stamping anchor)
-src/resources/           #Resource definitions (+ #Component wrappers)
-src/traits/              #Trait definitions
-src/blueprints/          #Blueprint definitions (composed resources + traits)
-src/transformers/        #ComponentTransformer definitions (OPM -> Kubernetes)
-src/schemas/             shared schema types + vendored Kubernetes types
+src/resources/v1beta1/   abstraction-family #Resource definitions (+ #Component wrappers)
+src/resources/v1alpha1/  experimental abstraction candidates (ex catalog_opm_experimental)
+src/resources/v1/        raw k8s-* passthrough resources (ex catalog_kubernetes; GA upstream)
+src/resources/v2/        raw k8s-* resources mirroring upstream v2 APIs (hpa)
+src/traits/v1beta1/      #Trait definitions
+src/blueprints/v1beta1/  #Blueprint definitions (composed resources + traits)
+src/transformers/        #ComponentTransformer definitions, flat — both families (k8s_* files = raw)
+src/schemas/             shared schema types + vendored Kubernetes types; schemas/k8s/ = raw-family open wrappers
 src/INDEX.md             generated definition index (ships inside the CUE module)
 .tasks/                  Taskfile script fragments (index + branch-tag)
 ```
@@ -128,6 +141,7 @@ Never hand-edit `apiVersion`/`catalogVersion`/`fqn` to chase a release — only 
 | ---                           | ---                                                  |
 | `task fmt` / `task fmt:check` | Format CUE files / verify formatting                 |
 | `task vet`                    | Validate the catalog package                         |
+| `task vet:layering`           | Enforce the family layering rule (abstraction never depends on `k8s-*`) |
 | `task tidy`                   | Tidy the CUE module manifest                         |
 | `task generate:index`         | Regenerate `src/INDEX.md`                            |
 | `task generate:index:check`   | Verify `src/INDEX.md` is up to date                  |
