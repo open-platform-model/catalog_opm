@@ -4,10 +4,12 @@ version: "3"
 silent: true
 
 vars:
-  # Default registry for local publishing; CI overrides CUE_REGISTRY in the
-  # environment (GHCR mapping). opmodel.dev resolves the core@v1 dependency and
-  # this catalog's own publish target; cue.dev / others fall through.
-  CUE_LOCAL_REGISTRY: 'opmodel.dev=localhost:5000+insecure,registry.cue.works'
+  # Local-publish mapping (Registry Policy, root CLAUDE.md): the catalog's own
+  # publish target (opmodel.dev/catalogs/*) routes to the local registry while
+  # the core@v1 dependency still resolves from GHCR via the shorter prefix;
+  # cue.dev / others fall through. Laptop publishes only — CI provides its own
+  # CUE_REGISTRY (GHCR) in the workflow env.
+  CUE_LOCAL_PUBLISH_REGISTRY: 'opmodel.dev/catalogs=localhost:5000+insecure,opmodel.dev=ghcr.io/open-platform-model,registry.cue.works'
 
 tasks:
   default:
@@ -87,9 +89,17 @@ tasks:
       - |
         set -euo pipefail
 
-        # Inherit CUE_REGISTRY from the environment (CI sets GHCR); default to
-        # the local registry for laptop publishing.
-        : "${CUE_REGISTRY:={{.CUE_LOCAL_REGISTRY}}}"
+        # CI (GitHub Actions sets CI=true) publishes with the workflow-env
+        # CUE_REGISTRY (GHCR). On laptops the ambient CUE_REGISTRY is
+        # deliberately ignored: local publish is a gated exception (Registry
+        # Policy rule 2, root CLAUDE.md) and must never leak to GHCR just
+        # because the shell carries the canonical GHCR mapping. Override with
+        # OPM_PUBLISH_REGISTRY if a different target is explicitly intended.
+        if [ -n "${CI:-}" ]; then
+          : "${CUE_REGISTRY:={{.CUE_LOCAL_PUBLISH_REGISTRY}}}"
+        else
+          CUE_REGISTRY="${OPM_PUBLISH_REGISTRY:-{{.CUE_LOCAL_PUBLISH_REGISTRY}}}"
+        fi
         export CUE_REGISTRY
 
         SRC="src"
