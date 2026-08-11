@@ -96,11 +96,17 @@ import (
 		// `null` for every component, so `updateStrategy` was never emitted on
 		// any StatefulSet, and a module asking for OnDelete or Recreate got a
 		// silent RollingUpdate instead.
+		// The rollingUpdate reference carries its own existence conjunct:
+		// #UpdateStrategySchema leaves the substruct optional under
+		// RollingUpdate, and an unguarded dereference of the omitted field
+		// fails the whole guarded struct — a schema-legal component must
+		// render, with Kubernetes applying its own rolling defaults.
 		_updateStrategy: *null | {...}
 		if #component.spec.updateStrategy != _|_ {
 			_updateStrategy: {
 				type: #component.spec.updateStrategy.type
-				if #component.spec.updateStrategy.type == "RollingUpdate" {
+				if #component.spec.updateStrategy.type == "RollingUpdate" &&
+					#component.spec.updateStrategy.rollingUpdate != _|_ {
 					rollingUpdate: #component.spec.updateStrategy.rollingUpdate
 				}
 			}
@@ -381,4 +387,43 @@ _testSTSStrategyPresent: [
 // A component declaring no strategy must not grow one.
 _testSTSNoStrategyLeak: [
 	if _testSTSExactTransformer.spec.updateStrategy != _|_ {"leaked"},
+] & []
+
+// ---- Update strategy: omitted rollingUpdate params must not fail ------------
+//
+// Same regression family as deployment_transformer.cue: the extraction
+// dereferenced `spec.updateStrategy.rollingUpdate` unguarded whenever type was
+// RollingUpdate, but #UpdateStrategySchema leaves the substruct optional — a
+// schema-legal `updateStrategy: type: "RollingUpdate"` with no partition/surge
+// parameters failed the whole transform with an empty disjunction.
+_testSTSRollingDefaultsComponent: {
+	res.#Container
+	tr.#UpdateStrategy
+
+	metadata: {
+		name: "db"
+		labels: "core.opmodel.dev/workload-type": "stateful"
+	}
+
+	spec: {
+		container: _testSTSContainer
+		updateStrategy: type: "RollingUpdate"
+	}
+}
+
+_testSTSRollingDefaultsTransformer: (#StatefulsetTransformer.#transform & {
+	#component: _testSTSRollingDefaultsComponent
+	#context:   _testSTSContext
+}).output
+
+// The strategy is emitted with its type...
+_testSTSRollingDefaultsPresent: [
+	if _testSTSRollingDefaultsTransformer.spec.updateStrategy != _|_ {
+		_testSTSRollingDefaultsTransformer.spec.updateStrategy.type
+	},
+] & ["RollingUpdate"]
+
+// ...and no rollingUpdate block is invented for the omitted substruct.
+_testSTSRollingDefaultsNoParams: [
+	if _testSTSRollingDefaultsTransformer.spec.updateStrategy.rollingUpdate != _|_ {"leaked"},
 ] & []

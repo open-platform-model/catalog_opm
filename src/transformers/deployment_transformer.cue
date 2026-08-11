@@ -108,11 +108,18 @@ import (
 		// The form below is the idiom used by _restartPolicy and _scalingCount
 		// above: declare the default, then override in a guarded assignment at
 		// the same scope, where unification collapses the disjunction.
+		// The rollingUpdate reference carries its own existence conjunct:
+		// #UpdateStrategySchema leaves the substruct optional under
+		// RollingUpdate, and an unguarded dereference of the omitted field
+		// fails the whole guarded struct — a schema-legal component must
+		// render, with Kubernetes applying its own surge/unavailable
+		// defaults.
 		_updateStrategy: *null | {...}
 		if #component.spec.updateStrategy != _|_ {
 			_updateStrategy: {
 				type: #component.spec.updateStrategy.type
-				if #component.spec.updateStrategy.type == "RollingUpdate" {
+				if #component.spec.updateStrategy.type == "RollingUpdate" &&
+					#component.spec.updateStrategy.rollingUpdate != _|_ {
 					rollingUpdate: #component.spec.updateStrategy.rollingUpdate
 				}
 			}
@@ -452,4 +459,45 @@ _testDeployRecreateHasNoRollingUpdate: [
 // ...and a component that declares no strategy must not grow one.
 _testDeployNoStrategyLeak: [
 	if _testDeployDefaultNameTransformer.spec.strategy != _|_ {"leaked"},
+] & []
+
+// ---- Update strategy: omitted rollingUpdate params must not fail ------------
+//
+// Regression guard for the sibling of the alpha.8 bug above: the extraction
+// dereferenced `spec.updateStrategy.rollingUpdate` unguarded whenever type was
+// RollingUpdate, but #UpdateStrategySchema leaves the substruct optional — so
+// a schema-legal `updateStrategy: type: "RollingUpdate"` with no parameters
+// failed the whole transform with an empty disjunction (first hit by the
+// library's web_app flow fixture during the core-v2 retarget).
+_testDeployRollingDefaultsComponent: {
+	res.#Container
+	tr.#UpdateStrategy
+
+	metadata: {
+		name: "web"
+		labels: "core.opmodel.dev/workload-type": "stateless"
+	}
+
+	spec: {
+		container: _testDeployContainer
+		updateStrategy: type: "RollingUpdate"
+	}
+}
+
+_testDeployRollingDefaultsTransformer: (#DeploymentTransformer.#transform & {
+	#component: _testDeployRollingDefaultsComponent
+	#context:   _testDeployContext
+}).output
+
+// The strategy is emitted with its type...
+_testDeployRollingDefaultsPresent: [
+	if _testDeployRollingDefaultsTransformer.spec.strategy != _|_ {
+		_testDeployRollingDefaultsTransformer.spec.strategy.type
+	},
+] & ["RollingUpdate"]
+
+// ...and no rollingUpdate block is invented for the omitted substruct —
+// Kubernetes applies its own maxSurge/maxUnavailable defaults.
+_testDeployRollingDefaultsNoParams: [
+	if _testDeployRollingDefaultsTransformer.spec.strategy.rollingUpdate != _|_ {"leaked"},
 ] & []
