@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.0-alpha.3](https://github.com/open-platform-model/catalog_opm/compare/v2.0.0-alpha.2...v2.0.0-alpha.3) (2026-08-11)
+
+
+### Bug Fixes
+
+* **transformers:** updateStrategy guards — daemonset emission and optional rollingUpdate ([#37](https://github.com/open-platform-model/catalog_opm/issues/37)) ([9ea5927](https://github.com/open-platform-model/catalog_opm/commit/9ea5927c7bbe85564f6504bcf6eca728e2b78a86))
+
 ## [2.0.0-alpha.2](https://github.com/open-platform-model/catalog_opm/compare/v2.0.0-alpha.1...v2.0.0-alpha.2) (2026-08-10)
 
 
