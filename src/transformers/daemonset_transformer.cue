@@ -76,11 +76,21 @@ import (
 			_restartPolicy: #component.spec.restartPolicy
 		}
 
-		// Extract update strategy with defaults
-		_updateStrategy: *null | {
-			if #component.spec.updateStrategy != _|_ {
+		// Extract update strategy with defaults.
+		//
+		// ⚠ Same trap deployment_transformer.cue documents: the guard MUST be
+		// a separate assignment, not an `if` nested inside the disjunct —
+		// `*null | { if … }` always resolves to its marked default, silently
+		// dropping updateStrategy from every DaemonSet. And the rollingUpdate
+		// reference carries its own existence conjunct: the substruct is
+		// optional under RollingUpdate, and an unguarded dereference of the
+		// omitted field fails the whole guarded struct.
+		_updateStrategy: *null | {...}
+		if #component.spec.updateStrategy != _|_ {
+			_updateStrategy: {
 				type: #component.spec.updateStrategy.type
-				if #component.spec.updateStrategy.type == "RollingUpdate" {
+				if #component.spec.updateStrategy.type == "RollingUpdate" &&
+					#component.spec.updateStrategy.rollingUpdate != _|_ {
 					rollingUpdate: #component.spec.updateStrategy.rollingUpdate
 				}
 			}
@@ -359,4 +369,118 @@ _testDSRuntimeClassPresent: [
 // Kubernetes rejects.
 _testDSRuntimeClassNotLeaked: [
 	if _testDSCNITransformer.spec.template.spec.runtimeClassName != _|_ {"leaked"},
+] & []
+
+// ---- Update strategy: declared value must reach spec.updateStrategy ---------
+//
+// Regression guard for the alpha.8 bug deployment_transformer.cue and
+// statefulset_transformer.cue already pin, which this file never got: the
+// extraction was spelled `_updateStrategy: *null | { if ... }`, whose marked
+// default always won, so updateStrategy was silently dropped from EVERY
+// DaemonSet.
+//
+// OnDelete rather than RollingUpdate on purpose: RollingUpdate is also the
+// Kubernetes default, so a test using it would pass against the broken code.
+_testDSStrategyComponent: {
+	res.#Container
+	tr.#UpdateStrategy
+
+	metadata: {
+		name: "agent"
+		labels: "core.opmodel.dev/workload-type": "daemon"
+	}
+
+	spec: {
+		container: {
+			name: "agent"
+			image: {
+				repository: "docker.io/library/busybox"
+				tag:        "1.36"
+				digest:     ""
+			}
+		}
+		updateStrategy: type: "OnDelete"
+	}
+}
+
+_testDSStrategyTransformer: (#DaemonSetTransformer.#transform & {
+	#component: _testDSStrategyComponent
+	#context: {
+		#moduleInstanceMetadata: {
+			name:      "agent"
+			namespace: "kube-system"
+			fqn:       "opmodel.dev/catalogs/opm/test-instance@0.1.0"
+			version:   "0.1.0"
+			uuid:      "00000000-0000-0000-0000-000000000000"
+		}
+		#componentMetadata: name: "agent"
+		#runtimeName: "opm-test"
+		componentAnnotations: {}
+	}
+}).output
+
+// ABSENT-field guard (one-element-list form; see deployment_transformer.cue
+// for why interpolation cannot catch an omitted field).
+_testDSStrategyPresent: [
+	if _testDSStrategyTransformer.spec.updateStrategy != _|_ {
+		_testDSStrategyTransformer.spec.updateStrategy.type
+	},
+] & ["OnDelete"]
+
+// A component declaring no strategy must not grow one.
+_testDSNoStrategyLeak: [
+	if _testDSCNITransformer.spec.updateStrategy != _|_ {"leaked"},
+] & []
+
+// ---- Update strategy: omitted rollingUpdate params must not fail ------------
+//
+// Same regression family as deployment_transformer.cue: RollingUpdate with the
+// optional rollingUpdate substruct omitted must render, without inventing the
+// substruct.
+_testDSRollingDefaultsComponent: {
+	res.#Container
+	tr.#UpdateStrategy
+
+	metadata: {
+		name: "agent-rolling"
+		labels: "core.opmodel.dev/workload-type": "daemon"
+	}
+
+	spec: {
+		container: {
+			name: "agent"
+			image: {
+				repository: "docker.io/library/busybox"
+				tag:        "1.36"
+				digest:     ""
+			}
+		}
+		updateStrategy: type: "RollingUpdate"
+	}
+}
+
+_testDSRollingDefaultsTransformer: (#DaemonSetTransformer.#transform & {
+	#component: _testDSRollingDefaultsComponent
+	#context: {
+		#moduleInstanceMetadata: {
+			name:      "agent"
+			namespace: "kube-system"
+			fqn:       "opmodel.dev/catalogs/opm/test-instance@0.1.0"
+			version:   "0.1.0"
+			uuid:      "00000000-0000-0000-0000-000000000000"
+		}
+		#componentMetadata: name: "agent-rolling"
+		#runtimeName: "opm-test"
+		componentAnnotations: {}
+	}
+}).output
+
+_testDSRollingDefaultsPresent: [
+	if _testDSRollingDefaultsTransformer.spec.updateStrategy != _|_ {
+		_testDSRollingDefaultsTransformer.spec.updateStrategy.type
+	},
+] & ["RollingUpdate"]
+
+_testDSRollingDefaultsNoParams: [
+	if _testDSRollingDefaultsTransformer.spec.updateStrategy.rollingUpdate != _|_ {"leaked"},
 ] & []
