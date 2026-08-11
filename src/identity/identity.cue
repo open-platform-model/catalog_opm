@@ -25,7 +25,7 @@ ModulePath: "opmodel.dev/catalogs/opm@v2"
 // interpolates. The default is the current release line's version; the major
 // MUST agree with ModulePath's (asserted by core's #IdentityPackage at
 // publish once 0011's publish gates land).
-Version: #VersionType | *"2.0.0-alpha.2" // x-release-please-version
+Version: #VersionType | *"2.0.0-alpha.3" // x-release-please-version
 
 // RegistryPath is the major-free OCI repository path.
 RegistryPath: "opmodel.dev/catalogs/opm"
