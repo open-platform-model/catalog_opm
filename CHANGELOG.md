@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0-alpha.4](https://github.com/open-platform-model/catalog_opm/compare/v2.0.0-alpha.3...v2.0.0-alpha.4) (2026-08-18)
+
+
+### ⚠ BREAKING CHANGES
+
+* remove dead *Defaults definitions
+
+### Features
+
+* remove dead *Defaults definitions ([eab9b12](https://github.com/open-platform-model/catalog_opm/commit/eab9b12201258913e807c31bed309987b47ea945))
+
 ## [2.0.0-alpha.3](https://github.com/open-platform-model/catalog_opm/compare/v2.0.0-alpha.2...v2.0.0-alpha.3) (2026-08-11)
 
 
