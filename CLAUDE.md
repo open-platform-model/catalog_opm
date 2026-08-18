@@ -83,7 +83,7 @@ This is a pure CUE repository: catalog definitions plus the tooling to validate,
 - Keep changes small. Split broad requests into tiny, independently verifiable steps.
 - The catalog is a published contract — downstream platforms and modules pin `opmodel.dev/catalogs/opm@v2`. Prefer additive evolution; a contract's `apiVersion` moves only when that primitive's own shape breaks (0010 D4).
 - Never run the publish flow against a live registry manually — let CI publish. The only exception is a **local** publish (routes to `localhost:5000`) when the user explicitly asks for one in the current prompt — see Registry Policy rule 2 in the root `CLAUDE.md`.
-- The CUE module is pinned to major `@v2` and ships on the v2 prerelease line (`v2.x.x-alpha.x`) for the core-v2 rollout — release-please keeps `versioning: prerelease` + `prerelease-type: alpha`, and an `extra-files` generic updater owns `identity.Version` (the `x-release-please-version` annotation). The `v1` branch is the pinned maintenance line (`always-bump-patch`). Was: major `@v1`, tags within `v1.x.x-alpha.x`.
+- The CUE module is pinned to major `@v2` and ships on the v2 prerelease line (`v2.x.x-alpha.x`) for the core-v2 rollout — release-please keeps `versioning: prerelease` + `prerelease-type: alpha`, and `release.yml` advances `identity.Version` on the release PR through `opm catalog version set` (enhancement 0011 D15 — no `x-release-please-version` annotation; opm's writer is the only writer). The `v1` branch is the pinned maintenance line (`always-bump-patch`). Was: major `@v1`, tags within `v1.x.x-alpha.x`.
 - **CUE authoring pitfall:** never place an `if spec.<nested>.<field> != _|_` guard *inside* a component's `spec` block when `<field>` is struct- or list-valued — hoist it to component level (`if … { spec: <field>: … }`). The in-spec form trips a CUE evaluator closedness regression ("field not allowed") present from `v0.17.0-alpha.2` onward and **still unfixed in `v0.17.1`**, the version this repo's CI now uses — so the hoisted form is load-bearing, not precautionary. Do not "modernize" it away. See `docs/cue-guard-closedness-workaround.md`.
 
 ## Entrypoint
@@ -129,9 +129,9 @@ All raw `cue` invocations run from `src/`. The Taskfile handles this via `dir: s
 `src/identity/identity.cue` is the single source of the catalog's identity (0010 D5):
 
 - `ModulePath` carries the full module path with major (`opmodel.dev/catalogs/opm@v2`); `kindPrefix` derives the per-kind package paths every member's `metadata.modulePath` and authored `fqn` use.
-- `Version` is COMMITTED as the real release version (a CUE *default*, so the publish-time override can still stamp `-dev.*` branch builds). release-please updates it in the release PR via the `x-release-please-version` annotation — never hand-edit it.
+- `Version` is COMMITTED as the real release version (a CUE *default* — the shape `opm catalog version set` preserves byte-for-byte around the value). release-please decides the next version; `release.yml` writes it onto the release PR through `opm catalog version set` — never hand-edit it.
 - Transformers interpolate `Version` into their build-keyed `fqn` (`…/transformers/<name>@<version>`); primitives key their `fqn` by their own `apiVersion` (`…/resources/<name>@v1beta1`), which a release does NOT move.
-- `task publish VERSION=vX.Y.Z` still stages `src/` to a transient build dir and writes `identity/version_override.cue`; for a release the override unifies with the committed default (they must agree), for branch builds it stamps the `-dev.*` version. The dev sentinel guard remains.
+- Publishing goes through `opm catalog publish ./src` (enhancement 0011): it validates the identity package against core's `#IdentityPackage`, runs every publish gate (member FQN, trait posture, already-published, level-aware compatibility), and pushes the committed tree exactly — no build dir, no version override. On a release the workflow passes `--version` as an assertion; branch builds first stamp the `-dev.*` version into CI's working tree with `opm catalog version set` (a checkout write, never a commit).
 
 Never hand-edit `apiVersion`/`catalogVersion`/`fqn` to chase a release — only a primitive's own breaking shape change moves its `apiVersion` (and with it the contract key).
 
@@ -146,13 +146,16 @@ Never hand-edit `apiVersion`/`catalogVersion`/`fqn` to chase a release — only 
 | `task generate:index`         | Regenerate `src/INDEX.md`                            |
 | `task generate:index:check`   | Verify `src/INDEX.md` is up to date                  |
 | `task check`                  | fmt check + vet + INDEX freshness                    |
-| `task publish VERSION=vX.Y.Z` | Stamp + publish the catalog (CI does this on release)|
+| `task branch-tag`             | Print the deterministic `-dev` tag for HEAD (no side effects) |
+
+There is no publish task. Publishing is CI-only via `opm catalog publish` (see Release & publishing); `opm catalog publish ./src --dry-run` runs every gate locally without pushing. A local publish is a gated exception (Registry Policy rule 2, root `CLAUDE.md`) and requires explicitly pointing `OPM_REGISTRY` at the local registry — the ambient GHCR mapping alone can no longer be picked up by a laptop publish, because there is no task to pick it up.
 
 ### Release & publishing
 
-- release-please (`release.yml`, release type `simple`) opens and updates the release PR. Merging it tags `vX.Y.Z` and creates the GitHub Release.
-- The same workflow run publishes the module: a `publish-cue` job gated on `release_created == 'true'` runs `task publish` against `ghcr.io/open-platform-model`, in the run triggered by the human merging the release PR (avoiding GitHub's GITHUB_TOKEN tag-trigger suppression).
-- `branch-publish.yml` publishes a `-dev` pre-release for non-main branches via `task publish:branch`.
+- release-please (`release.yml`, release type `simple`) opens and updates the release PR; the same workflow then runs `opm catalog version set` on the release branch so the PR itself carries the next `identity.Version` (opm's writer is the only identity writer — 0011 D15). Merging it tags `vX.Y.Z` and creates the GitHub Release.
+- The same workflow run publishes the module: a `publish-cue` job gated on `release_created == 'true'` runs `opm catalog publish ./src --version <version>` against `ghcr.io/open-platform-model`, in the run triggered by the human merging the release PR (avoiding GitHub's GITHUB_TOKEN tag-trigger suppression). The flag is an assertion against the version the release PR wrote — a mismatch refuses, never overwrites. A post-publish `opm catalog registry check --compat` verifies the pushed build (an aid, not a gate).
+- `branch-publish.yml` publishes a `-dev` pre-release for non-main branches: `task check`, then `.tasks/branch-tag.sh` derives the deterministic version, `opm catalog version set` stamps it into the runner's working tree, and `opm catalog publish ./src` pushes.
+- `ci.yml` runs the publish gates as a dry-run on every PR (already-published as the only refusal is tolerated — outside a release the committed version is usually live).
 
 ### Commit conventions and release impact
 

@@ -15,7 +15,7 @@ The CUE module lives under `src/` — both the catalog package files and `cue.mo
 ```text
 src/cue.mod/module.cue   CUE module manifest — opmodel.dev/catalogs/opm@v2
 src/catalog.cue          catalog manifest (c.#Catalog, enumerates transformers)
-src/identity/            ModulePath + Version (publish-time stamping anchor)
+src/identity/            ModulePath + Version (the committed identity publish reads)
 src/resources/           #Resource definitions
 src/traits/              #Trait definitions
 src/blueprints/          #Blueprint definitions
@@ -33,9 +33,9 @@ src/INDEX.md             generated definition index
 
 `catalog_opm` has its own release cadence, independent of any consumer.
 
-- Conventional-commit history drives [release-please](https://github.com/googleapis/release-please), which opens a release PR.
+- Conventional-commit history drives [release-please](https://github.com/googleapis/release-please), which opens a release PR; `release.yml` writes the decided version into `src/identity/identity.cue` on that PR via `opm catalog version set`.
 - Merging the release PR tags `vX.Y.Z` and creates the GitHub Release.
-- The same `release.yml` run then publishes the module via publish-time version stamping (`task publish`) against `ghcr.io/open-platform-model`.
+- The same `release.yml` run then publishes the module with `opm catalog publish` against `ghcr.io/open-platform-model` — the committed tree exactly, gated by the publish pipeline (enhancement 0011).
 
 The CUE module path is pinned to major `@v2` and ships on the v2 prerelease line (`v2.x.x-alpha.x`) for the core-v2 rollout (enhancement 0010). The `v1` maintenance branch keeps the retired v1 line on `1.0.x` fix releases. Was: major `@v1`, tags within `v1.x.x-alpha.x`.
 
@@ -45,6 +45,6 @@ The CUE module path is pinned to major `@v2` and ships on the v2 prerelease line
 task fmt             # format CUE files
 task vet             # validate the catalog package
 task generate:index  # regenerate src/INDEX.md
-task check           # fmt check + vet + INDEX freshness
-task publish VERSION=v0.1.0   # stamp + publish the CUE module (CI does this on release)
+task check           # fmt check + vet + layering + INDEX freshness
+opm catalog publish ./src --dry-run   # run every publish gate, push nothing (publishing itself is CI-only)
 ```

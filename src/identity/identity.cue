@@ -5,11 +5,11 @@
 // and the root `catalog.cue` can stamp transformer metadata in lockstep.
 //
 // Committed with the REAL values (enhancement 0010 D5): a checkout and a
-// published artifact compute the same FQNs — the `0.0.0-dev` sentinel is
-// gone. `Version` stays a CUE *default* so the publish task's transient
-// `version_override.cue` can still stamp `-dev.*` branch builds; release
-// publishes stamp the same value the tree already carries. release-please
-// owns the committed value via the x-release-please-version annotation.
+// published artifact compute the same FQNs. The only writer is `opm catalog
+// version set` (enhancement 0011 D3/D15): release.yml runs it on the release
+// PR with the version release-please decided, and branch-publish.yml stamps a
+// `-dev.*` version into CI's working tree — never a commit — before
+// `opm catalog publish`. Never hand-edit the value.
 package identity
 
 // #VersionType mirrors core.#VersionType (SemVer 2.0). Duplicated here so the
@@ -24,8 +24,8 @@ ModulePath: "opmodel.dev/catalogs/opm@v2"
 // Version is the catalog's bare SemVer — the build every implementation key
 // interpolates. The default is the current release line's version; the major
 // MUST agree with ModulePath's (asserted by core's #IdentityPackage at
-// publish once 0011's publish gates land).
-Version: #VersionType | *"2.0.0-alpha.3" // x-release-please-version
+// publish, enhancement 0011 refusal 10).
+Version: #VersionType | *"2.0.0-alpha.3"
 
 // RegistryPath is the major-free OCI repository path.
 RegistryPath: "opmodel.dev/catalogs/opm"
