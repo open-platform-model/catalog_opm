@@ -61,8 +61,3 @@ import (
 
 	data: [string]: string
 }
-
-#ConfigMapDefaults: #ConfigMapSchema & {
-	immutable: false
-	exactName: false
-}

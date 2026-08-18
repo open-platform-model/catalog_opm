@@ -129,7 +129,6 @@ CUE module: `opmodel.dev/catalogs/opm@v2`
 
 | Definition | File | Description |
 |---|---|---|
-| `#ConfigMapDefaults` | `resources/v1beta1/configmap.cue` |  |
 | `#ConfigMapSchema` | `resources/v1beta1/configmap.cue` | ConfigMap specification |
 | `#ConfigMaps` | `resources/v1beta1/configmap.cue` |  |
 | `#ConfigMapsResource` | `resources/v1beta1/configmap.cue` |  |
@@ -138,7 +137,6 @@ CUE module: `opmodel.dev/catalogs/opm@v2`
 | `#ContainerSchema` | `resources/v1beta1/container.cue` | Container specification |
 | `#EnvFromSource` | `resources/v1beta1/container.cue` | Bulk injection source — inject all keys from a ConfigMap or Secret as env vars |
 | `#EnvVarSchema` | `resources/v1beta1/container.cue` | Environment variable |
-| `#FieldRefDefaults` | `resources/v1beta1/container.cue` |  |
 | `#FieldRefSchema` | `resources/v1beta1/container.cue` | Downward API field reference |
 | `#GpuResourceSchema` | `resources/v1beta1/container.cue` | GPU extended resource claim |
 | `#Image` | `resources/v1beta1/container.cue` | Image specification for container images |
@@ -147,7 +145,6 @@ CUE module: `opmodel.dev/catalogs/opm@v2`
 | `#ResourceFieldRefSchema` | `resources/v1beta1/container.cue` | Container resource field reference |
 | `#ResourceRequirementsSchema` | `resources/v1beta1/container.cue` |  |
 | `#SecurityContextSchema` | `resources/v1beta1/container.cue` |  |
-| `#CRDDefaults` | `resources/v1beta1/crd.cue` |  |
 | `#CRDSchema` | `resources/v1beta1/crd.cue` | Kubernetes CustomResourceDefinition |
 | `#CRDVersionSchema` | `resources/v1beta1/crd.cue` | A single version entry in a CRD |
 | `#CRDs` | `resources/v1beta1/crd.cue` |  |
@@ -156,7 +153,6 @@ CUE module: `opmodel.dev/catalogs/opm@v2`
 | `#PolicyRuleSchema` | `resources/v1beta1/role.cue` | Single RBAC permission rule — exactly one of the two k8s forms |
 | `#ResourcePolicyRuleSchema` | `resources/v1beta1/role.cue` |  |
 | `#Role` | `resources/v1beta1/role.cue` |  |
-| `#RoleDefaults` | `resources/v1beta1/role.cue` |  |
 | `#RoleResource` | `resources/v1beta1/role.cue` |  |
 | `#RoleSchema` | `resources/v1beta1/role.cue` |  |
 | `#RoleSubjectSchema` | `resources/v1beta1/role.cue` | Role subject — embeds an identity directly via CUE reference |
@@ -167,7 +163,6 @@ CUE module: `opmodel.dev/catalogs/opm@v2`
 | `#ImmutableName` | `resources/v1beta1/secret.cue` | K8s resource name for a ConfigMap |
 | `#Secret` | `resources/v1beta1/secret.cue` |  |
 | `#SecretContentHash` | `resources/v1beta1/secret.cue` | Normalize #Secret entries and plain strings to a string map, then hash |
-| `#SecretDefaults` | `resources/v1beta1/secret.cue` |  |
 | `#SecretImmutableName` | `resources/v1beta1/secret.cue` | K8s resource name for a Secret |
 | `#SecretK8sRef` | `resources/v1beta1/secret.cue` | References a pre-existing K8s Secret |
 | `#SecretLiteral` | `resources/v1beta1/secret.cue` | User provides the actual value |
@@ -179,24 +174,18 @@ CUE module: `opmodel.dev/catalogs/opm@v2`
 | `#ServiceAccountResource` | `resources/v1beta1/service_account.cue` |  |
 | `#ServiceAccountSchema` | `resources/v1beta1/service_account.cue` |  |
 | `#WorkloadIdentitySchema` | `resources/v1beta1/service_account.cue` | Workload identity — used by #WorkloadIdentityTrait and as a #RoleSubjectSchema variant |
-| `#EmptyDirDefaults` | `resources/v1beta1/volume.cue` |  |
 | `#EmptyDirSchema` | `resources/v1beta1/volume.cue` |  |
 | `#ExternalObjectVolumeSourceSchema` | `resources/v1beta1/volume.cue` | Reference to a cluster object this module does not own, mounted by its exact name (never instance-prefixed) |
 | `#FileMode` | `resources/v1beta1/volume.cue` |  |
-| `#HostPathDefaults` | `resources/v1beta1/volume.cue` |  |
 | `#HostPathSchema` | `resources/v1beta1/volume.cue` | Mounts a file or directory from the host node |
 | `#NFSVolumeSourceSchema` | `resources/v1beta1/volume.cue` | Mounts a directory from an NFS server |
 | `#ObjectProjectionSchema` | `resources/v1beta1/volume.cue` |  |
-| `#PersistentClaimDefaults` | `resources/v1beta1/volume.cue` |  |
 | `#PersistentClaimSchema` | `resources/v1beta1/volume.cue` | To mount a CIFS/SMB share use a storageClass that matches a pre-installed SMB StorageClass (e |
 | `#ProjectedSourceSchema` | `resources/v1beta1/volume.cue` | One entry in a projected volume |
 | `#ProjectedVolumeSourceSchema` | `resources/v1beta1/volume.cue` | Combines several sources into a single mounted directory |
 | `#SecretVolumeItemSchema` | `resources/v1beta1/volume.cue` |  |
-| `#SecretVolumeSourceDefaults` | `resources/v1beta1/volume.cue` |  |
 | `#SecretVolumeSourceSchema` | `resources/v1beta1/volume.cue` |  |
 | `#ServiceAccountTokenProjectionSchema` | `resources/v1beta1/volume.cue` | A short-lived, audience-bound ServiceAccount token |
-| `#VolumeDefaults` | `resources/v1beta1/volume.cue` |  |
-| `#VolumeMountDefaults` | `resources/v1beta1/volume.cue` |  |
 | `#VolumeMountSchema` | `resources/v1beta1/volume.cue` | Volume mount spec — defines container mount point |
 | `#VolumeSchema` | `resources/v1beta1/volume.cue` | Volume specification — defines storage source |
 | `#Volumes` | `resources/v1beta1/volume.cue` |  |
@@ -721,7 +710,6 @@ CUE module: `opmodel.dev/catalogs/opm@v2`
 | `#TlsRouteSchema` | `traits/v1beta1/tls_route.cue` |  |
 | `#TlsRouteTrait` | `traits/v1beta1/tls_route.cue` |  |
 | `#UpdateStrategy` | `traits/v1beta1/update_strategy.cue` |  |
-| `#UpdateStrategyDefaults` | `traits/v1beta1/update_strategy.cue` |  |
 | `#UpdateStrategySchema` | `traits/v1beta1/update_strategy.cue` |  |
 | `#UpdateStrategyTrait` | `traits/v1beta1/update_strategy.cue` |  |
 | `#WorkloadIdentity` | `traits/v1beta1/workload_identity.cue` |  |

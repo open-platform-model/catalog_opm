@@ -83,11 +83,6 @@ import (
 	data: [string]: #Secret | string
 }
 
-#SecretDefaults: #SecretSchema & {
-	type:      "Opaque"
-	immutable: false
-}
-
 /////////////////////////////////////////////////////////////////
 //// Content Hash Helpers
 ////

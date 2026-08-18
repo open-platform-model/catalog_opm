@@ -63,7 +63,3 @@ import (
 	rules!: [...#PolicyRuleSchema] & [_, ...]
 	subjects!: [...#RoleSubjectSchema] & [_, ...]
 }
-
-#RoleDefaults: #RoleSchema & {
-	scope: "namespace"
-}

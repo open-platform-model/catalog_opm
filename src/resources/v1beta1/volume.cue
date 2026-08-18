@@ -58,10 +58,6 @@ import (
 	mountPropagation?: "None" | "HostToContainer" | "Bidirectional"
 }
 
-#VolumeMountDefaults: #VolumeMountSchema & {
-	readOnly: false
-}
-
 #FileMode: int & >=0 & <=511
 
 #SecretVolumeItemSchema: {
@@ -75,10 +71,6 @@ import (
 	items?: [...#SecretVolumeItemSchema]
 	defaultMode?: #FileMode
 	optional?:    bool
-}
-
-#SecretVolumeSourceDefaults: #SecretVolumeSourceSchema & {
-	optional: false
 }
 
 /////////////////////////////////////////////////////////////////
@@ -180,27 +172,15 @@ import (
 	readOnly:   bool
 }
 
-#VolumeDefaults: #VolumeSchema & {
-	readOnly: false
-}
-
 #EmptyDirSchema: {
 	medium?:    "node" | "memory"
 	sizeLimit?: string
-}
-
-#EmptyDirDefaults: #EmptyDirSchema & {
-	medium: "node"
 }
 
 // Mounts a file or directory from the host node.
 #HostPathSchema: {
 	path!: string
 	type?: "" | "DirectoryOrCreate" | "Directory" | "FileOrCreate" | "File" | "Socket" | "CharDevice" | "BlockDevice"
-}
-
-#HostPathDefaults: #HostPathSchema & {
-	type: ""
 }
 
 // Mounts a directory from an NFS server.
@@ -218,9 +198,4 @@ import (
 	size:         string
 	accessMode:   "ReadWriteOnce" | "ReadOnlyMany" | "ReadWriteMany"
 	storageClass: string
-}
-
-#PersistentClaimDefaults: #PersistentClaimSchema & {
-	accessMode:   "ReadWriteOnce"
-	storageClass: "standard"
 }

@@ -42,11 +42,3 @@ import (
 		}
 	}
 }
-
-#UpdateStrategyDefaults: #UpdateStrategySchema & {
-	type: "RollingUpdate"
-	rollingUpdate: {
-		maxUnavailable: 1
-		maxSurge:       1
-	}
-}

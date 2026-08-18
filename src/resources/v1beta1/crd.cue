@@ -85,7 +85,3 @@ import (
 	scope!: "Namespaced" | "Cluster"
 	versions!: [_, ...] & [...#CRDVersionSchema]
 }
-
-#CRDDefaults: #CRDSchema & {
-	scope: "Namespaced"
-}

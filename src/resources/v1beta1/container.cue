@@ -123,10 +123,6 @@ import (
 	apiVersion?: string
 }
 
-#FieldRefDefaults: #FieldRefSchema & {
-	apiVersion: "v1"
-}
-
 // Container resource field reference.
 #ResourceFieldRefSchema: {
 	resource!:      string
