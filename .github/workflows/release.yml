@@ -12,9 +12,14 @@ permissions:
   actions: write
 
 env:
-  CUE_VERSION: 'v0.17.1'
-  # opmodel.dev resolves both the core@v0 dependency and the catalog's own
-  # publish target; cue.dev / others fall through to registry.cue.works.
+  # Pinned OPM CLI release used for identity writes and publishing; bump
+  # deliberately, never float. The publish pipeline and its gates live there.
+  OPM_CLI_VERSION: 'v1.0.0-alpha.11'
+  # opm resolves the registry via --registry > OPM_REGISTRY > config file — it
+  # does NOT read CUE_REGISTRY. Both are set so any residual cue invocation
+  # agrees with opm. opmodel.dev resolves the core dependency and the catalog's
+  # own publish target; others fall through to registry.cue.works.
+  OPM_REGISTRY: 'opmodel.dev=ghcr.io/open-platform-model,registry.cue.works'
   CUE_REGISTRY: 'opmodel.dev=ghcr.io/open-platform-model,registry.cue.works'
 
 jobs:
@@ -33,12 +38,53 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
+      - name: Clone the code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Install opm
+        run: |
+          set -euo pipefail
+          base="https://github.com/open-platform-model/cli/releases/download/${OPM_CLI_VERSION}"
+          curl -fsSLO "${base}/opm-linux-amd64.tar.gz"
+          curl -fsSLO "${base}/checksums.txt"
+          grep ' opm-linux-amd64.tar.gz$' checksums.txt | sha256sum -c -
+          tar -xzf opm-linux-amd64.tar.gz opm
+          sudo install -m 0755 opm /usr/local/bin/opm
+          rm -f opm opm-linux-amd64.tar.gz checksums.txt LICENSE
+
+      # Release-please decides the version; the identity file is written only by
+      # opm's own writer (enhancement 0011 D3/D15 — no x-release-please-version
+      # annotation, which would be a second writer and reintroduce drift). The
+      # write is surgical and idempotent, so release-please force-updating its
+      # branch just makes this step converge again on the next main push.
+      - name: Advance identity.Version on the release PR
+        run: |
+          set -euo pipefail
+          BRANCH="release-please--branches--main--components--catalog_opm"
+          if ! git fetch origin "$BRANCH" 2>/dev/null; then
+            echo "no open release branch - nothing to advance"
+            exit 0
+          fi
+          git checkout -B "$BRANCH" FETCH_HEAD
+          VERSION=$(jq -r '."."' .release-please-manifest.json)
+          opm catalog version set "$VERSION" ./src
+          if git diff --quiet; then
+            echo "identity.Version already declares ${VERSION}"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/identity/identity.cue
+          git commit -m "chore: advance identity.Version to ${VERSION}"
+          git push origin "$BRANCH"
+
       # A PR created with GITHUB_TOKEN never triggers pull_request workflows,
       # so the required CI check would sit pending forever on the protected
       # main branch. workflow_dispatch events are exempt from that suppression
       # — dispatch CI onto the release branch so the check run lands on the PR
       # head SHA. Runs on every push to main so an updated release PR is
       # re-checked too; if no release branch exists there is nothing to do.
+      # Runs after the version advance so the check covers the pushed head.
       - name: Trigger required CI on the release PR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -63,24 +109,37 @@ jobs:
         with:
           ref: ${{ needs.release-please.outputs.tag_name }}
 
-      - name: Setup CUE
-        uses: cue-lang/setup-cue@a93fa358375740cd8b0078f76355512b9208acb1 # v1.0.1
-        with:
-          version: ${{ env.CUE_VERSION }}
+      - name: Install opm
+        run: |
+          set -euo pipefail
+          base="https://github.com/open-platform-model/cli/releases/download/${OPM_CLI_VERSION}"
+          curl -fsSLO "${base}/opm-linux-amd64.tar.gz"
+          curl -fsSLO "${base}/checksums.txt"
+          grep ' opm-linux-amd64.tar.gz$' checksums.txt | sha256sum -c -
+          tar -xzf opm-linux-amd64.tar.gz opm
+          sudo install -m 0755 opm /usr/local/bin/opm
+          rm -f opm opm-linux-amd64.tar.gz checksums.txt LICENSE
 
-      - name: Install Task
-        uses: go-task/setup-task@3be4020d41929789a01026e0e427a4321ce0ad44 # v2.0.0
-        with:
-          version: 3.x
-
+      # opm's push path reads the docker credential chain — docker login is the
+      # CI credential entry (opm registry login is interactive-only by design).
       - name: Login to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
+      # The tagged tree already declares this version (the release PR carried
+      # the identity write), so --version is an assertion, not a write: a
+      # mismatch is a refusal, never an overwrite. The pipeline publishes the
+      # committed tree exactly — no build dir, no version override.
       - name: Publish CUE catalog
         run: |
           set -euo pipefail
-          # version output is X.Y.Z (no leading v); the publish task stamps the
-          # bare SemVer into identity/ and tags the OCI artifact v-prefixed.
-          VERSION="v${{ needs.release-please.outputs.version }}"
-          echo "Publishing opmodel.dev/catalogs/opm@v1 at ${VERSION}"
-          task publish VERSION="${VERSION}"
+          VERSION="${{ needs.release-please.outputs.version }}"
+          echo "Publishing opmodel.dev/catalogs/opm (major v2) at v${VERSION}"
+          opm catalog publish ./src --version "${VERSION}"
+
+      # Out-of-band verification of the build just pushed — an aid, not a gate
+      # (0011 D7): a finding fails the job for visibility, the artifact stays.
+      - name: Verify the published build
+        run: |
+          set -euo pipefail
+          VERSION="${{ needs.release-please.outputs.version }}"
+          opm catalog registry check "opmodel.dev/catalogs/opm@v${VERSION}" --compat

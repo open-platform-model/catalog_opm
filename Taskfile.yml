@@ -3,14 +3,6 @@ version: "3"
 # Silent by default — set TASK_VERBOSE=1 or use --verbose to show commands
 silent: true
 
-vars:
-  # Local-publish mapping (Registry Policy, root CLAUDE.md): the catalog's own
-  # publish target (opmodel.dev/catalogs/*) routes to the local registry while
-  # the core@v1 dependency still resolves from GHCR via the shorter prefix;
-  # cue.dev / others fall through. Laptop publishes only — CI provides its own
-  # CUE_REGISTRY (GHCR) in the workflow env.
-  CUE_LOCAL_PUBLISH_REGISTRY: 'opmodel.dev/catalogs=localhost:5000+insecure,opmodel.dev=ghcr.io/open-platform-model,registry.cue.works'
-
 tasks:
   default:
     desc: Show available tasks
@@ -82,94 +74,20 @@ tasks:
 
   ## Publishing
   #
-  # The catalog uses publish-time version stamping (not plain `cue mod publish`).
-  # The committed tree resolves identity.Version to the "0.0.0-dev" sentinel;
-  # publish copies src/ to a transient build dir, writes
-  # identity/version_override.cue pinning the concrete bare SemVer, vets from the
-  # build dir, then runs `cue mod publish vX.Y.Z`. The source tree is never
-  # mutated. Publishing the dev sentinel is refused.
-
-  publish:
-    desc: Publish opmodel.dev/catalogs/opm at VERSION via temp-build stamping (e.g. task publish VERSION=v0.1.0)
-    requires:
-      vars: [VERSION]
-    vars:
-      BUILD_DIR: .build/catalog
-    preconditions:
-      - sh: command -v rsync >/dev/null 2>&1
-        msg: "rsync is required"
-      - sh: command -v cue >/dev/null 2>&1
-        msg: "cue is required"
-    cmds:
-      - |
-        set -euo pipefail
-
-        # CI (GitHub Actions sets CI=true) publishes with the workflow-env
-        # CUE_REGISTRY (GHCR). On laptops the ambient CUE_REGISTRY is
-        # deliberately ignored: local publish is a gated exception (Registry
-        # Policy rule 2, root CLAUDE.md) and must never leak to GHCR just
-        # because the shell carries the canonical GHCR mapping. Override with
-        # OPM_PUBLISH_REGISTRY if a different target is explicitly intended.
-        if [ -n "${CI:-}" ]; then
-          : "${CUE_REGISTRY:={{.CUE_LOCAL_PUBLISH_REGISTRY}}}"
-        else
-          CUE_REGISTRY="${OPM_PUBLISH_REGISTRY:-{{.CUE_LOCAL_PUBLISH_REGISTRY}}}"
-        fi
-        export CUE_REGISTRY
-
-        SRC="src"
-        BUILD="{{.BUILD_DIR}}"
-        DEV_SENTINEL="0.0.0-dev"
-
-        # Normalize: strip a leading v for the bare SemVer; the OCI tag re-adds it.
-        BARE="$(printf '%s' '{{.VERSION}}' | sed 's/^v//')"
-
-        # Stage a clean build tree (source untouched).
-        rm -rf "$BUILD"
-        mkdir -p "$BUILD"
-        rsync -a \
-          --exclude='cue.mod/pkg' \
-          --exclude='cue.mod/gen' \
-          --exclude='cue.mod/usr' \
-          "$SRC/" "$BUILD/"
-
-        # Stamp the concrete version into the build tree only (never the source
-        # tree). With no real VERSION the stamp is skipped and the resolved
-        # version stays at the dev sentinel, tripping the guard below.
-        if [ -n "$BARE" ] && [ "$BARE" != "$DEV_SENTINEL" ]; then
-          printf 'package identity\n\nVersion: "%s"\n' "$BARE" > "$BUILD/identity/version_override.cue"
-        fi
-
-        # Resolve the effective version from the staged identity package.
-        RESOLVED="$(cd "$BUILD" && cue export ./identity -e Version 2>/dev/null | tr -d '"')"
-
-        # Guard: the dev sentinel is never publishable.
-        if [ -z "$RESOLVED" ] || [ "$RESOLVED" = "$DEV_SENTINEL" ]; then
-          echo "::error:: refusing to publish catalog at version '${RESOLVED:-<unset>}' — supply VERSION=X.Y.Z ('$DEV_SENTINEL' is the dev sentinel and is not publishable)" >&2
-          exit 1
-        fi
-
-        echo "Validating catalog at ${RESOLVED}..."
-        (cd "$BUILD" && cue vet ./...)
-
-        echo "Publishing opmodel.dev/catalogs/opm@${RESOLVED} (OCI tag v${RESOLVED}) to ${CUE_REGISTRY}..."
-        (cd "$BUILD" && cue mod publish "v${RESOLVED}")
-        echo "Published opmodel.dev/catalogs/opm@${RESOLVED}"
+  # Publishing goes through `opm catalog publish` (enhancement 0011) and is
+  # CI-only: release.yml publishes releases, branch-publish.yml publishes
+  # -dev.* branch builds. There is deliberately no publish task here — a local
+  # publish is a gated exception (Registry Policy rule 2, root CLAUDE.md) and
+  # requires explicitly pointing opm at the local registry, e.g.
+  #   OPM_REGISTRY='opmodel.dev/catalogs=localhost:5000+insecure,opmodel.dev=ghcr.io/open-platform-model,registry.cue.works' \
+  #     opm catalog publish ./src
+  # The pipeline publishes the committed tree exactly and refuses per its gate
+  # set; `opm catalog publish ./src --dry-run` runs every gate without pushing.
 
   branch-tag:
     desc: Print the branch-publish tag for HEAD (no side effects)
     cmds:
       - bash .tasks/branch-tag.sh "$(pwd)"
-
-  publish:branch:
-    desc: Publish HEAD as a -dev pre-release derived from the commit
-    cmds:
-      - task: check
-      - |
-        set -euo pipefail
-        tag=$(bash .tasks/branch-tag.sh "$(pwd)")
-        # branch-tag.sh emits a v-prefixed tag; the publish task re-adds the v.
-        task publish VERSION="${tag}"
 
   ## Aggregate
 

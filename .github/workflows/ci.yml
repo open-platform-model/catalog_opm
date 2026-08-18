@@ -10,9 +10,13 @@ on:
   workflow_dispatch:
 
 env:
-  # vet resolves opmodel.dev/core@v1 and cue.dev/x/k8s.io@v0 from the registry.
-  # opmodel.dev -> GHCR; everything else from registry.cue.works.
+  # vet resolves opmodel.dev/core@v2 and cue.dev/x/k8s.io@v0 from the registry.
+  # opmodel.dev -> GHCR; everything else from registry.cue.works. opm reads
+  # OPM_REGISTRY (never CUE_REGISTRY); raw cue reads CUE_REGISTRY.
   CUE_REGISTRY: 'opmodel.dev=ghcr.io/open-platform-model,registry.cue.works'
+  OPM_REGISTRY: 'opmodel.dev=ghcr.io/open-platform-model,registry.cue.works'
+  # Pinned OPM CLI release for the publish-gate dry-run; bump deliberately.
+  OPM_CLI_VERSION: 'v1.0.0-alpha.11'
 
 jobs:
   ci:
@@ -41,5 +45,40 @@ jobs:
       - name: Vet CUE catalog
         run: task vet
 
+      - name: Enforce family layering
+        run: task vet:layering
+
       - name: Verify src/INDEX.md is up to date
         run: task generate:index:check
+
+      - name: Install opm
+        run: |
+          set -euo pipefail
+          base="https://github.com/open-platform-model/cli/releases/download/${OPM_CLI_VERSION}"
+          curl -fsSLO "${base}/opm-linux-amd64.tar.gz"
+          curl -fsSLO "${base}/checksums.txt"
+          grep ' opm-linux-amd64.tar.gz$' checksums.txt | sha256sum -c -
+          tar -xzf opm-linux-amd64.tar.gz opm
+          sudo install -m 0755 opm /usr/local/bin/opm
+          rm -f opm opm-linux-amd64.tar.gz checksums.txt LICENSE
+
+      # Every publish gate runs, nothing is pushed. On a PR or a push to main
+      # the committed version is usually live already, so already-published as
+      # the ONLY refusal still passes (the caller-side tolerance from 0011 D15
+      # — same pattern as cli's publish-templates.sh); any other refusal fails.
+      # On the dispatched release-branch run the version has been advanced, so
+      # this is a full GO rehearsal of the next release.
+      - name: Publish gates dry-run
+        run: |
+          set -euo pipefail
+          if out=$(opm catalog publish ./src --dry-run 2>&1); then
+            echo "${out}"
+            exit 0
+          fi
+          echo "${out}"
+          if echo "${out}" | grep -q "already holds" && echo "${out}" | grep -q "1 refusal"; then
+            echo "only refusal is already-published - acceptable outside a release"
+            exit 0
+          fi
+          echo "publish gates refused"
+          exit 1
