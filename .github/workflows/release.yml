@@ -26,10 +26,17 @@ jobs:
   release-please:
     name: Release Please
     runs-on: ubuntu-latest
+    # Manifest mode with more than one package emits PER-PACKAGE outputs keyed
+    # by the package path ("opm--version"), plus the aggregate paths_released /
+    # releases_created. The single-package release_created/tag_name/version
+    # outputs do not exist here.
     outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
-      version: ${{ steps.release.outputs.version }}
+      releases_created: ${{ steps.release.outputs.releases_created }}
+      paths_released: ${{ steps.release.outputs.paths_released }}
+      opm_tag_name: ${{ steps.release.outputs['opm--tag_name'] }}
+      opm_version: ${{ steps.release.outputs['opm--version'] }}
+      k8s_tag_name: ${{ steps.release.outputs['k8s--tag_name'] }}
+      k8s_version: ${{ steps.release.outputs['k8s--version'] }}
     steps:
       - name: Run release-please
         id: release
@@ -45,38 +52,45 @@ jobs:
         run: |
           set -euo pipefail
           base="https://github.com/open-platform-model/cli/releases/download/${OPM_CLI_VERSION}"
+          tmp="$(mktemp -d)"
           curl -fsSLO "${base}/opm-linux-amd64.tar.gz"
           curl -fsSLO "${base}/checksums.txt"
           grep ' opm-linux-amd64.tar.gz$' checksums.txt | sha256sum -c -
-          tar -xzf opm-linux-amd64.tar.gz opm
-          sudo install -m 0755 opm /usr/local/bin/opm
-          rm -f opm opm-linux-amd64.tar.gz checksums.txt LICENSE
+          tar -xzf opm-linux-amd64.tar.gz -C "${tmp}" opm
+          sudo install -m 0755 "${tmp}/opm" /usr/local/bin/opm
+          rm -rf "${tmp}" opm-linux-amd64.tar.gz checksums.txt LICENSE
 
       # Release-please decides the version; the identity file is written only by
       # opm's own writer (enhancement 0011 D3/D15 — no x-release-please-version
       # annotation, which would be a second writer and reintroduce drift). The
       # write is surgical and idempotent, so release-please force-updating its
       # branch just makes this step converge again on the next main push.
-      - name: Advance identity.Version on the release PR
+      #
+      # Each module has its own release PR, its own release branch and its own
+      # manifest entry, so this runs once per module and skips the ones with no
+      # open branch.
+      - name: Advance identity.Version on the release PRs
         run: |
           set -euo pipefail
-          BRANCH="release-please--branches--main--components--catalog_opm"
-          if ! git fetch origin "$BRANCH" 2>/dev/null; then
-            echo "no open release branch - nothing to advance"
-            exit 0
-          fi
-          git checkout -B "$BRANCH" FETCH_HEAD
-          VERSION=$(jq -r '."."' .release-please-manifest.json)
-          opm catalog version set "$VERSION" ./src
-          if git diff --quiet; then
-            echo "identity.Version already declares ${VERSION}"
-            exit 0
-          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/identity/identity.cue
-          git commit -m "chore: advance identity.Version to ${VERSION}"
-          git push origin "$BRANCH"
+          for m in opm k8s; do
+            BRANCH="release-please--branches--main--components--${m}"
+            if ! git fetch origin "$BRANCH" 2>/dev/null; then
+              echo "${m}: no open release branch - nothing to advance"
+              continue
+            fi
+            git checkout -B "$BRANCH" FETCH_HEAD
+            VERSION=$(jq -r --arg m "$m" '.[$m]' .release-please-manifest.json)
+            opm catalog version set "$VERSION" "./${m}"
+            if git diff --quiet; then
+              echo "${m}: identity.Version already declares ${VERSION}"
+              continue
+            fi
+            git add "${m}/identity/identity.cue"
+            git commit -m "chore: advance ${m} identity.Version to ${VERSION}"
+            git push origin "$BRANCH"
+          done
 
       # A PR created with GITHUB_TOKEN never triggers pull_request workflows,
       # so the required CI check would sit pending forever on the protected
@@ -89,16 +103,24 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh workflow run ci.yml \
-            --repo "${{ github.repository }}" \
-            --ref "release-please--branches--main--components--catalog_opm" \
-            || echo "no open release branch - nothing to trigger"
+          for m in opm k8s; do
+            gh workflow run ci.yml \
+              --repo "${{ github.repository }}" \
+              --ref "release-please--branches--main--components--${m}" \
+              || echo "${m}: no open release branch - nothing to trigger"
+          done
 
   publish-cue:
-    name: Publish opmodel.dev/catalogs/opm
+    name: Publish ${{ matrix.module }}
     needs: release-please
-    if: needs.release-please.outputs.release_created == 'true'
+    if: needs.release-please.outputs.releases_created == 'true'
     runs-on: ubuntu-latest
+    strategy:
+      # Only the modules release-please actually released this run. Each is a
+      # separate CUE module on its own version line, published independently.
+      fail-fast: false
+      matrix:
+        module: ${{ fromJSON(needs.release-please.outputs.paths_released) }}
     steps:
       # Publishing runs here, in the same workflow run that the release-PR
       # merge triggers — NOT from a push:tags trigger. A tag pushed by
@@ -107,18 +129,19 @@ jobs:
       - name: Clone the released tag
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          ref: ${{ needs.release-please.outputs.tag_name }}
+          ref: ${{ needs.release-please.outputs[format('{0}_tag_name', matrix.module)] }}
 
       - name: Install opm
         run: |
           set -euo pipefail
           base="https://github.com/open-platform-model/cli/releases/download/${OPM_CLI_VERSION}"
+          tmp="$(mktemp -d)"
           curl -fsSLO "${base}/opm-linux-amd64.tar.gz"
           curl -fsSLO "${base}/checksums.txt"
           grep ' opm-linux-amd64.tar.gz$' checksums.txt | sha256sum -c -
-          tar -xzf opm-linux-amd64.tar.gz opm
-          sudo install -m 0755 opm /usr/local/bin/opm
-          rm -f opm opm-linux-amd64.tar.gz checksums.txt LICENSE
+          tar -xzf opm-linux-amd64.tar.gz -C "${tmp}" opm
+          sudo install -m 0755 "${tmp}/opm" /usr/local/bin/opm
+          rm -rf "${tmp}" opm-linux-amd64.tar.gz checksums.txt LICENSE
 
       # opm's push path reads the docker credential chain — docker login is the
       # CI credential entry (opm registry login is interactive-only by design).
@@ -130,16 +153,22 @@ jobs:
       # mismatch is a refusal, never an overwrite. The pipeline publishes the
       # committed tree exactly — no build dir, no version override.
       - name: Publish CUE catalog
+        env:
+          MODULE: ${{ matrix.module }}
+          VERSION: ${{ needs.release-please.outputs[format('{0}_version', matrix.module)] }}
         run: |
           set -euo pipefail
-          VERSION="${{ needs.release-please.outputs.version }}"
-          echo "Publishing opmodel.dev/catalogs/opm (major v2) at v${VERSION}"
-          opm catalog publish ./src --version "${VERSION}"
+          echo "Publishing ./${MODULE} at v${VERSION}"
+          opm catalog publish "./${MODULE}" --version "${VERSION}"
 
       # Out-of-band verification of the build just pushed — an aid, not a gate
       # (0011 D7): a finding fails the job for visibility, the artifact stays.
       - name: Verify the published build
+        env:
+          MODULE: ${{ matrix.module }}
+          VERSION: ${{ needs.release-please.outputs[format('{0}_version', matrix.module)] }}
         run: |
           set -euo pipefail
-          VERSION="${{ needs.release-please.outputs.version }}"
-          opm catalog registry check "opmodel.dev/catalogs/opm@v${VERSION}" --compat
+          PATH_DECLARED=$(grep -E '^module:' "${MODULE}/cue.mod/module.cue" \
+            | sed -E 's/module:[[:space:]]*"(.*)@v[0-9]+"/\1/')
+          opm catalog registry check "${PATH_DECLARED}@v${VERSION}" --compat

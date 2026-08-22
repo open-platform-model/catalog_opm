@@ -23,7 +23,7 @@ env:
 
 jobs:
   publish:
-    name: Publish opmodel.dev/catalogs/opm (dev tag)
+    name: Publish both catalogs (dev tags)
     # Forks have no access to GITHUB_TOKEN with packages:write — skip cleanly.
     if: github.event.repository.fork == false
     runs-on: ubuntu-latest
@@ -49,12 +49,13 @@ jobs:
         run: |
           set -euo pipefail
           base="https://github.com/open-platform-model/cli/releases/download/${OPM_CLI_VERSION}"
+          tmp="$(mktemp -d)"
           curl -fsSLO "${base}/opm-linux-amd64.tar.gz"
           curl -fsSLO "${base}/checksums.txt"
           grep ' opm-linux-amd64.tar.gz$' checksums.txt | sha256sum -c -
-          tar -xzf opm-linux-amd64.tar.gz opm
-          sudo install -m 0755 opm /usr/local/bin/opm
-          rm -f opm opm-linux-amd64.tar.gz checksums.txt LICENSE
+          tar -xzf opm-linux-amd64.tar.gz -C "${tmp}" opm
+          sudo install -m 0755 "${tmp}/opm" /usr/local/bin/opm
+          rm -rf "${tmp}" opm-linux-amd64.tar.gz checksums.txt LICENSE
 
       - name: Login to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
@@ -69,9 +70,24 @@ jobs:
       # runner's checkout, never a commit — because publish asserts that the
       # pushed tag equals the tree's own declared Version (D18); a --version
       # flag diverging from the committed release version would be a refusal.
-      - name: Publish branch tag
+      #
+      # Each module derives its own tag from its own release line: branch-tag.sh
+      # takes the module dir plus that module's release-please tag prefix, and
+      # the two modules sit on different majors, so they cannot share one.
+      #
+      # branch-tag.sh's dirty-worktree guard runs `git status` repo-wide, not
+      # scoped to one module dir, so a version-set write left over from an
+      # earlier module in this loop would trip the NEXT module's guard even
+      # though that dirt is unrelated to it. Restore each module's identity
+      # file the moment its own publish is done, so the tree is clean again
+      # before the next module computes its tag.
+      - name: Publish branch tags
         run: |
           set -euo pipefail
-          tag=$(bash .tasks/branch-tag.sh "$(pwd)")
-          opm catalog version set "${tag#v}" ./src
-          opm catalog publish ./src
+          for m in opm k8s; do
+            tag=$(bash .tasks/branch-tag.sh "$(pwd)/${m}" "${m}-")
+            echo "publishing ${m} at ${tag}"
+            opm catalog version set "${tag#v}" "./${m}"
+            opm catalog publish "./${m}"
+            git checkout -- "${m}/identity/identity.cue"
+          done

@@ -3,96 +3,139 @@ version: "3"
 # Silent by default — set TASK_VERBOSE=1 or use --verbose to show commands
 silent: true
 
+vars:
+  # The CUE modules this repo publishes. Each is its own module root with its
+  # own cue.mod/, identity/ and catalog.cue; they share only this repo's CI.
+  #   opm — opmodel.dev/catalogs/opm@v2, the abstraction catalog
+  #   k8s — opmodel.dev/catalogs/k8s@v1, the raw Kubernetes passthrough catalog
+  MODULES: opm k8s
+
 tasks:
   default:
     desc: Show available tasks
     cmds:
       - task --list
 
-  ## CUE catalog
+  ## CUE catalogs
 
   fmt:
-    desc: Format all CUE files
-    dir: src
+    desc: Format all CUE files in every module
     cmds:
-      - cue fmt ./...
+      - |
+        for m in {{.MODULES}}; do (cd "$m" && cue fmt ./...); done
 
   fmt:check:
     desc: Verify CUE files are formatted (fails if any file would change)
     cmds:
-      - (cd src && cue fmt ./...)
-      - git diff --exit-code -- 'src/**/*.cue' 'src/*.cue'
+      - |
+        for m in {{.MODULES}}; do (cd "$m" && cue fmt ./...); done
+      - |
+        set -- {{.MODULES}}
+        paths=""
+        for m in "$@"; do paths="$paths $m/**/*.cue $m/*.cue"; done
+        git diff --exit-code -- $paths
 
   vet:
-    desc: Validate the catalog package
-    dir: src
+    desc: Validate every catalog package
     cmds:
-      - cue vet ./...
+      - |
+        set -e
+        for m in {{.MODULES}}; do
+          echo "vet: $m"
+          (cd "$m" && cue vet ./...)
+        done
 
   vet:layering:
     desc: >
-      Enforce the family layering rule (0010 D47): the abstraction family never
-      depends on the raw k8s-* family. No trait, blueprint, or non-k8s_
-      transformer may reference a k8s-* contract or a #K8s definition.
+      Enforce the family layering rule: the abstraction catalog and the raw
+      Kubernetes catalog are separate CUE modules and neither imports the
+      other. The module boundary makes this structural; this check keeps an
+      import from quietly reintroducing the coupling.
     cmds:
       - |
-        violations=$({ grep -rln '#K8s[A-Z]\|resources/k8s-' src/traits src/blueprints 2>/dev/null; \
-          grep -rln '#K8s[A-Z]\|resources/k8s-' src/transformers 2>/dev/null | grep -v '/k8s_'; } || true)
-        if [ -n "$violations" ]; then
-          echo "Layering violation — abstraction-family files referencing the raw k8s-* family:" >&2
-          echo "$violations" >&2
-          exit 1
-        fi
+        # Match IMPORT lines only: an import is a quoted path at the start of a
+        # line (bare or aliased). Prose in a doc comment naming the other
+        # catalog is not a dependency and must not fail the check.
+        check() {
+          local here="$1" other="$2"
+          local violations
+          violations=$(grep -rlnE "^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*[[:space:]]+)?\"opmodel\.dev/catalogs/${other}[/@\"]" \
+            "$here" --include='*.cue' 2>/dev/null || true)
+          if [ -n "$violations" ]; then
+            echo "Layering violation — the ${here} catalog must not import the ${other} catalog:" >&2
+            echo "$violations" >&2
+            return 1
+          fi
+        }
+        rc=0
+        check k8s opm || rc=1
+        check opm k8s || rc=1
+        exit $rc
 
   tidy:
-    desc: Tidy the CUE module manifest
-    dir: src
+    desc: Tidy every CUE module manifest
     cmds:
-      - cue mod tidy
+      - |
+        set -e
+        for m in {{.MODULES}}; do (cd "$m" && cue mod tidy); done
 
   ## Index generation
 
   generate:index:
-    desc: Regenerate src/INDEX.md from the CUE definitions
+    desc: Regenerate each module's INDEX.md from its CUE definitions
     cmds:
-      - bash .tasks/generate-index.sh "$(pwd)" > src/INDEX.md
+      - |
+        set -e
+        for m in {{.MODULES}}; do
+          bash .tasks/generate-index.sh "$(pwd)/$m" > "$m/INDEX.md"
+        done
 
   generate:index:check:
-    desc: Verify src/INDEX.md matches generated output (exits non-zero if stale)
+    desc: Verify every INDEX.md matches generated output (exits non-zero if stale)
     cmds:
       - |
         set -euo pipefail
         tmp=$(mktemp)
         trap 'rm -f "$tmp"' EXIT
-        bash .tasks/generate-index.sh "$(pwd)" > "$tmp"
-        if ! diff -q src/INDEX.md "$tmp" >/dev/null 2>&1; then
-          echo "FAIL: src/INDEX.md is out of date — run 'task generate:index'"
-          diff src/INDEX.md "$tmp" || true
-          exit 1
-        fi
-        echo "OK: src/INDEX.md is up to date."
+        rc=0
+        for m in {{.MODULES}}; do
+          bash .tasks/generate-index.sh "$(pwd)/$m" > "$tmp"
+          if ! diff -q "$m/INDEX.md" "$tmp" >/dev/null 2>&1; then
+            echo "FAIL: $m/INDEX.md is out of date — run 'task generate:index'"
+            diff "$m/INDEX.md" "$tmp" || true
+            rc=1
+          else
+            echo "OK: $m/INDEX.md is up to date."
+          fi
+        done
+        exit $rc
 
   ## Publishing
   #
   # Publishing goes through `opm catalog publish` (enhancement 0011) and is
   # CI-only: release.yml publishes releases, branch-publish.yml publishes
-  # -dev.* branch builds. There is deliberately no publish task here — a local
-  # publish is a gated exception (Registry Policy rule 2, root CLAUDE.md) and
-  # requires explicitly pointing opm at the local registry, e.g.
+  # -dev.* branch builds. Each module publishes independently. There is
+  # deliberately no publish task here — a local publish is a gated exception
+  # (Registry Policy rule 2, root CLAUDE.md) and requires explicitly pointing
+  # opm at the local registry, e.g.
   #   OPM_REGISTRY='opmodel.dev/catalogs=localhost:5000+insecure,opmodel.dev=ghcr.io/open-platform-model,registry.cue.works' \
-  #     opm catalog publish ./src
+  #     opm catalog publish ./opm
   # The pipeline publishes the committed tree exactly and refuses per its gate
-  # set; `opm catalog publish ./src --dry-run` runs every gate without pushing.
+  # set; `opm catalog publish ./opm --dry-run` runs every gate without pushing.
 
   branch-tag:
-    desc: Print the branch-publish tag for HEAD (no side effects)
+    desc: "Print a module's branch-publish tag for HEAD (MODULE=opm|k8s; defaults to all)"
     cmds:
-      - bash .tasks/branch-tag.sh "$(pwd)"
+      - |
+        set -e
+        for m in {{.MODULE | default .MODULES}}; do
+          printf '%s\t%s\n' "$m" "$(bash .tasks/branch-tag.sh "$(pwd)/$m" "$m-")"
+        done
 
   ## Aggregate
 
   check:
-    desc: Format check, vet, layering, and INDEX freshness
+    desc: Format check, vet, layering, and INDEX freshness across every module
     cmds:
       - task: fmt:check
       - task: vet
