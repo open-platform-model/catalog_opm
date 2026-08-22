@@ -59,19 +59,28 @@ it is permanent, outward-facing, and it reaches a third party who never opted in
 
 ## Purpose
 
-This repo defines and publishes the **OPM catalog** as a versioned CUE module (`opmodel.dev/catalogs/opm@v2`) — since enhancement 0010 D47 the **single first-party catalog**, having absorbed `catalog_kubernetes` and `catalog_opm_experimental` on the v2 line. The retired v1 line lives on the `v1` maintenance branch (fixes only, `1.0.x` releases).
+This repo defines and publishes **two first-party OPM catalogs**, each a separate CUE module in its own subdirectory, sharing one repo and one CI:
 
-The catalog is the canonical set of OPM Kubernetes building blocks — `#Resource`s, `#Trait`s, `#Blueprint`s, and `#ComponentTransformer`s — that platform and module authors consume to model and render workloads. It is typed entirely against the `core` schema (`opmodel.dev/core@v2`) and instantiates its constructs; it does **not** define new core constructs.
+| Directory | Module | What it is |
+| --- | --- | --- |
+| `opm/` | `opmodel.dev/catalogs/opm@v2` | the **abstraction catalog** — intentional OPM abstractions |
+| `k8s/` | `opmodel.dev/catalogs/k8s@v1` | the **raw Kubernetes catalog** — native APIs carried through as-is |
 
-### Two families, one key space
+The retired v1 line of the abstraction catalog lives on the `v1` maintenance branch (fixes only, `1.0.x` releases).
 
-- **Abstraction family** (bare names: `container`, `volume`, `scaling`, …) — intentional OPM abstractions that may differ from Kubernetes substantially; that divergence is the point. Experimental abstraction candidates live here too, at `v1alpha1` (alpha promises nothing — 0010 D34).
-- **Raw `k8s-*` family** (`k8s-deployment`, `k8s-object`, …) — native Kubernetes APIs passed through as-is; the **last resort** for what the abstractions do not model. Member names carry the `k8s-` prefix, definitions the `#K8s` prefix, files the `k8s_` prefix. Each member's contract `apiVersion` **mirrors the upstream Kubernetes API version at adoption** (0010 D48): apps/v1 → `@v1`, autoscaling/v2 → `@v2`. Graduation is upstream's act, never this repo's.
-- **Layering rule: the abstraction family never depends on the raw family.** No blueprint, trait, or abstraction transformer may reference a `k8s-*` contract; abstraction transformers emit Kubernetes types directly via `schemas/`. Modules may demand raw contracts — nothing inside the catalog builds on them.
+Both are the canonical set of OPM Kubernetes building blocks — `#Resource`s, `#Trait`s, `#Blueprint`s, and `#ComponentTransformer`s — that platform and module authors consume to model and render workloads. Both are typed entirely against the `core` schema (`opmodel.dev/core@v2`) and instantiate its constructs; neither defines new core constructs.
+
+### Two catalogs, two key spaces
+
+- **`opm` — the abstraction catalog** (bare names: `container`, `volume`, `scaling`, …). Intentional OPM abstractions that may differ from Kubernetes substantially; that divergence is the point. Experimental abstraction candidates live here too, at `v1alpha1` (alpha promises nothing — 0010 D34).
+- **`k8s` — the raw catalog** (`deployment`, `objects`, …). Native Kubernetes APIs passed through as-is; the **last resort** for what the abstractions do not model. There is no name prefix: the module path is what announces the escape hatch, at the import line and in every key (`opmodel.dev/catalogs/k8s/resources/deployment@v1`). Each member's contract `apiVersion` **mirrors the upstream Kubernetes API version at adoption** (0010 D48): apps/v1 → `@v1`, autoscaling/v2 → `@v2`. Graduation is upstream's act, never this repo's.
+- **Layering rule: neither catalog depends on the other.** The module boundary makes this structural rather than conventional, and `task vet:layering` keeps an import from quietly reintroducing the coupling. A module may demand contracts from both; nothing inside either catalog builds on the other.
+
+A platform subscribes to each catalog it wants: `#registry` is keyed by module path, so two subscriptions are the normal case, not a special one.
 
 ### Version-segment filing (0010 D49)
 
-Contract members (resources, traits, blueprints) file under `src/<kind>/<apiVersion>/` — e.g. `src/resources/v1beta1/configmap.cue`, `src/resources/v1/k8s_deployment.cue`, `src/resources/v1alpha1/namespace.cue` — with the package clause equal to the version segment (`package v1beta1`) and `metadata.modulePath` carrying it (`"\(id.kindPrefix.resources)/v1beta1"`). The segment is derived from the member's own `apiVersion` and **never enters the fqn** — the key space stays flat (`…/resources/configmap@v1beta1`). Transformers file flat under `src/transformers/` (they have no apiVersion). Consumers import a version package explicitly: `res "opmodel.dev/catalogs/opm/resources/v1beta1"`.
+Contract members (resources, traits, blueprints) file under `<module>/<kind>/<apiVersion>/` — e.g. `opm/resources/v1beta1/configmap.cue`, `k8s/resources/v1/deployment.cue`, `opm/resources/v1alpha1/namespace.cue` — with the package clause equal to the version segment (`package v1beta1`) and `metadata.modulePath` carrying it (`"\(id.kindPrefix.resources)/v1beta1"`). The segment is derived from the member's own `apiVersion` and **never enters the fqn** — each catalog's key space stays flat (`…/resources/configmap@v1beta1`). Transformers file flat under `<module>/transformers/` (they have no apiVersion). Consumers import a version package explicitly: `res "opmodel.dev/catalogs/opm/resources/v1beta1"`, `k8s "opmodel.dev/catalogs/k8s/resources/v1"`.
 
 This is a pure CUE repository: catalog definitions plus the tooling to validate, index, and publish them. No Go code.
 
@@ -92,46 +101,56 @@ Read these on entry:
 
 - `CLAUDE.md` — repo working rules (this file).
 - `Taskfile.yml` — authoritative build/validate/publish entrypoints.
-- `src/INDEX.md` — generated definition index (ships inside the CUE module).
-- `src/catalog.cue` — the catalog manifest (`c.#Catalog`, enumerates transformers).
+- `opm/INDEX.md`, `k8s/INDEX.md` — generated definition indexes (each ships inside its CUE module).
+- `opm/catalog.cue`, `k8s/catalog.cue` — the catalog manifests (`c.#Catalog`, enumerates transformers).
 
 ## Repository Layout
 
 ```text
-src/cue.mod/module.cue   CUE module manifest — opmodel.dev/catalogs/opm@v2
-src/catalog.cue          catalog manifest (bare c.#Catalog, enumerates transformers)
-src/identity/            ModulePath + Version (publish-time stamping anchor)
-src/resources/v1beta1/   abstraction-family #Resource definitions (+ #Component wrappers)
-src/resources/v1alpha1/  experimental abstraction candidates (ex catalog_opm_experimental)
-src/resources/v1/        raw k8s-* passthrough resources (ex catalog_kubernetes; GA upstream)
-src/resources/v2/        raw k8s-* resources mirroring upstream v2 APIs (hpa)
-src/traits/v1beta1/      #Trait definitions
-src/blueprints/v1beta1/  #Blueprint definitions (composed resources + traits)
-src/transformers/        #ComponentTransformer definitions, flat — both families (k8s_* files = raw)
-src/schemas/             shared schema types + vendored Kubernetes types; schemas/k8s/ = raw-family open wrappers
-src/INDEX.md             generated definition index (ships inside the CUE module)
+opm/cue.mod/module.cue   CUE module manifest — opmodel.dev/catalogs/opm@v2
+opm/catalog.cue          catalog manifest (bare c.#Catalog, enumerates transformers)
+opm/identity/            ModulePath + Version (publish-time stamping anchor)
+opm/resources/v1beta1/   #Resource definitions (+ #Component wrappers)
+opm/resources/v1alpha1/  experimental abstraction candidates (ex catalog_opm_experimental)
+opm/traits/v1beta1/      #Trait definitions
+opm/blueprints/v1beta1/  #Blueprint definitions (composed resources + traits)
+opm/transformers/        #ComponentTransformer definitions, flat
+opm/schemas/             shared schema types + vendored Kubernetes types
+opm/INDEX.md             generated definition index (ships inside the CUE module)
+
+k8s/cue.mod/module.cue   CUE module manifest — opmodel.dev/catalogs/k8s@v1
+k8s/catalog.cue          catalog manifest (bare c.#Catalog, enumerates transformers)
+k8s/identity/            ModulePath + Version (publish-time stamping anchor)
+k8s/resources/v1/        passthrough #Resources mirroring upstream GA APIs
+k8s/resources/v2/        passthrough #Resources mirroring upstream v2 APIs (hpa)
+k8s/transformers/        #ComponentTransformer definitions, flat
+k8s/schemas/             open (`...`) wrappers over the native Kubernetes shapes
+k8s/INDEX.md             generated definition index (ships inside the CUE module)
+
+CHANGELOG-opm.md         per-module changelogs, deliberately OUTSIDE the module
+CHANGELOG-k8s.md         roots so they do not ship inside the published artifacts
 .tasks/                  Taskfile script fragments (index + branch-tag)
 ```
 
-`src/` is the CUE module root: the catalog package and `cue.mod/` both live there, so the import path stays `opmodel.dev/catalogs/opm@v2` with no per-version subdirectory. Internal imports (`opmodel.dev/catalogs/opm/identity`, `.../resources`, `.../traits`, …) resolve relative to the module root. Repo-level material (README, Taskfile, CI workflows) sits at the repo root. A breaking revision bumps the module major (`@v1` → `@v2`); it does not add a sibling package.
+Each module directory is a CUE module root: its catalog package and `cue.mod/` both live there, so the import paths are `opmodel.dev/catalogs/opm@v2` and `opmodel.dev/catalogs/k8s@v1` with no per-version subdirectory. Internal imports (`opmodel.dev/catalogs/opm/identity`, `.../resources`, …) resolve relative to their own module root. Repo-level material (README, Taskfile, CI workflows) sits at the repo root. A breaking revision bumps that module's major; it does not add a sibling package.
 
-All raw `cue` invocations run from `src/`. The Taskfile handles this via `dir: src` / `cd src`.
+Raw `cue` invocations run from a module directory. The Taskfile fans every task out over both, driven by its `MODULES` var.
 
 ## Dependencies
 
-- `opmodel.dev/core@v2` — the OPM schema this catalog instantiates.
-- `cue.dev/x/k8s.io@v0` — vendored Kubernetes types used by `schemas/kubernetes/**` and transformers.
+- `opmodel.dev/core@v2` — the OPM schema both catalogs instantiate.
+- `cue.dev/x/k8s.io@v0` — vendored Kubernetes types used by `opm/schemas/kubernetes/**` and its transformers. The `k8s` module does **not** carry this dep: its schemas are hand-written open (`...`) wrappers with no imports, so it depends on `core` alone.
 
 `cue vet` therefore needs a reachable registry. Export the workspace registry vars from the root `CLAUDE.md` (`CUE_REGISTRY`, `OPM_REGISTRY`) before running raw `cue` outside `task`.
 
 ## Version & Identity (important)
 
-`src/identity/identity.cue` is the single source of the catalog's identity (0010 D5):
+Each module's `identity/identity.cue` is the single source of that catalog's identity (0010 D5):
 
-- `ModulePath` carries the full module path with major (`opmodel.dev/catalogs/opm@v2`); `kindPrefix` derives the per-kind package paths every member's `metadata.modulePath` and authored `fqn` use.
+- `ModulePath` carries the full module path with major (`opmodel.dev/catalogs/opm@v2`, `opmodel.dev/catalogs/k8s@v1`); `kindPrefix` derives the per-kind package paths every member's `metadata.modulePath` and authored `fqn` use.
 - `Version` is COMMITTED as the real release version (a CUE *default* — the shape `opm catalog version set` preserves byte-for-byte around the value). release-please decides the next version; `release.yml` writes it onto the release PR through `opm catalog version set` — never hand-edit it.
 - Transformers interpolate `Version` into their build-keyed `fqn` (`…/transformers/<name>@<version>`); primitives key their `fqn` by their own `apiVersion` (`…/resources/<name>@v1beta1`), which a release does NOT move.
-- Publishing goes through `opm catalog publish ./src` (enhancement 0011): it validates the identity package against core's `#IdentityPackage`, runs every publish gate (member FQN, trait posture, already-published, level-aware compatibility), and pushes the committed tree exactly — no build dir, no version override. On a release the workflow passes `--version` as an assertion; branch builds first stamp the `-dev.*` version into CI's working tree with `opm catalog version set` (a checkout write, never a commit).
+- Publishing goes through `opm catalog publish ./opm` / `opm catalog publish ./k8s` (enhancement 0011): it validates the identity package against core's `#IdentityPackage`, runs every publish gate (member FQN, trait posture, already-published, level-aware compatibility), and pushes the committed tree exactly — no build dir, no version override. On a release the workflow passes `--version` as an assertion; branch builds first stamp the `-dev.*` version into CI's working tree with `opm catalog version set` (a checkout write, never a commit).
 
 Never hand-edit `apiVersion`/`catalogVersion`/`fqn` to chase a release — only a primitive's own breaking shape change moves its `apiVersion` (and with it the contract key).
 
@@ -139,23 +158,26 @@ Never hand-edit `apiVersion`/`catalogVersion`/`fqn` to chase a release — only 
 
 | Command                       | Purpose                                              |
 | ---                           | ---                                                  |
-| `task fmt` / `task fmt:check` | Format CUE files / verify formatting                 |
-| `task vet`                    | Validate the catalog package                         |
-| `task vet:layering`           | Enforce the family layering rule (abstraction never depends on `k8s-*`) |
-| `task tidy`                   | Tidy the CUE module manifest                         |
-| `task generate:index`         | Regenerate `src/INDEX.md`                            |
-| `task generate:index:check`   | Verify `src/INDEX.md` is up to date                  |
-| `task check`                  | fmt check + vet + INDEX freshness                    |
-| `task branch-tag`             | Print the deterministic `-dev` tag for HEAD (no side effects) |
+| `task fmt` / `task fmt:check` | Format CUE files / verify formatting, both modules   |
+| `task vet`                    | Validate both catalog packages                       |
+| `task vet:layering`           | Enforce the layering rule (neither catalog imports the other) |
+| `task tidy`                   | Tidy both CUE module manifests                       |
+| `task generate:index`         | Regenerate `opm/INDEX.md` and `k8s/INDEX.md`         |
+| `task generate:index:check`   | Verify both INDEX files are up to date               |
+| `task check`                  | fmt check + vet + layering + INDEX freshness         |
+| `task branch-tag`             | Print each module's deterministic `-dev` tag for HEAD (no side effects) |
 
-There is no publish task. Publishing is CI-only via `opm catalog publish` (see Release & publishing); `opm catalog publish ./src --dry-run` runs every gate locally without pushing. A local publish is a gated exception (Registry Policy rule 2, root `CLAUDE.md`) and requires explicitly pointing `OPM_REGISTRY` at the local registry — the ambient GHCR mapping alone can no longer be picked up by a laptop publish, because there is no task to pick it up.
+Every task fans out over the `MODULES` var (`opm k8s`). Adding a third catalog is one string edit there.
+
+There is no publish task. Publishing is CI-only via `opm catalog publish` (see Release & publishing); `opm catalog publish ./opm --dry-run` runs every gate locally without pushing. A local publish is a gated exception (Registry Policy rule 2, root `CLAUDE.md`) and requires explicitly pointing `OPM_REGISTRY` at the local registry — the ambient GHCR mapping alone can no longer be picked up by a laptop publish, because there is no task to pick it up.
 
 ### Release & publishing
 
-- release-please (`release.yml`, release type `simple`) opens and updates the release PR; the same workflow then runs `opm catalog version set` on the release branch so the PR itself carries the next `identity.Version` (opm's writer is the only identity writer — 0011 D15). Merging it tags `vX.Y.Z` and creates the GitHub Release.
-- The same workflow run publishes the module: a `publish-cue` job gated on `release_created == 'true'` runs `opm catalog publish ./src --version <version>` against `ghcr.io/open-platform-model`, in the run triggered by the human merging the release PR (avoiding GitHub's GITHUB_TOKEN tag-trigger suppression). The flag is an assertion against the version the release PR wrote — a mismatch refuses, never overwrites. A post-publish `opm catalog registry check --compat` verifies the pushed build (an aid, not a gate).
-- `branch-publish.yml` publishes a `-dev` pre-release for non-main branches: `task check`, then `.tasks/branch-tag.sh` derives the deterministic version, `opm catalog version set` stamps it into the runner's working tree, and `opm catalog publish ./src` pushes.
-- `ci.yml` runs the publish gates as a dry-run on every PR (already-published as the only refusal is tolerated — outside a release the committed version is usually live).
+- The two modules are **two release-please packages** on independent version lines, so tags carry a component prefix: `opm-vX.Y.Z` and `k8s-vX.Y.Z`. The bare `vX.Y.Z` tags predate the split and stay resolvable; they belong to the pre-split single-module line. Each package opens its own release PR on its own branch (`release-please--branches--main--components--opm`).
+- release-please (`release.yml`, release type `simple`) opens and updates each release PR; the same workflow then runs `opm catalog version set` on that release branch so the PR itself carries the next `identity.Version` (opm's writer is the only identity writer — 0011 D15). Merging it tags the component and creates the GitHub Release.
+- The same workflow run publishes the released module(s): a `publish-cue` matrix job over `paths_released` runs `opm catalog publish ./<module> --version <version>` against `ghcr.io/open-platform-model`, in the run triggered by the human merging the release PR (avoiding GitHub's GITHUB_TOKEN tag-trigger suppression). The flag is an assertion against the version the release PR wrote — a mismatch refuses, never overwrites. A post-publish `opm catalog registry check --compat` verifies the pushed build (an aid, not a gate).
+- `branch-publish.yml` publishes a `-dev` pre-release of BOTH modules for non-main branches: `task check`, then `.tasks/branch-tag.sh <module_dir> <tag_prefix>` derives each deterministic version, `opm catalog version set` stamps it into the runner's working tree, and `opm catalog publish ./<module>` pushes. The tag prefix is required: this repo's bare `v1.*` tags belong to the old single-module line and must not be read as releases of the `k8s` catalog, which is also major v1.
+- `ci.yml` runs the publish gates as a dry-run on every PR, once per module and judged per module (already-published as the only refusal is tolerated — outside a release the committed version is usually live). The tolerance keys on a refusal count, so the two runs are never concatenated.
 
 ### Commit conventions and release impact
 
@@ -173,7 +195,7 @@ Releases are driven by Conventional Commit types. Use the right type.
 
 ## Working Style for Agents
 
-- Keep `src/INDEX.md` in sync when adding, removing, or renaming definitions, or when the `src/` tree changes. `task generate:index` regenerates it (review before commit).
-- When adding a transformer, register it in `src/catalog.cue`'s `#transformers` map (keyed by `metadata.fqn`). Resources/traits/blueprints surface transitively through transformer required/optional maps.
+- Keep each module's `INDEX.md` in sync when adding, removing, or renaming definitions, or when a module tree changes. `task generate:index` regenerates both (review before commit).
+- When adding a transformer, register it in that module's `catalog.cue` `#transformers` map (keyed by `metadata.fqn`). Resources/traits/blueprints surface transitively through transformer required/optional maps.
 - Run `task check` before finishing — fmt, vet, and INDEX freshness in one shot.
 - This repo is pure CUE — there is no SPEC.md / core-schema-edit protocol here. Those belong to `core/`.

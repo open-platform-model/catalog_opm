@@ -23,7 +23,7 @@ env:
 
 jobs:
   publish:
-    name: Publish opmodel.dev/catalogs/opm (dev tag)
+    name: Publish both catalogs (dev tags)
     # Forks have no access to GITHUB_TOKEN with packages:write — skip cleanly.
     if: github.event.repository.fork == false
     runs-on: ubuntu-latest
@@ -69,9 +69,16 @@ jobs:
       # runner's checkout, never a commit — because publish asserts that the
       # pushed tag equals the tree's own declared Version (D18); a --version
       # flag diverging from the committed release version would be a refusal.
-      - name: Publish branch tag
+      #
+      # Each module derives its own tag from its own release line: branch-tag.sh
+      # takes the module dir plus that module's release-please tag prefix, and
+      # the two modules sit on different majors, so they cannot share one.
+      - name: Publish branch tags
         run: |
           set -euo pipefail
-          tag=$(bash .tasks/branch-tag.sh "$(pwd)")
-          opm catalog version set "${tag#v}" ./src
-          opm catalog publish ./src
+          for m in opm k8s; do
+            tag=$(bash .tasks/branch-tag.sh "$(pwd)/${m}" "${m}-")
+            echo "publishing ${m} at ${tag}"
+            opm catalog version set "${tag#v}" "./${m}"
+            opm catalog publish "./${m}"
+          done

@@ -7,27 +7,25 @@ set -euo pipefail
 # `_` differently). Without this, the committed INDEX.md drifts depending on
 # whose machine regenerated it — CI failed once for exactly this reason.
 export LC_ALL=C
-
-# generate-index.sh — Print INDEX.md to stdout for the core repo.
+# generate-index.sh — Print INDEX.md to stdout for one CUE module.
 #
-# Repo layout: docs/README/SPEC live at the repo root; the CUE module
-# (cue.mod/ + *.cue files + INDEX.md) lives under src/. The script
-# takes the repo root and resolves the CUE module dir as $REPO_DIR/src.
+# Repo layout: this repo publishes TWO CUE modules, each in its own
+# subdirectory with its own cue.mod/, identity/ and INDEX.md:
+#   opm/  opmodel.dev/catalogs/opm@v2   (abstraction catalog)
+#   k8s/  opmodel.dev/catalogs/k8s@v1   (raw Kubernetes passthrough catalog)
+# The script therefore takes the MODULE directory, not the repo root.
 #
 # Usage (run from the repo root):
-#   bash .tasks/generate-index.sh "$(pwd)"
+#   bash .tasks/generate-index.sh "$(pwd)/opm"
 #
 # The caller redirects stdout to the desired output file:
-#   bash .tasks/generate-index.sh "$(pwd)" > src/INDEX.md
+#   bash .tasks/generate-index.sh "$(pwd)/opm" > opm/INDEX.md
 
-REPO_RELDIR="${1:?Error: repo_dir argument required. Usage: bash .tasks/generate-index.sh \"\$(pwd)\"}"
-REPO_DIR="${REPO_RELDIR%/}"
-CUE_DIR="${REPO_DIR}/src"
+CUE_RELDIR="${1:?Error: module_dir argument required. Usage: bash .tasks/generate-index.sh \"\$(pwd)/opm\"}"
+CUE_DIR="${CUE_RELDIR%/}"
 
 # ── Fail fast: validate required paths exist ──────────────────────────────────
 
-[[ -d "$REPO_DIR" ]] \
-    || { echo "Error: not a directory: $REPO_DIR" >&2; exit 1; }
 [[ -d "$CUE_DIR" ]] \
     || { echo "Error: missing CUE module dir: $CUE_DIR" >&2; exit 1; }
 [[ -f "$CUE_DIR/cue.mod/module.cue" ]] \
@@ -40,8 +38,8 @@ MODULE_NAME=$(
     | sed 's/module:[[:space:]]*"\(.*\)"/\1/'
 )
 
-# Display label = trailing path component of the repo directory (e.g. core)
-MODULE_LABEL=$(basename "$REPO_DIR")
+# Display label = trailing path component of the module directory (e.g. opm)
+MODULE_LABEL=$(basename "$CUE_DIR")
 
 # ── ASCII directory tree (dirs only, no cue.mod/, pure ASCII) ─────────────────
 
@@ -50,7 +48,7 @@ print_tree() {
     local subdirs=()
     mapfile -t subdirs < <(
         find "$dir" -maxdepth 1 -mindepth 1 -type d \
-            ! -name "cue.mod" ! -name "src" ! -name ".*" | sort
+            ! -name "cue.mod" ! -name ".*" | sort
     )
     local total="${#subdirs[@]}" idx=0
     for subdir in "${subdirs[@]}"; do
@@ -199,7 +197,7 @@ echo ""
 echo "## Project Structure"
 echo ""
 echo '```'
-print_tree "$REPO_DIR" ""
+print_tree "$CUE_DIR" ""
 echo '```'
 echo ""
 echo "---"

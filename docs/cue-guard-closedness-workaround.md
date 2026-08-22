@@ -34,7 +34,7 @@ if spec.statelessWorkload.scaling != _|_ {
 }
 ```
 
-All five workload blueprints (`src/blueprints/workload/*.cue`) follow the
+All five workload blueprints (`opm/blueprints/v1beta1/*.cue`) follow the
 hoisted form. Keep new blueprints consistent with it.
 
 ## Why

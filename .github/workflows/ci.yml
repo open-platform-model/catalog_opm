@@ -48,7 +48,7 @@ jobs:
       - name: Enforce family layering
         run: task vet:layering
 
-      - name: Verify src/INDEX.md is up to date
+      - name: Verify every INDEX.md is up to date
         run: task generate:index:check
 
       - name: Install opm
@@ -68,17 +68,29 @@ jobs:
       # — same pattern as cli's publish-templates.sh); any other refusal fails.
       # On the dispatched release-branch run the version has been advanced, so
       # this is a full GO rehearsal of the next release.
+      #
+      # Each module is judged on ITS OWN output: the tolerance below keys on a
+      # refusal COUNT, so concatenating two modules' runs would let a real
+      # refusal in one hide behind an already-published in the other.
       - name: Publish gates dry-run
         run: |
           set -euo pipefail
-          if out=$(opm catalog publish ./src --dry-run 2>&1); then
+          rc=0
+          for m in opm k8s; do
+            echo "::group::publish gates — ${m}"
+            if out=$(opm catalog publish "./${m}" --dry-run 2>&1); then
+              echo "${out}"
+              echo "::endgroup::"
+              continue
+            fi
             echo "${out}"
-            exit 0
-          fi
-          echo "${out}"
-          if echo "${out}" | grep -q "already holds" && echo "${out}" | grep -q "1 refusal"; then
-            echo "only refusal is already-published - acceptable outside a release"
-            exit 0
-          fi
-          echo "publish gates refused"
-          exit 1
+            if echo "${out}" | grep -q "already holds" && echo "${out}" | grep -q "1 refusal"; then
+              echo "only refusal is already-published - acceptable outside a release"
+              echo "::endgroup::"
+              continue
+            fi
+            echo "publish gates refused for ${m}"
+            rc=1
+            echo "::endgroup::"
+          done
+          exit $rc
