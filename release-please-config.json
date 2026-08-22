@@ -6,7 +6,7 @@
     "opm": {
       "release-type": "simple",
       "package-name": "catalog_opm",
-      "changelog-path": "../CHANGELOG-opm.md",
+      "changelog-path": "/CHANGELOG-opm.md",
       "versioning": "prerelease",
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
@@ -17,7 +17,7 @@
     "k8s": {
       "release-type": "simple",
       "package-name": "catalog_k8s",
-      "changelog-path": "../CHANGELOG-k8s.md",
+      "changelog-path": "/CHANGELOG-k8s.md",
       "versioning": "prerelease",
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
