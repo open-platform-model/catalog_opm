@@ -74,6 +74,13 @@ jobs:
       # Each module derives its own tag from its own release line: branch-tag.sh
       # takes the module dir plus that module's release-please tag prefix, and
       # the two modules sit on different majors, so they cannot share one.
+      #
+      # branch-tag.sh's dirty-worktree guard runs `git status` repo-wide, not
+      # scoped to one module dir, so a version-set write left over from an
+      # earlier module in this loop would trip the NEXT module's guard even
+      # though that dirt is unrelated to it. Restore each module's identity
+      # file the moment its own publish is done, so the tree is clean again
+      # before the next module computes its tag.
       - name: Publish branch tags
         run: |
           set -euo pipefail
@@ -82,4 +89,5 @@ jobs:
             echo "publishing ${m} at ${tag}"
             opm catalog version set "${tag#v}" "./${m}"
             opm catalog publish "./${m}"
+            git checkout -- "${m}/identity/identity.cue"
           done
