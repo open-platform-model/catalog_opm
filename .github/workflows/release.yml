@@ -52,12 +52,13 @@ jobs:
         run: |
           set -euo pipefail
           base="https://github.com/open-platform-model/cli/releases/download/${OPM_CLI_VERSION}"
+          tmp="$(mktemp -d)"
           curl -fsSLO "${base}/opm-linux-amd64.tar.gz"
           curl -fsSLO "${base}/checksums.txt"
           grep ' opm-linux-amd64.tar.gz$' checksums.txt | sha256sum -c -
-          tar -xzf opm-linux-amd64.tar.gz opm
-          sudo install -m 0755 opm /usr/local/bin/opm
-          rm -f opm opm-linux-amd64.tar.gz checksums.txt LICENSE
+          tar -xzf opm-linux-amd64.tar.gz -C "${tmp}" opm
+          sudo install -m 0755 "${tmp}/opm" /usr/local/bin/opm
+          rm -rf "${tmp}" opm-linux-amd64.tar.gz checksums.txt LICENSE
 
       # Release-please decides the version; the identity file is written only by
       # opm's own writer (enhancement 0011 D3/D15 — no x-release-please-version
@@ -134,12 +135,13 @@ jobs:
         run: |
           set -euo pipefail
           base="https://github.com/open-platform-model/cli/releases/download/${OPM_CLI_VERSION}"
+          tmp="$(mktemp -d)"
           curl -fsSLO "${base}/opm-linux-amd64.tar.gz"
           curl -fsSLO "${base}/checksums.txt"
           grep ' opm-linux-amd64.tar.gz$' checksums.txt | sha256sum -c -
-          tar -xzf opm-linux-amd64.tar.gz opm
-          sudo install -m 0755 opm /usr/local/bin/opm
-          rm -f opm opm-linux-amd64.tar.gz checksums.txt LICENSE
+          tar -xzf opm-linux-amd64.tar.gz -C "${tmp}" opm
+          sudo install -m 0755 "${tmp}/opm" /usr/local/bin/opm
+          rm -rf "${tmp}" opm-linux-amd64.tar.gz checksums.txt LICENSE
 
       # opm's push path reads the docker credential chain — docker login is the
       # CI credential entry (opm registry login is interactive-only by design).

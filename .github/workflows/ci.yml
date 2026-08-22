@@ -55,12 +55,13 @@ jobs:
         run: |
           set -euo pipefail
           base="https://github.com/open-platform-model/cli/releases/download/${OPM_CLI_VERSION}"
+          tmp="$(mktemp -d)"
           curl -fsSLO "${base}/opm-linux-amd64.tar.gz"
           curl -fsSLO "${base}/checksums.txt"
           grep ' opm-linux-amd64.tar.gz$' checksums.txt | sha256sum -c -
-          tar -xzf opm-linux-amd64.tar.gz opm
-          sudo install -m 0755 opm /usr/local/bin/opm
-          rm -f opm opm-linux-amd64.tar.gz checksums.txt LICENSE
+          tar -xzf opm-linux-amd64.tar.gz -C "${tmp}" opm
+          sudo install -m 0755 "${tmp}/opm" /usr/local/bin/opm
+          rm -rf "${tmp}" opm-linux-amd64.tar.gz checksums.txt LICENSE
 
       # Every publish gate runs, nothing is pushed. On a PR or a push to main
       # the committed version is usually live already, so already-published as
