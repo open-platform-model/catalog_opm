@@ -53,18 +53,24 @@ tasks:
       import from quietly reintroducing the coupling.
     cmds:
       - |
-        violations=$(grep -rln 'opmodel\.dev/catalogs/opm' k8s --include='*.cue' 2>/dev/null || true)
-        if [ -n "$violations" ]; then
-          echo "Layering violation — the k8s catalog must not depend on the opm catalog:" >&2
-          echo "$violations" >&2
-          exit 1
-        fi
-        violations=$(grep -rln 'opmodel\.dev/catalogs/k8s' opm --include='*.cue' 2>/dev/null || true)
-        if [ -n "$violations" ]; then
-          echo "Layering violation — the opm catalog must not depend on the k8s catalog:" >&2
-          echo "$violations" >&2
-          exit 1
-        fi
+        # Match IMPORT lines only: an import is a quoted path at the start of a
+        # line (bare or aliased). Prose in a doc comment naming the other
+        # catalog is not a dependency and must not fail the check.
+        check() {
+          local here="$1" other="$2"
+          local violations
+          violations=$(grep -rlnE "^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*[[:space:]]+)?\"opmodel\.dev/catalogs/${other}[/@\"]" \
+            "$here" --include='*.cue' 2>/dev/null || true)
+          if [ -n "$violations" ]; then
+            echo "Layering violation — the ${here} catalog must not import the ${other} catalog:" >&2
+            echo "$violations" >&2
+            return 1
+          fi
+        }
+        rc=0
+        check k8s opm || rc=1
+        check opm k8s || rc=1
+        exit $rc
 
   tidy:
     desc: Tidy every CUE module manifest
