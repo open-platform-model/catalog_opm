@@ -1,0 +1,213 @@
+schema: catalog-change
+
+context: |
+  # OPM Catalog Development Constitution
+
+  ## Core Principles (First-Party Catalogs)
+
+  This repo defines and publishes the two first-party OPM catalogs, each its own CUE module
+  sharing one repo and one CI: `opm/` (`opmodel.dev/catalogs/opm@v2`, the abstraction catalog)
+  and `k8s/` (`opmodel.dev/catalogs/k8s@v1`, the raw Kubernetes passthrough catalog). Both are
+  typed entirely against `opmodel.dev/core@v2` and instantiate its constructs (`#Resource`,
+  `#Trait`, `#Blueprint`, `#ComponentTransformer`); neither defines new core constructs. Platforms
+  subscribe to them and modules demand contracts from them, always as published dependencies,
+  never by filesystem path. This is a pure CUE repository. There is no Go code here.
+
+  ### I. The Catalog Is a Published Contract
+  Platforms and modules pin these modules; a member they already unify against cannot be taken
+  away from them.
+  - Prefer additive evolution. Adding an optional field to a member's schema is cheap; tightening
+    a published constraint or changing a transformer's output is not.
+  - The break unit is the member's `apiVersion` (enhancement 0010 D4): a member whose shape breaks
+    moves to a new version segment directory; it does not mutate in place. In `k8s`, `apiVersion`
+    mirrors the upstream Kubernetes API version at adoption (D48); graduation is upstream's act.
+  - A `feat!:` on the module advances the alpha counter within the current major; it does not
+    bump the major. Crossing a major is a separate, deliberate decision a proposal MUST name.
+  - A change that cannot be additive MUST state its downstream migration cost explicitly, naming
+    the consumers it breaks (the `modules` fleet, subscribing platforms, `cli` fixtures).
+  - Never publish by hand. CI publishes through `opm catalog publish` on release; the only
+    exception is a local-registry publish the user explicitly asks for in the current prompt.
+
+  ### II. The Definition Is the Spec
+  A catalog member's contract is its CUE definition and its doc comments. There is no second
+  normative document, and this OpenSpec workspace deliberately has no specs artifact.
+  - Doc comments are the contract text. `task generate:index` extracts them into each module's
+    `INDEX.md`, and `task generate:index:check` is the gate that keeps the index honest.
+  - There is no `openspec/specs/` directory and no delta specs. Every change's `.openspec.yaml`
+    carries `skip_specs: true`; the `openspec-new-change` and `openspec-ff-change` skills write
+    it at creation time. Never create a `specs/` directory inside a change.
+  - The proposal's **Before / After** CUE block is where intended behavior is reviewed before
+    code exists. Write it as CUE, not prose.
+  - A decision a FUTURE catalog author needs (a convention, an evaluator pitfall, a filing rule)
+    lands in `docs/` or `CLAUDE.md` before the change is archived. An archived change is never the
+    only home of an authoring rule. `design.md`'s **Durable decisions** section is where each
+    change declares what it promotes.
+
+  ### III. Type Discipline in CUE
+  A member's job is to make invalid components unrepresentable, as early as possible.
+  - Express constraints in the member's schema where CUE can check them, rather than in prose an
+    author must remember.
+  - Prefer a closed definition with an explicit escape over an open one that accepts anything.
+  - Derived values SHOULD be computed in the transformer rather than authored.
+  - **Layering:** the abstraction catalog and the raw catalog never import each other. The module
+    boundary makes it structural; `task vet:layering` keeps an import from reintroducing it.
+  - **Closedness pitfall:** never place an `if spec.<nested>.<field> != _|_` guard inside a
+    component's `spec` block when `<field>` is struct- or list-valued; hoist it to component
+    level. See `docs/cue-guard-closedness-workaround.md`.
+
+  ### IV. Two Modules, Version-Segment Filing
+  - `opm/` and `k8s/` are separate CUE module roots, each with its own `cue.mod/`, `identity/`
+    and `catalog.cue`. They share this repo's CI and nothing else.
+  - Contract members file under `<module>/<kind>/<apiVersion>/` with the package clause equal to
+    the version segment (enhancement 0010 D49). Transformers file flat under
+    `<module>/transformers/`. The segment never enters the fqn; each catalog's key space is flat.
+  - Identity (`identity/identity.cue`) is written only by `opm catalog version set` on the release
+    PR (enhancement 0011 D15). Never hand-edit the version.
+  - Pin `language: version: "v0.17.0"` in each `cue.mod/module.cue`. That is a consumer floor, not
+    a toolchain pin.
+
+  ### V. Simplicity & YAGNI
+  Every published member and field is a permanent support obligation.
+  - Start with the simplest schema that models a real downstream need.
+  - Defer speculative fields, extension points and open structs until a module actually requires
+    one.
+  - A member that exists so that something *could* be expressed, with no module expressing it, is
+    surface without a consumer; leave it out. Experimental candidates go to `v1alpha1`, where alpha
+    promises nothing (0010 D34).
+
+  ### VI. Small Batch Sizes (Iterative & Incremental Delivery)
+  All changes MUST be kept TINY. Small, incremental, independently verifiable steps are required.
+  - **WARNING & BLOCK**: If a user requests a change that is too large (e.g. reshaping several
+    members at once, adding a member and its transformer and its consumer fixtures in one go, or
+    a cross-module refactor), the Agent MUST warn the user, block the execution, and suggest a way
+    to split the request into smaller, sequential tasks.
+  - **Commit Quality**: Tiny changes lead to focused, atomic commits. A single commit should touch
+    one member or one coherent group.
+
+  ## Execution Gate (Agent Directive)
+  Before beginning ANY implementation, the Agent MUST evaluate the scope of the request against the
+  "Small Batch Sizes" principle.
+  If the request is too large, the Agent MUST reply with:
+  "🛑 **Scope Warning**: This request is too large for a single safe iteration. I suggest we split
+  it into the following smaller steps: [list 2-3 logical, tiny steps]. Should we start with step 1?"
+
+  ## Technology Standards
+
+  See [CLAUDE.md](../CLAUDE.md) for full details. This repo has no `CONSTITUTION.md`; this file and
+  `CLAUDE.md` are the two normative sources, and `Taskfile.yml` wins over both on how commands run.
+  - Language: CUE only. No Go, no other runtime.
+  - CUE language floor: `v0.17.0`, declared in each module's `cue.mod/module.cue`.
+  - Toolchain: pinned separately (CI `CUE_VERSION`; `opm` pinned and checksummed in workflows).
+  - Build/validate entrypoint: `Taskfile.yml`. Raw `cue` invocations run from `opm/` or `k8s/`.
+  - Registry vars (`CUE_REGISTRY`, `OPM_REGISTRY`) come from the workspace root `CLAUDE.md`.
+
+  ## Code Style
+
+  ### CUE Patterns
+  - Follow the conventions of the neighbouring members in the same kind and version directory.
+  - Every member and top-level definition carries a doc comment; it becomes its `INDEX.md`
+    description.
+  - Do not hard-wrap prose in `.md` files.
+
+  ### Generated Artifacts
+  - `opm/INDEX.md` and `k8s/INDEX.md` are regenerated by `task generate:index`. Review the
+    generated output before committing; it extracts doc comments verbatim.
+
+  ## Commit Conventions (release-please drives releases)
+  Releases are driven entirely by commit type, per module. A misclassified commit either cuts a
+  release nobody needs or hides a change consumers needed to see.
+  - `feat:` (minor) — new member, new field, additive schema surface.
+  - `fix:` (patch) — wrong constraint, broken default, transformer rendering wrong output.
+  - `feat!:` / `BREAKING CHANGE:` (advances the alpha counter) — removing or renaming a member,
+    tightening a published constraint.
+  - `refactor:`, `docs:`, `style:`, `chore:`, `test:`, `ci:`, `build:` — no release.
+  - **Rule of thumb**: if the published CUE is byte-identical before and after, it is not a
+    `feat:` or a `fix:`.
+  - AI attribution: an optional plain `Co-Authored-By: Claude <noreply@anthropic.com>` trailer is
+    the only allowed form — never generated-with footers, model-versioned co-author lines, or
+    session IDs/URLs in a commit message, PR title, PR body, issue or review comment. See
+    `CLAUDE.md`.
+
+  ## Validation Gates (before merge)
+  1. `task fmt:check` — CUE files are formatted.
+  2. `task vet` — every catalog package validates.
+  3. `task vet:layering` — neither catalog imports the other.
+  4. `task generate:index:check` — every `INDEX.md` is up to date.
+
+  Equivalently, `task check` runs all four.
+
+rules:
+  proposal:
+    - "Focus: WHY we're doing this, WHAT's in/out of scope"
+    - "Updates when: Scope changes, intent clarifies, approach fundamentally shifts"
+    - Name every downstream consumer the change reaches (the `modules` fleet, platforms
+      subscribing to the catalog, `cli` fixtures under `testing.opmodel.dev`) and what each of
+      them has to do about it.
+    - State the release class (`feat:` / `fix:` / `feat!:`) per Principle I, whether any member
+      moves to a new `apiVersion` segment, and whether the change relies on the module still
+      shipping the v2 alpha line.
+    - Breaking changes MUST be called out explicitly with downstream migration cost — a tightened
+      constraint or a changed transformer output counts as breaking even when nothing is removed.
+    - The Before / After section MUST show the member's CUE shape, not a prose description
+      (Principle II). "none" is the Before of a new member.
+    - Additions to the published surface MUST justify themselves against Principle V.
+    - Scope MUST be small enough to implement in a short session (Principle VI).
+    - "Never add a Capabilities section and never create a `specs/` directory; the change's `.openspec.yaml` MUST carry `skip_specs: true` (Principle II)."
+    - When the change implements a slice of an enhancement, cite the entry and the decision
+      numbers it satisfies (e.g. `enhancements/0010` D4, D49) rather than restating the design.
+    - "If this change implements decisions from an enhancement in the sibling enhancements/ repo, create enhancement.yaml in this change directory declaring it (implements: [{enhancement: \"NNNN\", decisions: [D1, ...], resolves: []}]). Write it at creation time, while the enhancement is in context; it is what makes archive-time delivery logging mechanical."
+
+  design:
+    - "Focus: HOW we'll implement it technically"
+    - "Updates when: Implementation reveals better approach, constraints change"
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY).
+    - MUST include a "Research & Decisions" section when exploration was done.
+    # Every entry in a rules list MUST be a plain string. OpenSpec 1.3.1 drops
+    # the WHOLE artifact's rules with `Rules for 'design' must be an array of
+    # strings, ignoring this artifact's rules` if any entry is a mapping — so
+    # the familiar `- Format: |` block silently disables every design rule
+    # beside it. Keep this one a block scalar, not a `Format:` key.
+    - |
+      Format for that section:
+
+      ## Research & Decisions
+
+      ### [Topic]
+      **Context**: [Why this decision was needed]
+      **Explored**: [What was investigated - link to exploration notes]
+      **Decision**: [Chosen option]
+      **Rationale**: [Why this option was selected]
+    - Show the CUE, not a description of the CUE — the member's shape is the design.
+    - Name every member file and `apiVersion` segment the change touches, in both modules if
+      both are reached.
+    - Call out any change to a definition's closedness, defaults, or required-field set — these
+      break consumers in ways an added optional field does not.
+    - MUST include a "Durable decisions" section listing every decision a future catalog author
+      needs and where it lands at archive (`docs/<note>.md`, a `CLAUDE.md` rule, or "stays with
+      the change"). Write "None." when empty; never omit the section.
+
+  tasks:
+    - "Focus: STEPS to take for implementation"
+    - "Updates when: Tasks complete, new tasks discovered, blockers identified"
+    - "CRITICAL: Break tasks into TINY chunks (max 1-2 hours)."
+    - "CRITICAL: If the task list grows too long (>10 items) or reshapes several members at
+      once, suggest splitting into a new OpenSpec change."
+    - Group tasks by module (`opm/`, `k8s/`) then by member file.
+    - Include `task generate:index` as a task whenever definitions are added, removed or renamed.
+    - Include one task per durable decision in design.md that lands it in `docs/` or `CLAUDE.md`.
+    - Include the validation gates as final tasks (`task check`, or the four individually).
+    - "NEVER include delivery operations as tasks: no committing, pushing, branching,
+      opening or merging PRs, tagging, cutting releases, and no commit-message or PR-body
+      hygiene checks. tasks.md covers implementation and verification only — delivery
+      happens afterwards under the repo's normal git workflow and needs no spelling out.
+      Sole exception: a change whose stated deliverable is itself a release or publishing
+      operation; there those steps ARE the implementation."
+
+# Post-archive hook: served to the archiving agent by
+# `openspec instructions archive --change <name> --json` as operationGuidance.
+operations:
+  archive:
+    guidance:
+      - "Archive with `--skip-specs`: this workspace has no specs and the change declares skip_specs. Never let archive create an openspec/specs/ directory."
+      - "Before archiving, read design.md's Durable decisions section. Every entry marked for promotion MUST already be landed in docs/ or CLAUDE.md; if one is not, stop and land it first. An archived change must not be the only home of an authoring rule."
+      - "If this change directory contains enhancement.yaml, finish the archive by logging the landing: from the workspace root run `task enhancements:delivery:log FROM=<archived-change-path> SUMMARY=\"<one line: what landed>\"`. It appends a CUE-validated entry to each declared enhancement's delivery.yaml; confirm it printed 'logged' for every declared enhancement."

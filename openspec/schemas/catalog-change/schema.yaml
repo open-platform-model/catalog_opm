@@ -1,0 +1,124 @@
+name: catalog-change
+version: 1
+description: Catalog change workflow - proposal -> design -> tasks (no specs artifact)
+# Why a project-local schema: a catalog member is an instantiation of core
+# constructs, and its CUE definition plus doc comments (extracted into INDEX.md)
+# already are its contract. A prose spec would be a copy no gate keeps honest.
+# This schema therefore has NO specs artifact. `openspec validate` still asks
+# for spec deltas regardless of schema, so every change's .openspec.yaml sets
+# `skip_specs: true`; the openspec-new-change and openspec-ff-change skills
+# write that marker at creation time.
+artifacts:
+  - id: proposal
+    generates: proposal.md
+    description: Why the change is needed and what it changes, with the member's CUE shape before and after
+    template: proposal.md
+    instruction: |
+      Create the proposal document that establishes WHY this change is needed.
+
+      Sections:
+      - **Why**: 1-2 sentences on the problem or opportunity. What problem does this solve? Why now?
+      - **What Changes**: Bullet list of changes. Be specific about new members, modified
+        schemas, transformer behavior, or removals. Mark breaking changes with **BREAKING**.
+        A member whose shape breaks moves to a new apiVersion segment directory (0010 D4);
+        say so explicitly.
+      - **Before / After**: The CUE shape of every member the change touches, as CUE, not
+        prose. For a new member, "Before" is "none". This block is the review surface: it
+        carries what a spec would have carried, so a reviewer sees intended behavior before
+        any code exists. Keep it to the fields that change.
+      - **Impact**: Downstream consumers reached (the `modules` fleet, platforms subscribing
+        to the catalog, `cli` fixtures under `testing.opmodel.dev`), and what each has to do.
+        State the release class (`feat:` / `fix:` / `feat!:`) and whether the change relies on
+        the module still shipping the v2 alpha line.
+      - **Enhancement**: When the change implements decisions from an entry in the sibling
+        `enhancements/` repo, cite the entry and decision numbers instead of restating the
+        design, and create `enhancement.yaml` in this change directory now.
+
+      This schema has no specs artifact. Do not add a Capabilities section and do not
+      create a `specs/` directory. The change's `.openspec.yaml` carries
+      `skip_specs: true`; if it is missing, add it before continuing.
+
+      Keep it concise (1-2 pages). Focus on the "why" not the "how" -
+      implementation details belong in design.md.
+    requires: []
+
+  - id: design
+    generates: design.md
+    description: Technical design with decisions, and which decisions outlive the change
+    template: design.md
+    instruction: |
+      Create the design document that explains HOW to implement the change.
+
+      Sections:
+      - **Context**: Only the current state and constraints needed to explain the approach.
+        Reference the proposal for motivation instead of restating it.
+      - **Goals / Non-Goals**: What this design achieves and explicitly excludes. Add only
+        design-level boundaries; the proposal owns scope.
+      - **Decisions**: Key technical choices with rationale (why X over Y?). Include the
+        alternatives considered. Show the CUE: the definition's shape IS the design.
+      - **Research & Decisions**: Required when exploration was done (a `cue` experiment, a
+        measured evaluator behavior). Use the format from `openspec/config.yaml`.
+      - **Risks / Trade-offs**: Known limitations, things that could go wrong.
+        Format: [Risk] -> Mitigation.
+      - **Durable decisions**: Every decision a FUTURE catalog author needs to know, with
+        where it lands at archive time: `docs/<note>.md`, a `CLAUDE.md` rule, or "stays with
+        the change". An archived change must never be the only home of an authoring rule.
+        If nothing is durable, write "None." rather than omitting the section.
+      - **Open Questions**: Unknowns that can safely be answered later without changing the
+        approach or the task breakdown. Omit if none. A question that would change the
+        approach is not open; resolve it now by asking the user.
+
+      Name every member file and apiVersion segment the change touches, and call out any
+      change to a definition's closedness, defaults, or required-field set: those break
+      consumers in ways an added optional field does not.
+
+      Focus on architecture and approach, not line-by-line implementation.
+    requires:
+      - proposal
+
+  - id: tasks
+    generates: tasks.md
+    description: Implementation checklist with trackable tasks
+    template: tasks.md
+    instruction: |
+      Create the task list that breaks down the implementation work.
+
+      Before writing tasks, check design.md for Open Questions. If any of them
+      would change what gets built, resolve them with the user first; do not
+      bake an unstated assumption into the task list.
+
+      **IMPORTANT: Follow the template below exactly.** The apply phase parses
+      checkbox format to track progress. Tasks not using `- [ ]` won't be tracked.
+
+      Guidelines:
+      - Group tasks by module (`opm/`, `k8s/`) then by member file, under ## numbered headings
+      - Each task MUST be a checkbox: `- [ ] X.Y Task description`
+      - Tasks should be small enough to complete in one session
+      - Order tasks by dependency (what must be done first?)
+      - Include `task generate:index` whenever definitions are added, removed or renamed
+      - Include a task that lands each durable decision from design.md in `docs/` or `CLAUDE.md`
+      - End with the validation gates (`task check`)
+
+      Example:
+      ```
+      ## 1. opm/resources/v1beta1/volume.cue
+
+      - [ ] 1.1 Add the `mountPropagation` field with its constraint
+      - [ ] 1.2 Update the doc comment and run `task generate:index`
+
+      ## 2. Verification
+
+      - [ ] 2.1 `task check`
+      ```
+
+      Reference the proposal for what needs to be built and the design for how to build it.
+      Each task should be verifiable: you know when it's done.
+    requires:
+      - design
+
+apply:
+  requires: [tasks]
+  tracks: tasks.md
+  instruction: |
+    Read context files, work through pending tasks, mark complete as you go.
+    Pause if you hit blockers or need clarification.
