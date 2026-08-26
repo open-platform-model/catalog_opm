@@ -41,8 +41,9 @@ import (
 // plugin blocks its own replacement.
 //
 // Exact names are not instance-safe: two instances of the same module in one
-// namespace would collide, so the default stays prefixed. Mirrors
-// #ExposeSchema.name, which solves the same problem for Services.
+// namespace would collide, so the default stays prefixed. #ExposeSchema.name
+// is the Service-side counterpart, since 0019 D22 an always-read field the
+// #Expose wrapper defaults from the component's own short DNS name.
 //
 // This governs the rendered object name ONLY. The pod selector stays
 // instance-scoped (see #context.componentLabels) so two instances never fight

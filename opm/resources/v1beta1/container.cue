@@ -36,7 +36,34 @@ import (
 		"core.opmodel.dev/workload-type"!: "stateless" | "stateful" | "daemon" | "task" | "scheduled-task"
 	}
 
-	#resources: (#ContainerResource.metadata.fqn): #ContainerResource
+	// The name constraint the container puts on the owning component's
+	// metadata.resourceName (0019 D23), computed from the workload-type key:
+	// a stateful workload's pods are addressed as <sts>-<n>.<svc>..., which
+	// puts the name in a DNS label position, and the API server enforces the
+	// label rule on both axes there (no dots, 63 runes). Top otherwise.
+	//
+	// Computed HERE, on the wrapper, from the component's derived matchLabels
+	// rather than on #ContainerResource from the entry's own key. Measured on
+	// cue v0.17.1: on the blueprint path the key is answered by the blueprint
+	// and never on the container entry, so an entry-level conditional stays
+	// unresolved, and an unresolved slot in the component's conjunction
+	// defers EVERY validator in it (the regex bounds still fire, the
+	// strings.MaxRunes calls do not): a 64-rune override on a stateful
+	// workload, and on Expose beside it, was admitted silently. A `!= _|_ &&`
+	// guard does not help, because `a && b` with an unresolved b does not
+	// short-circuit. The derived matchLabels is concrete on every path where
+	// a key is answered, so the conditional always resolves; where nothing
+	// answers, the component already fails its required key. `matchLabels`
+	// is re-declared for lexical scope. List-index form is load-bearing: a
+	// default arm would win over the concrete one. See
+	// docs/name-constraints.md.
+	matchLabels: _
+	#resources: (#ContainerResource.metadata.fqn): #ContainerResource & {
+		#nameConstraint: [
+			if matchLabels["core.opmodel.dev/workload-type"] == "stateful" {c.#NameType},
+			_,
+		][0]
+	}
 }
 
 /////////////////////////////////////////////////////////////////
