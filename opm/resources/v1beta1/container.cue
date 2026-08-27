@@ -36,13 +36,7 @@ import (
 		"core.opmodel.dev/workload-type"!: "stateless" | "stateful" | "daemon" | "task" | "scheduled-task"
 	}
 
-	// The name constraint the container puts on the owning component's
-	// metadata.resourceName (0019 D23), computed from the workload-type key:
-	// a stateful workload's pods are addressed as <sts>-<n>.<svc>..., which
-	// puts the name in a DNS label position, and the API server enforces the
-	// label rule on both axes there (no dots, 63 runes). Top otherwise.
-	//
-	// Computed HERE, on the wrapper, from the component's derived matchLabels
+	// WHY: Computed HERE, on the wrapper, from the component's derived matchLabels
 	// rather than on #ContainerResource from the entry's own key. Measured on
 	// cue v0.17.1: on the blueprint path the key is answered by the blueprint
 	// and never on the container entry, so an entry-level conditional stays
@@ -53,10 +47,16 @@ import (
 	// guard does not help, because `a && b` with an unresolved b does not
 	// short-circuit. The derived matchLabels is concrete on every path where
 	// a key is answered, so the conditional always resolves; where nothing
-	// answers, the component already fails its required key. `matchLabels`
-	// is re-declared for lexical scope. List-index form is load-bearing: a
-	// default arm would win over the concrete one. See
-	// docs/name-constraints.md.
+	// answers, the component already fails its required key.
+	// List-index form is load-bearing: a
+	// default arm would win over the concrete one.
+
+	// The name constraint the container puts on the owning component's
+	// metadata.resourceName (0019 D23), computed from the workload-type key:
+	// a stateful workload's pods are addressed as <sts>-<n>.<svc>..., which
+	// puts the name in a DNS label position, and the API server enforces the
+	// label rule on both axes there (no dots, 63 runes). Top otherwise. `matchLabels`
+	// is re-declared for lexical scope. See docs/name-constraints.md.
 	matchLabels: _
 	#resources: (#ContainerResource.metadata.fqn): #ContainerResource & {
 		#nameConstraint: [
@@ -186,14 +186,13 @@ import (
 	// field cannot be renamed or folded into `gpus` without stranding them.
 	gpu?: #GpuResourceSchema
 
-	// Several GPU claims, keyed by an arbitrary local name.
-	//
-	// Needed whenever one container must hold devices from two different device
+	// WHY: Needed whenever one container must hold devices from two different device
 	// plugins at once — a transcoder offered both `nvidia.com/gpu` and
 	// `gpu.intel.com/i915`, picking per job which to drive. `gpu` cannot express
 	// that (it is one struct), and neither can `limits`: this is a closed
 	// definition, so an extended-resource key written there is rejected.
-	//
+
+	// Several GPU claims, keyed by an arbitrary local name.
 	// Both fields may be set together; every claim is emitted independently. Two
 	// claims naming the same `resource` unify — equal counts collapse harmlessly,
 	// unequal counts fail the build instead of silently resolving last-one-wins.
