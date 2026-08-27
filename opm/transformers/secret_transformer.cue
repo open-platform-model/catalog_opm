@@ -7,12 +7,11 @@ import (
 	k8scorev1 "opmodel.dev/catalogs/opm/schemas/kubernetes/core/v1"
 )
 
-// SecretTransformer converts Secrets resources to Kubernetes Secrets.
-//
-// Variant dispatch per data entry:
+// WHY: Variant dispatch per data entry:
 //   #SecretLiteral -> include in K8s Secret stringData
 //   #SecretK8sRef  -> skip (resource already exists in cluster)
-//
+
+// SecretTransformer converts Secrets resources to Kubernetes Secrets.
 // Mixed variants within a single secret group are supported: literal entries
 // create a K8s Secret, K8s refs are skipped.
 #SecretTransformer: c.#ComponentTransformer & {

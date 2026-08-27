@@ -42,13 +42,15 @@ import (
 	// instance fails to compile ("incomplete value bool").
 	immutable: bool | *false
 
+	// WHY: Exact names are not instance-safe:
+	// two instances of the same module in one namespace would collide, so
+	// the default stays prefixed.
+
 	// Render `name` verbatim instead of the instance-scoped
 	// {instance}-{component}-{name}. Opt-in, and only correct when the name
 	// is a contract with something OUTSIDE the module — a controller that
 	// reads a well-known ConfigMap (istiod reads mesh config from the
-	// ConfigMap literally named `istio`). Exact names are not instance-safe:
-	// two instances of the same module in one namespace would collide, so
-	// the default stays prefixed.
+	// ConfigMap literally named `istio`).
 	exactName: bool | *false
 
 	// An exact-name ConfigMap cannot also be immutable: immutability appends

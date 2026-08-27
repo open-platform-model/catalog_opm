@@ -113,11 +113,11 @@ tasks:
   ## Doc comment length
 
   docs:check:
-    desc: Report doc comments over 6 lines in every module (warn-only until the sweep lands)
+    desc: Fail on doc comments over 6 lines in every module
     cmds:
       - |
         set -e
-        for m in {{.MODULES}}; do bash .tasks/doc-check.sh "$m"; done
+        for m in {{.MODULES}}; do bash .tasks/doc-check.sh "$m" --strict; done
 
   ## Publishing
   #

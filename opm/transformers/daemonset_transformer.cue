@@ -76,15 +76,15 @@ import (
 			_restartPolicy: #component.spec.restartPolicy
 		}
 
-		// Extract update strategy with defaults.
-		//
-		// ⚠ Same trap deployment_transformer.cue documents: the guard MUST be
+		// WHY: ⚠ Same trap deployment_transformer.cue documents: the guard MUST be
 		// a separate assignment, not an `if` nested inside the disjunct —
 		// `*null | { if … }` always resolves to its marked default, silently
 		// dropping updateStrategy from every DaemonSet. And the rollingUpdate
 		// reference carries its own existence conjunct: the substruct is
 		// optional under RollingUpdate, and an unguarded dereference of the
 		// omitted field fails the whole guarded struct.
+
+		// Extract update strategy with defaults.
 		_updateStrategy: *null | {...}
 		if #component.spec.updateStrategy != _|_ {
 			_updateStrategy: {

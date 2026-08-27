@@ -32,9 +32,7 @@ import (
 	#traits: (#PodMetadataTrait.metadata.fqn): #PodMetadataTrait
 }
 
-// Pod-template metadata, distinct from the workload object's own metadata.
-//
-// Why this trait exists rather than reusing component metadata: a component's
+// WHY this trait exists rather than reusing component metadata: a component's
 // `metadata.labels` flow into #context.componentLabels, which the workload
 // transformers use for BOTH the pod template labels and `spec.selector.
 // matchLabels` — and a selector is IMMUTABLE in Kubernetes. Routing a semantic
@@ -42,7 +40,8 @@ import (
 // `sidecar.istio.io/inject: "false"`) through component metadata would weld it
 // into the selector, so it could never be changed or removed without deleting
 // and recreating the workload.
-//
+
+// Pod-template metadata, distinct from the workload object's own metadata.
 // Labels set here are merged with the context labels and land on the pod
 // template ONLY; the selector is left alone.
 #PodMetadataSchema: {

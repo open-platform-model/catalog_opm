@@ -88,9 +88,7 @@ import (
 			_restartPolicy: #component.spec.restartPolicy
 		}
 
-		// Extract update strategy with defaults.
-		//
-		// ⚠ THE GUARD MUST BE A SEPARATE ASSIGNMENT, not an `if` nested inside
+		// WHY: ⚠ THE GUARD MUST BE A SEPARATE ASSIGNMENT, not an `if` nested inside
 		// the second disjunct. This was written as
 		//
 		//     _updateStrategy: *null | {
@@ -114,6 +112,8 @@ import (
 		// fails the whole guarded struct — a schema-legal component must
 		// render, with Kubernetes applying its own surge/unavailable
 		// defaults.
+
+		// Extract update strategy with defaults.
 		_updateStrategy: *null | {...}
 		if #component.spec.updateStrategy != _|_ {
 			_updateStrategy: {

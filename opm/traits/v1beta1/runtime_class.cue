@@ -6,12 +6,7 @@ import (
 	res "opmodel.dev/catalogs/opm/resources/v1beta1"
 )
 
-// Selects the container runtime that executes the pod, by setting
-// `runtimeClassName` on the pod spec. The named RuntimeClass object is NOT
-// created by this trait — it is cluster-level configuration that must already
-// exist, and its `handler` must name a runtime the node's containerd knows.
-//
-// The motivating case is GPU workloads on Talos Linux: the
+// WHY: The motivating case is GPU workloads on Talos Linux: the
 // `nvidia-container-toolkit` system extension registers an `nvidia` containerd
 // runtime handler, and the NVIDIA device plugin only sees the GPU when its pod
 // runs under it. Upstream installs the plugin with
@@ -28,6 +23,11 @@ import (
 // a second workload transformer supplying this field would double-render every
 // workload rather than override anything. See
 // https://github.com/open-platform-model/enhancements/issues/12.
+
+// Selects the container runtime that executes the pod, by setting
+// `runtimeClassName` on the pod spec. The named RuntimeClass object is NOT
+// created by this trait — it is cluster-level configuration that must already
+// exist, and its `handler` must name a runtime the node's containerd knows.
 #RuntimeClassTrait: c.#Trait & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.traits)/v1beta1"

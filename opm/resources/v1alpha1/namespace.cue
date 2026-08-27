@@ -36,15 +36,17 @@ import (
 #Namespaces: c.#Component & {
 	#resources: (#NamespacesResource.metadata.fqn): #NamespacesResource
 
-	// The rendered names are asserted here, on the component, because the
-	// resource entry only ever holds the schema (values land on the
-	// component's spec). Typing #NamespaceSchema.name itself is NOT an
+	// WHY: Typing #NamespaceSchema.name itself is NOT an
 	// option (measured, cue v0.17.1): the type unifies into the map default
 	// `*KeyName`, a dotted key's default arm drops out, the field is left a
 	// bare non-concrete #NameType, and nothing refuses at vet. The
 	// interpolation forces the default to a string first, so
 	// `string & #NameType` is either that string or an error naming it (the
-	// 0019 D21 assertion spelling). `spec` is re-declared for lexical scope;
+	// 0019 D21 assertion spelling).
+
+	// The rendered names are asserted here, on the component, because the
+	// resource entry only ever holds the schema (values land on the
+	// component's spec). `spec` is re-declared for lexical scope;
 	// see docs/name-constraints.md.
 	spec: _
 	_namespaceNamesFit: [for _, ns in spec.namespaces {"\(ns.name)" & c.#NameType}]
@@ -54,10 +56,12 @@ import (
 //// Namespace Schema
 /////////////////////////////////////////////////////////////////
 
-// Kubernetes Namespace, emitted with its exact name. Namespaces are
+// WHY: Namespaces are
 // externally-referenced identities (ModuleInstances, RBAC subjects, webhook
 // clientConfigs address them by name), so — like the stable catalog's
 // #Role/#ServiceAccount/#CRDs — no prefixing is applied.
+
+// Kubernetes Namespace, emitted with its exact name.
 // `name` is auto-populated from the map key in the resource spec. It is a
 // DNS label (0019 D21), asserted by the #Namespaces wrapper rather than typed
 // here: a type on this field would silently kill the key default (see the

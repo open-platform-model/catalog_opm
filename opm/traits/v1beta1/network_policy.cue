@@ -5,9 +5,7 @@ import (
 	c "opmodel.dev/core@v2"
 )
 
-// #NetworkPolicyTrait attaches an ingress/egress policy to a workload.
-//
-// Modelled as a TRAIT on the workload rather than a standalone resource, and
+// WHY: Modelled as a TRAIT on the workload rather than a standalone resource, and
 // that is forced by how selectors work: a NetworkPolicy's `podSelector` has to
 // match the workload's rendered pod labels, which only a transformer knows
 // (#context.componentLabels). A standalone resource would have to be told the
@@ -22,6 +20,8 @@ import (
 // matching is fine — it is CUE closedness, not OPM, that refuses. The general
 // rule this establishes: a standalone RESOURCE may incubate in the experimental
 // catalog, but a TRAIT that has to ride a stable blueprint must live here.
+
+// #NetworkPolicyTrait attaches an ingress/egress policy to a workload.
 #NetworkPolicyTrait: c.#Trait & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.traits)/v1beta1"

@@ -107,9 +107,10 @@ context: |
   - Follow the conventions of the neighbouring members in the same kind and version directory.
   - Every member and top-level definition carries a doc comment; it becomes its `INDEX.md`
     description. A doc comment is at most 6 lines and holds the contract only; rationale goes in
-    a `// WHY ...` block below the field after one blank line (the blank line is what keeps it out
-    of hover text), and the full argument in `docs/` or the enhancement entry. `task docs:check`
-    reports overruns; inline `_test*` fixture fields are exempt.
+    a `// WHY ...` block ABOVE the doc comment, separated from it by one blank line (the blank
+    line is what keeps it out of hover text; a block below the field reads as the next field's),
+    and the full argument in `docs/` or the enhancement entry. `task docs:check` fails on
+    overruns; inline `_test*` fixture fields are exempt.
   - Do not hard-wrap prose in `.md` files.
 
   ### Generated Artifacts

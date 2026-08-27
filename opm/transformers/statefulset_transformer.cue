@@ -88,9 +88,7 @@ import (
 			_restartPolicy: #component.spec.restartPolicy
 		}
 
-		// Extract update strategy with defaults.
-		//
-		// ⚠ THE GUARD MUST BE A SEPARATE ASSIGNMENT, not an `if` nested inside
+		// WHY: ⚠ THE GUARD MUST BE A SEPARATE ASSIGNMENT, not an `if` nested inside
 		// the second disjunct — see the long note on the identical block in
 		// deployment_transformer.cue. In short: the nested form resolved to
 		// `null` for every component, so `updateStrategy` was never emitted on
@@ -101,6 +99,8 @@ import (
 		// RollingUpdate, and an unguarded dereference of the omitted field
 		// fails the whole guarded struct — a schema-legal component must
 		// render, with Kubernetes applying its own rolling defaults.
+
+		// Extract update strategy with defaults.
 		_updateStrategy: *null | {...}
 		if #component.spec.updateStrategy != _|_ {
 			_updateStrategy: {
@@ -144,14 +144,14 @@ import (
 				}
 			}
 			spec: {
+				// WHY: Deliberately NOT #ResourceNameTrait — that renames the
+				// StatefulSet object, not the Service it is governed by.
+
 				// This is the governing Service's name, so it follows the
 				// SERVICE naming rule, not the workload one:
 				// service_transformer.cue honours `expose.name` and this did
 				// not, so any StatefulSet with an exact-name Service pointed
 				// its serviceName at a Service that does not exist.
-				//
-				// Deliberately NOT #ResourceNameTrait — that renames the
-				// StatefulSet object, not the Service it is governed by.
 				serviceName: [
 					if #component.spec.expose != _|_ if #component.spec.expose.name != _|_ {#component.spec.expose.name},
 					"\(#context.#moduleInstanceMetadata.name)-\(#component.metadata.name)",

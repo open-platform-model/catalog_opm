@@ -8,10 +8,7 @@ package transformers
 //// in exactly one place.
 /////////////////////////////////////////////////////////////////
 
-// Pod-template metadata: context labels merged with #PodMetadataTrait labels,
-// plus pod-only annotations.
-//
-// Usage:
+// WHY: Usage:
 //   template: metadata: (#PodTemplateMetadata & {
 //       #comp:     #component
 //       #labels:    #context.componentLabels
@@ -23,6 +20,9 @@ package transformers
 // `spec.selector.matchLabels`, which Kubernetes makes immutable. A "user wins"
 // override would desync the pod labels from the selector and the workload
 // would never become ready; failing loudly beats shipping that.
+
+// Pod-template metadata: context labels merged with #PodMetadataTrait labels,
+// plus pod-only annotations.
 #PodTemplateMetadata: {
 	#comp!: _
 	#labels!: [string]: string
@@ -44,14 +44,15 @@ package transformers
 	}
 }
 
-// Pod-spec scheduling fields from #PodSchedulingTrait. Embed the result
+// WHY: Embed the result
 // directly into the pod spec:
 //
 //   spec: {
 //       (#PodSchedulingFields & {#comp: #component}).out
 //       ...
 //   }
-//
+
+// Pod-spec scheduling fields from #PodSchedulingTrait.
 // Emits nothing when the trait is absent, so embedding is always safe.
 #PodSchedulingFields: {
 	#comp!: _
