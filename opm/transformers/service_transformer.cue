@@ -89,13 +89,13 @@ import (
 			apiVersion: "v1"
 			kind:       "Service"
 			metadata: {
-				// An explicit expose.name renders verbatim — for Services whose
-				// in-cluster DNS identity is a contract outside the module.
-				// Default stays instance-scoped.
-				name: [
-					if _expose.name != _|_ {_expose.name},
-					"\(#context.#moduleInstanceMetadata.name)-\(#component.metadata.name)",
-				][0]
+				// The Service name is the Expose trait's name field and nothing
+				// else (0019 D22): required on the schema, defaulted to the
+				// component's #names.dns.short by the #Expose wrapper, so the
+				// instance-scoped default and an explicit exact name both arrive
+				// here as one concrete value. No fallback: there is no path on
+				// which the field is unset.
+				name:      _expose.name
 				namespace: #context.#moduleInstanceMetadata.namespace
 				labels:    #context.labels
 				// Include component annotations if present
@@ -125,10 +125,15 @@ import (
 //// Test Data
 /////////////////////////////////////////////////////////////////
 
-// Default naming: Service renders instance-scoped.
+// Default naming: Service renders instance-scoped, through the #Expose
+// wrapper's default. Transformer fixtures never pass through #Module, so
+// #instance is set by hand; without it the default is incomplete and a golden
+// would unify vacuously against the type arm (see the resolution guard).
 _testServiceDefaultNameComponent: {
 	res.#Container
 	tr.#Expose
+
+	#instance: {name: "shop", namespace: "apps", uuid: "00000000-0000-0000-0000-000000000000"}
 
 	metadata: {
 		name: "web"
@@ -176,12 +181,18 @@ _testServiceDefaultNameTransformer: (#ServiceTransformer.#transform & {
 
 _testServiceDefaultNameTransformer: metadata: name: "shop-web"
 
+// Resolution guard: the interpolation collapses the wrapper's default to a
+// string before comparison, so a missing or wrong default fails loudly.
+_testServiceDefaultNameResolves: "\(_testServiceDefaultNameTransformer.metadata.name)" & "shop-web"
+
 // Exact naming: expose.name renders verbatim. Golden mirrors the live istiod
 // Service on an ambient mesh — istiod.<ns>.svc is hard-coded by its webhook
 // configs, CA clients, and proxies, so the instance prefix cannot appear.
 _testServiceExactNameComponent: {
 	res.#Container
 	tr.#Expose
+
+	#instance: {name: "istio", namespace: "istio-system", uuid: "00000000-0000-0000-0000-000000000000"}
 
 	metadata: {
 		name: "istiod"
@@ -257,6 +268,8 @@ _testServiceUDPComponent: {
 	res.#Container
 	tr.#Expose
 
+	#instance: {name: "coredns", namespace: "kube-system", uuid: "00000000-0000-0000-0000-000000000000"}
+
 	metadata: {
 		name: "coredns"
 		labels: "core.opmodel.dev/workload-type": "stateless"
@@ -318,3 +331,30 @@ _testServiceUDPTransformer: (#ServiceTransformer.#transform & {
 // the transformer ever regresses to `x | *y`.
 _testServiceUDPPortResolves:     (_testServiceUDPTransformer.spec.ports[0].port + 0) & 53
 _testServiceUDPProtocolResolves: "\(_testServiceUDPTransformer.spec.ports[0].protocol)" & "UDP"
+
+// Must-fail record for the naming contract (0019 D21, D22, D23), measured on
+// cue v0.17.1 against core v2.0.0-alpha.6 with the fixtures above (an
+// #instance of prod/media). Each case is deliberately NOT in the package: a
+// refusal would fail vet. Observed output is quoted verbatim.
+//
+//   Leading-digit resourceName on an Expose component (DNS-1035 via Expose):
+//     metadata: resourceName: "1web"
+//     -> _nameFits: invalid value "1web" (out of bound =~"^[a-z]([a-z0-9-]*[a-z0-9])?$")
+//   Dotted resourceName on a raw stateful #Container (D23, key on the entry):
+//     metadata: resourceName: "cache.internal"
+//     -> _nameFits: invalid value "cache.internal" (out of bound =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$")
+//   64-rune resourceName on a #StatefulWorkload (blueprint path):
+//     -> _nameFits: invalid value "aaaa…" (does not satisfy strings.MaxRunes(63))
+//   64-rune resourceName on a #StatelessWorkload with Expose (Service cap):
+//     -> _nameFits: invalid value "aaaa…" (does not satisfy strings.MaxRunes(63))
+//   Dotted Service name on the trait field:
+//     spec: expose: name: "a.b"
+//     -> spec.expose.name: conflicting values "prod-web" and "a.b" (and the
+//        #ServiceNameType arms refused in the same empty disjunction)
+//   #ExposeTrait attached raw, without the #Expose wrapper:
+//     -> spec.expose.name: field is required but not present
+//        (reported by `cue vet -c`, export and the kernel's render; a bare
+//        non-concrete `cue vet` admits an unset required field)
+//   Dotted key on a #Namespaces component:
+//     spec: namespaces: "a.b": {}
+//     -> _namespaceNamesFit.0: invalid value "a.b" (out of bound =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$")

@@ -558,7 +558,7 @@ CUE module: `opmodel.dev/catalogs/opm@v2`
 | `#EncryptionConfig` | `traits/v1beta1/encryption.cue` |  |
 | `#EncryptionConfigSchema` | `traits/v1beta1/encryption.cue` |  |
 | `#EncryptionConfigTrait` | `traits/v1beta1/encryption.cue` |  |
-| `#Expose` | `traits/v1beta1/expose.cue` |  |
+| `#Expose` | `traits/v1beta1/expose.cue` | Component wrapper: attaches the trait and supplies the Service name's default, the component's own short DNS name (0019 D22) |
 | `#ExposeSchema` | `traits/v1beta1/expose.cue` | Service expose specification |
 | `#ExposeTrait` | `traits/v1beta1/expose.cue` |  |
 | `#GracefulShutdown` | `traits/v1beta1/graceful_shutdown.cue` |  |

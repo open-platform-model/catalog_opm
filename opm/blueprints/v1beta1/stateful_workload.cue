@@ -34,6 +34,14 @@ import (
 	// flips its read (0010 library-matching).
 	matchLabels: "core.opmodel.dev/workload-type": "stateful"
 
+	// The StatefulSet name is a DNS label (pod DNS <sts>-<n>.<svc>...): no
+	// dots, 63 runes (0019 D21). Kept beside the container resource's
+	// conditional (D23) and load-bearing, not redundant: on this path the
+	// workload-type key is answered HERE, never on the container entry, so
+	// the container's conditional cannot fire (measured, cue v0.17.1; see
+	// docs/name-constraints.md).
+	#nameConstraint: c.#NameType
+
 	composedResources: [
 		res.#ContainerResource,
 		res.#VolumesResource,
