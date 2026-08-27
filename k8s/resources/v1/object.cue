@@ -9,13 +9,13 @@ import (
 //// Objects Resource Definition
 /////////////////////////////////////////////////////////////////
 
+// WHY: Each entry carries an OPM-only `scope` discriminator (a sibling of the object
+// body, never rendered) telling the transformer whether to stamp a namespace.
+
 // #ObjectsResource renders arbitrary Kubernetes objects — built-in kinds OR
 // Custom Resource instances (Issuer, Gateway, MongoDBCommunity,
 // VolumeSnapshotClass, …). It is the catalog's escape hatch for any GVK the
 // typed resources do not model.
-//
-// Each entry carries an OPM-only `scope` discriminator (a sibling of the object
-// body, never rendered) telling the transformer whether to stamp a namespace.
 #ObjectsResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1"
