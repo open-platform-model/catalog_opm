@@ -32,8 +32,7 @@ import (
 	#traits: (#ResourceNameTrait.metadata.fqn): #ResourceNameTrait
 }
 
-// Explicit workload name, rendered verbatim instead of the default
-// instance-scoped {instance}-{component}. Opt-in, and only correct when the
+// WHY: Opt-in, and only correct when the
 // name is a contract with something OUTSIDE the module — Istio's CNI plugin
 // recognises its own agent pod by the `istio-cni-node-` name prefix and, in a
 // degraded state where it cannot reach the API server, uses that check to let
@@ -44,8 +43,11 @@ import (
 // namespace would collide, so the default stays prefixed. #ExposeSchema.name
 // is the Service-side counterpart, since 0019 D22 an always-read field the
 // #Expose wrapper defaults from the component's own short DNS name.
-//
+
+// Explicit workload name, rendered verbatim instead of the default
+// instance-scoped {instance}-{component}. Opt-in; only correct for a name
+// that is a contract with something outside the module.
 // This governs the rendered object name ONLY. The pod selector stays
 // instance-scoped (see #context.componentLabels) so two instances never fight
-// over each other's pods.
+// over each other's pods. See docs/name-constraints.md.
 #ResourceNameSchema: string

@@ -63,10 +63,7 @@ import (
 	// normal virtual-IP Service. Only meaningful with type "ClusterIP".
 	clusterIP?: "None"
 
-	// The Service's name: the ONE field the Service transformer reads, with
-	// no fallback (0019 D22). Required (`!`: a plain typed field would vet
-	// clean while unset) and DNS-1035 typed, so a dot or a leading digit
-	// refuses at vet. The #Expose wrapper defaults it to the
+	// WHY: The #Expose wrapper defaults it to the
 	// component's `#names.dns.short`, the instance-scoped
 	// {instance}-{component} every default-named object already carries, so
 	// by default the Service, the workload and the DNS projection agree by
@@ -83,5 +80,11 @@ import (
 	// prefixed. To give the workload, the Service and the projection one
 	// exact name, set metadata.resourceName instead; Expose's #nameConstraint
 	// admits it when it is DNS-1035-shaped.
+
+	// The Service's name: the ONE field the Service transformer reads, with
+	// no fallback (0019 D22). Required (`!`: a plain typed field would vet
+	// clean while unset) and DNS-1035 typed, so a dot or a leading digit
+	// refuses at vet. Defaulted by the #Expose wrapper; an explicit value
+	// renames the Service only. See docs/name-constraints.md.
 	name!: c.#ServiceNameType
 }
