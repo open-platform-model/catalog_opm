@@ -45,3 +45,17 @@ This is the same rule the catalog's `#transform` slots already follow.
 ## Fixtures that exercise a wrapper default
 
 Transformer test data never passes through `#Module`, so core never injects `#instance`. A fixture that relies on the `#Expose` default must set `#instance: {name, namespace, uuid}` by hand and pin the result with a resolution guard, `"\(x.metadata.name)" & "expected"`: the interpolation collapses the default to a string, so a missing or wrong default fails loudly, where a plain golden would unify vacuously against the type arm. See `opm/transformers/service_transformer.cue`.
+
+## `k8s/`: exact-name kinds and the override
+
+The raw catalog reads `#component.#names.resourceName` for every kind whose name is a free choice (instance-prefixed by default, `metadata.resourceName` overrides it, `#ObjectNameType` the ceiling; 0019 D20). No `k8s/` resource declares a `#nameConstraint`: none of their names lands in a DNS label position. A few kinds are contracts with something outside the module and render the authored name verbatim (0019 D19):
+
+| Kind | Name | Why |
+| --- | --- | --- |
+| `apiservice` | exact | `<version>.<group>` is the aggregation contract |
+| `objects` | exact user segment, prefixed | the author's key is the object identity; only the prefix is instance-scoped |
+| `csidriver` | exact | kubelet registers the driver under this name in `CSINodeInfo`, and every `StorageClass.provisioner` references it; a prefixed or overridden name breaks provisioning silently |
+| `storageclass` | `#names.resourceName` | referenced only by `storageClassName`, label-shaped; the override is the contract |
+| `volumesnapshotclass` | `#names.resourceName` | identical position to `storageClassName` (`VolumeSnapshot.spec.volumeSnapshotClassName`); follows StorageClass |
+
+A fixture for an exact-name kind sets `metadata.resourceName` on the component stub and pins the authored name, proving the override is ignored; `#instance` is not needed because nothing reads `#names`. A fixture for an override-honouring kind sets `#instance` and pins both the default (`<instance>-<component>`) and the override. See `k8s/transformers/csidriver_transformer.cue` and `volumesnapshotclass_transformer.cue`.

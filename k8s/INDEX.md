@@ -41,6 +41,8 @@ CUE module: `opmodel.dev/catalogs/k8s@v1`
 | `#ConfigMapResource` | `resources/v1/configmap.cue` | #ConfigMapResource defines a native Kubernetes ConfigMap as an OPM resource |
 | `#CronJob` | `resources/v1/cronjob.cue` |  |
 | `#CronJobResource` | `resources/v1/cronjob.cue` | #CronJobResource defines a native Kubernetes CronJob as an OPM resource |
+| `#CSIDriver` | `resources/v1/csidriver.cue` |  |
+| `#CSIDriverResource` | `resources/v1/csidriver.cue` | #CSIDriverResource defines a native Kubernetes CSIDriver as an OPM resource |
 | `#DaemonSet` | `resources/v1/daemonset.cue` |  |
 | `#DaemonSetResource` | `resources/v1/daemonset.cue` | #DaemonSetResource defines a native Kubernetes DaemonSet as an OPM resource |
 | `#Deployment` | `resources/v1/deployment.cue` |  |
@@ -59,7 +61,7 @@ CUE module: `opmodel.dev/catalogs/k8s@v1`
 | `#NetworkPolicyResource` | `resources/v1/networkpolicy.cue` | #NetworkPolicyResource defines a native Kubernetes NetworkPolicy as an OPM resource |
 | `#ObjectEntrySchema` | `resources/v1/object.cue` | A single arbitrary object plus its scope discriminator |
 | `#Objects` | `resources/v1/object.cue` |  |
-| `#ObjectsResource` | `resources/v1/object.cue` | #ObjectsResource renders arbitrary Kubernetes objects — built-in kinds OR Custom Resource instances (Issuer, Gateway, MongoDBCommunity, VolumeSnapshotClass, …) |
+| `#ObjectsResource` | `resources/v1/object.cue` | #ObjectsResource renders arbitrary Kubernetes objects — built-in kinds OR Custom Resource instances (Issuer, Gateway, MongoDBCommunity, …) |
 | `#PodDisruptionBudget` | `resources/v1/pdb.cue` |  |
 | `#PodDisruptionBudgetResource` | `resources/v1/pdb.cue` | #PodDisruptionBudgetResource defines a native Kubernetes PodDisruptionBudget as an OPM resource |
 | `#Pod` | `resources/v1/pod.cue` |  |
@@ -84,6 +86,8 @@ CUE module: `opmodel.dev/catalogs/k8s@v1`
 | `#StorageClassResource` | `resources/v1/storageclass.cue` | #StorageClassResource defines a native Kubernetes StorageClass as an OPM resource |
 | `#ValidatingWebhookConfiguration` | `resources/v1/validating_webhook.cue` |  |
 | `#ValidatingWebhookConfigurationResource` | `resources/v1/validating_webhook.cue` | #ValidatingWebhookConfigurationResource defines a native Kubernetes ValidatingWebhookConfiguration as an OPM resource |
+| `#VolumeSnapshotClass` | `resources/v1/volumesnapshotclass.cue` |  |
+| `#VolumeSnapshotClassResource` | `resources/v1/volumesnapshotclass.cue` | #VolumeSnapshotClassResource defines a native VolumeSnapshotClass (snapshot |
 
 ### v2
 
@@ -115,9 +119,11 @@ CUE module: `opmodel.dev/catalogs/k8s@v1`
 | `#RoleBindingSchema` | `schemas/rbac.cue` | #RoleBindingSchema accepts the full Kubernetes RoleBinding spec |
 | `#RoleSchema` | `schemas/rbac.cue` | #RoleSchema accepts the full Kubernetes Role spec |
 | `#ServiceAccountSchema` | `schemas/rbac.cue` | #ServiceAccountSchema accepts the full Kubernetes ServiceAccount spec |
+| `#CSIDriverSchema` | `schemas/storage.cue` | #CSIDriverSchema accepts the full Kubernetes CSIDriver (storage |
 | `#PersistentVolumeClaimSchema` | `schemas/storage.cue` | #PersistentVolumeClaimSchema accepts the full Kubernetes PVC spec |
 | `#PersistentVolumeSchema` | `schemas/storage.cue` | #PersistentVolumeSchema accepts the full Kubernetes PV spec |
 | `#StorageClassSchema` | `schemas/storage.cue` | #StorageClassSchema accepts the full Kubernetes StorageClass spec |
+| `#VolumeSnapshotClassSchema` | `schemas/storage.cue` | #VolumeSnapshotClassSchema accepts the full VolumeSnapshotClass (snapshot |
 | `#CronJobSchema` | `schemas/workload.cue` | #CronJobSchema accepts the full Kubernetes CronJob spec |
 | `#DaemonSetSchema` | `schemas/workload.cue` | #DaemonSetSchema accepts the full Kubernetes DaemonSet spec |
 | `#DeploymentSchema` | `schemas/workload.cue` | #DeploymentSchema accepts the full Kubernetes Deployment spec |
@@ -136,6 +142,7 @@ CUE module: `opmodel.dev/catalogs/k8s@v1`
 | `#ClusterRoleTransformer` | `transformers/cluster_role_transformer.cue` | #ClusterRoleTransformer passes native Kubernetes ClusterRole resources through with OPM context applied (name prefix, labels) |
 | `#ConfigMapTransformer` | `transformers/configmap_transformer.cue` | #ConfigMapTransformer passes native Kubernetes ConfigMap resources through with OPM context applied (name prefix, namespace, labels) |
 | `#CronJobTransformer` | `transformers/cronjob_transformer.cue` | #CronJobTransformer passes native Kubernetes CronJob resources through with OPM context applied (name prefix, namespace, labels) |
+| `#CSIDriverTransformer` | `transformers/csidriver_transformer.cue` | #CSIDriverTransformer passes native Kubernetes CSIDriver resources through with OPM labels applied |
 | `#DaemonSetTransformer` | `transformers/daemonset_transformer.cue` | #DaemonSetTransformer passes native Kubernetes DaemonSet resources through with OPM context applied (name prefix, namespace, labels) |
 | `#DeploymentTransformer` | `transformers/deployment_transformer.cue` | #DeploymentTransformer passes native Kubernetes Deployment resources through with OPM context applied (name prefix, namespace, labels) |
 | `#HorizontalPodAutoscalerTransformer` | `transformers/hpa_transformer.cue` | #HorizontalPodAutoscalerTransformer passes native Kubernetes HPA resources through with OPM context applied (name prefix, namespace, labels) |
@@ -158,6 +165,7 @@ CUE module: `opmodel.dev/catalogs/k8s@v1`
 | `#StatefulSetTransformer` | `transformers/statefulset_transformer.cue` | #StatefulSetTransformer passes native Kubernetes StatefulSet resources through with OPM context applied (name prefix, namespace, labels) |
 | `#StorageClassTransformer` | `transformers/storageclass_transformer.cue` | #StorageClassTransformer passes native Kubernetes StorageClass resources through with OPM context applied (name prefix, labels) |
 | `#ValidatingWebhookConfigurationTransformer` | `transformers/validating_webhook_transformer.cue` | #ValidatingWebhookConfigurationTransformer passes native Kubernetes ValidatingWebhookConfiguration resources through with OPM context applied |
+| `#VolumeSnapshotClassTransformer` | `transformers/volumesnapshotclass_transformer.cue` | #VolumeSnapshotClassTransformer passes native VolumeSnapshotClass resources through with OPM context applied: the name is the component's resourceName (instance-prefixed by default, `metadata |
 
 ---
 

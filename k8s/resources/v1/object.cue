@@ -13,9 +13,9 @@ import (
 // body, never rendered) telling the transformer whether to stamp a namespace.
 
 // #ObjectsResource renders arbitrary Kubernetes objects — built-in kinds OR
-// Custom Resource instances (Issuer, Gateway, MongoDBCommunity,
-// VolumeSnapshotClass, …). It is the catalog's escape hatch for any GVK the
-// typed resources do not model.
+// Custom Resource instances (Issuer, Gateway, MongoDBCommunity, …). It is the
+// catalog's escape hatch for any GVK the typed resources do not model; prefer
+// a typed member (e.g. `volumesnapshotclass`) where one exists.
 #ObjectsResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1"
