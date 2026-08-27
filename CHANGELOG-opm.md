@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0-alpha.6](https://github.com/open-platform-model/catalog_opm/compare/opm-v2.0.0-alpha.5...opm-v2.0.0-alpha.6) (2026-08-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* **opm:** ExposeSchema.name is required and DNS-1035 typed (attach through the Expose wrapper or set it); a dotted namespace name refuses at vet.
+
+### Features
+
+* **opm:** declare name constraints and default the expose name ([#51](https://github.com/open-platform-model/catalog_opm/issues/51)) ([1ba119d](https://github.com/open-platform-model/catalog_opm/commit/1ba119de61c67dcc27dc536b96dbf68935483df7))
+
 ## [2.0.0-alpha.5](https://github.com/open-platform-model/catalog_opm/compare/opm-v2.0.0-alpha.4...opm-v2.0.0-alpha.5) (2026-08-22)
 
 
