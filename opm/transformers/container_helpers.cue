@@ -8,22 +8,22 @@ import (
 	res "opmodel.dev/catalogs/opm/resources/v1beta1"
 )
 
-// #ToK8sContainer converts an OPM #ContainerSchema to a Kubernetes #Container.
-// OPM uses struct-keyed env/ports/volumeMounts; Kubernetes expects lists.
-//
-// Env var dispatch:
+// WHY: Env var dispatch:
 //   value?            -> { name, value }
 //   from?             -> { name, valueFrom: { secretKeyRef: ... } }
 //   fieldRef?         -> { name, valueFrom: { fieldRef: ... } }
 //   resourceFieldRef? -> { name, valueFrom: { resourceFieldRef: ... } }
 //
-// When #instancePrefix is set, it is prepended to the secretKeyRef name for
-// auto-generated secrets (#SecretLiteral). Pre-existing K8s
-// Secret references (#SecretK8sRef) are never prefixed.
 // Was: #releasePrefix (renamed in enhancement 0002).
 //
 // Usage:
 //   (#ToK8sContainer & {"in": _container, #instancePrefix: "my-instance"}).out
+
+// #ToK8sContainer converts an OPM #ContainerSchema to a Kubernetes #Container.
+// OPM uses struct-keyed env/ports/volumeMounts; Kubernetes expects lists.
+// When #instancePrefix is set, it is prepended to the secretKeyRef name for
+// auto-generated secrets (#SecretLiteral). Pre-existing K8s
+// Secret references (#SecretK8sRef) are never prefixed.
 #ToK8sContainer: {
 	X="in":           res.#ContainerSchema
 	#instancePrefix?: string
@@ -271,16 +271,16 @@ import (
 	}
 }
 
-// #ToK8sVolumes converts OPM volumes map to Kubernetes volumes list.
-// Handles all volume source types: emptyDir, persistentClaim, configMap, secret.
-//
-// For secret volumes, from is a #SecretSchema (carrying name, immutable, data).
+// WHY: For secret volumes, from is a #SecretSchema (carrying name, immutable, data).
 // The K8s secret name is computed via #SecretImmutableName — identical to the
 // name produced by #SecretTransformer — so mutable and immutable secrets both
 // resolve correctly without any extra wiring in the component.
 //
 // Usage:
 //   (#ToK8sVolumes & {"in": _component.spec.volumes, #instancePrefix: "my-instance"}).out
+
+// #ToK8sVolumes converts OPM volumes map to Kubernetes volumes list.
+// Handles all volume source types: emptyDir, persistentClaim, configMap, secret.
 #ToK8sVolumes: {
 	X="in": [string]: res.#VolumeSchema
 	_prefix=#instancePrefix?: string

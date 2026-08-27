@@ -8,9 +8,7 @@ import (
 	tr "opmodel.dev/catalogs/opm/traits/v1beta1"
 )
 
-// HPATransformer realizes #ScalingTrait's `auto` block as a HorizontalPodAutoscaler.
-//
-// The schema (#AutoscalingSpec: min/max/metrics/behavior) has existed since the
+// WHY: The schema (#AutoscalingSpec: min/max/metrics/behavior) has existed since the
 // catalog was written and was only ever read as a replica count by the
 // Deployment and StatefulSet transformers. This emits the object it always
 // described.
@@ -20,6 +18,8 @@ import (
 // daemon/task/scheduled-task do not). Emitting nothing unless `auto` is set is
 // therefore not an optimisation, it is the correctness condition: `output` is a
 // list with a comprehension guard, and an empty list yields zero resources.
+
+// HPATransformer realizes #ScalingTrait's `auto` block as a HorizontalPodAutoscaler.
 #HPATransformer: c.#ComponentTransformer & {
 	metadata: {
 		modulePath:     id.kindPrefix.transformers

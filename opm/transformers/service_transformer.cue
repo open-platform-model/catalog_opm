@@ -58,9 +58,7 @@ import (
 			for portName, portConfig in _expose.ports {
 				{
 					name: portName
-					// Service port: exposedPort when the author set one, else targetPort.
-					//
-					// The list-index form is load-bearing. The obvious spelling,
+					// WHY: The list-index form is load-bearing. The obvious spelling,
 					// `portConfig.exposedPort | *portConfig.targetPort`, reads as
 					// "exposedPort, defaulting to targetPort" but means the
 					// opposite: a default arm wins over a concrete one, so
@@ -68,6 +66,8 @@ import (
 					// silently discarded. Unification-based goldens cannot catch
 					// it either — `(443 | *10250) & 443` succeeds — hence the
 					// resolution guard in the test data below.
+
+					// Service port: exposedPort when the author set one, else targetPort.
 					port: [
 						if portConfig.exposedPort != _|_ {portConfig.exposedPort},
 						portConfig.targetPort,

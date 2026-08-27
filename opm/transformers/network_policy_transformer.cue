@@ -6,14 +6,14 @@ import (
 	tr "opmodel.dev/catalogs/opm/traits/v1beta1"
 )
 
-// NetworkPolicyTransformer converts the #NetworkPolicyTrait to a Kubernetes
-// NetworkPolicy whose podSelector is the workload's own rendered pod labels.
-//
-// #context.componentLabels is computed by core per (component, transformer)
+// WHY: #context.componentLabels is computed by core per (component, transformer)
 // pair, so the value here is the same one the Deployment / DaemonSet /
 // StatefulSet transformer used for `spec.selector.matchLabels`. That is the
 // whole reason this is a trait: the selector is derived, never authored, so it
 // cannot drift from the pods it is meant to protect.
+
+// NetworkPolicyTransformer converts the #NetworkPolicyTrait to a Kubernetes
+// NetworkPolicy whose podSelector is the workload's own rendered pod labels.
 #NetworkPolicyTransformer: c.#ComponentTransformer & {
 	metadata: {
 		modulePath:     id.kindPrefix.transformers

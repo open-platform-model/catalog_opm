@@ -8,9 +8,7 @@ import (
 	tr "opmodel.dev/catalogs/opm/traits/v1beta1"
 )
 
-// PDBTransformer realizes #DisruptionBudgetTrait as a PodDisruptionBudget.
-//
-// Like #ScalingTrait's `auto` block, #DisruptionBudgetSchema has existed since
+// WHY: Like #ScalingTrait's `auto` block, #DisruptionBudgetSchema has existed since
 // the catalog was written with nothing emitting it.
 //
 // Unlike the HPA this requires its own trait, so it only matches components that
@@ -20,6 +18,8 @@ import (
 // The selector deliberately uses #context.componentLabels — the same value the
 // workload transformers put in `spec.selector.matchLabels` — so the budget
 // always covers exactly the workload's pods.
+
+// PDBTransformer realizes #DisruptionBudgetTrait as a PodDisruptionBudget.
 #PDBTransformer: c.#ComponentTransformer & {
 	metadata: {
 		modulePath:     id.kindPrefix.transformers

@@ -12,10 +12,7 @@ package transformers
 //// workload that does not exist — is silent.
 /////////////////////////////////////////////////////////////////
 
-// #WorkloadName resolves a workload's rendered object name: the exact name from
-// #ResourceNameTrait when set, otherwise the instance-scoped default.
-//
-// Usage:
+// WHY: Usage:
 //   (#WorkloadName & {
 //       #comp:     #component
 //       #instance: #context.#moduleInstanceMetadata.name
@@ -27,6 +24,10 @@ package transformers
 // default arm wins over a concrete one, so the override would be silently
 // discarded. Same trap that put cert-manager's webhook Service on the wrong
 // port (see service_transformer.cue).
+
+// #WorkloadName resolves a workload's rendered object name: the exact name from
+// #ResourceNameTrait when set, otherwise the instance-scoped default.
+// See docs/name-constraints.md.
 #WorkloadName: {
 	#comp!:     _
 	#instance!: string
