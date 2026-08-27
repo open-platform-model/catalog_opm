@@ -60,5 +60,5 @@
 
 - [x] 9.1 `task docs:check` reports 0 sites in both modules
 - [x] 9.2 `task generate:index:check` (INDEX files unchanged)
-- [x] 9.3 All 25 touched `*.cue` files code-identical to `main` (comments and blank lines stripped); `cue fmt` idempotent
+- [x] 9.3 All 27 touched `*.cue` files code-identical to `main` (comments and blank lines stripped); `cue fmt` idempotent
 - [x] 9.4 `task check`
