@@ -168,8 +168,8 @@ Never hand-edit `apiVersion`/`catalogVersion`/`fqn` to chase a release — only 
 | `task tidy`                   | Tidy both CUE module manifests                       |
 | `task generate:index`         | Regenerate `opm/INDEX.md` and `k8s/INDEX.md`         |
 | `task generate:index:check`   | Verify both INDEX files are up to date               |
-| `task docs:check`             | Report doc comments over 6 lines in both modules (warn-only until the sweep lands) |
-| `task check`                  | fmt check + vet + layering + INDEX freshness + doc-comment report |
+| `task docs:check`             | Fail on any doc comment over 6 lines in both modules   |
+| `task check`                  | fmt check + vet + layering + INDEX freshness + doc-comment limit |
 | `task branch-tag`             | Print each module's deterministic `-dev` tag for HEAD (no side effects) |
 
 Every task fans out over the `MODULES` var (`opm k8s`). Adding a third catalog is one string edit there.
@@ -202,12 +202,12 @@ Releases are driven by Conventional Commit types. Use the right type.
 
 - Keep each module's `INDEX.md` in sync when adding, removing, or renaming definitions, or when a module tree changes. `task generate:index` regenerates both (review before commit).
 - When adding a transformer, register it in that module's `catalog.cue` `#transformers` map (keyed by `metadata.fqn`). Resources/traits/blueprints surface transitively through transformer required/optional maps.
-- Run `task check` before finishing — fmt, vet, layering, INDEX freshness and the doc-comment report in one shot.
+- Run `task check` before finishing — fmt, vet, layering, INDEX freshness and the doc-comment limit in one shot.
 - **Doc comments.** Every `//` block that ends on the line directly above a field or definition is that declaration's doc comment; `cue lsp` hover, `Value.Doc()`, `cue def` and `task generate:index` replay it verbatim. One blank line ends the block, and `cue fmt` preserves that blank line. Three tiers:
   - **Doc comment, at most 6 lines**: the contract an author needs (what it is, what it renders, what a value must satisfy), optionally ending with `See docs/<note>.md`.
   - **`// WHY ...` block above the doc comment, separated from it by one blank line**: rationale that must stay next to the code (measured evaluator behaviour, rendering decisions, history). Every comment above a declaration reads as belonging to it, so the block goes above, never below the field. The blank line between the two groups is load-bearing; the `WHY` prefix marks it so nobody closes the gap. What stays in the doc comment, in this order until 6 lines are used: what it is, what it renders, what a value must satisfy, then the `See` pointer.
   - **`docs/<note>.md` or the enhancement entry**: the full argument.
-  - `task docs:check` reports every doc comment over 6 lines in both modules (warn-only until the relocation sweep lands, then strict). Inline `_test*` fixture fields are exempt; other hidden fields are not. `package` docs, `let` and comprehension clauses are not counted.
+  - `task docs:check` fails on every doc comment over 6 lines in both modules. Inline `_test*` fixture fields are exempt; other hidden fields are not. `package` docs, `let` and comprehension clauses are not counted.
 - **Naming:** a primitive whose rendered name lands in a DNS label position declares a `#nameConstraint`; a component wrapper that references `#names` (or a literal that references `matchLabels`) must re-declare the slot. Rules and measured evaluator behaviour in `docs/name-constraints.md`.
 - This repo is pure CUE — there is no SPEC.md / core-schema-edit protocol here. Those belong to `core/`. Here **the definition is the spec**: a member's CUE and its doc comments are the contract, and `task generate:index:check` is the gate.
 - **Non-trivial catalog work goes through OpenSpec** (`openspec/`, added 2026-08-26). Scaffold with the `openspec-new-change` or `openspec-ff-change` skill; `openspec/config.yaml` carries the normative rules each artifact must satisfy.
