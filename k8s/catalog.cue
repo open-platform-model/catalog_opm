@@ -32,6 +32,7 @@ metadata: {
 	(t.#ClusterRoleBindingTransformer.metadata.fqn):             t.#ClusterRoleBindingTransformer
 	(t.#ClusterRoleTransformer.metadata.fqn):                    t.#ClusterRoleTransformer
 	(t.#ConfigMapTransformer.metadata.fqn):                      t.#ConfigMapTransformer
+	(t.#CSIDriverTransformer.metadata.fqn):                      t.#CSIDriverTransformer
 	(t.#CronJobTransformer.metadata.fqn):                        t.#CronJobTransformer
 	(t.#DaemonSetTransformer.metadata.fqn):                      t.#DaemonSetTransformer
 	(t.#DeploymentTransformer.metadata.fqn):                     t.#DeploymentTransformer
@@ -55,4 +56,5 @@ metadata: {
 	(t.#StatefulSetTransformer.metadata.fqn):                    t.#StatefulSetTransformer
 	(t.#StorageClassTransformer.metadata.fqn):                   t.#StorageClassTransformer
 	(t.#ValidatingWebhookConfigurationTransformer.metadata.fqn): t.#ValidatingWebhookConfigurationTransformer
+	(t.#VolumeSnapshotClassTransformer.metadata.fqn):            t.#VolumeSnapshotClassTransformer
 }
