@@ -35,7 +35,7 @@ import (
 		#context:   c.#TransformerContext
 
 		_vwc:  #component.spec.validatingwebhookconfiguration
-		_name: "\(#context.#moduleInstanceMetadata.name)-\(#context.#componentMetadata.name)"
+		_name: #component.#names.resourceName
 
 		output: {
 			apiVersion: "admissionregistration.k8s.io/v1"

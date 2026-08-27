@@ -7,7 +7,7 @@ import (
 )
 
 // #NamespaceTransformer passes native Kubernetes Namespace resources through
-// with OPM context applied (name prefix, labels). Namespace is cluster-scoped: no namespace in metadata.
+// with OPM context applied (name from the component's `#names`, labels). Namespace is cluster-scoped: no namespace in metadata.
 #NamespaceTransformer: c.#ComponentTransformer & {
 	metadata: {
 		modulePath:     id.kindPrefix.transformers
@@ -34,7 +34,7 @@ import (
 		#context:   c.#TransformerContext
 
 		_nsSpec: #component.spec.namespace
-		_name:   "\(#context.#moduleInstanceMetadata.name)-\(#context.#componentMetadata.name)"
+		_name:   #component.#names.resourceName
 
 		output: {
 			apiVersion: "v1"

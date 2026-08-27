@@ -7,7 +7,7 @@ import (
 )
 
 // #StorageClassTransformer passes native Kubernetes StorageClass resources through
-// with OPM context applied (name prefix, labels). StorageClass is cluster-scoped: no namespace.
+// with OPM context applied (name from the component's `#names`, labels). StorageClass is cluster-scoped: no namespace.
 #StorageClassTransformer: c.#ComponentTransformer & {
 	metadata: {
 		modulePath:     id.kindPrefix.transformers
@@ -34,7 +34,7 @@ import (
 		#context:   c.#TransformerContext
 
 		_sc:   #component.spec.storageclass
-		_name: "\(#context.#moduleInstanceMetadata.name)-\(#context.#componentMetadata.name)"
+		_name: #component.#names.resourceName
 
 		output: {
 			apiVersion: "storage.k8s.io/v1"
@@ -67,3 +67,51 @@ import (
 		}
 	}
 }
+
+/////////////////////////////////////////////////////////////////
+//// Test Data
+/////////////////////////////////////////////////////////////////
+
+_testStorageClassContext: {
+	#moduleInstanceMetadata: {
+		name:      "shop"
+		namespace: "apps"
+		fqn:       "opmodel.dev/catalogs/k8s/shop@0.1.0"
+		version:   "0.1.0"
+		uuid:      "00000000-0000-0000-0000-000000000000"
+	}
+	#componentMetadata: name: "fast"
+	#runtimeName: "opm-test"
+	componentAnnotations: {}
+}
+
+// Default naming: instance-prefixed resourceName.
+_testStorageClassDefaultNameComponent: res.#StorageClass & {
+	#instance: {name: "shop", namespace: "apps", uuid: "00000000-0000-0000-0000-000000000000"}
+	metadata: name: "fast"
+	spec: storageclass: provisioner: "zfs.csi.openebs.io"
+}
+
+_testStorageClassDefaultNameTransformer: (#StorageClassTransformer.#transform & {
+	#component: _testStorageClassDefaultNameComponent
+	#context:   _testStorageClassContext
+}).output
+
+_testStorageClassDefaultNameResolves: "\(_testStorageClassDefaultNameTransformer.metadata.name)" & "shop-fast"
+
+// Override naming: metadata.resourceName wins over the instance prefix.
+_testStorageClassOverrideNameComponent: res.#StorageClass & {
+	#instance: {name: "shop", namespace: "apps", uuid: "00000000-0000-0000-0000-000000000000"}
+	metadata: {
+		name:         "fast"
+		resourceName: "custom"
+	}
+	spec: storageclass: provisioner: "zfs.csi.openebs.io"
+}
+
+_testStorageClassOverrideNameTransformer: (#StorageClassTransformer.#transform & {
+	#component: _testStorageClassOverrideNameComponent
+	#context:   _testStorageClassContext
+}).output
+
+_testStorageClassOverrideNameResolves: "\(_testStorageClassOverrideNameTransformer.metadata.name)" & "custom"

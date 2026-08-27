@@ -7,7 +7,7 @@ import (
 )
 
 // #IngressClassTransformer passes native Kubernetes IngressClass resources through
-// with OPM context applied (name prefix, labels). IngressClass is cluster-scoped: no namespace.
+// with OPM context applied (name from the component's `#names`, labels). IngressClass is cluster-scoped: no namespace.
 #IngressClassTransformer: c.#ComponentTransformer & {
 	metadata: {
 		modulePath:     id.kindPrefix.transformers
@@ -34,7 +34,7 @@ import (
 		#context:   c.#TransformerContext
 
 		_ic:   #component.spec.ingressclass
-		_name: "\(#context.#moduleInstanceMetadata.name)-\(#context.#componentMetadata.name)"
+		_name: #component.#names.resourceName
 
 		output: {
 			apiVersion: "networking.k8s.io/v1"

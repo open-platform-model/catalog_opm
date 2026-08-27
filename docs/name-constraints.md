@@ -48,13 +48,14 @@ Transformer test data never passes through `#Module`, so core never injects `#in
 
 ## `k8s/`: exact-name kinds and the override
 
-The raw catalog reads `#component.#names.resourceName` for every kind whose name is a free choice (instance-prefixed by default, `metadata.resourceName` overrides it, `#ObjectNameType` the ceiling; 0019 D20). No `k8s/` resource declares a `#nameConstraint`: none of their names lands in a DNS label position. A few kinds are contracts with something outside the module and render the authored name verbatim (0019 D19):
+The raw catalog reads `#component.#names.resourceName` for every kind whose name is a free choice (instance-prefixed by default, `metadata.resourceName` overrides it, `#ObjectNameType` the ceiling; 0019 D20). No `k8s/` resource declares a `#nameConstraint`: none of their names lands in a DNS label position. Every other transformer's `_name` line is `#component.#names.resourceName` (0019 D15/D19: read, never derived). A few kinds are contracts with something outside the module and render the authored name verbatim:
 
 | Kind | Name | Why |
 | --- | --- | --- |
 | `apiservice` | exact | `<version>.<group>` is the aggregation contract |
 | `objects` | exact user segment, prefixed | the author's key is the object identity; only the prefix is instance-scoped |
 | `csidriver` | exact | kubelet registers the driver under this name in `CSINodeInfo`, and every `StorageClass.provisioner` references it; a prefixed or overridden name breaks provisioning silently |
+| `namespace` | `#names.resourceName` | unlike `opm/`'s `namespaces` resource (exact names from its map), the raw kind renders the prefixed name and stays in the sweep: it is not an exact kind in this catalog |
 | `storageclass` | `#names.resourceName` | referenced only by `storageClassName`, label-shaped; the override is the contract |
 | `volumesnapshotclass` | `#names.resourceName` | identical position to `storageClassName` (`VolumeSnapshot.spec.volumeSnapshotClassName`); follows StorageClass |
 
