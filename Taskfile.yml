@@ -110,6 +110,15 @@ tasks:
         done
         exit $rc
 
+  ## Doc comment length
+
+  docs:check:
+    desc: Report doc comments over 6 lines in every module (warn-only until the sweep lands)
+    cmds:
+      - |
+        set -e
+        for m in {{.MODULES}}; do bash .tasks/doc-check.sh "$m"; done
+
   ## Publishing
   #
   # Publishing goes through `opm catalog publish` (enhancement 0011) and is
@@ -135,9 +144,10 @@ tasks:
   ## Aggregate
 
   check:
-    desc: Format check, vet, layering, and INDEX freshness across every module
+    desc: Format check, vet, layering, INDEX freshness, and doc-comment report across every module
     cmds:
       - task: fmt:check
       - task: vet
       - task: vet:layering
       - task: generate:index:check
+      - task: docs:check

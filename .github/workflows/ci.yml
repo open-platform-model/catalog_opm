@@ -51,6 +51,9 @@ jobs:
       - name: Verify every INDEX.md is up to date
         run: task generate:index:check
 
+      - name: Report over-long doc comments
+        run: task docs:check
+
       - name: Install opm
         run: |
           set -euo pipefail
