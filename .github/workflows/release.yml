@@ -14,7 +14,7 @@ permissions:
 env:
   # Pinned OPM CLI release used for identity writes and publishing; bump
   # deliberately, never float. The publish pipeline and its gates live there.
-  OPM_CLI_VERSION: 'v1.0.0-alpha.11'
+  OPM_CLI_VERSION: 'v1.0.0-alpha.14'
   # opm resolves the registry via --registry > OPM_REGISTRY > config file — it
   # does NOT read CUE_REGISTRY. Both are set so any residual cue invocation
   # agrees with opm. opmodel.dev resolves the core dependency and the catalog's

@@ -13,7 +13,7 @@ env:
   CUE_VERSION: 'v0.17.1'
   # Pinned OPM CLI release used for identity writes and publishing; bump
   # deliberately, never float.
-  OPM_CLI_VERSION: 'v1.0.0-alpha.11'
+  OPM_CLI_VERSION: 'v1.0.0-alpha.14'
   # opm resolves the registry via --registry > OPM_REGISTRY > config file — it
   # does NOT read CUE_REGISTRY. CUE_REGISTRY stays for task check's raw cue
   # invocations. opmodel.dev -> GHCR resolves both the core dependency and the

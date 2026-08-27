@@ -16,7 +16,7 @@ env:
   CUE_REGISTRY: 'opmodel.dev=ghcr.io/open-platform-model,registry.cue.works'
   OPM_REGISTRY: 'opmodel.dev=ghcr.io/open-platform-model,registry.cue.works'
   # Pinned OPM CLI release for the publish-gate dry-run; bump deliberately.
-  OPM_CLI_VERSION: 'v1.0.0-alpha.11'
+  OPM_CLI_VERSION: 'v1.0.0-alpha.14'
 
 jobs:
   ci:
