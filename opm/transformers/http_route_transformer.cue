@@ -43,8 +43,10 @@ import (
 
 		_httpRoute: #component.spec.httpRoute
 		_name:      #component.#names.resourceName
-		// The backing Service has one authoritative name field (0019 D22).
-		_backendName: #component.spec.expose.name
+		// The backing Service has one authoritative name field (0019 D22), read
+		// through #ServiceName so the reference cannot drift from the Service
+		// transformer's output, legacy (<= alpha.5) expose shape included.
+		_backendName: (#ServiceName & {#comp: #component}).out
 
 		// TLS hints: Gateway API HTTPRoute has no tls field (TLS lives on the
 		// Gateway listener), so surface the trait's tls attachment as
@@ -199,5 +201,58 @@ _testHttpRouteNameResolves: "\(_testHttpRouteTransformer.metadata.name)" & "shop
 // the same stub, whatever expose.name resolves to.
 _testHttpRouteBackendResolves: "\(_testHttpRouteTransformer.spec.rules[0].backendRefs[0].name)" & "\((#ServiceTransformer.#transform & {
 	#component: _testHttpRouteComponent
+	#context:   _testHttpRouteContext
+}).output.metadata.name)" & "shop-web"
+
+// Legacy shape: a routed component compiled against a build <= alpha.5, whose
+// expose carries `name?: string` unset. expose is hand-written on purpose
+// (embedding tr.#Expose gives `name!`); container, route and #instance are
+// current, their shapes did not move. Covers grpc/tcp/tls too: they read the
+// backend name through the same #ServiceName line.
+_testHttpRouteLegacyExposeComponent: {
+	res.#Container
+	tr.#HttpRoute
+
+	#instance: {name: "shop", namespace: "apps", uuid: "00000000-0000-0000-0000-000000000000"}
+
+	metadata: {
+		name: "web"
+		labels: "core.opmodel.dev/workload-type": "stateless"
+	}
+
+	spec: {
+		container: {
+			name: "web"
+			image: {
+				repository: "nginx"
+				tag:        "1.27"
+				digest:     ""
+			}
+			ports: http: {
+				name:       "http"
+				targetPort: 8080
+			}
+		}
+		expose: {
+			type: "ClusterIP"
+			ports: http: {name: "http", targetPort: 8080, exposedPort: 80, protocol: "TCP"}
+			name?: string
+		}
+		httpRoute: {
+			gatewayRef: name: "edge"
+			rules: [{backendPort: 80}]
+		}
+	}
+}
+
+_testHttpRouteLegacyExposeTransformer: (#HttpRouteTransformer.#transform & {
+	#component: _testHttpRouteLegacyExposeComponent
+	#context:   _testHttpRouteContext
+}).output
+
+// backendRefs must point at the Service the #ServiceTransformer renders for
+// the same legacy stub: the instance-scoped default.
+_testHttpRouteLegacyExposeBackendResolves: "\(_testHttpRouteLegacyExposeTransformer.spec.rules[0].backendRefs[0].name)" & "\((#ServiceTransformer.#transform & {
+	#component: _testHttpRouteLegacyExposeComponent
 	#context:   _testHttpRouteContext
 }).output.metadata.name)" & "shop-web"

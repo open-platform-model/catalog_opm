@@ -42,8 +42,10 @@ import (
 
 		_tlsRoute: #component.spec.tlsRoute
 		_name:     #component.#names.resourceName
-		// The backing Service has one authoritative name field (0019 D22).
-		_backendName: #component.spec.expose.name
+		// The backing Service has one authoritative name field (0019 D22), read
+		// through #ServiceName so the reference cannot drift from the Service
+		// transformer's output, legacy (<= alpha.5) expose shape included.
+		_backendName: (#ServiceName & {#comp: #component}).out
 
 		_tlsAnnotations: {
 			if _tlsRoute.tls != _|_ {

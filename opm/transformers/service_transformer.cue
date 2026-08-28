@@ -89,13 +89,17 @@ import (
 			apiVersion: "v1"
 			kind:       "Service"
 			metadata: {
-				// The Service name is the Expose trait's name field and nothing
-				// else (0019 D22): required on the schema, defaulted to the
-				// component's #names.dns.short by the #Expose wrapper, so the
-				// instance-scoped default and an explicit exact name both arrive
-				// here as one concrete value. No fallback: there is no path on
-				// which the field is unset.
-				name:      _expose.name
+				// WHY: the helper's fallback arm is what keeps a component
+				// compiled against a build <= alpha.5 (expose.name?: string,
+				// unset) rendering here (0010 D27); alpha.6 dropped it and every
+				// older module lost its Services. The StatefulSet and route
+				// transformers reference this name through the same helper, so
+				// the cross-object references cannot drift.
+
+				// Service name through #ServiceName (name_helpers.cue): expose.name
+				// when the component set or defaulted it (0019 D22), else the
+				// component's own #names.dns.short. See docs/name-constraints.md.
+				name: (#ServiceName & {#comp: #component}).out
 				namespace: #context.#moduleInstanceMetadata.namespace
 				labels:    #context.labels
 				// Include component annotations if present
@@ -358,3 +362,53 @@ _testServiceUDPProtocolResolves: "\(_testServiceUDPTransformer.spec.ports[0].pro
 //   Dotted key on a #Namespaces component:
 //     spec: namespaces: "a.b": {}
 //     -> _namespaceNamesFit.0: invalid value "a.b" (out of bound =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$")
+
+// Legacy shape: a component compiled against a build <= alpha.5, whose
+// #ExposeSchema carried `name?: string` and whose wrapper set no default. The
+// kernel hands #transform the module's own evaluated value, so this is exactly
+// what the transformer sees for such a module (0010 D27). Hand-built on purpose:
+// embedding the current trait would give `name!` and cannot express "optional
+// and unset". #names is set as core would derive it.
+_testServiceLegacyExposeComponent: {
+	#names: dns: short: "shop-web"
+	metadata: name: "web"
+	spec: {
+		container: {
+			name: "web"
+			image: {
+				repository: "nginx"
+				tag:        "1.27"
+				digest:     ""
+			}
+			ports: http: {
+				name:       "http"
+				targetPort: 8080
+			}
+		}
+		expose: {
+			type: "ClusterIP"
+			ports: http: {targetPort: 8080, protocol: "TCP"}
+			name?: string
+		}
+	}
+}
+
+_testServiceLegacyExposeTransformer: (#ServiceTransformer.#transform & {
+	#component: _testServiceLegacyExposeComponent
+	#context: {
+		#moduleInstanceMetadata: {
+			name:      "shop"
+			namespace: "apps"
+			fqn:       "opmodel.dev/catalogs/opm/shop@0.1.0"
+			version:   "0.1.0"
+			uuid:      "00000000-0000-0000-0000-000000000000"
+		}
+		#componentMetadata: name: "web"
+		#runtimeName: "opm-test"
+		componentAnnotations: {}
+	}
+}).output
+
+// Resolution guard: the legacy component renders the same instance-scoped
+// name the >= alpha.6 wrapper would have defaulted.
+_testServiceLegacyExposeResolves: "\(_testServiceLegacyExposeTransformer.metadata.name)" & "shop-web"

@@ -145,14 +145,18 @@ import (
 				// StatefulSet object, not the Service it is governed by.
 				// service_transformer.cue honours `expose.name` and this did
 				// not, so any StatefulSet with an exact-name Service pointed
-				// its serviceName at a Service that does not exist. expose.name
-				// is required on the schema (0019 D22), so no inner guard.
+				// its serviceName at a Service that does not exist. The read
+				// goes through #ServiceName so it stays byte-identical to the
+				// Service transformer's, including the fallback for a component
+				// compiled against a build <= alpha.5 whose expose.name is
+				// optional and unset (0010 D27); a bare expose.name read
+				// refused those (alpha.6, alpha.7).
 
-				// The governing Service's name: follows the SERVICE naming rule,
-				// `expose.name` when #Expose is attached, else a read of the
-				// component's own short DNS name (a default-named headless Service).
+				// The governing Service's name: #ServiceName when #Expose is
+				// attached, else the component's own short DNS name (a
+				// default-named headless Service). See docs/name-constraints.md.
 				serviceName: [
-					if #component.spec.expose != _|_ {#component.spec.expose.name},
+					if #component.spec.expose != _|_ {(#ServiceName & {#comp: #component}).out},
 					#component.#names.dns.short,
 				][0]
 				if !_hasAuto {
@@ -446,3 +450,40 @@ _testStatefulSetServiceNameMatchesService: "\(_testSTSDefaultTransformer.spec.se
 // Without #Expose the fallback arm is a read of the component's own short DNS
 // name, the value a default-named headless Service would carry.
 _testSTSNoExposeServiceName: "\(_testSTSStrategyTransformer.spec.serviceName)" & "\(_testSTSStrategyComponent.#names.dns.short)" & "shop-db"
+
+// Legacy shape: a stateful component compiled against a build <= alpha.5,
+// whose expose carries `name?: string` unset (the wrapper set no default).
+// expose is hand-written on purpose: embedding tr.#Expose gives `name!`.
+// Container and #instance are current: their shapes did not move.
+_testSTSLegacyExposeComponent: {
+	res.#Container
+
+	#instance: {name: "shop", namespace: "apps", uuid: "00000000-0000-0000-0000-000000000000"}
+
+	metadata: {
+		name: "db"
+		labels: "core.opmodel.dev/workload-type": "stateful"
+	}
+
+	spec: {
+		container: _testSTSContainer
+		expose: {
+			type:      "ClusterIP"
+			clusterIP: "None"
+			ports: pg: {name: "pg", targetPort: 5432, protocol: "TCP"}
+			name?: string
+		}
+	}
+}
+
+_testSTSLegacyExposeTransformer: (#StatefulsetTransformer.#transform & {
+	#component: _testSTSLegacyExposeComponent
+	#context:   _testSTSContext
+}).output
+
+// serviceName must be the name the #ServiceTransformer renders for the same
+// legacy stub: the instance-scoped default the >= alpha.6 wrapper would have set.
+_testSTSLegacyExposeServiceName: "\(_testSTSLegacyExposeTransformer.spec.serviceName)" & "\((#ServiceTransformer.#transform & {
+	#component: _testSTSLegacyExposeComponent
+	#context:   _testSTSContext
+}).output.metadata.name)" & "shop-db"
