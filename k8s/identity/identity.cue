@@ -25,7 +25,7 @@ ModulePath: "opmodel.dev/catalogs/k8s@v1"
 // interpolates. The default is the current release line's version; the major
 // MUST agree with ModulePath's (asserted by core's #IdentityPackage at
 // publish, enhancement 0011 refusal 10).
-Version: #VersionType | *"1.0.0-alpha.1"
+Version: #VersionType | *"1.0.0-alpha.2"
 
 // RegistryPath is the major-free OCI repository path.
 RegistryPath: "opmodel.dev/catalogs/k8s"
