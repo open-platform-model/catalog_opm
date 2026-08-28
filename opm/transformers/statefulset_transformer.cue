@@ -132,10 +132,7 @@ import (
 			apiVersion: "apps/v1"
 			kind:       "StatefulSet"
 			metadata: {
-				name: (#WorkloadName & {
-					#comp:     #component
-					#instance: #context.#moduleInstanceMetadata.name
-				}).out
+				name: (#WorkloadName & {#comp: #component}).out
 				namespace: #context.#moduleInstanceMetadata.namespace
 				labels:    #context.labels
 				// Include component annotations if present
@@ -146,15 +143,17 @@ import (
 			spec: {
 				// WHY: Deliberately NOT #ResourceNameTrait — that renames the
 				// StatefulSet object, not the Service it is governed by.
-
-				// This is the governing Service's name, so it follows the
-				// SERVICE naming rule, not the workload one:
 				// service_transformer.cue honours `expose.name` and this did
 				// not, so any StatefulSet with an exact-name Service pointed
-				// its serviceName at a Service that does not exist.
+				// its serviceName at a Service that does not exist. expose.name
+				// is required on the schema (0019 D22), so no inner guard.
+
+				// The governing Service's name: follows the SERVICE naming rule,
+				// `expose.name` when #Expose is attached, else a read of the
+				// component's own short DNS name (a default-named headless Service).
 				serviceName: [
-					if #component.spec.expose != _|_ if #component.spec.expose.name != _|_ {#component.spec.expose.name},
-					"\(#context.#moduleInstanceMetadata.name)-\(#component.metadata.name)",
+					if #component.spec.expose != _|_ {#component.spec.expose.name},
+					#component.#names.dns.short,
 				][0]
 				if !_hasAuto {
 					replicas: _scalingCount
@@ -275,6 +274,8 @@ _testSTSContainer: {
 
 // Default: neither trait attached — both names stay instance-scoped.
 _testSTSDefaultComponent: {
+	#instance: {name: "shop", namespace: "apps", uuid: "00000000-0000-0000-0000-000000000000"}
+
 	res.#Container
 	tr.#Expose
 
@@ -312,6 +313,8 @@ _testSTSDefaultServiceName: "\(_testSTSDefaultTransformer.spec.serviceName)" & "
 // StatefulSet object only. If the two ever collapse onto one name, one of
 // these two assertions fails.
 _testSTSExactComponent: {
+	#instance: {name: "shop", namespace: "apps", uuid: "00000000-0000-0000-0000-000000000000"}
+
 	res.#Container
 	tr.#Expose
 	tr.#ResourceName
@@ -354,6 +357,8 @@ _testSTSExactServiceName: "\(_testSTSExactTransformer.spec.serviceName)" & "data
 // OnDelete rather than RollingUpdate on purpose: RollingUpdate is also the
 // Kubernetes default, so a test using it would pass against the broken code.
 _testSTSStrategyComponent: {
+	#instance: {name: "shop", namespace: "apps", uuid: "00000000-0000-0000-0000-000000000000"}
+
 	res.#Container
 	tr.#UpdateStrategy
 
@@ -397,6 +402,8 @@ _testSTSNoStrategyLeak: [
 // schema-legal `updateStrategy: type: "RollingUpdate"` with no partition/surge
 // parameters failed the whole transform with an empty disjunction.
 _testSTSRollingDefaultsComponent: {
+	#instance: {name: "shop", namespace: "apps", uuid: "00000000-0000-0000-0000-000000000000"}
+
 	res.#Container
 	tr.#UpdateStrategy
 
@@ -427,3 +434,15 @@ _testSTSRollingDefaultsPresent: [
 _testSTSRollingDefaultsNoParams: [
 	if _testSTSRollingDefaultsTransformer.spec.updateStrategy.rollingUpdate != _|_ {"leaked"},
 ] & []
+
+// Cross-transformer consistency: serviceName names the governing Service, so
+// it must equal the name the Service transformer rendered for the SAME stub.
+_testStatefulSetServiceNameMatchesService: "\(_testSTSDefaultTransformer.spec.serviceName)" &
+	"\((#ServiceTransformer.#transform & {
+		#component: _testSTSDefaultComponent
+		#context:   _testSTSContext
+	}).output.metadata.name)"
+
+// Without #Expose the fallback arm is a read of the component's own short DNS
+// name, the value a default-named headless Service would carry.
+_testSTSNoExposeServiceName: "\(_testSTSStrategyTransformer.spec.serviceName)" & "\(_testSTSStrategyComponent.#names.dns.short)" & "shop-db"

@@ -95,10 +95,7 @@ import (
 			apiVersion: "batch/v1"
 			kind:       "Job"
 			metadata: {
-				name: (#WorkloadName & {
-					#comp:     #component
-					#instance: #context.#moduleInstanceMetadata.name
-				}).out
+				name: (#WorkloadName & {#comp: #component}).out
 				namespace: #context.#moduleInstanceMetadata.namespace
 				labels:    #context.labels
 				// Include component annotations if present
@@ -212,3 +209,85 @@ import (
 		}
 	}
 }
+
+/////////////////////////////////////////////////////////////////
+//// Test Data
+/////////////////////////////////////////////////////////////////
+
+// Transformer fixtures never pass through #Module, so #instance is set by hand
+// on the component stub; without it the resourceName default is incomplete and
+// an interpolation guard passes vacuously under plain cue vet (see
+// docs/name-constraints.md). cue eval -c on the guards is the gate.
+_testJobContext: {
+	#moduleInstanceMetadata: {
+		name:      "batch"
+		namespace: "jobs"
+		fqn:       "opmodel.dev/catalogs/opm/batch@0.1.0"
+		version:   "0.1.0"
+		uuid:      "00000000-0000-0000-0000-000000000000"
+	}
+	#componentMetadata: name: "sync"
+	#runtimeName: "opm-test"
+	componentAnnotations: {}
+}
+
+_testJobContainer: {
+	name: "sync"
+	image: {
+		repository: "alpine"
+		tag:        "3.20"
+		digest:     ""
+	}
+}
+
+// Default naming: <instance>-<component> through #WorkloadName's #names arm.
+_testJobDefaultNameComponent: {
+	res.#Container
+	tr.#JobConfig
+
+	#instance: {name: "batch", namespace: "jobs", uuid: "00000000-0000-0000-0000-000000000000"}
+
+	metadata: {
+		name: "sync"
+		labels: "core.opmodel.dev/workload-type": "task"
+	}
+
+	spec: {
+		container: _testJobContainer
+		jobConfig: backoffLimit: 3
+	}
+}
+
+_testJobDefaultNameTransformer: (#JobTransformer.#transform & {
+	#component: _testJobDefaultNameComponent
+	#context:   _testJobContext
+}).output
+
+_testJobDefaultNameResolves: "\(_testJobDefaultNameTransformer.metadata.name)" & "batch-sync"
+
+// Trait naming: the deprecated #ResourceNameTrait still wins through the seam.
+_testJobExactNameComponent: {
+	res.#Container
+	tr.#JobConfig
+	tr.#ResourceName
+
+	#instance: {name: "batch", namespace: "jobs", uuid: "00000000-0000-0000-0000-000000000000"}
+
+	metadata: {
+		name: "sync"
+		labels: "core.opmodel.dev/workload-type": "task"
+	}
+
+	spec: {
+		container:    _testJobContainer
+		resourceName: "nightly-sync"
+		jobConfig: backoffLimit: 3
+	}
+}
+
+_testJobExactNameTransformer: (#JobTransformer.#transform & {
+	#component: _testJobExactNameComponent
+	#context:   _testJobContext
+}).output
+
+_testJobExactNameResolves: "\(_testJobExactNameTransformer.metadata.name)" & "nightly-sync"

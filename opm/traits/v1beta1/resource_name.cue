@@ -6,6 +6,9 @@ import (
 	res "opmodel.dev/catalogs/opm/resources/v1beta1"
 )
 
+// Deprecated: use the component's resourceName metadata field instead,
+// removed in a later catalog release. Renders a workload under an exact
+// name instead of the instance-scoped default.
 #ResourceNameTrait: c.#Trait & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.traits)/v1beta1"
@@ -28,6 +31,9 @@ import (
 	spec: resourceName: #ResourceNameSchema
 }
 
+// Deprecated: use the component's resourceName metadata field instead,
+// removed in a later catalog release. Component wrapper attaching
+// #ResourceNameTrait.
 #ResourceName: c.#Component & {
 	#traits: (#ResourceNameTrait.metadata.fqn): #ResourceNameTrait
 }
@@ -43,11 +49,17 @@ import (
 // namespace would collide, so the default stays prefixed. #ExposeSchema.name
 // is the Service-side counterpart, since 0019 D22 an always-read field the
 // #Expose wrapper defaults from the component's own short DNS name.
+//
+// This governs the rendered object name ONLY. The pod selector stays
+// instance-scoped (see #context.componentLabels) so two instances never fight
+// over each other's pods. Migration semantics differ: this trait renamed the
+// workload object alone, while metadata.resourceName also moves
+// #names.dns.* and with it the #Expose wrapper's default Service name.
 
+// Deprecated: use the component's resourceName metadata field instead (it
+// also moves the DNS names), removed in a later catalog release.
 // Explicit workload name, rendered verbatim instead of the default
 // instance-scoped {instance}-{component}. Opt-in; only correct for a name
 // that is a contract with something outside the module.
-// This governs the rendered object name ONLY. The pod selector stays
-// instance-scoped (see #context.componentLabels) so two instances never fight
-// over each other's pods. See docs/name-constraints.md.
+// See docs/name-constraints.md.
 #ResourceNameSchema: string

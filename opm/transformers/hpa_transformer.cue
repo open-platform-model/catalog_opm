@@ -63,10 +63,7 @@ import (
 
 		// MUST be byte-identical to the name the Deployment/StatefulSet
 		// transformer rendered, or the HPA silently targets nothing.
-		_targetName: (#WorkloadName & {
-			#comp:     #component
-			#instance: #context.#moduleInstanceMetadata.name
-		}).out
+		_targetName: (#WorkloadName & {#comp: #component}).out
 
 		output: [
 			if #component.spec.scaling != _|_ if #component.spec.scaling.auto != _|_ {
@@ -179,6 +176,8 @@ _testHPAContainer: {
 // cert-manager, jellyfin, all of them. If it emitted an HPA whenever it
 // matched, every one of them would grow a spurious autoscaler.
 _testHPACountOnlyComponent: {
+	#instance: {name: "istio", namespace: "istio-system", uuid: "00000000-0000-0000-0000-000000000000"}
+
 	res.#Container
 	tr.#Scaling
 
@@ -215,6 +214,8 @@ _testHPADeployKeepsReplicas: [
 
 // ---- With `auto`: one HPA, targeting the workload's exact name -------------
 _testHPAAutoComponent: {
+	#instance: {name: "istio", namespace: "istio-system", uuid: "00000000-0000-0000-0000-000000000000"}
+
 	res.#Container
 	tr.#Scaling
 	tr.#ResourceName
@@ -283,3 +284,40 @@ _testHPADeployOmitsReplicas: [
 		#context:   _testHPAContext
 	}).output.spec.replicas != _|_ {"leaked"},
 ] & []
+
+// Default naming: no #ResourceNameTrait, so the target is the component's
+// instance-scoped resourceName, the same name the Deployment renders.
+_testHPADefaultNameComponent: {
+	res.#Container
+	tr.#Scaling
+
+	#instance: {name: "istio", namespace: "istio-system", uuid: "00000000-0000-0000-0000-000000000000"}
+
+	metadata: {
+		name: "istiod"
+		labels: "core.opmodel.dev/workload-type": "stateless"
+	}
+
+	spec: {
+		container: _testHPAContainer
+		scaling: {
+			count: 1
+			auto: {
+				min: 1
+				max: 5
+				metrics: [{
+					type: "cpu"
+					target: averageUtilization: 80
+				}]
+			}
+		}
+	}
+}
+
+_testHPADefaultNameTransformer: (#HPATransformer.#transform & {
+	#component: _testHPADefaultNameComponent
+	#context:   _testHPAContext
+}).output
+
+_testHPADefaultNameResolves:   "\(_testHPADefaultNameTransformer[0].metadata.name)" & "istio-istiod"
+_testHPADefaultTargetResolves: "\(_testHPADefaultNameTransformer[0].spec.scaleTargetRef.name)" & "istio-istiod"
