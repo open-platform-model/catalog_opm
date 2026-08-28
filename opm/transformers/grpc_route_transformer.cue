@@ -7,7 +7,7 @@ import (
 	tr "opmodel.dev/catalogs/opm/traits/v1beta1"
 )
 
-// GrpcRouteTransformer creates Gateway API GRPCRoutes from components with GrpcRoute trait.
+// GrpcRouteTransformer creates Gateway API GRPCRoutes from components with GrpcRoute and Expose traits.
 // Untyped struct output — see #HttpRouteTransformer for rationale.
 #GrpcRouteTransformer: c.#ComponentTransformer & {
 	metadata: {
@@ -15,7 +15,7 @@ import (
 		name:           "grpc-route-transformer"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.transformers)/grpc-route-transformer@\(id.Version)"
-		description:    "Creates Gateway API GRPCRoutes for components with GrpcRoute trait"
+		description:    "Creates Gateway API GRPCRoutes for components with GrpcRoute and Expose traits"
 
 		labels: {
 			"core.opmodel.dev/trait-type":    "network"

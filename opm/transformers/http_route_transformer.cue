@@ -7,7 +7,7 @@ import (
 	tr "opmodel.dev/catalogs/opm/traits/v1beta1"
 )
 
-// HttpRouteTransformer creates Gateway API HTTPRoutes from components with HttpRoute trait.
+// HttpRouteTransformer creates Gateway API HTTPRoutes from components with HttpRoute and Expose traits.
 // Output is an untyped struct literal — no Gateway API schema lives in modules/opm/schemas/,
 // and the renderer dispatches on cue.Kind.
 #HttpRouteTransformer: c.#ComponentTransformer & {
@@ -16,7 +16,7 @@ import (
 		name:           "http-route-transformer"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.transformers)/http-route-transformer@\(id.Version)"
-		description:    "Creates Gateway API HTTPRoutes for components with HttpRoute trait"
+		description:    "Creates Gateway API HTTPRoutes for components with HttpRoute and Expose traits"
 
 		labels: {
 			"core.opmodel.dev/trait-type":    "network"

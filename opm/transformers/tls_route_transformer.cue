@@ -7,7 +7,7 @@ import (
 	tr "opmodel.dev/catalogs/opm/traits/v1beta1"
 )
 
-// TlsRouteTransformer creates Gateway API TLSRoutes from components with TlsRoute trait.
+// TlsRouteTransformer creates Gateway API TLSRoutes from components with TlsRoute and Expose traits.
 // Untyped struct output — see #HttpRouteTransformer for rationale.
 #TlsRouteTransformer: c.#ComponentTransformer & {
 	metadata: {
@@ -15,7 +15,7 @@ import (
 		name:           "tls-route-transformer"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.transformers)/tls-route-transformer@\(id.Version)"
-		description:    "Creates Gateway API TLSRoutes for components with TlsRoute trait"
+		description:    "Creates Gateway API TLSRoutes for components with TlsRoute and Expose traits"
 
 		labels: {
 			"core.opmodel.dev/trait-type":    "network"

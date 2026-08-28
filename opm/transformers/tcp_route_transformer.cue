@@ -7,7 +7,7 @@ import (
 	tr "opmodel.dev/catalogs/opm/traits/v1beta1"
 )
 
-// TcpRouteTransformer creates Gateway API TCPRoutes from components with TcpRoute trait.
+// TcpRouteTransformer creates Gateway API TCPRoutes from components with TcpRoute and Expose traits.
 // Untyped struct output — see #HttpRouteTransformer for rationale.
 #TcpRouteTransformer: c.#ComponentTransformer & {
 	metadata: {
@@ -15,7 +15,7 @@ import (
 		name:           "tcp-route-transformer"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.transformers)/tcp-route-transformer@\(id.Version)"
-		description:    "Creates Gateway API TCPRoutes for components with TcpRoute trait"
+		description:    "Creates Gateway API TCPRoutes for components with TcpRoute and Expose traits"
 
 		labels: {
 			"core.opmodel.dev/trait-type":    "network"

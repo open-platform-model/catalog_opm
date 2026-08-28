@@ -660,10 +660,10 @@ CUE module: `opmodel.dev/catalogs/opm@v2`
 | `#CronJobTransformer` | `transformers/cronjob_transformer.cue` | CronJobTransformer converts scheduled task components to Kubernetes CronJobs |
 | `#DaemonSetTransformer` | `transformers/daemonset_transformer.cue` | DaemonSetTransformer converts daemon workload components to Kubernetes DaemonSets |
 | `#DeploymentTransformer` | `transformers/deployment_transformer.cue` | DeploymentTransformer converts stateless workload components to Kubernetes Deployments |
-| `#GrpcRouteTransformer` | `transformers/grpc_route_transformer.cue` | GrpcRouteTransformer creates Gateway API GRPCRoutes from components with GrpcRoute trait |
+| `#GrpcRouteTransformer` | `transformers/grpc_route_transformer.cue` | GrpcRouteTransformer creates Gateway API GRPCRoutes from components with GrpcRoute and Expose traits |
 | `#HPATransformer` | `transformers/hpa_transformer.cue` | HPATransformer realizes #ScalingTrait's `auto` block as a HorizontalPodAutoscaler |
 | `#ToK8sMetricTarget` | `transformers/hpa_transformer.cue` | #ToK8sMetricTarget maps OPM's #MetricTargetSpec to a Kubernetes MetricTarget |
-| `#HttpRouteTransformer` | `transformers/http_route_transformer.cue` | HttpRouteTransformer creates Gateway API HTTPRoutes from components with HttpRoute trait |
+| `#HttpRouteTransformer` | `transformers/http_route_transformer.cue` | HttpRouteTransformer creates Gateway API HTTPRoutes from components with HttpRoute and Expose traits |
 | `#JobTransformer` | `transformers/job_transformer.cue` | JobTransformer converts task workload components to Kubernetes Jobs |
 | `#MutatingWebhookTransformer` | `transformers/mutating_webhook_transformer.cue` | MutatingWebhookTransformer converts MutatingWebhooks resources to Kubernetes MutatingWebhookConfigurations |
 | `#WorkloadName` | `transformers/name_helpers.cue` | #WorkloadName resolves a workload's rendered object name: the exact name from #ResourceNameTrait when set, otherwise the instance-scoped default |
@@ -679,8 +679,8 @@ CUE module: `opmodel.dev/catalogs/opm@v2`
 | `#SecretTransformer` | `transformers/secret_transformer.cue` | SecretTransformer converts Secrets resources to Kubernetes Secrets |
 | `#ServiceTransformer` | `transformers/service_transformer.cue` | ServiceTransformer creates Kubernetes Services from components with Expose trait |
 | `#StatefulsetTransformer` | `transformers/statefulset_transformer.cue` | StatefulsetTransformer converts stateful workload components to Kubernetes StatefulSets |
-| `#TcpRouteTransformer` | `transformers/tcp_route_transformer.cue` | TcpRouteTransformer creates Gateway API TCPRoutes from components with TcpRoute trait |
-| `#TlsRouteTransformer` | `transformers/tls_route_transformer.cue` | TlsRouteTransformer creates Gateway API TLSRoutes from components with TlsRoute trait |
+| `#TcpRouteTransformer` | `transformers/tcp_route_transformer.cue` | TcpRouteTransformer creates Gateway API TCPRoutes from components with TcpRoute and Expose traits |
+| `#TlsRouteTransformer` | `transformers/tls_route_transformer.cue` | TlsRouteTransformer creates Gateway API TLSRoutes from components with TlsRoute and Expose traits |
 | `#ValidatingWebhookTransformer` | `transformers/validating_webhook_transformer.cue` | ValidatingWebhookTransformer converts ValidatingWebhooks resources to Kubernetes ValidatingWebhookConfigurations |
 
 ---
