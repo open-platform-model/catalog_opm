@@ -7,7 +7,7 @@ import (
 )
 
 // #CronJobTransformer passes native Kubernetes CronJob resources through
-// with OPM context applied (name prefix, namespace, labels).
+// with OPM context applied (name from the component's `#names`, namespace, labels).
 #CronJobTransformer: c.#ComponentTransformer & {
 	metadata: {
 		modulePath:     id.kindPrefix.transformers
@@ -34,7 +34,7 @@ import (
 		#context:   c.#TransformerContext
 
 		_cj:   #component.spec.cronjob
-		_name: "\(#context.#moduleInstanceMetadata.name)-\(#context.#componentMetadata.name)"
+		_name: #component.#names.resourceName
 
 		output: {
 			apiVersion: "batch/v1"

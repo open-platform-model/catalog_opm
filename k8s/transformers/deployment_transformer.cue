@@ -7,7 +7,7 @@ import (
 )
 
 // #DeploymentTransformer passes native Kubernetes Deployment resources through
-// with OPM context applied (name prefix, namespace, labels).
+// with OPM context applied (name from the component's `#names`, namespace, labels).
 #DeploymentTransformer: c.#ComponentTransformer & {
 	metadata: {
 		modulePath:     id.kindPrefix.transformers
@@ -34,7 +34,7 @@ import (
 		#context:   c.#TransformerContext
 
 		_deploy: #component.spec.deployment
-		_name:   "\(#context.#moduleInstanceMetadata.name)-\(#context.#componentMetadata.name)"
+		_name:   #component.#names.resourceName
 
 		output: {
 			apiVersion: "apps/v1"
@@ -55,3 +55,43 @@ import (
 		}
 	}
 }
+
+/////////////////////////////////////////////////////////////////
+//// Test Data
+/////////////////////////////////////////////////////////////////
+
+// Transformer fixtures never pass through #Module, so #instance is set by hand
+// on the component stub; without it the resourceName default is incomplete and
+// a golden would unify vacuously (see docs/name-constraints.md).
+_testDeploymentContext: {
+	#moduleInstanceMetadata: {
+		name:      "shop"
+		namespace: "apps"
+		fqn:       "opmodel.dev/catalogs/k8s/shop@0.1.0"
+		version:   "0.1.0"
+		uuid:      "00000000-0000-0000-0000-000000000000"
+	}
+	#componentMetadata: name: "web"
+	#runtimeName: "opm-test"
+	componentAnnotations: {}
+}
+
+// Default naming: instance-prefixed resourceName.
+_testDeploymentDefaultNameComponent: res.#Deployment & {
+	#instance: {name: "shop", namespace: "apps", uuid: "00000000-0000-0000-0000-000000000000"}
+	metadata: name: "web"
+	spec: deployment: spec: {
+		selector: matchLabels: app: "web"
+		template: {
+			metadata: labels: app: "web"
+			spec: containers: [{name: "web", image: "nginx:1.27"}]
+		}
+	}
+}
+
+_testDeploymentDefaultNameTransformer: (#DeploymentTransformer.#transform & {
+	#component: _testDeploymentDefaultNameComponent
+	#context:   _testDeploymentContext
+}).output
+
+_testDeploymentDefaultNameResolves: "\(_testDeploymentDefaultNameTransformer.metadata.name)" & "shop-web"

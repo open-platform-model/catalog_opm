@@ -7,7 +7,7 @@ import (
 )
 
 // #ClusterRoleBindingTransformer passes native Kubernetes ClusterRoleBinding resources through
-// with OPM context applied (name prefix, labels). ClusterRoleBinding is cluster-scoped: no namespace.
+// with OPM context applied (name from the component's `#names`, labels). ClusterRoleBinding is cluster-scoped: no namespace.
 #ClusterRoleBindingTransformer: c.#ComponentTransformer & {
 	metadata: {
 		modulePath:     id.kindPrefix.transformers
@@ -34,7 +34,7 @@ import (
 		#context:   c.#TransformerContext
 
 		_crb:  #component.spec.clusterrolebinding
-		_name: "\(#context.#moduleInstanceMetadata.name)-\(#context.#componentMetadata.name)"
+		_name: #component.#names.resourceName
 
 		output: {
 			apiVersion: "rbac.authorization.k8s.io/v1"

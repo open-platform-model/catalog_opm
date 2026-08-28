@@ -43,7 +43,8 @@ import (
 			apiVersion: "apiregistration.k8s.io/v1"
 			kind:       "APIService"
 			metadata: {
-				// Verbatim name (must be "<version>.<group>"); not prefixed.
+				// exact — <version>.<group> is the aggregation contract; never prefixed,
+				// never overridden.
 				name:   _as.metadata.name
 				labels: #context.labels
 				if _as.metadata.annotations != _|_ {
@@ -54,3 +55,44 @@ import (
 		}
 	}
 }
+
+/////////////////////////////////////////////////////////////////
+//// Test Data
+/////////////////////////////////////////////////////////////////
+
+_testAPIServiceContext: {
+	#moduleInstanceMetadata: {
+		name:      "shop"
+		namespace: "apps"
+		fqn:       "opmodel.dev/catalogs/k8s/shop@0.1.0"
+		version:   "0.1.0"
+		uuid:      "00000000-0000-0000-0000-000000000000"
+	}
+	#componentMetadata: name: "metrics"
+	#runtimeName: "opm-test"
+	componentAnnotations: {}
+}
+
+// Override ignored: metadata.resourceName does not reach an exact-name kind.
+_testAPIServiceOverrideIgnoredComponent: res.#APIService & {
+	metadata: {
+		name:         "metrics"
+		resourceName: "custom"
+	}
+	spec: apiservice: {
+		metadata: name: "v1beta1.metrics.k8s.io"
+		spec: {
+			group:                "metrics.k8s.io"
+			version:              "v1beta1"
+			groupPriorityMinimum: 100
+			versionPriority:      100
+		}
+	}
+}
+
+_testAPIServiceOverrideIgnoredTransformer: (#APIServiceTransformer.#transform & {
+	#component: _testAPIServiceOverrideIgnoredComponent
+	#context:   _testAPIServiceContext
+}).output
+
+_testAPIServiceOverrideIgnoredResolves: "\(_testAPIServiceOverrideIgnoredTransformer.metadata.name)" & "v1beta1.metrics.k8s.io"

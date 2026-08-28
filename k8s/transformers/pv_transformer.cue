@@ -7,7 +7,7 @@ import (
 )
 
 // #PersistentVolumeTransformer passes native Kubernetes PV resources through
-// with OPM context applied (name prefix, labels). PV is cluster-scoped: no namespace.
+// with OPM context applied (name from the component's `#names`, labels). PV is cluster-scoped: no namespace.
 #PersistentVolumeTransformer: c.#ComponentTransformer & {
 	metadata: {
 		modulePath:     id.kindPrefix.transformers
@@ -34,7 +34,7 @@ import (
 		#context:   c.#TransformerContext
 
 		_pv:   #component.spec.persistentvolume
-		_name: "\(#context.#moduleInstanceMetadata.name)-\(#context.#componentMetadata.name)"
+		_name: #component.#names.resourceName
 
 		output: {
 			apiVersion: "v1"
