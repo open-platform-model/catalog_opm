@@ -143,15 +143,14 @@ import (
 			spec: {
 				// WHY: Deliberately NOT #ResourceNameTrait — that renames the
 				// StatefulSet object, not the Service it is governed by.
-
-				// This is the governing Service's name, so it follows the
-				// SERVICE naming rule, not the workload one:
 				// service_transformer.cue honours `expose.name` and this did
 				// not, so any StatefulSet with an exact-name Service pointed
-				// its serviceName at a Service that does not exist.
-				// expose.name is required on the schema (0019 D22), so no inner
-				// guard; without #Expose the fallback is a read of the component's
-				// own short DNS name, what a default-named headless Service carries.
+				// its serviceName at a Service that does not exist. expose.name
+				// is required on the schema (0019 D22), so no inner guard.
+
+				// The governing Service's name: follows the SERVICE naming rule,
+				// `expose.name` when #Expose is attached, else a read of the
+				// component's own short DNS name (a default-named headless Service).
 				serviceName: [
 					if #component.spec.expose != _|_ {#component.spec.expose.name},
 					#component.#names.dns.short,
