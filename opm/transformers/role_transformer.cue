@@ -77,7 +77,7 @@ import (
 				apiVersion: "rbac.authorization.k8s.io/v1"
 				kind:       "Role"
 				metadata: {
-					name:      _role.name
+					name:      _role.name // exact — RoleBindings reference the role by name
 					namespace: #context.#moduleInstanceMetadata.namespace
 					labels:    _commonLabels
 					if len(_commonAnnotations) > 0 {

@@ -51,7 +51,7 @@ With Expose required, `expose.name` (`name!`, defaulted on the wrapper) is concr
 
 ## Risks / Trade-offs
 
-- A route component without `#Expose` stops matching -> intended; sweep the `modules` fleet for that shape before release and record the result here.
+- A route component without `#Expose` stops matching -> intended; sweep the `modules` fleet for that shape before release and record the result here. **Swept 2026-08-28:** every module attaching a route trait on `modules` `main` (11 modules) and on the `v1` branch (11 modules) also attaches `#Expose`; no consumer is affected.
 - Secondary-name prefixes disagree today for non-`opm-secrets` Secrets (env `secretKeyRef` prefixes with the instance name, `secret_transformer.cue:65` renders `<instance>-<component>-<name>`), and job/cronjob pass no volume prefix -> pre-existing, out of scope, filed as a follow-up question on enhancement 0019.
 - Override-honouring changes route/policy names for a component with explicit `metadata.resourceName` -> intended; no consumer sets it on those components; called out in the release note.
 

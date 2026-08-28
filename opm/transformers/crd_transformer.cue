@@ -55,7 +55,7 @@ import (
 					apiVersion: "apiextensions.k8s.io/v1"
 					kind:       "CustomResourceDefinition"
 					metadata: {
-						name:   crdName
+						name:   crdName // exact — <plural>.<group> is the CRD identity
 						labels: #context.labels
 						if len(_annotations) > 0 {
 							annotations: _annotations

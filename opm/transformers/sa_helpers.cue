@@ -24,7 +24,7 @@ import (
 		apiVersion: "v1"
 		kind:       "ServiceAccount"
 		metadata: {
-			name:      X.name
+			name:      X.name // exact — workloads and RoleBindings reference the ServiceAccount by name
 			namespace: context.#moduleInstanceMetadata.namespace
 			labels:    context.labels
 			if len(context.componentAnnotations) > 0 {
