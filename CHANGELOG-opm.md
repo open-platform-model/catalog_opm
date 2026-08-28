@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.0.0-alpha.7](https://github.com/open-platform-model/catalog_opm/compare/opm-v2.0.0-alpha.6...opm-v2.0.0-alpha.7) (2026-08-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* **opm:** rendering the opm workload transformers now requires a kernel that fills #names (library >= v1.0.0-alpha.14).
+* **opm:** a component carrying an http, grpc, tcp or tls route trait without #ExposeTrait no longer matches the route transformer.
+
+### Features
+
+* **opm:** routes and network policy read names from the component's #names ([#61](https://github.com/open-platform-model/catalog_opm/issues/61)) ([50ab86c](https://github.com/open-platform-model/catalog_opm/commit/50ab86c684a02ebf50f0cf85d3713d197b4352af))
+* **opm:** workload transformers read names from the component's #names ([#64](https://github.com/open-platform-model/catalog_opm/issues/64)) ([a89d37a](https://github.com/open-platform-model/catalog_opm/commit/a89d37aa9ec2fd4ad3d97eb107d4d3226b7ec9ac))
+
 ## [2.0.0-alpha.6](https://github.com/open-platform-model/catalog_opm/compare/opm-v2.0.0-alpha.5...opm-v2.0.0-alpha.6) (2026-08-27)
 
 
