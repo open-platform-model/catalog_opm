@@ -1,0 +1,7 @@
+implements:
+  - enhancement: "0010"
+    decisions: [D27]
+    resolves: []
+  - enhancement: "0019"
+    decisions: [D22]
+    resolves: []

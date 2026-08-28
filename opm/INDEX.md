@@ -666,6 +666,7 @@ CUE module: `opmodel.dev/catalogs/opm@v2`
 | `#HttpRouteTransformer` | `transformers/http_route_transformer.cue` | HttpRouteTransformer creates Gateway API HTTPRoutes from components with HttpRoute and Expose traits |
 | `#JobTransformer` | `transformers/job_transformer.cue` | JobTransformer converts task workload components to Kubernetes Jobs |
 | `#MutatingWebhookTransformer` | `transformers/mutating_webhook_transformer.cue` | MutatingWebhookTransformer converts MutatingWebhooks resources to Kubernetes MutatingWebhookConfigurations |
+| `#ServiceName` | `transformers/name_helpers.cue` | #ServiceName resolves the name of the Service an Expose component renders: expose |
 | `#WorkloadName` | `transformers/name_helpers.cue` | #WorkloadName resolves a workload's rendered object name during the #ResourceNameTrait deprecation window: the trait's exact name when set, otherwise the component's own #names |
 | `#NamespaceTransformer` | `transformers/namespace_transformer.cue` | NamespaceTransformer converts Namespaces resources to Kubernetes Namespaces |
 | `#NetworkPolicyTransformer` | `transformers/network_policy_transformer.cue` | NetworkPolicyTransformer converts the #NetworkPolicyTrait to a Kubernetes NetworkPolicy whose podSelector is the workload's own rendered pod labels |
