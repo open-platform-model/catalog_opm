@@ -6,9 +6,9 @@ import (
 	res "opmodel.dev/catalogs/opm/resources/v1beta1"
 )
 
-// Renders a workload under an exact name instead of the instance-scoped
-// default. Deprecated: set #Component.metadata.resourceName instead; removed
-// in a later catalog release.
+// Deprecated: set #Component.metadata.resourceName instead; removed in a
+// later catalog release. Renders a workload under an exact name instead of
+// the instance-scoped default.
 #ResourceNameTrait: c.#Trait & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.traits)/v1beta1"
@@ -31,8 +31,8 @@ import (
 	spec: resourceName: #ResourceNameSchema
 }
 
-// Component wrapper attaching #ResourceNameTrait. Deprecated: set
-// #Component.metadata.resourceName instead; removed in a later catalog release.
+// Deprecated: set #Component.metadata.resourceName instead; removed in a
+// later catalog release. Component wrapper attaching #ResourceNameTrait.
 #ResourceName: c.#Component & {
 	#traits: (#ResourceNameTrait.metadata.fqn): #ResourceNameTrait
 }
@@ -55,10 +55,10 @@ import (
 // workload object alone, while metadata.resourceName also moves
 // #names.dns.* and with it the #Expose wrapper's default Service name.
 
+// Deprecated: set #Component.metadata.resourceName instead (note it also
+// moves the DNS names); removed in a later catalog release.
 // Explicit workload name, rendered verbatim instead of the default
 // instance-scoped {instance}-{component}. Opt-in; only correct for a name
 // that is a contract with something outside the module.
-// Deprecated: set #Component.metadata.resourceName instead (note it also
-// moves the DNS names); removed in a later catalog release.
 // See docs/name-constraints.md.
 #ResourceNameSchema: string
