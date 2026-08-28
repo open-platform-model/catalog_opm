@@ -55,10 +55,7 @@ import (
 			apiVersion: "policy/v1"
 			kind:       "PodDisruptionBudget"
 			metadata: {
-				name: (#WorkloadName & {
-					#comp:     #component
-					#instance: #context.#moduleInstanceMetadata.name
-				}).out
+				name: (#WorkloadName & {#comp: #component}).out
 				namespace: #context.#moduleInstanceMetadata.namespace
 				labels:    #context.labels
 				if len(#context.componentAnnotations) > 0 {
@@ -85,6 +82,8 @@ import (
 /////////////////////////////////////////////////////////////////
 
 _testPDBComponent: {
+	#instance: {name: "istio", namespace: "istio-system", uuid: "00000000-0000-0000-0000-000000000000"}
+
 	res.#Container
 	tr.#DisruptionBudget
 	tr.#ResourceName
@@ -156,3 +155,45 @@ _testPDBSelectorMatchesDeployment: [
 		#context:   _testPDBContext
 	}).output.spec.selector.matchLabels if _testPDBTransformer.spec.selector.matchLabels[k] == v {k},
 ] & [_, _]
+
+// Default naming: no #ResourceNameTrait, so the budget carries the component's
+// instance-scoped resourceName, byte-identical to the Deployment's name.
+_testPDBDefaultNameComponent: {
+	res.#Container
+	tr.#DisruptionBudget
+
+	#instance: {name: "istio", namespace: "istio-system", uuid: "00000000-0000-0000-0000-000000000000"}
+
+	metadata: {
+		name: "istiod"
+		labels: "core.opmodel.dev/workload-type": "stateless"
+	}
+
+	spec: {
+		container: {
+			name: "discovery"
+			image: {
+				repository: "docker.io/istio/pilot"
+				tag:        "1.30.3-distroless"
+				digest:     ""
+			}
+		}
+		disruptionBudget: minAvailable: 1
+	}
+}
+
+_testPDBDefaultNameTransformer: (#PDBTransformer.#transform & {
+	#component: _testPDBDefaultNameComponent
+	#context:   _testPDBContext
+}).output
+
+_testPDBDefaultNameResolves: "\(_testPDBDefaultNameTransformer.metadata.name)" & "istio-istiod"
+
+// Cross-transformer consistency: the PDB's name must equal the name the
+// Deployment transformer rendered for the SAME component (same shape as
+// _testHPATargetMatchesDeployment).
+_testPDBNameMatchesDeployment: "\(_testPDBDefaultNameTransformer.metadata.name)" &
+	"\((#DeploymentTransformer.#transform & {
+		#component: _testPDBDefaultNameComponent
+		#context:   _testPDBContext
+	}).output.metadata.name)"

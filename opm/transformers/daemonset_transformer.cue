@@ -116,10 +116,7 @@ import (
 			apiVersion: "apps/v1"
 			kind:       "DaemonSet"
 			metadata: {
-				name: (#WorkloadName & {
-					#comp:     #component
-					#instance: #context.#moduleInstanceMetadata.name
-				}).out
+				name: (#WorkloadName & {#comp: #component}).out
 				namespace: #context.#moduleInstanceMetadata.namespace
 				labels:    #context.labels
 				// Include component annotations if present
@@ -233,6 +230,8 @@ import (
 //      without propagation the agent never sees pods created later — and it
 //      presents as a network fault, not a config error.
 _testDSCNIComponent: {
+	#instance: {name: "istio", namespace: "istio-system", uuid: "00000000-0000-0000-0000-000000000000"}
+
 	res.#Container
 	res.#Volumes
 	tr.#ResourceName
@@ -319,6 +318,8 @@ _testDSPropagationNotLeaked: [
 /////////////////////////////////////////////////////////////////
 
 _testDSRuntimeClassComponent: {
+	#instance: {name: "nvidia-device-plugin", namespace: "kube-system", uuid: "00000000-0000-0000-0000-000000000000"}
+
 	res.#Container
 	tr.#RuntimeClass
 
@@ -382,6 +383,8 @@ _testDSRuntimeClassNotLeaked: [
 // OnDelete rather than RollingUpdate on purpose: RollingUpdate is also the
 // Kubernetes default, so a test using it would pass against the broken code.
 _testDSStrategyComponent: {
+	#instance: {name: "agent", namespace: "kube-system", uuid: "00000000-0000-0000-0000-000000000000"}
+
 	res.#Container
 	tr.#UpdateStrategy
 
@@ -438,6 +441,8 @@ _testDSNoStrategyLeak: [
 // optional rollingUpdate substruct omitted must render, without inventing the
 // substruct.
 _testDSRollingDefaultsComponent: {
+	#instance: {name: "agent", namespace: "kube-system", uuid: "00000000-0000-0000-0000-000000000000"}
+
 	res.#Container
 	tr.#UpdateStrategy
 
@@ -484,3 +489,9 @@ _testDSRollingDefaultsPresent: [
 _testDSRollingDefaultsNoParams: [
 	if _testDSRollingDefaultsTransformer.spec.updateStrategy.rollingUpdate != _|_ {"leaked"},
 ] & []
+
+// Default naming: every no-trait stub renders <instance>-<component> through
+// #WorkloadName's #names arm. Pinned by interpolation; cue eval -c is the gate.
+_testDSRuntimeClassNameResolves:    "\(_testDSRuntimeClassTransformer.metadata.name)" & "nvidia-device-plugin-nvidia-device-plugin"
+_testDSStrategyNameResolves:        "\(_testDSStrategyTransformer.metadata.name)" & "agent-agent"
+_testDSRollingDefaultsNameResolves: "\(_testDSRollingDefaultsTransformer.metadata.name)" & "agent-agent-rolling"

@@ -603,9 +603,9 @@ CUE module: `opmodel.dev/catalogs/opm@v2`
 | `#PodSchedulingSchema` | `traits/v1beta1/pod_scheduling.cue` | Named `podScheduling`, not `scheduling`, because a one-character difference from the existing `scaling` trait is a reading hazard in module bodies |
 | `#PodSchedulingTrait` | `traits/v1beta1/pod_scheduling.cue` |  |
 | `#TolerationSchema` | `traits/v1beta1/pod_scheduling.cue` | A `key`-less toleration with operator "Exists" tolerates EVERY taint, which is why `key` is optional |
-| `#ResourceName` | `traits/v1beta1/resource_name.cue` |  |
+| `#ResourceName` | `traits/v1beta1/resource_name.cue` | Component wrapper attaching #ResourceNameTrait |
 | `#ResourceNameSchema` | `traits/v1beta1/resource_name.cue` | Explicit workload name, rendered verbatim instead of the default instance-scoped {instance}-{component} |
-| `#ResourceNameTrait` | `traits/v1beta1/resource_name.cue` |  |
+| `#ResourceNameTrait` | `traits/v1beta1/resource_name.cue` | Renders a workload under an exact name instead of the instance-scoped default |
 | `#RestartPolicy` | `traits/v1beta1/restart_policy.cue` |  |
 | `#RestartPolicySchema` | `traits/v1beta1/restart_policy.cue` |  |
 | `#RestartPolicyTrait` | `traits/v1beta1/restart_policy.cue` |  |
@@ -666,7 +666,7 @@ CUE module: `opmodel.dev/catalogs/opm@v2`
 | `#HttpRouteTransformer` | `transformers/http_route_transformer.cue` | HttpRouteTransformer creates Gateway API HTTPRoutes from components with HttpRoute and Expose traits |
 | `#JobTransformer` | `transformers/job_transformer.cue` | JobTransformer converts task workload components to Kubernetes Jobs |
 | `#MutatingWebhookTransformer` | `transformers/mutating_webhook_transformer.cue` | MutatingWebhookTransformer converts MutatingWebhooks resources to Kubernetes MutatingWebhookConfigurations |
-| `#WorkloadName` | `transformers/name_helpers.cue` | #WorkloadName resolves a workload's rendered object name: the exact name from #ResourceNameTrait when set, otherwise the instance-scoped default |
+| `#WorkloadName` | `transformers/name_helpers.cue` | #WorkloadName resolves a workload's rendered object name during the #ResourceNameTrait deprecation window: the trait's exact name when set, otherwise the component's own #names |
 | `#NamespaceTransformer` | `transformers/namespace_transformer.cue` | NamespaceTransformer converts Namespaces resources to Kubernetes Namespaces |
 | `#NetworkPolicyTransformer` | `transformers/network_policy_transformer.cue` | NetworkPolicyTransformer converts the #NetworkPolicyTrait to a Kubernetes NetworkPolicy whose podSelector is the workload's own rendered pod labels |
 | `#PDBTransformer` | `transformers/pdb_transformer.cue` | PDBTransformer realizes #DisruptionBudgetTrait as a PodDisruptionBudget |

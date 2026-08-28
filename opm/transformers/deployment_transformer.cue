@@ -145,10 +145,7 @@ import (
 			apiVersion: "apps/v1"
 			kind:       "Deployment"
 			metadata: {
-				name: (#WorkloadName & {
-					#comp:     #component
-					#instance: #context.#moduleInstanceMetadata.name
-				}).out
+				name: (#WorkloadName & {#comp: #component}).out
 				namespace: #context.#moduleInstanceMetadata.namespace
 				labels:    #context.labels
 				// Include component annotations if present
@@ -286,6 +283,8 @@ _testDeployContainer: {
 
 // ---- Default naming: no #ResourceNameTrait -> instance-scoped ----------------
 _testDeployDefaultNameComponent: {
+	#instance: {name: "istio", namespace: "istio-system", uuid: "00000000-0000-0000-0000-000000000000"}
+
 	res.#Container
 
 	metadata: {
@@ -326,6 +325,8 @@ _testDeployNoPriorityClass: [
 // unprefixed, `istio.io/dataplane-mode: none` is a POD label (it must never
 // reach the immutable selector), and the prometheus annotations are pod-only.
 _testDeployExactComponent: {
+	#instance: {name: "istio", namespace: "istio-system", uuid: "00000000-0000-0000-0000-000000000000"}
+
 	res.#Container
 	tr.#ResourceName
 	tr.#PodMetadata
@@ -417,6 +418,8 @@ _testDeployPriorityClassPresent: [
 // Recreate rather than RollingUpdate on purpose: it is the value that differs
 // from the Kubernetes default, so this fails if the field is dropped again.
 _testDeployRecreateComponent: {
+	#instance: {name: "istio", namespace: "istio-system", uuid: "00000000-0000-0000-0000-000000000000"}
+
 	res.#Container
 	tr.#UpdateStrategy
 
@@ -470,6 +473,8 @@ _testDeployNoStrategyLeak: [
 // failed the whole transform with an empty disjunction (first hit by the
 // library's web_app flow fixture during the core-v2 retarget).
 _testDeployRollingDefaultsComponent: {
+	#instance: {name: "istio", namespace: "istio-system", uuid: "00000000-0000-0000-0000-000000000000"}
+
 	res.#Container
 	tr.#UpdateStrategy
 

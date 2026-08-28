@@ -66,6 +66,9 @@ Closedness, defaults and required fields of every member are unchanged.
 **Decision**: keep the trait working through the seam; migrate istiod in `modules` before deletion.
 **Rationale**: the fleet pins catalog releases, so a coexistence window lets the migration land as its own PR.
 
+### Byte-identity result (5.4)
+**Measured 2026-08-28**: `cue export` of 14 fixtures (deployment default + istiod exact, daemonset istio-cni-node, statefulset default + exact + no-Expose, hpa auto + default, pdb exact + default, job default + exact, cronjob default + exact) taken with the fixtures in place before the rewrite and again after it: `diff` is empty. All 22 name guards resolve under `cue eval -c`.
+
 ## Risks / Trade-offs
 
 - A fixture whose `#instance.name` disagrees with its `#context.#moduleInstanceMetadata.name` renders a name from one and labels from the other -> stubs build both from the same literal; D12 later removes the duplication at the source.
