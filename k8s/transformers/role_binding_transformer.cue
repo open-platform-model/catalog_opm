@@ -7,7 +7,7 @@ import (
 )
 
 // #RoleBindingTransformer passes native Kubernetes RoleBinding resources through
-// with OPM context applied (name prefix, namespace, labels).
+// with OPM context applied (name from the component's `#names`, namespace, labels).
 #RoleBindingTransformer: c.#ComponentTransformer & {
 	metadata: {
 		modulePath:     id.kindPrefix.transformers
@@ -34,7 +34,7 @@ import (
 		#context:   c.#TransformerContext
 
 		_rb:   #component.spec.rolebinding
-		_name: "\(#context.#moduleInstanceMetadata.name)-\(#context.#componentMetadata.name)"
+		_name: #component.#names.resourceName
 
 		output: {
 			apiVersion: "rbac.authorization.k8s.io/v1"

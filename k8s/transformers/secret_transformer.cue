@@ -7,7 +7,7 @@ import (
 )
 
 // #SecretTransformer passes native Kubernetes Secret resources through
-// with OPM context applied (name prefix, namespace, labels).
+// with OPM context applied (name from the component's `#names`, namespace, labels).
 #SecretTransformer: c.#ComponentTransformer & {
 	metadata: {
 		modulePath:     id.kindPrefix.transformers
@@ -34,7 +34,7 @@ import (
 		#context:   c.#TransformerContext
 
 		_secret: #component.spec.secret
-		_name:   "\(#context.#moduleInstanceMetadata.name)-\(#context.#componentMetadata.name)"
+		_name:   #component.#names.resourceName
 
 		output: {
 			apiVersion: "v1"

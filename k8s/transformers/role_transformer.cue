@@ -7,7 +7,7 @@ import (
 )
 
 // #RoleTransformer passes native Kubernetes Role resources through
-// with OPM context applied (name prefix, namespace, labels).
+// with OPM context applied (name from the component's `#names`, namespace, labels).
 #RoleTransformer: c.#ComponentTransformer & {
 	metadata: {
 		modulePath:     id.kindPrefix.transformers
@@ -34,7 +34,7 @@ import (
 		#context:   c.#TransformerContext
 
 		_role: #component.spec.role
-		_name: "\(#context.#moduleInstanceMetadata.name)-\(#context.#componentMetadata.name)"
+		_name: #component.#names.resourceName
 
 		output: {
 			apiVersion: "rbac.authorization.k8s.io/v1"

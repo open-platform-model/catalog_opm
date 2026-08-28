@@ -7,7 +7,7 @@ import (
 )
 
 // #DaemonSetTransformer passes native Kubernetes DaemonSet resources through
-// with OPM context applied (name prefix, namespace, labels).
+// with OPM context applied (name from the component's `#names`, namespace, labels).
 #DaemonSetTransformer: c.#ComponentTransformer & {
 	metadata: {
 		modulePath:     id.kindPrefix.transformers
@@ -34,7 +34,7 @@ import (
 		#context:   c.#TransformerContext
 
 		_ds:   #component.spec.daemonset
-		_name: "\(#context.#moduleInstanceMetadata.name)-\(#context.#componentMetadata.name)"
+		_name: #component.#names.resourceName
 
 		output: {
 			apiVersion: "apps/v1"
