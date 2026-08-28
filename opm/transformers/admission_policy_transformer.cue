@@ -54,7 +54,7 @@ import (
 					apiVersion: p.apiVersion
 					kind:       "ValidatingAdmissionPolicy"
 					metadata: {
-						name:   p.name
+						name:   p.name // exact — bindings reference the policy by name
 						labels: _labels
 						if p.annotations != _|_ {
 							annotations: p.annotations
@@ -75,7 +75,7 @@ import (
 					apiVersion: p.apiVersion
 					kind:       "ValidatingAdmissionPolicyBinding"
 					metadata: {
-						name:   p.binding.name
+						name:   p.binding.name // exact — authored binding identity
 						labels: _labels
 						if p.annotations != _|_ {
 							annotations: p.annotations

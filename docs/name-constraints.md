@@ -46,6 +46,18 @@ This is the same rule the catalog's `#transform` slots already follow.
 
 Transformer test data never passes through `#Module`, so core never injects `#instance`. A fixture that relies on the `#Expose` default must set `#instance: {name, namespace, uuid}` by hand and pin the result with a resolution guard, `"\(x.metadata.name)" & "expected"`: the interpolation collapses the default to a string, so a missing or wrong default fails loudly, where a plain golden would unify vacuously against the type arm. See `opm/transformers/service_transformer.cue`.
 
+## Transformers read names, never derive them
+
+A transformer reads the primary object's name from `#component.#names.resourceName` (enhancement 0019 D15). It never re-interpolates `<instance>-<component>` from `#context`: that formula is a second authority for the same string, and it silently ignores `metadata.resourceName`. Core computes `resourceName` once (the default is that formula, so default-named output is byte-identical) and the transformer renders what it is given. Three carve-out classes are exempt, and each site carries an inline `// exact — <contract>` comment naming what it honours:
+
+1. **Exact-name kinds**: the name is a contract with something outside the module and renders verbatim from the authored spec. In `opm/`: `namespaces` (externally referenced), `crd` (`<plural>.<group>`), the validating and mutating webhook configurations (patched by name at runtime), `admission_policy` (policy and binding), `role` (every RBAC object, `_role.name`) and the ServiceAccount (`#ToK8sServiceAccount`, referenced by workloads and RoleBindings). The `k8s/` list is in the section below.
+2. **Secondary and multi-object names**: `configmap` and `secret` emit content-hashed per-item names (`#ImmutableName`, `#SecretImmutableName`); `pvc` emits one prefixed name per persistent volume. These are derived because each renders several objects from one component, and stay derived.
+3. **Cross-object references** follow the referenced object's naming rule, never the referencing transformer's own name: the route transformers' `backendRefs[].name` and the StatefulSet `serviceName` read `#component.spec.expose.name`, the Service's one authoritative name field (D22). The four route transformers therefore require `#ExposeTrait`: a route without a Service has nothing to reference and is refused at match time rather than rendered with a dangling backendRef.
+
+**No transformer copies `resourceName` into a label value** (0019 D19). `app.kubernetes.io/name` and the selector labels carry the component name (`#NameType`, at most 63 runes); `resourceName` may be up to 253 runes and would be refused by the API server as a label value. Both rules are enforced in review, not by the evaluator: CUE cannot forbid a string interpolation.
+
+Fixtures for a transformer in the sweep set `#instance` on the component stub and pin the rendered name by interpolation (`"\(x.metadata.name)" & "expected"`, checked with `cue eval -c`); a cross-reference guard pins the referencing field against the referenced transformer's output for the same stub (see `opm/transformers/http_route_transformer.cue`).
+
 ## `k8s/`: exact-name kinds and the override
 
 The raw catalog reads `#component.#names.resourceName` for every kind whose name is a free choice (instance-prefixed by default, `metadata.resourceName` overrides it, `#ObjectNameType` the ceiling; 0019 D20). No `k8s/` resource declares a `#nameConstraint`: none of their names lands in a DNS label position. Every other transformer's `_name` line is `#component.#names.resourceName` (0019 D15/D19: read, never derived). A few kinds are contracts with something outside the module and render the authored name verbatim:

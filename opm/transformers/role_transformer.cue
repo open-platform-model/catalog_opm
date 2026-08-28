@@ -39,6 +39,8 @@ import (
 		#component: _
 		#context:   c.#TransformerContext
 
+		// exact — every RBAC object below renders _role.name verbatim: RoleBindings
+		// and ClusterRoleBindings reference the role by name, never prefixed.
 		_role: #component.spec.role
 
 		// Build k8s-shaped rules from OPM PolicyRules. Conditional passthrough

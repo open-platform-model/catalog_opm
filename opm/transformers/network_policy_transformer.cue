@@ -49,7 +49,7 @@ import (
 			apiVersion: "networking.k8s.io/v1"
 			kind:       "NetworkPolicy"
 			metadata: {
-				name:      "\(#context.#moduleInstanceMetadata.name)-\(#component.metadata.name)"
+				name:      #component.#names.resourceName
 				namespace: #context.#moduleInstanceMetadata.namespace
 				labels:    #context.labels
 				if len(#context.componentAnnotations) > 0 {
@@ -79,6 +79,8 @@ import (
 // global.networkPolicy.enabled: webhook + xDS ingress ports, and an allow-all
 // egress expressed as a single empty rule.
 _testNetPolComponent: tr.#NetworkPolicy & {
+	#instance: {name: "istio", namespace: "istio-system", uuid: "00000000-0000-0000-0000-000000000000"}
+
 	metadata: name: "istiod"
 
 	spec: networkPolicy: {
@@ -111,6 +113,9 @@ _testNetPolTransformer: (#NetworkPolicyTransformer.#transform & {
 		componentAnnotations: {}
 	}
 }).output
+
+// The policy's own name follows the component's resourceName.
+_testNetPolName: "\(_testNetPolTransformer.metadata.name)" & "istio-istiod"
 
 // The selector must be exactly the context's component labels — this is what
 // makes the policy track the workload's pods. Length is non-invertible, so a
