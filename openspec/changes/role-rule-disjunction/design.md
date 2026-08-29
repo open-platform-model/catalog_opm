@@ -12,7 +12,7 @@ Constraint: `task docs:check` caps doc comments at 6 lines; rationale goes in a 
 - The authoring rule outlives the change (`docs/`).
 
 **Non-Goals:**
-- `#Secret`'s identical hazard: `secret-form-disjunction`.
+- `#Secret` (`secret.cue:45`) has the same structure, but the old secret handling is being removed wholesale, so it gets no fix here.
 - `#RoleSubjectSchema` (`{#WorkloadIdentitySchema | #ServiceAccountSchema}`): both arms are structurally identical, so the disjunction collapses; left alone.
 - Enforcing "nonResourceURLs only in ClusterRole" in schema (stays a review rule, as today).
 
