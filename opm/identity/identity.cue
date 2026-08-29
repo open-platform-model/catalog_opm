@@ -12,20 +12,15 @@
 // `opm catalog publish`. Never hand-edit the value.
 package identity
 
-// #VersionType mirrors core.#VersionType (SemVer 2.0). Duplicated here so the
-// identity package stays import-free at the bottom of the graph, matching the
-// mirror convention used by schemas/common.cue for #NameType.
-#VersionType: string & =~"^\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$"
-
 // ModulePath is the catalog's complete CUE module path, major suffix included
 // — byte-identical to cue.mod's `module:` field (enhancement 0010 D1).
 ModulePath: "opmodel.dev/catalogs/opm@v2"
 
 // Version is the catalog's bare SemVer — the build every implementation key
-// interpolates. The default is the current release line's version; the major
+// interpolates. A plain literal, written only by opm catalog version set; the major
 // MUST agree with ModulePath's (asserted by core's #IdentityPackage at
 // publish, enhancement 0011 refusal 10).
-Version: #VersionType | *"2.0.0-alpha.8"
+Version: "2.0.0-alpha.8"
 
 // RegistryPath is the major-free OCI repository path.
 RegistryPath: "opmodel.dev/catalogs/opm"

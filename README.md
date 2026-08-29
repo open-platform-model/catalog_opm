@@ -55,7 +55,7 @@ Each module has its own release cadence, independent of the other and of any con
 - Merging a release PR tags `opm-vX.Y.Z` or `k8s-vX.Y.Z` and creates the GitHub Release. Bare `vX.Y.Z` tags predate the split and stay resolvable.
 - The same `release.yml` run then publishes the released module with `opm catalog publish` against `ghcr.io/open-platform-model` — the committed tree exactly, gated by the publish pipeline (enhancement 0011).
 
-The `opm` module path is pinned to major `@v2` and ships on the v2 prerelease line (`v2.x.x-alpha.x`) for the core-v2 rollout (enhancement 0010); the `v1` maintenance branch keeps the retired v1 line on `1.0.x` fix releases. The `k8s` module starts at major `@v1` on its own alpha line.
+The `opm` module path is pinned to major `@v2` and ships stable `v2.x.x` releases (the `v2.x.x-alpha.x` line of the core-v2 rollout, enhancement 0010, closed at `2.0.0`); the `v1` maintenance branch keeps the retired v1 line on `1.0.x` fix releases. The `k8s` module starts at major `@v1` on its own alpha line.
 
 ## Common commands
 
