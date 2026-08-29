@@ -60,14 +60,6 @@ CUE module: `opmodel.dev/catalogs/opm@v2`
 
 ---
 
-## Identity
-
-| Definition | File | Description |
-|---|---|---|
-| `#VersionType` | `identity/identity.cue` | #VersionType mirrors core |
-
----
-
 ## Resources
 
 ### v1alpha1
