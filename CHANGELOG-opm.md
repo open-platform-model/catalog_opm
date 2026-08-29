@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.0](https://github.com/open-platform-model/catalog_opm/compare/opm-v2.0.0-alpha.8...opm-v2.0.0) (2026-08-29)
+
+
+### Bug Fixes
+
+* **opm:** declare identity Version as a plain literal and close the alpha line ([#69](https://github.com/open-platform-model/catalog_opm/issues/69)) ([37d2771](https://github.com/open-platform-model/catalog_opm/commit/37d27710405f9744d8b5605f76638f547db90393))
+
 ## [2.0.0-alpha.8](https://github.com/open-platform-model/catalog_opm/compare/opm-v2.0.0-alpha.7...opm-v2.0.0-alpha.8) (2026-08-28)
 
 
