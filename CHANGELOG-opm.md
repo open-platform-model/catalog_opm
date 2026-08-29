@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.0-alpha.8](https://github.com/open-platform-model/catalog_opm/compare/opm-v2.0.0-alpha.7...opm-v2.0.0-alpha.8) (2026-08-28)
+
+
+### Bug Fixes
+
+* **opm:** keep a service-name fallback for components built against alpha.5 and earlier ([#67](https://github.com/open-platform-model/catalog_opm/issues/67)) ([7c45c73](https://github.com/open-platform-model/catalog_opm/commit/7c45c7348ade19b8d80e04556577b746a678c6b9))
+
 ## [2.0.0-alpha.7](https://github.com/open-platform-model/catalog_opm/compare/opm-v2.0.0-alpha.6...opm-v2.0.0-alpha.7) (2026-08-28)
 
 
