@@ -2,6 +2,11 @@ package v1beta1
 
 import (
 	id "opmodel.dev/catalogs/opm/identity"
+	"crypto/sha256"
+	"encoding/hex"
+	"list"
+	"strings"
+
 	c "opmodel.dev/core@v2"
 )
 
@@ -62,4 +67,43 @@ import (
 	}
 
 	data: [string]: string
+}
+
+/////////////////////////////////////////////////////////////////
+//// Content Hash Helpers
+////
+//// Regular fields (not #-prefixed) carry concrete values through
+//// unification chains; definition fields lose them when forwarded.
+/////////////////////////////////////////////////////////////////
+
+// Deterministic 10-character hex hash of a string data map. Used by
+// ConfigMapTransformer.
+#ContentHash: {
+	data: [string]: string
+
+	let _keys = [for k, _ in data {k}]
+	let _sorted = list.SortStrings(_keys)
+	let _pairs = [for _, k in _sorted {"\(k)=\(data[k])"}]
+	let _concat = strings.Join(_pairs, "\n")
+
+	out: hex.Encode(sha256.Sum256(_concat)[:5])
+}
+
+// K8s resource name for a ConfigMap. Appends content-hash suffix when immutable.
+// `let _d = data` captures concrete entries — without it CUE only forwards
+// the [string]:string pattern.
+#ImmutableName: {
+	baseName: string
+	data: [string]: string
+	immutable: bool | *false
+
+	let _d = data
+	_hash: (#ContentHash & {data: _d}).out
+
+	if immutable {
+		out: "\(baseName)-\(_hash)"
+	}
+	if !immutable {
+		out: baseName
+	}
 }

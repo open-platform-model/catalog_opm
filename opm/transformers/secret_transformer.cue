@@ -7,13 +7,16 @@ import (
 	k8scorev1 "opmodel.dev/catalogs/opm/schemas/kubernetes/core/v1"
 )
 
-// WHY: Variant dispatch per data entry:
-//   #SecretLiteral -> include in K8s Secret stringData
-//   #SecretK8sRef  -> skip (resource already exists in cluster)
+// WHY: The name is instance-scoped ({instance}-{component}-{name}) so two
+// instances of the same module coexist in one namespace. #ImmutableName
+// appends a content hash when the secret is immutable — the same name
+// #ToK8sVolumes computes for an inline secret volume, so a volume resolves
+// its object without extra wiring.
 
 // SecretTransformer converts Secrets resources to Kubernetes Secrets.
-// Mixed variants within a single secret group are supported: literal entries
-// create a K8s Secret, K8s refs are skipped.
+// `data` is string-only and renders as stringData verbatim. The object is
+// named {instance}-{component}-{name}, with a content-hash suffix appended
+// when the secret is immutable.
 #SecretTransformer: c.#ComponentTransformer & {
 	metadata: {
 		modulePath:     id.kindPrefix.transformers
@@ -45,51 +48,21 @@ import (
 
 		_secrets: #component.spec.secrets
 
-		// Emit one K8s Secret per literal-bearing entry in spec.secrets.
-		// #SecretK8sRef entries are skipped (resource pre-exists in cluster).
-		// Output is a list of resources; the renderer dispatches on cue.Kind
-		// and produces one Compiled per list element.
+		// Build the instance-scoped prefix: {instanceName}-{componentName}
 		let _relName = #context.#moduleInstanceMetadata.name
 		let _compName = #context.#componentMetadata.name
 
+		// Emit one K8s Secret per entry in the component's secrets map.
+		// Output is a list of resources; the renderer dispatches on cue.Kind
+		// (see core's #ComponentTransformer output contract) and produces one
+		// Compiled per list element.
 		output: [
 			for _, secret in _secrets
-
-			// Naming scheme:
-			//   opm-secrets component → {instanceName}-{secretName}
-			//     (cross-component env var refs resolve to this shape)
-			//   other components → {instanceName}-{componentName}-{secretName}
-			//     (component-local volume refs resolve to this shape)
-			let _baseName = {
-				if _compName == "opm-secrets" {out: "\(_relName)-\(secret.name)"}
-				if _compName != "opm-secrets" {out: "\(_relName)-\(_compName)-\(secret.name)"}
-			}.out
-
-			let _k8sName = (res.#SecretImmutableName & {
-				baseName:  _baseName
+			let _k8sName = (res.#ImmutableName & {
+				baseName:  "\(_relName)-\(_compName)-\(secret.name)"
 				data:      secret.data
 				immutable: secret.immutable
-			}).out
-
-			// Collect literal entries for K8s Secret stringData.
-			// Handles three cases:
-			//   plain string    -> include directly
-			//   #SecretLiteral  -> include via .value
-			//   #SecretK8sRef   -> skip (resource pre-exists in cluster)
-			let _literals = {
-				for _dk, _entry in secret.data {
-					if (_entry & string) != _|_ {
-						(_dk): _entry
-					}
-					if (_entry & string) == _|_
-					if _entry.value != _|_
-					if _entry.secretName == _|_ {
-						(_dk): _entry.value
-					}
-				}
-			}
-
-			if len(_literals) > 0 {
+			}).out {
 				k8scorev1.#Secret & {
 					apiVersion: "v1"
 					kind:       "Secret"
@@ -105,9 +78,86 @@ import (
 					if secret.immutable == true {
 						immutable: true
 					}
-					stringData: _literals
+					stringData: secret.data
 				}
 			},
 		]
 	}
 }
+
+/////////////////////////////////////////////////////////////////
+//// Test Data
+/////////////////////////////////////////////////////////////////
+
+// One component carrying both naming modes: `api` is immutable and takes a
+// content-hash suffix, `db` is mutable and keeps the stable name.
+_testSecretNamingComponent: res.#Secrets & {
+	spec: secrets: {
+		api: {
+			immutable: true
+			data: token: "s3cr3t"
+		}
+		db: data: {
+			username: "admin"
+			password: "hunter2"
+		}
+	}
+}
+
+_testSecretNamingTransformer: (#SecretTransformer.#transform & {
+	#component: _testSecretNamingComponent
+	#context: {
+		#moduleInstanceMetadata: {
+			name:      "myapp"
+			namespace: "myapp-system"
+			fqn:       "opmodel.dev/catalogs/opm/myapp@0.1.0"
+			version:   "0.1.0"
+			uuid:      "00000000-0000-0000-0000-000000000000"
+		}
+		#componentMetadata: name: "mycomponent"
+		#runtimeName: "opm-test"
+		componentAnnotations: {}
+	}
+}).output
+
+// Golden — an immutable secret carries the content-hash suffix
+// (sha256("token=s3cr3t")[:5]), a mutable one keeps the stable name;
+// stringData is the authored map verbatim. Order follows map key order.
+_testSecretNamingTransformer: [
+	{
+		apiVersion: "v1"
+		kind:       "Secret"
+		metadata: {
+			name:      "myapp-mycomponent-api-51ff59373f"
+			namespace: "myapp-system"
+			labels: {
+				"app.kubernetes.io/managed-by":     "opm-test"
+				"app.kubernetes.io/instance":       "mycomponent"
+				"app.kubernetes.io/name":           "mycomponent"
+				"module-instance.opmodel.dev/name": "myapp"
+			}
+		}
+		type:      "Opaque"
+		immutable: true
+		stringData: token: "s3cr3t"
+	},
+	{
+		apiVersion: "v1"
+		kind:       "Secret"
+		metadata: {
+			name:      "myapp-mycomponent-db"
+			namespace: "myapp-system"
+			labels: {
+				"app.kubernetes.io/managed-by":     "opm-test"
+				"app.kubernetes.io/instance":       "mycomponent"
+				"app.kubernetes.io/name":           "mycomponent"
+				"module-instance.opmodel.dev/name": "myapp"
+			}
+		}
+		type: "Opaque"
+		stringData: {
+			username: "admin"
+			password: "hunter2"
+		}
+	},
+]
