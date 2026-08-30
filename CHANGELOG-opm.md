@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.0.0](https://github.com/open-platform-model/catalog_opm/compare/opm-v3.0.0...opm-v2.0.0) (2026-08-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* #SecretSchema.data narrows from [string]: #Secret | string to [string]: string (0013 D12), and #EnvVarSchema loses its `from` field.
+* **opm:** rendering the opm workload transformers now requires a kernel that fills #names (library >= v1.0.0-alpha.14).
+* **opm:** a component carrying an http, grpc, tcp or tls route trait without #ExposeTrait no longer matches the route transformer.
+
+### Features
+
+* **opm:** routes and network policy read names from the component's #names ([#61](https://github.com/open-platform-model/catalog_opm/issues/61)) ([50ab86c](https://github.com/open-platform-model/catalog_opm/commit/50ab86c684a02ebf50f0cf85d3713d197b4352af))
+* **opm:** workload transformers read names from the component's #names ([#64](https://github.com/open-platform-model/catalog_opm/issues/64)) ([a89d37a](https://github.com/open-platform-model/catalog_opm/commit/a89d37aa9ec2fd4ad3d97eb107d4d3226b7ec9ac))
+* remove the legacy secret mechanism, cut opmodel.dev/catalogs/opm@v3 ([#71](https://github.com/open-platform-model/catalog_opm/issues/71)) ([c01140f](https://github.com/open-platform-model/catalog_opm/commit/c01140ffaaf0692b73290fc340f54d6a0d72cbcf))
+
+
+### Bug Fixes
+
+* **opm:** declare identity Version as a plain literal and close the alpha line ([#69](https://github.com/open-platform-model/catalog_opm/issues/69)) ([37d2771](https://github.com/open-platform-model/catalog_opm/commit/37d27710405f9744d8b5605f76638f547db90393))
+* **opm:** keep a service-name fallback for components built against alpha.5 and earlier ([#67](https://github.com/open-platform-model/catalog_opm/issues/67)) ([7c45c73](https://github.com/open-platform-model/catalog_opm/commit/7c45c7348ade19b8d80e04556577b746a678c6b9))
+
 ## [3.0.0](https://github.com/open-platform-model/catalog_opm/compare/opm-v2.0.0...opm-v3.0.0) (2026-08-30)
 
 
