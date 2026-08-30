@@ -42,7 +42,7 @@ Nine groups. Run `task vet` at the end of every group; a red vet means the group
 
 ## 7. Cross the major (15 min)
 
-- [x] 7.1 `opm/cue.mod/module.cue`: `module: "opmodel.dev/catalogs/opm@v3"`; `opm/identity/identity.cue`: `ModulePath: "opmodel.dev/catalogs/opm@v3"`. Leave `Version` alone
+- [x] 7.1 `opm/cue.mod/module.cue`: `module: "opmodel.dev/catalogs/opm@v3"`; `opm/identity/identity.cue`: `ModulePath: "opmodel.dev/catalogs/opm@v3"`; `opm catalog version set 3.0.0 ./opm` writes `Version: "3.0.0"` (design D-A: core asserts the major of `Version` agrees with `ModulePath`; never hand-edit)
 - [x] 7.2 Replace the `@v2` spellings in `CLAUDE.md`, `README.md`, `Taskfile.yml`, `.tasks/generate-index.sh`, `openspec/config.yaml` (`opm/INDEX.md` follows from `task generate:index`)
 - [x] 7.3 `task tidy`; `cue.mod/module.cue` deps unchanged
 - [x] 7.4 On the branch, `.tasks/branch-tag.sh "$(pwd)/opm" opm-` prints a `v3.0.0-0.dev.*` tag
@@ -58,4 +58,4 @@ Nine groups. Run `task vet` at the end of every group; a red vet means the group
 - [x] 9.1 `task generate:index`; review the removed and moved rows in `opm/INDEX.md`
 - [x] 9.2 `task check`
 - [x] 9.3 `opm catalog publish ./opm --dry-run` with the workspace `OPM_REGISTRY` mapping: every gate GO, zero refusals
-- [ ] 9.4 At archive time: `task enhancements:delivery:log` for 0013 D9 / D12; record the deviation in `enhancements/0013/README.md` § Deviations
+- [x] 9.4 At archive time: `task enhancements:delivery:log` for 0013 D9 / D12; record the deviation in `enhancements/0013/README.md` § Deviations
