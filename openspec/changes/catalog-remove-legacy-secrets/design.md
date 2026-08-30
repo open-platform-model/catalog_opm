@@ -44,10 +44,14 @@ module: "opmodel.dev/catalogs/opm@v3"
 
 // opm/identity/identity.cue
 ModulePath: "opmodel.dev/catalogs/opm@v3"
-Version:    "2.0.0"   // release.yml writes 3.0.0 on the release PR; never hand-edited
+Version:    "3.0.0"   // written by `opm catalog version set`, not by hand
 ```
 
-Core's `#IdentityPackage` does not assert that `Version`'s major agrees with `ModulePath`'s (`core/src/identity_pins.cue`, 0010 D43), so the PR state validates. `.tasks/branch-tag.sh` reads the major from `cue.mod/module.cue`, finds no `opm-v3.*` tag, and bases dev builds on `3.0.0`; `gateTagMajor` passes.
+**Corrected during implementation (2026-08-30).** This design first said `Version` could stay at `2.0.0` until the release PR, on the reading that core's `#IdentityPackage` does not relate `Version`'s major to `ModulePath`'s. **It does.** `core@v2.0.0-alpha.6/identity_package.cue:91` declares `VersionMajor: "v" + strings.SplitN(Version, ".", 2)[0]` and unifies it with `Major` on the next line, above a WHY block that defends the assertion explicitly. With `2.0.0` under a `@v3` path that unification is `"v2" & "v3"` = bottom, which propagates into `#CatalogMemberFQNGate.identity` and refuses **all 66 members** ("off its catalog's key space"). `task vet` stays green because it never instantiates the gate; `opm catalog publish ./opm --dry-run` refuses, and so would `ci.yml`'s per-PR dry-run, whose only tolerated refusal is already-published.
+
+So the change carries `Version: "3.0.0"`, written with `opm catalog version set 3.0.0 ./opm` — 0011 D15's sanctioned writer, so the "never hand-edit" rule holds. `release.yml` re-runs the same writer on the release PR with the version release-please decides; `feat!:` at 2.0.0 with `prerelease: false` gives 3.0.0, and the command is a documented no-op when the value already matches. With `3.0.0` committed, the dry-run reports 66 members checked / 0 refused, 27 traits / 0 refused, compat 0 refused, GO.
+
+`.tasks/branch-tag.sh` reads the major from `cue.mod/module.cue`, finds no `opm-v3.*` tag, and bases dev builds on `3.0.0`; `gateTagMajor` passes.
 
 **D-B. One change, deletions in dependency order.**
 
@@ -98,7 +102,7 @@ They are ConfigMap machinery filed in `secret.cue` by history. Moving them first
 
 1. Interim release with no env-secret path -> accepted by the user; `README.md` and the 3.0.0 release note say so; the replacement change is the next item on 0013's catalog slice.
 2. Seven `modules` on `main` and the `cli` `secrets-module` fixture stop vetting -> each has its own change; the fleet re-pin waits for `opm-v3.0.0` on GHCR.
-3. `identity.Version` reads `2.0.0` under a `@v3` path until the release PR -> allowed by core (D43); `ci.yml`'s dry-run sees no `@v3` build, so already-published cannot fire and every other gate must pass; rehearse with `opm catalog publish ./opm --dry-run` before opening the PR.
+3. ~~`identity.Version` reads `2.0.0` under a `@v3` path until the release PR~~ -> **materialised, then closed.** Core asserts major agreement, so the split state refuses every member at the publish gate (see D-A). Resolved by committing `Version: "3.0.0"` through `opm catalog version set`; the rehearsal (`opm catalog publish ./opm --dry-run`) is green.
 4. The compat gate never compares a member absent from the new tree -> not exercised here; recorded as a `cli` follow-up so the gap does not become a route later.
 5. `CLAUDE.md` and `openspec/config.yaml` call `feat!:` an alpha-counter bump -> stale since the alpha line closed; corrected below. (`catalog.cue`'s `#transformers` map does not reflow: no key changes.)
 

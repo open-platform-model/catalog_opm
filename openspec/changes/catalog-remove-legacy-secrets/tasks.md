@@ -37,7 +37,7 @@ Nine groups. Run `task vet` at the end of every group; a red vet means the group
 - [x] 6.1 `secret.cue`: delete `#SecretImmutableName`, then `#SecretContentHash`
 - [x] 6.2 Delete the "Secret Contract Type" header block, `#Secret`, `#SecretType`, `#SecretLiteral`, `#SecretK8sRef`, and the `schemas` import
 - [x] 6.3 Narrow `#SecretSchema.data` to `[string]: string`; rewrite its doc comment (string data only, name from the map key, rendered as `{instance}-{component}-{name}[-{hash}]`)
-- [ ] 6.4 `git grep -n -i 'secretname\|\$opm\|\$dataKey\|SecretLiteral\|SecretK8sRef\|SecretImmutableName\|SecretContentHash\|opm-secrets\|AutoSecrets\|DiscoverSecrets\|GroupSecrets' -- opm docs README.md CLAUDE.md Taskfile.yml .tasks` shows only Kubernetes-native hits (`secretName` on external volume refs, `secretRef`, `imagePullSecrets`)
+- [x] 6.4 `git grep -n -i 'secretname\|\$opm\|\$dataKey\|SecretLiteral\|SecretK8sRef\|SecretImmutableName\|SecretContentHash\|opm-secrets\|AutoSecrets\|DiscoverSecrets\|GroupSecrets' -- opm docs README.md CLAUDE.md Taskfile.yml .tasks` shows only Kubernetes-native hits (`secretName` on external volume refs, `secretRef`, `imagePullSecrets`)
 - [x] 6.5 `task vet`
 
 ## 7. Cross the major (15 min)
@@ -45,7 +45,7 @@ Nine groups. Run `task vet` at the end of every group; a red vet means the group
 - [x] 7.1 `opm/cue.mod/module.cue`: `module: "opmodel.dev/catalogs/opm@v3"`; `opm/identity/identity.cue`: `ModulePath: "opmodel.dev/catalogs/opm@v3"`. Leave `Version` alone
 - [x] 7.2 Replace the `@v2` spellings in `CLAUDE.md`, `README.md`, `Taskfile.yml`, `.tasks/generate-index.sh`, `openspec/config.yaml` (`opm/INDEX.md` follows from `task generate:index`)
 - [x] 7.3 `task tidy`; `cue.mod/module.cue` deps unchanged
-- [ ] 7.4 On the branch, `.tasks/branch-tag.sh "$(pwd)/opm" opm-` prints a `v3.0.0-0.dev.*` tag
+- [x] 7.4 On the branch, `.tasks/branch-tag.sh "$(pwd)/opm" opm-` prints a `v3.0.0-0.dev.*` tag
 
 ## 8. Land the durable decisions (20 min)
 
@@ -55,7 +55,7 @@ Nine groups. Run `task vet` at the end of every group; a red vet means the group
 
 ## 9. Verify (15 min)
 
-- [ ] 9.1 `task generate:index`; review the removed and moved rows in `opm/INDEX.md`
-- [ ] 9.2 `task check`
-- [ ] 9.3 `opm catalog publish ./opm --dry-run` with the workspace `OPM_REGISTRY` mapping: every gate GO, zero refusals
+- [x] 9.1 `task generate:index`; review the removed and moved rows in `opm/INDEX.md`
+- [x] 9.2 `task check`
+- [x] 9.3 `opm catalog publish ./opm --dry-run` with the workspace `OPM_REGISTRY` mapping: every gate GO, zero refusals
 - [ ] 9.4 At archive time: `task enhancements:delivery:log` for 0013 D9 / D12; record the deviation in `enhancements/0013/README.md` § Deviations

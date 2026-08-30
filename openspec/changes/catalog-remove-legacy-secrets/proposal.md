@@ -17,7 +17,7 @@ Delete the legacy secret mechanism from `opm/` and release it as `opmodel.dev/ca
 
 1. `#ContentHash` and `#ImmutableName` (ConfigMap helpers filed in `secret.cue` by accident) move to `configmap.cue` unchanged.
 2. Volume `secret` source (`#SecretVolumeSourceSchema`, `from!: #SecretSchema`) stays; it names through `#ImmutableName`. Rendered names unchanged.
-3. **Major crossing**: `opmodel.dev/catalogs/opm@v2` becomes `@v3` (`cue.mod/module.cue`, `identity.ModulePath`, docs). No member moves to a new `apiVersion` segment. Member fqns derive from the major-free `RegistryPath`, so no contract key changes.
+3. **Major crossing**: `opmodel.dev/catalogs/opm@v2` becomes `@v3` (`cue.mod/module.cue`, `identity.ModulePath`, `identity.Version` -> `3.0.0` via `opm catalog version set`, docs). No member moves to a new `apiVersion` segment. Member fqns derive from the major-free `RegistryPath`, so no contract key changes.
 4. Docs: `docs/name-constraints.md` names only `#ImmutableName`; `CLAUDE.md` and `openspec/config.yaml` stop calling `feat!:` an alpha-counter bump (stale since 2.0.0).
 
 ## Before / After
@@ -105,6 +105,7 @@ k8scorev1.#Secret & {metadata: name: _k8sName, stringData: secret.data, ...}
 // opm/cue.mod/module.cue, opm/identity/identity.cue
 module:     "opmodel.dev/catalogs/opm@v3"
 ModulePath: "opmodel.dev/catalogs/opm@v3"
+Version:    "3.0.0" // opm catalog version set; core asserts VersionMajor == Major
 ```
 
 ## Impact
