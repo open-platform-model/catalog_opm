@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.0.0](https://github.com/open-platform-model/catalog_opm/compare/opm-v2.0.0...opm-v3.0.0) (2026-08-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* #SecretSchema.data narrows from [string]: #Secret | string to [string]: string (0013 D12), and #EnvVarSchema loses its `from` field.
+
+### Features
+
+* remove the legacy secret mechanism, cut opmodel.dev/catalogs/opm@v3 ([#71](https://github.com/open-platform-model/catalog_opm/issues/71)) ([c01140f](https://github.com/open-platform-model/catalog_opm/commit/c01140ffaaf0692b73290fc340f54d6a0d72cbcf))
+
 ## [2.0.0](https://github.com/open-platform-model/catalog_opm/compare/opm-v2.0.0-alpha.8...opm-v2.0.0) (2026-08-29)
 
 
