@@ -2,7 +2,7 @@
 
 The canonical catalog for the Open Platform Model. `catalog_opm` provides the reusable Kubernetes building blocks — `#Resource`s, `#Trait`s, `#Blueprint`s, and `#ComponentTransformer`s — that OPM module and platform authors compose and render against.
 
-This repository is a single CUE module, `opmodel.dev/catalogs/opm@v3`, published to `ghcr.io/open-platform-model/catalogs/opm` and consumed via `import "opmodel.dev/catalogs/opm@v3"` (package `opm`).
+This repository holds two CUE modules, one per subdirectory: `opm/` is `opmodel.dev/catalogs/opm@v3` (published to `ghcr.io/open-platform-model/catalogs/opm`, imported as `import "opmodel.dev/catalogs/opm@v3"`, package `opm`) and `k8s/` is `opmodel.dev/catalogs/k8s@v1` (published to `ghcr.io/open-platform-model/catalogs/k8s`, imported as `import "opmodel.dev/catalogs/k8s@v1"`, package `k8s`).
 
 `opm` is on major `v3` and `k8s` on major `v1`; a breaking change crosses the major and moves the module path with it.
 
