@@ -10,23 +10,16 @@ import (
 
 // WHY: Env var dispatch:
 //   value?            -> { name, value }
-//   from?             -> { name, valueFrom: { secretKeyRef: ... } }
 //   fieldRef?         -> { name, valueFrom: { fieldRef: ... } }
 //   resourceFieldRef? -> { name, valueFrom: { resourceFieldRef: ... } }
 //
-// Was: #releasePrefix (renamed in enhancement 0002).
-//
 // Usage:
-//   (#ToK8sContainer & {"in": _container, #instancePrefix: "my-instance"}).out
+//   (#ToK8sContainer & {"in": _container}).out
 
 // #ToK8sContainer converts an OPM #ContainerSchema to a Kubernetes #Container.
 // OPM uses struct-keyed env/ports/volumeMounts; Kubernetes expects lists.
-// When #instancePrefix is set, it is prepended to the secretKeyRef name for
-// auto-generated secrets (#SecretLiteral). Pre-existing K8s
-// Secret references (#SecretK8sRef) are never prefixed.
 #ToK8sContainer: {
-	X="in":           res.#ContainerSchema
-	#instancePrefix?: string
+	X="in": res.#ContainerSchema
 
 	out: k8scorev1.#Container & {
 		name:            X.name
@@ -55,37 +48,6 @@ import (
 				if e.value != _|_ {
 					name:  e.name
 					value: e.value
-				}
-
-				// Secret reference — dispatch by variant
-				if e.from != _|_ {
-					name: e.name
-					// #SecretK8sRef: use the pre-existing K8s Secret name + key
-					if e.from.secretName != _|_ {
-						valueFrom: secretKeyRef: {
-							name: e.from.secretName
-							key:  e.from.remoteKey
-						}
-					}
-
-					// #SecretLiteral: use $secretName / $dataKey.
-					// When #instancePrefix is set, prepend it to the secret name so
-					// that multiple instances of the same module can coexist in one
-					// namespace without their auto-generated secrets colliding.
-					if e.from.secretName == _|_ {
-						if #instancePrefix != _|_ {
-							valueFrom: secretKeyRef: {
-								name: "\(#instancePrefix)-\(e.from.$secretName)"
-								key:  e.from.$dataKey
-							}
-						}
-						if #instancePrefix == _|_ {
-							valueFrom: secretKeyRef: {
-								name: e.from.$secretName
-								key:  e.from.$dataKey
-							}
-						}
-					}
 				}
 
 				// Downward API — pod/container metadata
@@ -232,12 +194,11 @@ import (
 // #ToK8sContainers converts a list of OPM containers to Kubernetes containers.
 //
 // Usage:
-//   (#ToK8sContainers & {"in": _initContainers, #instancePrefix: "my-instance"}).out
+//   (#ToK8sContainers & {"in": _initContainers}).out
 #ToK8sContainers: {
 	X="in": [...res.#ContainerSchema]
-	_prefix=#instancePrefix?: string
 	out: [for c in X {
-		(#ToK8sContainer & {"in": c, #instancePrefix: _prefix}).out
+		(#ToK8sContainer & {"in": c}).out
 	}]
 }
 
@@ -272,9 +233,9 @@ import (
 }
 
 // WHY: For secret volumes, from is a #SecretSchema (carrying name, immutable, data).
-// The K8s secret name is computed via #SecretImmutableName — identical to the
-// name produced by #SecretTransformer — so mutable and immutable secrets both
-// resolve correctly without any extra wiring in the component.
+// The K8s secret name is computed via #ImmutableName, so mutable (stable name)
+// and immutable (content-hash suffix) secrets both resolve correctly without
+// any extra wiring in the component.
 //
 // Usage:
 //   (#ToK8sVolumes & {"in": _component.spec.volumes, #instancePrefix: "my-instance"}).out
@@ -386,9 +347,9 @@ import (
 			secret: {
 				// Compute the same K8s name the secret-transformer will generate:
 				//   {instancePrefix}-{secret.name}[-{contenthash}]
-				// #SecretImmutableName handles both mutable (stable name) and
+				// #ImmutableName handles both mutable (stable name) and
 				// immutable (content-hash suffix) secrets transparently.
-				let _k8sName = (res.#SecretImmutableName & {
+				let _k8sName = (res.#ImmutableName & {
 					baseName:  "\(_prefix)-\(vol.secret.from.name)"
 					data:      vol.secret.from.data
 					immutable: vol.secret.from.immutable
@@ -493,7 +454,7 @@ _testToK8sVolumesSecretImmutable: {
 	out: [{
 		name: "config"
 		secret: {
-			secretName: (res.#SecretImmutableName & {
+			secretName: (res.#ImmutableName & {
 				baseName: "myapp-mycomponent-my-config"
 				data: {"config.json": "hello"}
 				immutable: true

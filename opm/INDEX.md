@@ -1,6 +1,6 @@
 # opm — Definition Index
 
-CUE module: `opmodel.dev/catalogs/opm@v2`
+CUE module: `opmodel.dev/catalogs/opm@v3`
 
 ---
 
@@ -90,6 +90,8 @@ CUE module: `opmodel.dev/catalogs/opm@v2`
 | `#ConfigMapSchema` | `resources/v1beta1/configmap.cue` | ConfigMap specification |
 | `#ConfigMaps` | `resources/v1beta1/configmap.cue` |  |
 | `#ConfigMapsResource` | `resources/v1beta1/configmap.cue` |  |
+| `#ContentHash` | `resources/v1beta1/configmap.cue` | Deterministic 10-character hex hash of a string data map |
+| `#ImmutableName` | `resources/v1beta1/configmap.cue` | K8s resource name for a ConfigMap |
 | `#Container` | `resources/v1beta1/container.cue` |  |
 | `#ContainerResource` | `resources/v1beta1/container.cue` |  |
 | `#ContainerSchema` | `resources/v1beta1/container.cue` | Container specification |
@@ -114,18 +116,7 @@ CUE module: `opmodel.dev/catalogs/opm@v2`
 | `#RoleResource` | `resources/v1beta1/role.cue` |  |
 | `#RoleSchema` | `resources/v1beta1/role.cue` |  |
 | `#RoleSubjectSchema` | `resources/v1beta1/role.cue` | Role subject — embeds an identity directly via CUE reference |
-| `#AutoSecrets` | `resources/v1beta1/secret.cue` | Discover all #Secret instances from a resolved config and group by $secretName/$dataKey in one step |
-| `#ContentHash` | `resources/v1beta1/secret.cue` | Deterministic 10-character hex hash of a string data map |
-| `#DiscoverSecrets` | `resources/v1beta1/secret.cue` | Walk a resolved config (up to 10 levels) and collect all fields whose value is a #Secret |
-| `#GroupSecrets` | `resources/v1beta1/secret.cue` | Group a flat map of discovered secrets by $secretName, keyed by $dataKey |
-| `#ImmutableName` | `resources/v1beta1/secret.cue` | K8s resource name for a ConfigMap |
-| `#Secret` | `resources/v1beta1/secret.cue` |  |
-| `#SecretContentHash` | `resources/v1beta1/secret.cue` | Normalize #Secret entries and plain strings to a string map, then hash |
-| `#SecretImmutableName` | `resources/v1beta1/secret.cue` | K8s resource name for a Secret |
-| `#SecretK8sRef` | `resources/v1beta1/secret.cue` | References a pre-existing K8s Secret |
-| `#SecretLiteral` | `resources/v1beta1/secret.cue` | User provides the actual value |
-| `#SecretSchema` | `resources/v1beta1/secret.cue` | `data` holds either #Secret entries (auto-discovered via #AutoSecrets) or plain strings |
-| `#SecretType` | `resources/v1beta1/secret.cue` |  |
+| `#SecretSchema` | `resources/v1beta1/secret.cue` | Secret specification |
 | `#Secrets` | `resources/v1beta1/secret.cue` |  |
 | `#SecretsResource` | `resources/v1beta1/secret.cue` |  |
 | `#ServiceAccount` | `resources/v1beta1/service_account.cue` |  |

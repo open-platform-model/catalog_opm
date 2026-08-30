@@ -134,12 +134,11 @@ import (
 	}
 }
 
-// Environment variable. Exactly one of value/from/fieldRef/resourceFieldRef must be set.
+// Environment variable. Exactly one of value/fieldRef/resourceFieldRef must be set.
 #EnvVarSchema: {
 	name!: string
 
 	value?:            string
-	from?:             #Secret
 	fieldRef?:         #FieldRefSchema
 	resourceFieldRef?: #ResourceFieldRefSchema
 }

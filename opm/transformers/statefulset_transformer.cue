@@ -113,7 +113,7 @@ import (
 		}
 
 		// Build main container: base conversion via helper, unified with trait fields
-		_mainContainer: (#ToK8sContainer & {"in": _container, #instancePrefix: #context.#moduleInstanceMetadata.name}).out
+		_mainContainer: (#ToK8sContainer & {"in": _container}).out
 
 		// Build container list (main container + optional sidecars)
 		_sidecarContainers: [...] | *[]
@@ -171,11 +171,11 @@ import (
 					spec: {
 						(#PodSchedulingFields & {#comp: #component}).out
 
-						_convertedSidecars: (#ToK8sContainers & {"in": _sidecarContainers, #instancePrefix: #context.#moduleInstanceMetadata.name}).out
+						_convertedSidecars: (#ToK8sContainers & {"in": _sidecarContainers}).out
 						containers: list.Concat([[_mainContainer], _convertedSidecars])
 
 						if len(_initContainers) > 0 {
-							initContainers: (#ToK8sContainers & {"in": _initContainers, #instancePrefix: #context.#moduleInstanceMetadata.name}).out
+							initContainers: (#ToK8sContainers & {"in": _initContainers}).out
 						}
 
 						restartPolicy: _restartPolicy

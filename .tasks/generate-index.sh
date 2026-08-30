@@ -11,7 +11,7 @@ export LC_ALL=C
 #
 # Repo layout: this repo publishes TWO CUE modules, each in its own
 # subdirectory with its own cue.mod/, identity/ and INDEX.md:
-#   opm/  opmodel.dev/catalogs/opm@v2   (abstraction catalog)
+#   opm/  opmodel.dev/catalogs/opm@v3   (abstraction catalog)
 #   k8s/  opmodel.dev/catalogs/k8s@v1   (raw Kubernetes passthrough catalog)
 # The script therefore takes the MODULE directory, not the repo root.
 #

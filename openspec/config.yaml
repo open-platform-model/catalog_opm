@@ -6,7 +6,7 @@ context: |
   ## Core Principles (First-Party Catalogs)
 
   This repo defines and publishes the two first-party OPM catalogs, each its own CUE module
-  sharing one repo and one CI: `opm/` (`opmodel.dev/catalogs/opm@v2`, the abstraction catalog)
+  sharing one repo and one CI: `opm/` (`opmodel.dev/catalogs/opm@v3`, the abstraction catalog)
   and `k8s/` (`opmodel.dev/catalogs/k8s@v1`, the raw Kubernetes passthrough catalog). Both are
   typed entirely against `opmodel.dev/core@v2` and instantiate its constructs (`#Resource`,
   `#Trait`, `#Blueprint`, `#ComponentTransformer`); neither defines new core constructs. Platforms
@@ -21,8 +21,10 @@ context: |
   - The break unit is the member's `apiVersion` (enhancement 0010 D4): a member whose shape breaks
     moves to a new version segment directory; it does not mutate in place. In `k8s`, `apiVersion`
     mirrors the upstream Kubernetes API version at adoption (D48); graduation is upstream's act.
-  - A `feat!:` on the module advances the alpha counter within the current major; it does not
-    bump the major. Crossing a major is a separate, deliberate decision a proposal MUST name.
+  - A `feat!:` on `opm` bumps the major and with it the module path (`@vN`), because the alpha
+    line closed at 2.0.0. A major crossing is the sanctioned way to correct a beta member in
+    place when a `v1beta(N+1)` cascade would keep the broken shape published; a proposal MUST
+    name it.
   - A change that cannot be additive MUST state its downstream migration cost explicitly, naming
     the consumers it breaks (the `modules` fleet, subscribing platforms, `cli` fixtures).
   - Never publish by hand. CI publishes through `opm catalog publish` on release; the only

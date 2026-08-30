@@ -41,7 +41,7 @@ import (
 		_configMaps: #component.spec.configMaps
 
 		// Build the instance-scoped prefix: {instanceName}-{componentName}
-		// Mirrors the secret-transformer convention so all config resources
+		// The same prefix the secret-transformer uses, so all config resources
 		// share the same namespace-isolation guarantee across instances.
 		let _relName = #context.#moduleInstanceMetadata.name
 		let _compName = #context.#componentMetadata.name
