@@ -2,11 +2,11 @@
 
 The canonical catalog for the Open Platform Model. `catalog_opm` provides the reusable Kubernetes building blocks — `#Resource`s, `#Trait`s, `#Blueprint`s, and `#ComponentTransformer`s — that OPM module and platform authors compose and render against.
 
-This repository holds two CUE modules, one per subdirectory: `opm/` is `opmodel.dev/catalogs/opm@v3` (published to `ghcr.io/open-platform-model/catalogs/opm`, imported as `import "opmodel.dev/catalogs/opm@v3"`, package `opm`) and `k8s/` is `opmodel.dev/catalogs/k8s@v1` (published to `ghcr.io/open-platform-model/catalogs/k8s`, imported as `import "opmodel.dev/catalogs/k8s@v1"`, package `k8s`).
+This repository holds two CUE modules, one per subdirectory: `opm/` is `opmodel.dev/catalogs/opm@v4` (published to `ghcr.io/open-platform-model/catalogs/opm`, imported as `import "opmodel.dev/catalogs/opm@v4"`, package `opm`) and `k8s/` is `opmodel.dev/catalogs/k8s@v1` (published to `ghcr.io/open-platform-model/catalogs/k8s`, imported as `import "opmodel.dev/catalogs/k8s@v1"`, package `k8s`).
 
-`opm` is on major `v3` and `k8s` on major `v1`; a breaking change crosses the major and moves the module path with it.
+`opm` is on major `v4` and `k8s` on major `v1`; a breaking change crosses the major and moves the module path with it.
 
-`opmodel.dev/catalogs/opm@v3` ships no env-secret path: the legacy `#Secret` contract type is removed and its replacement, a `core`-owned `#Secret` resolved by the kernel (enhancement 0013), lands in a later change. Hand-authored Secret objects (`#SecretsResource`, inline `secret` volume sources) keep working with string data.
+`opmodel.dev/catalogs/opm@v4` ships no env-secret path: the legacy `#Secret` contract type is removed and its replacement, a `core`-owned `#Secret` resolved by the kernel (enhancement 0013), lands in a later change. Hand-authored Secret objects (`#SecretsResource`, inline `secret` volume sources) keep working with string data.
 
 It is typed against the OPM `core` schema and depends on it (plus vendored Kubernetes types), so `cue vet` needs a reachable registry.
 
@@ -16,13 +16,13 @@ This repo publishes **two CUE modules**, one per subdirectory. Each subdirectory
 
 | Directory | Module | What it is |
 | --- | --- | --- |
-| `opm/` | `opmodel.dev/catalogs/opm@v3` | the abstraction catalog: intentional OPM abstractions |
+| `opm/` | `opmodel.dev/catalogs/opm@v4` | the abstraction catalog: intentional OPM abstractions |
 | `k8s/` | `opmodel.dev/catalogs/k8s@v1` | the raw catalog: native Kubernetes APIs carried through as-is |
 
 Neither catalog imports the other. A platform subscribes to each one it wants.
 
 ```text
-opm/cue.mod/module.cue   CUE module manifest — opmodel.dev/catalogs/opm@v3
+opm/cue.mod/module.cue   CUE module manifest — opmodel.dev/catalogs/opm@v4
 opm/catalog.cue          catalog manifest (c.#Catalog, enumerates transformers)
 opm/identity/            ModulePath + Version (the committed identity publish reads)
 opm/resources/           #Resource definitions

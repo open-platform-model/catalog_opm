@@ -41,10 +41,6 @@ import (
 		(tr.#DisruptionBudgetTrait.metadata.fqn): tr.#DisruptionBudgetTrait
 	}
 
-	optionalTraits: {
-		(tr.#ResourceNameTrait.metadata.fqn): tr.#ResourceNameTrait
-	}
-
 	#transform: {
 		#component: _ // Unconstrained; validated by matching, not by transform signature
 		#context:   c.#TransformerContext
@@ -55,7 +51,7 @@ import (
 			apiVersion: "policy/v1"
 			kind:       "PodDisruptionBudget"
 			metadata: {
-				name: (#WorkloadName & {#comp: #component}).out
+				name:      #component.#names.resourceName
 				namespace: #context.#moduleInstanceMetadata.namespace
 				labels:    #context.labels
 				if len(#context.componentAnnotations) > 0 {
@@ -86,10 +82,10 @@ _testPDBComponent: {
 
 	res.#Container
 	tr.#DisruptionBudget
-	tr.#ResourceName
 
 	metadata: {
-		name: "istiod"
+		name:         "istiod"
+		resourceName: "istiod"
 		labels: "core.opmodel.dev/workload-type": "stateless"
 	}
 
@@ -102,7 +98,6 @@ _testPDBComponent: {
 				digest:     ""
 			}
 		}
-		resourceName: "istiod"
 		disruptionBudget: minAvailable: 1
 	}
 }
@@ -156,7 +151,7 @@ _testPDBSelectorMatchesDeployment: [
 	}).output.spec.selector.matchLabels if _testPDBTransformer.spec.selector.matchLabels[k] == v {k},
 ] & [_, _]
 
-// Default naming: no #ResourceNameTrait, so the budget carries the component's
+// Default naming: no metadata.resourceName, so the budget carries the component's
 // instance-scoped resourceName, byte-identical to the Deployment's name.
 _testPDBDefaultNameComponent: {
 	res.#Container

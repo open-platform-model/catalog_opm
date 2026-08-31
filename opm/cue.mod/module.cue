@@ -1,4 +1,4 @@
-module: "opmodel.dev/catalogs/opm@v3"
+module: "opmodel.dev/catalogs/opm@v4"
 language: {
 	version: "v0.17.0"
 }

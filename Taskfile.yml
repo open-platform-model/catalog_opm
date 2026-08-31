@@ -6,7 +6,7 @@ silent: true
 vars:
   # The CUE modules this repo publishes. Each is its own module root with its
   # own cue.mod/, identity/ and catalog.cue; they share only this repo's CI.
-  #   opm — opmodel.dev/catalogs/opm@v3, the abstraction catalog
+  #   opm — opmodel.dev/catalogs/opm@v4, the abstraction catalog
   #   k8s — opmodel.dev/catalogs/k8s@v1, the raw Kubernetes passthrough catalog
   MODULES: opm k8s
 

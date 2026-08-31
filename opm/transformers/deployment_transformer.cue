@@ -56,7 +56,6 @@ import (
 		(tr.#HostPIDTrait.metadata.fqn):           tr.#HostPIDTrait
 		(tr.#HostIPCTrait.metadata.fqn):           tr.#HostIPCTrait
 		(tr.#GracefulShutdownTrait.metadata.fqn):  tr.#GracefulShutdownTrait
-		(tr.#ResourceNameTrait.metadata.fqn):      tr.#ResourceNameTrait
 		(tr.#PodSchedulingTrait.metadata.fqn):     tr.#PodSchedulingTrait
 		(tr.#PodMetadataTrait.metadata.fqn):       tr.#PodMetadataTrait
 		(tr.#NetworkPolicyTrait.metadata.fqn):     tr.#NetworkPolicyTrait
@@ -145,7 +144,7 @@ import (
 			apiVersion: "apps/v1"
 			kind:       "Deployment"
 			metadata: {
-				name: (#WorkloadName & {#comp: #component}).out
+				name:      #component.#names.resourceName
 				namespace: #context.#moduleInstanceMetadata.namespace
 				labels:    #context.labels
 				// Include component annotations if present
@@ -281,7 +280,7 @@ _testDeployContainer: {
 	}
 }
 
-// ---- Default naming: no #ResourceNameTrait -> instance-scoped ----------------
+// ---- Default naming: no metadata.resourceName -> instance-scoped -------------
 _testDeployDefaultNameComponent: {
 	#instance: {name: "istio", namespace: "istio-system", uuid: "00000000-0000-0000-0000-000000000000"}
 
@@ -328,18 +327,17 @@ _testDeployExactComponent: {
 	#instance: {name: "istio", namespace: "istio-system", uuid: "00000000-0000-0000-0000-000000000000"}
 
 	res.#Container
-	tr.#ResourceName
 	tr.#PodMetadata
 	tr.#PodScheduling
 
 	metadata: {
-		name: "istiod"
+		name:         "istiod"
+		resourceName: "istiod"
 		labels: "core.opmodel.dev/workload-type": "stateless"
 	}
 
 	spec: {
-		container:    _testDeployContainer
-		resourceName: "istiod"
+		container: _testDeployContainer
 		podMetadata: {
 			labels: {
 				"sidecar.istio.io/inject": "false"

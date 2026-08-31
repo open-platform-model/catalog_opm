@@ -43,10 +43,6 @@ import (
 		(tr.#ScalingTrait.metadata.fqn): tr.#ScalingTrait
 	}
 
-	optionalTraits: {
-		(tr.#ResourceNameTrait.metadata.fqn): tr.#ResourceNameTrait
-	}
-
 	#transform: {
 		#component: _ // Unconstrained; validated by matching, not by transform signature
 		#context:   c.#TransformerContext
@@ -63,7 +59,7 @@ import (
 
 		// MUST be byte-identical to the name the Deployment/StatefulSet
 		// transformer rendered, or the HPA silently targets nothing.
-		_targetName: (#WorkloadName & {#comp: #component}).out
+		_targetName: #component.#names.resourceName
 
 		output: [
 			if #component.spec.scaling != _|_ if #component.spec.scaling.auto != _|_ {
@@ -218,16 +214,15 @@ _testHPAAutoComponent: {
 
 	res.#Container
 	tr.#Scaling
-	tr.#ResourceName
 
 	metadata: {
-		name: "istiod"
+		name:         "istiod"
+		resourceName: "istiod"
 		labels: "core.opmodel.dev/workload-type": "stateless"
 	}
 
 	spec: {
-		container:    _testHPAContainer
-		resourceName: "istiod"
+		container: _testHPAContainer
 		scaling: {
 			count: 1
 			auto: {
@@ -285,7 +280,7 @@ _testHPADeployOmitsReplicas: [
 	}).output.spec.replicas != _|_ {"leaked"},
 ] & []
 
-// Default naming: no #ResourceNameTrait, so the target is the component's
+// Default naming: no metadata.resourceName, so the target is the component's
 // instance-scoped resourceName, the same name the Deployment renders.
 _testHPADefaultNameComponent: {
 	res.#Container

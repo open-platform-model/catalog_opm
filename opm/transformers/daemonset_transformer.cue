@@ -57,7 +57,6 @@ import (
 		(tr.#HostIPCTrait.metadata.fqn):           tr.#HostIPCTrait
 		(tr.#HostNetworkTrait.metadata.fqn):       tr.#HostNetworkTrait
 		(tr.#GracefulShutdownTrait.metadata.fqn):  tr.#GracefulShutdownTrait
-		(tr.#ResourceNameTrait.metadata.fqn):      tr.#ResourceNameTrait
 		(tr.#PodSchedulingTrait.metadata.fqn):     tr.#PodSchedulingTrait
 		(tr.#PodMetadataTrait.metadata.fqn):       tr.#PodMetadataTrait
 		(tr.#NetworkPolicyTrait.metadata.fqn):     tr.#NetworkPolicyTrait
@@ -116,7 +115,7 @@ import (
 			apiVersion: "apps/v1"
 			kind:       "DaemonSet"
 			metadata: {
-				name: (#WorkloadName & {#comp: #component}).out
+				name:      #component.#names.resourceName
 				namespace: #context.#moduleInstanceMetadata.namespace
 				labels:    #context.labels
 				// Include component annotations if present
@@ -234,16 +233,14 @@ _testDSCNIComponent: {
 
 	res.#Container
 	res.#Volumes
-	tr.#ResourceName
 
 	metadata: {
-		name: "istio-cni"
+		name:         "istio-cni"
+		resourceName: "istio-cni-node"
 		labels: "core.opmodel.dev/workload-type": "daemon"
 	}
 
 	spec: {
-		resourceName: "istio-cni-node"
-
 		volumes: {
 			"cni-net-dir": {
 				name:     "cni-net-dir"
@@ -490,8 +487,9 @@ _testDSRollingDefaultsNoParams: [
 	if _testDSRollingDefaultsTransformer.spec.updateStrategy.rollingUpdate != _|_ {"leaked"},
 ] & []
 
-// Default naming: every no-trait stub renders <instance>-<component> through
-// #WorkloadName's #names arm. Pinned by interpolation; cue eval -c is the gate.
+// Default naming: every stub without metadata.resourceName renders
+// <instance>-<component>, read from #names.resourceName. Pinned by
+// interpolation; cue eval -c is the gate.
 _testDSRuntimeClassNameResolves:    "\(_testDSRuntimeClassTransformer.metadata.name)" & "nvidia-device-plugin-nvidia-device-plugin"
 _testDSStrategyNameResolves:        "\(_testDSStrategyTransformer.metadata.name)" & "agent-agent"
 _testDSRollingDefaultsNameResolves: "\(_testDSRollingDefaultsTransformer.metadata.name)" & "agent-agent-rolling"
