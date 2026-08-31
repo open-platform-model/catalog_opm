@@ -56,7 +56,6 @@ import (
 		(tr.#HostPIDTrait.metadata.fqn):           tr.#HostPIDTrait
 		(tr.#HostIPCTrait.metadata.fqn):           tr.#HostIPCTrait
 		(tr.#GracefulShutdownTrait.metadata.fqn):  tr.#GracefulShutdownTrait
-		(tr.#ResourceNameTrait.metadata.fqn):      tr.#ResourceNameTrait
 		(tr.#PodSchedulingTrait.metadata.fqn):     tr.#PodSchedulingTrait
 		(tr.#PodMetadataTrait.metadata.fqn):       tr.#PodMetadataTrait
 	}
@@ -95,7 +94,7 @@ import (
 			apiVersion: "batch/v1"
 			kind:       "CronJob"
 			metadata: {
-				name: (#WorkloadName & {#comp: #component}).out
+				name:      #component.#names.resourceName
 				namespace: #context.#moduleInstanceMetadata.namespace
 				labels:    #context.labels
 				// Include component annotations if present
@@ -240,7 +239,7 @@ _testCronJobContainer: {
 	}
 }
 
-// Default naming: <instance>-<component> through #WorkloadName's #names arm.
+// Default naming: <instance>-<component>, read from #names.resourceName.
 _testCronJobDefaultNameComponent: {
 	res.#Container
 	tr.#CronJobConfig
@@ -265,22 +264,21 @@ _testCronJobDefaultNameTransformer: (#CronJobTransformer.#transform & {
 
 _testCronJobDefaultNameResolves: "\(_testCronJobDefaultNameTransformer.metadata.name)" & "batch-sync"
 
-// Trait naming: the deprecated #ResourceNameTrait still wins through the seam.
+// Exact naming: metadata.resourceName renders verbatim.
 _testCronJobExactNameComponent: {
 	res.#Container
 	tr.#CronJobConfig
-	tr.#ResourceName
 
 	#instance: {name: "batch", namespace: "jobs", uuid: "00000000-0000-0000-0000-000000000000"}
 
 	metadata: {
-		name: "sync"
+		name:         "sync"
+		resourceName: "nightly-sync"
 		labels: "core.opmodel.dev/workload-type": "scheduled-task"
 	}
 
 	spec: {
-		container:    _testCronJobContainer
-		resourceName: "nightly-sync"
+		container: _testCronJobContainer
 		cronJobConfig: scheduleCron: "0 * * * *"
 	}
 }

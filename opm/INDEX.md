@@ -1,6 +1,6 @@
 # opm — Definition Index
 
-CUE module: `opmodel.dev/catalogs/opm@v3`
+CUE module: `opmodel.dev/catalogs/opm@v4`
 
 ---
 
@@ -586,9 +586,6 @@ CUE module: `opmodel.dev/catalogs/opm@v3`
 | `#PodSchedulingSchema` | `traits/v1beta1/pod_scheduling.cue` | Named `podScheduling`, not `scheduling`, because a one-character difference from the existing `scaling` trait is a reading hazard in module bodies |
 | `#PodSchedulingTrait` | `traits/v1beta1/pod_scheduling.cue` |  |
 | `#TolerationSchema` | `traits/v1beta1/pod_scheduling.cue` | A `key`-less toleration with operator "Exists" tolerates EVERY taint, which is why `key` is optional |
-| `#ResourceName` | `traits/v1beta1/resource_name.cue` | Deprecated: use the component's resourceName metadata field instead, removed in a later catalog release |
-| `#ResourceNameSchema` | `traits/v1beta1/resource_name.cue` | Deprecated: use the component's resourceName metadata field instead (it also moves the DNS names), removed in a later catalog release |
-| `#ResourceNameTrait` | `traits/v1beta1/resource_name.cue` | Deprecated: use the component's resourceName metadata field instead, removed in a later catalog release |
 | `#RestartPolicy` | `traits/v1beta1/restart_policy.cue` |  |
 | `#RestartPolicySchema` | `traits/v1beta1/restart_policy.cue` |  |
 | `#RestartPolicyTrait` | `traits/v1beta1/restart_policy.cue` |  |
@@ -650,7 +647,6 @@ CUE module: `opmodel.dev/catalogs/opm@v3`
 | `#JobTransformer` | `transformers/job_transformer.cue` | JobTransformer converts task workload components to Kubernetes Jobs |
 | `#MutatingWebhookTransformer` | `transformers/mutating_webhook_transformer.cue` | MutatingWebhookTransformer converts MutatingWebhooks resources to Kubernetes MutatingWebhookConfigurations |
 | `#ServiceName` | `transformers/name_helpers.cue` | #ServiceName resolves the name of the Service an Expose component renders: expose |
-| `#WorkloadName` | `transformers/name_helpers.cue` | #WorkloadName resolves a workload's rendered object name during the #ResourceNameTrait deprecation window: the trait's exact name when set, otherwise the component's own #names |
 | `#NamespaceTransformer` | `transformers/namespace_transformer.cue` | NamespaceTransformer converts Namespaces resources to Kubernetes Namespaces |
 | `#NetworkPolicyTransformer` | `transformers/network_policy_transformer.cue` | NetworkPolicyTransformer converts the #NetworkPolicyTrait to a Kubernetes NetworkPolicy whose podSelector is the workload's own rendered pod labels |
 | `#PDBTransformer` | `transformers/pdb_transformer.cue` | PDBTransformer realizes #DisruptionBudgetTrait as a PodDisruptionBudget |

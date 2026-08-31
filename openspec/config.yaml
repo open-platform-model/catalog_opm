@@ -6,7 +6,7 @@ context: |
   ## Core Principles (First-Party Catalogs)
 
   This repo defines and publishes the two first-party OPM catalogs, each its own CUE module
-  sharing one repo and one CI: `opm/` (`opmodel.dev/catalogs/opm@v3`, the abstraction catalog)
+  sharing one repo and one CI: `opm/` (`opmodel.dev/catalogs/opm@v4`, the abstraction catalog)
   and `k8s/` (`opmodel.dev/catalogs/k8s@v1`, the raw Kubernetes passthrough catalog). Both are
   typed entirely against `opmodel.dev/core@v2` and instantiate its constructs (`#Resource`,
   `#Trait`, `#Blueprint`, `#ComponentTransformer`); neither defines new core constructs. Platforms

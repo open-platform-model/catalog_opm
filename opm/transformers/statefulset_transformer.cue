@@ -57,7 +57,6 @@ import (
 		(tr.#HostPIDTrait.metadata.fqn):           tr.#HostPIDTrait
 		(tr.#HostIPCTrait.metadata.fqn):           tr.#HostIPCTrait
 		(tr.#GracefulShutdownTrait.metadata.fqn):  tr.#GracefulShutdownTrait
-		(tr.#ResourceNameTrait.metadata.fqn):      tr.#ResourceNameTrait
 		(tr.#PodSchedulingTrait.metadata.fqn):     tr.#PodSchedulingTrait
 		(tr.#PodMetadataTrait.metadata.fqn):       tr.#PodMetadataTrait
 		(tr.#NetworkPolicyTrait.metadata.fqn):     tr.#NetworkPolicyTrait
@@ -132,7 +131,7 @@ import (
 			apiVersion: "apps/v1"
 			kind:       "StatefulSet"
 			metadata: {
-				name: (#WorkloadName & {#comp: #component}).out
+				name:      #component.#names.resourceName
 				namespace: #context.#moduleInstanceMetadata.namespace
 				labels:    #context.labels
 				// Include component annotations if present
@@ -141,16 +140,12 @@ import (
 				}
 			}
 			spec: {
-				// WHY: Deliberately NOT #ResourceNameTrait — that renames the
-				// StatefulSet object, not the Service it is governed by.
-				// service_transformer.cue honours `expose.name` and this did
-				// not, so any StatefulSet with an exact-name Service pointed
-				// its serviceName at a Service that does not exist. The read
-				// goes through #ServiceName so it stays byte-identical to the
-				// Service transformer's, including the fallback for a component
-				// compiled against a build <= alpha.5 whose expose.name is
-				// optional and unset (0010 D27); a bare expose.name read
-				// refused those (alpha.6, alpha.7).
+				// WHY: Deliberately NOT metadata.name. serviceName is a cross-object
+				// reference to the governing Service (0019 D22, carve-out 3), whose one
+				// authoritative name is expose.name, and an author may set that apart from
+				// the workload's resourceName. The read goes through #ServiceName so it
+				// stays byte-identical to the Service transformer's, including the fallback
+				// for a component compiled against a build whose expose.name was optional.
 
 				// The governing Service's name: #ServiceName when #Expose is
 				// attached, else the component's own short DNS name (a
@@ -276,7 +271,7 @@ _testSTSContainer: {
 	}
 }
 
-// Default: neither trait attached — both names stay instance-scoped.
+// Default: no resourceName, no expose.name — both names stay instance-scoped.
 _testSTSDefaultComponent: {
 	#instance: {name: "shop", namespace: "apps", uuid: "00000000-0000-0000-0000-000000000000"}
 
@@ -308,29 +303,29 @@ _testSTSDefaultTransformer: (#StatefulsetTransformer.#transform & {
 _testSTSDefaultName:        "\(_testSTSDefaultTransformer.metadata.name)" & "shop-db"
 _testSTSDefaultServiceName: "\(_testSTSDefaultTransformer.spec.serviceName)" & "shop-db"
 
-// The regression this fixes: serviceName names the GOVERNING SERVICE, so it
-// must follow expose.name — which service_transformer.cue honours and this
-// transformer previously did not, leaving every exact-name-Service StatefulSet
-// pointing at a Service that does not exist.
+// serviceName names the GOVERNING SERVICE, so it follows expose.name through
+// #ServiceName, the seam the Service transformer renders through (0019 D22).
 //
-// #ResourceNameTrait is set to a DIFFERENT value on purpose: it renames the
-// StatefulSet object only. If the two ever collapse onto one name, one of
-// these two assertions fails.
+// resourceName and expose.name are set to DIFFERENT values on purpose.
+// metadata.resourceName moves #names.dns.short along with the object name,
+// so the Expose wrapper would default the Service to "database" as well; the
+// explicit expose.name wins over that default, and the StatefulSet must point
+// at the Service that actually renders, not at its own name. If serviceName
+// ever collapses onto metadata.name, the second assertion fails.
 _testSTSExactComponent: {
 	#instance: {name: "shop", namespace: "apps", uuid: "00000000-0000-0000-0000-000000000000"}
 
 	res.#Container
 	tr.#Expose
-	tr.#ResourceName
 
 	metadata: {
-		name: "db"
+		name:         "db"
+		resourceName: "database"
 		labels: "core.opmodel.dev/workload-type": "stateful"
 	}
 
 	spec: {
-		container:    _testSTSContainer
-		resourceName: "database"
+		container: _testSTSContainer
 		expose: {
 			type:      "ClusterIP"
 			clusterIP: "None"
