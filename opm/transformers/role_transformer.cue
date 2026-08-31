@@ -231,6 +231,71 @@ _testExtendedRulesTransformer: (#RoleTransformer.#transform & {
 	}
 }).output
 
+// Test: EMBEDDED authoring form ({res.#Role, ...}), the fleet's style. Unlike
+// the conjunction form above, embedding does not apply closedness to the
+// component's own fields, so this is the form that catches a #PolicyRuleSchema
+// disjunction that only resolves via closedness. All three rule shapes.
+_testEmbeddedRoleComponent: {
+	res.#Role
+	spec: role: {
+		name:  "embedded-probe"
+		scope: "cluster"
+		rules: [{
+			apiGroups: [""]
+			resources: ["pods"]
+			verbs: ["get"]
+		}, {
+			apiGroups: ["cert-manager.io"]
+			resources: ["signers"]
+			verbs: ["approve"]
+			resourceNames: ["issuers.cert-manager.io/*"]
+		}, {
+			nonResourceURLs: ["/metrics"]
+			verbs: ["get"]
+		}]
+		subjects: [{
+			name:           "probe-bot"
+			automountToken: false
+		}]
+	}
+}
+
+_testEmbeddedRoleOutput: (#RoleTransformer.#transform & {
+	#component: _testEmbeddedRoleComponent
+	#context: {
+		namespace: "probe"
+		labels: app: "probe-bot"
+		componentAnnotations: {}
+	}
+}).output
+
+// Interpolation pins: each rendered rule field is forced concrete, so an
+// unresolved disjunction or a dropped field errors. `task vet` (CI) evaluates
+// these pins; `cue eval -c -e '_testEmbeddedRoleTransformer' ./transformers`
+// additionally proves concreteness, which plain vet does not check.
+_testEmbeddedRoleTransformer: {
+	let R = _testEmbeddedRoleOutput[0].rules
+	rule0: "\(R[0].apiGroups[0])|\(R[0].resources[0])|\(R[0].verbs[0])" & "|pods|get"
+	rule1: "\(R[1].apiGroups[0])|\(R[1].resourceNames[0])|\(R[1].verbs[0])" & "cert-manager.io|issuers.cert-manager.io/*|approve"
+	rule2: "\(R[2].nonResourceURLs[0])|\(R[2].verbs[0])" & "/metrics|get"
+	// The nonResourceURLs rule must resolve to the non-resource arm: rendering
+	// an apiGroups key on it would mean the disjunction picked the wrong arm.
+	noAPIGroupsOnRule2: [
+		if R[2].apiGroups != _|_ {"leaked"},
+	] & []
+}
+
+// Negative: a rule mixing both forms contradicts BOTH arms (each refuses the
+// other's fields), so the disjunction is empty and the rule is refused.
+_testMixedRuleRefused: [
+	if ({
+		apiGroups: [""]
+		resources: ["pods"]
+		nonResourceURLs: ["/metrics"]
+		verbs: ["get"]
+	} & res.#PolicyRuleSchema) != _|_ {"accepted"},
+] & []
+
 // Golden fixture — resourceNames passed through verbatim, the
 // nonResourceURLs rule rendered without apiGroups/resources keys, and the
 // legacy rule rendered without any of the new keys.

@@ -110,7 +110,7 @@ CUE module: `opmodel.dev/catalogs/opm@v4`
 | `#CRDs` | `resources/v1beta1/crd.cue` |  |
 | `#CRDsResource` | `resources/v1beta1/crd.cue` |  |
 | `#NonResourcePolicyRuleSchema` | `resources/v1beta1/role.cue` | ClusterRole (scope: "cluster") only — enforced in review/docs, not schema |
-| `#PolicyRuleSchema` | `resources/v1beta1/role.cue` | Single RBAC permission rule — exactly one of the two k8s forms |
+| `#PolicyRuleSchema` | `resources/v1beta1/role.cue` | Single RBAC permission rule, exactly one of the two k8s forms |
 | `#ResourcePolicyRuleSchema` | `resources/v1beta1/role.cue` |  |
 | `#Role` | `resources/v1beta1/role.cue` |  |
 | `#RoleResource` | `resources/v1beta1/role.cue` |  |
