@@ -12,7 +12,13 @@
       "bump-patch-for-minor-pre-major": false,
       "prerelease": false,
       "prerelease-type": "alpha",
-      "component": "opm"
+      "component": "opm",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "RELEASE"
+        }
+      ]
     },
     "k8s": {
       "release-type": "simple",
@@ -23,7 +29,13 @@
       "bump-patch-for-minor-pre-major": false,
       "prerelease": true,
       "prerelease-type": "alpha",
-      "component": "k8s"
+      "component": "k8s",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "RELEASE"
+        }
+      ]
     }
   },
   "changelog-sections": [
