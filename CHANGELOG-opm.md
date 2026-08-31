@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.0.1](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.0.0...opm-v4.0.1) (2026-08-31)
+
+
+### Bug Fixes
+
+* **opm:** resolve policy rule disjunction for embedded components ([#77](https://github.com/open-platform-model/catalog_opm/issues/77)) ([df3b790](https://github.com/open-platform-model/catalog_opm/commit/df3b790e82f3cd378bb7ef29841ab69a9cf0a050))
+
 ## [4.0.0](https://github.com/open-platform-model/catalog_opm/compare/opm-v3.0.0...opm-v4.0.0) (2026-08-31)
 
 
