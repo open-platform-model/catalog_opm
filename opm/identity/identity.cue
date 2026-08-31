@@ -20,7 +20,7 @@ ModulePath: "opmodel.dev/catalogs/opm@v4"
 // interpolates. A plain literal, written only by opm catalog version set; the major
 // MUST agree with ModulePath's (asserted by core's #IdentityPackage at
 // publish, enhancement 0011 refusal 10).
-Version: "4.0.0"
+Version: "4.0.1"
 
 // RegistryPath is the major-free OCI repository path.
 RegistryPath: "opmodel.dev/catalogs/opm"
