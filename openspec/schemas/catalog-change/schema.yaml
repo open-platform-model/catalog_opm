@@ -6,7 +6,7 @@ description: Catalog change workflow - proposal -> design -> tasks (no specs art
 # already are its contract. A prose spec would be a copy no gate keeps honest.
 # This schema therefore has NO specs artifact. `openspec validate` still asks
 # for spec deltas regardless of schema, so every change's .openspec.yaml sets
-# `skip_specs: true`; the openspec-new-change and openspec-ff-change skills
+# `skip_specs: true`; the openspec-new-change and openspec-propose skills
 # write that marker at creation time.
 artifacts:
   - id: proposal

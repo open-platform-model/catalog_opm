@@ -36,7 +36,7 @@ context: |
   - Doc comments are the contract text. `task generate:index` extracts them into each module's
     `INDEX.md`, and `task generate:index:check` is the gate that keeps the index honest.
   - There is no `openspec/specs/` directory and no delta specs. Every change's `.openspec.yaml`
-    carries `skip_specs: true`; the `openspec-new-change` and `openspec-ff-change` skills write
+    carries `skip_specs: true`; the `openspec-new-change` and `openspec-propose` skills write
     it at creation time. Never create a `specs/` directory inside a change.
   - The proposal's **Before / After** CUE block is where intended behavior is reviewed before
     code exists. Write it as CUE, not prose.
