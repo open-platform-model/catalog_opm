@@ -67,6 +67,11 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
      - Add CRITICAL issue for each incomplete task
      - Recommendation: "Complete task: <description>" or "Mark as done if already implemented"
 
+   **Task Hygiene**:
+   - Flag any task that is a delivery operation rather than implementation or verification: committing, pushing, branching, opening/merging PRs, tagging, cutting releases, commit-message or PR-body hygiene checks
+   - Add WARNING: "Delivery-operation task: <description> - remove it rather than checking it off; delivery happens after implementation under the repo's normal git workflow"
+   - Exception: skip this check when the change's stated deliverable is itself a release or publishing operation - there those steps are the implementation
+
    **Spec Coverage**:
    - If delta specs exist in `contextFiles.specs`:
      - Extract all requirements (marked with "### Requirement:")
@@ -134,16 +139,19 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
       - Incomplete tasks
       - Missing requirement implementations
       - Each with specific, actionable recommendation
+      - Namingscheme C<number> (e.g. C1, C2)
 
    2. **WARNING** (Should fix):
       - Spec/design divergences
       - Missing scenario coverage
       - Each with specific recommendation
+      - Namingscheme W<number> (e.g. W1, W2)
 
    3. **SUGGESTION** (Nice to fix):
       - Pattern inconsistencies
       - Minor improvements
       - Each with specific recommendation
+      - Namingscheme S<number> (e.g. S1, S2)
 
    **Final Assessment**:
    - If CRITICAL issues: "X critical issue(s) found. Fix before archiving."
