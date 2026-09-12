@@ -93,11 +93,14 @@ artifacts:
       Guidelines:
       - Group tasks by module (`opm/`, `k8s/`) then by member file, under ## numbered headings
       - Each task MUST be a checkbox: `- [ ] X.Y Task description`
-      - Tasks should be small enough to complete in one session
+      - Every ## section ends green and closes with a commit task naming its Conventional
+        Commit; at most about five sections
       - Order tasks by dependency (what must be done first?)
       - Include `task generate:index` whenever definitions are added, removed or renamed
       - Include a task that lands each durable decision from design.md in `docs/` or `CLAUDE.md`
-      - End with the validation gates (`task check`)
+      - Each section's last task runs the gates (`task check`) and makes the commit; there is
+        no trailing Verification section
+      - Delete the Durable decisions section when design.md says "None."
 
       Example:
       ```
@@ -105,10 +108,7 @@ artifacts:
 
       - [ ] 1.1 Add the `mountPropagation` field with its constraint
       - [ ] 1.2 Update the doc comment and run `task generate:index`
-
-      ## 2. Verification
-
-      - [ ] 2.1 `task check`
+      - [ ] 1.3 `task check` green, then commit `feat(resources): add mountPropagation to volume`
       ```
 
       Reference the proposal for what needs to be built and the design for how to build it.
@@ -120,5 +120,6 @@ apply:
   requires: [tasks]
   tracks: tasks.md
   instruction: |
-    Read context files, work through pending tasks, mark complete as you go.
-    Pause if you hit blockers or need clarification.
+    Read context files, work through pending tasks section by section, mark complete as you go.
+    Each section closes with its commit task; pause only at a section boundary or on a blocker,
+    and report uncommitted work when you do.
