@@ -1,7 +1,8 @@
 ## 1. cue.mod pins
 
-- [ ] 1.1 Bump `opmodel.dev/core@v2` to `v2.0.0-alpha.9` in `opm/cue.mod/module.cue` and `k8s/cue.mod/module.cue` via `task deps:update` from the workspace root (or `cue mod get opmodel.dev/core@v2.0.0-alpha.9` in each module root); `task tidy` leaves no further diff.
-- [ ] 1.2 `task check` green, then commit `fix(deps): bump core to v2.0.0-alpha.9 in both catalogs`
+- [x] 1.1 Bump `opmodel.dev/core@v2` to `v2.0.0-alpha.9` in `opm/cue.mod/module.cue` and `k8s/cue.mod/module.cue` via `task deps:update` from the workspace root (or `cue mod get opmodel.dev/core@v2.0.0-alpha.9` in each module root); `task tidy` leaves no further diff.
+- [x] 1.2 Align the `opm` transformer fixtures with the projected `#context` core ships since `alpha.7` (design.md § Research & Decisions, "Crossing alpha.7"): `_testDeployRollingDefaultsComponent` takes the shared context's name, and the three selector / pod-label counts in `deployment_transformer.cue` and `pdb_transformer.cue` count the container wrapper's required `core.opmodel.dev/workload-type` label the projection now folds in. No member, transformer body or rendered output changes; `k8s` needs nothing.
+- [x] 1.3 `task check` green, then commit `fix(deps): bump core to v2.0.0-alpha.9 in both catalogs`
 
 ## 2. opm/catalog.cue
 

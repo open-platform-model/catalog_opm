@@ -1,6 +1,6 @@
 ## Context
 
-See `proposal.md` for motivation. Files: `opm/cue.mod/module.cue`, `k8s/cue.mod/module.cue` (pins), `opm/catalog.cue`, `k8s/catalog.cue` (the maps), `.tasks/listing.sh` (new), `Taskfile.yml` (`vet:listing`, wired into `check`), `CLAUDE.md` (one rule). No member file is touched; segments reached by import only: `opm/resources/{v1beta1,v1alpha1}`, `opm/traits/{v1beta1,v1alpha1}`, `opm/blueprints/v1beta1`, `k8s/resources/{v1,v2}`.
+See `proposal.md` for motivation. Files: `opm/cue.mod/module.cue`, `k8s/cue.mod/module.cue` (pins), `opm/catalog.cue`, `k8s/catalog.cue` (the maps), `.tasks/listing.sh` (new), `Taskfile.yml` (`vet:listing`, wired into `check`), `CLAUDE.md` (one rule), plus fixture-only edits in `opm/transformers/deployment_transformer.cue` and `opm/transformers/pdb_transformer.cue` (§ Research & Decisions, "Crossing alpha.7"). No member file is touched; segments reached by import only: `opm/resources/{v1beta1,v1alpha1}`, `opm/traits/{v1beta1,v1alpha1}`, `opm/blueprints/v1beta1`, `k8s/resources/{v1,v2}`.
 
 Core's landed shape (`alpha.8`, `src/catalog.cue`): each map is `[#ContractFQNType]: #<Kind> & {metadata: {A=apiVersion: #APIVersionType, modulePath: "\(M._ref.registryPath)/<kind>/\(A)", catalogVersion: M.version}}`. Members here author `modulePath: "\(id.kindPrefix.<kind>)/<apiVersion>"` and `catalogVersion: id.Version`; `id.kindPrefix` is `RegistryPath + "/<kind>"`, so the stamp and the authored value are the same string by construction. Core `alpha.9` adds `#Platform.#contracts`, a derived fold over these maps; it adds nothing a catalog authors, so the target pin is `alpha.9` and the shape here is unchanged by it.
 
@@ -44,6 +44,13 @@ Closedness, defaults, required-set: unchanged for every member. The catalog root
 **Explored**: On a scratch copy of core, `#Platform & {#undeclaredMap: {a: 1}}` evaluated and read back `1` (cue v0.17.1, 2026-09-13): closedness does not refuse an undeclared definition field.
 **Decision**: state the maps as inert, not breaking, on old-core platforms; no consumer action required.
 **Rationale**: measured, not assumed; it is also why the pin bump and the listing can ship in one release without sequencing consumers.
+
+### Crossing alpha.7: the projected transformer context
+
+**Context**: The pin moves from `alpha.6` to `alpha.9`, and `alpha.7` (core #59, 0019 D12) made `#transform.#context` project its `#componentMetadata` block from `#component`, where before the caller supplied it. The `opm` transformer fixtures hand-build a stub context.
+**Explored**: `task check` after the bump (2026-09-13, cue v0.17.1): `k8s` vets clean; `opm` fails in exactly two files. `_testDeployRollingDefaultsComponent` is named `web` but shares a context whose `#componentMetadata.name` is `istiod`, which the projection now unifies. Three counts (`_testDeploySelectorStaysTwo`, `_testDeployPodLabelsAreFour`, `_testPDBSelectorSize`) counted the stub's two `componentLabels`; the projection folds in the component's `metadata.labels`, which for a container component always holds the wrapper's required `core.opmodel.dev/workload-type` key. Dropping that label from the fixtures instead fails with `missing required field in for comprehension`, because `#Container` declares it with `!`.
+**Decision**: fix the fixtures, not the members: rename the one component to `istiod`, and count three selector labels and five pod labels, which is what the runtime always rendered (the library projects the same block). Section 1 carries the edit, because the pin bump is not green without it.
+**Rationale**: the fixtures were modelling a context the runtime never produced; the projection makes them honest. The transitional `metadata.labels` duplicate on the workload wrappers (a stateless blueprint comment calls it out) is what puts the label on rendered objects, and retiring it is a rendered-output change for a separate change, not this one.
 
 ### Counting the members
 

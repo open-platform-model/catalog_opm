@@ -4,7 +4,7 @@ Core `v2.0.0-alpha.8` gave `#Catalog` three contract member maps (`#resources`, 
 
 ## What Changes
 
-- `opm/cue.mod/module.cue` and `k8s/cue.mod/module.cue`: core pin `v2.0.0-alpha.6` to `v2.0.0-alpha.9` (the current release; `task deps:update` resolves to it), through the workspace's `task deps:update` (or its per-module equivalent, `cue mod get`).
+- `opm/cue.mod/module.cue` and `k8s/cue.mod/module.cue`: core pin `v2.0.0-alpha.6` to `v2.0.0-alpha.9` (the current release; `task deps:update` resolves to it), through the workspace's `task deps:update` (or its per-module equivalent, `cue mod get`). The bump crosses `alpha.7`'s projected transformer context, which four `opm` transformer fixture assertions in two files had modelled without the container's required `workload-type` label; those fixtures are aligned in the same section (design.md § Research & Decisions). Fixture-only, no rendered output moves.
 - `opm/catalog.cue`: `#resources` (11 members across `v1beta1` and `v1alpha1`), `#traits` (26 across `v1beta1`, plus the two `v1alpha1` backup traits once `backup-traits-alpha` has landed) and `#blueprints` (5, `v1beta1`), each entry keyed by the member's own `metadata.fqn` exactly as `#transformers` is. The header comment saying primitives are not enumerated is rewritten.
 - `k8s/catalog.cue`: `#resources` (29 members across `v1` and `v2`). No traits or blueprints exist in the raw catalog; the maps stay absent, which is empty.
 - `.tasks/listing.sh` and `task vet:listing`, wired into `task check`: every member definition under `<module>/<kind>/<apiVersion>/` is a key of the corresponding map, and every key names a member. Closes the completeness hole `core` cannot check.

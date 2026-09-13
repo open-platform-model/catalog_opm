@@ -256,8 +256,12 @@ import (
 ////   - LEAKED field -> empty comprehension against an empty list.
 /////////////////////////////////////////////////////////////////
 
-// Shared stub context. componentLabels resolves to exactly two entries:
-// app.kubernetes.io/name=istiod and module-instance.opmodel.dev/name=istio.
+// Shared stub context. Core projects #componentMetadata from #component
+// (alpha.7, 0019 D12), so componentLabels resolves to three entries:
+// app.kubernetes.io/name=istiod, module-instance.opmodel.dev/name=istio and
+// the container wrapper's required core.opmodel.dev/workload-type label,
+// which the runtime always rendered. The name here must agree with every
+// component that shares this context.
 _testDeployContext: {
 	#moduleInstanceMetadata: {
 		name:      "istio"
@@ -366,8 +370,8 @@ _testDeployExactNameResolves: "\(_testDeployExactTransformer.metadata.name)" & "
 // The whole point of #PodMetadata: pod labels grow, the SELECTOR does not.
 // Arithmetic on the lengths is non-invertible, so a leak into the selector
 // cannot be repaired by the assertion.
-_testDeploySelectorStaysTwo: (len(_testDeployExactTransformer.spec.selector.matchLabels) + 0) & 2
-_testDeployPodLabelsAreFour: (len(_testDeployExactTransformer.spec.template.metadata.labels) + 0) & 4
+_testDeploySelectorStaysThree: (len(_testDeployExactTransformer.spec.selector.matchLabels) + 0) & 3
+_testDeployPodLabelsAreFive:   (len(_testDeployExactTransformer.spec.template.metadata.labels) + 0) & 5
 
 _testDeployPodLabelPresent: [
 	if _testDeployExactTransformer.spec.template.metadata.labels["istio.io/dataplane-mode"] != _|_ {
@@ -477,7 +481,7 @@ _testDeployRollingDefaultsComponent: {
 	tr.#UpdateStrategy
 
 	metadata: {
-		name: "web"
+		name: "istiod"
 		labels: "core.opmodel.dev/workload-type": "stateless"
 	}
 
