@@ -1,7 +1,7 @@
 ## 1. cue.mod pins
 
-- [ ] 1.1 Bump `opmodel.dev/core@v2` to `v2.0.0-alpha.8` in `opm/cue.mod/module.cue` and `k8s/cue.mod/module.cue` via `task deps:update` from the workspace root (or `cue mod get opmodel.dev/core@v2.0.0-alpha.8` in each module root); `task tidy` leaves no further diff.
-- [ ] 1.2 `task check` green, then commit `fix(deps): bump core to v2.0.0-alpha.8 in both catalogs`
+- [ ] 1.1 Bump `opmodel.dev/core@v2` to `v2.0.0-alpha.9` in `opm/cue.mod/module.cue` and `k8s/cue.mod/module.cue` via `task deps:update` from the workspace root (or `cue mod get opmodel.dev/core@v2.0.0-alpha.9` in each module root); `task tidy` leaves no further diff.
+- [ ] 1.2 `task check` green, then commit `fix(deps): bump core to v2.0.0-alpha.9 in both catalogs`
 
 ## 2. opm/catalog.cue
 

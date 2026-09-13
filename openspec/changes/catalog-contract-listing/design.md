@@ -2,7 +2,7 @@
 
 See `proposal.md` for motivation. Files: `opm/cue.mod/module.cue`, `k8s/cue.mod/module.cue` (pins), `opm/catalog.cue`, `k8s/catalog.cue` (the maps), `.tasks/listing.sh` (new), `Taskfile.yml` (`vet:listing`, wired into `check`), `CLAUDE.md` (one rule). No member file is touched; segments reached by import only: `opm/resources/{v1beta1,v1alpha1}`, `opm/traits/{v1beta1,v1alpha1}`, `opm/blueprints/v1beta1`, `k8s/resources/{v1,v2}`.
 
-Core's landed shape (`alpha.8`, `src/catalog.cue`): each map is `[#ContractFQNType]: #<Kind> & {metadata: {A=apiVersion: #APIVersionType, modulePath: "\(M._ref.registryPath)/<kind>/\(A)", catalogVersion: M.version}}`. Members here author `modulePath: "\(id.kindPrefix.<kind>)/<apiVersion>"` and `catalogVersion: id.Version`; `id.kindPrefix` is `RegistryPath + "/<kind>"`, so the stamp and the authored value are the same string by construction.
+Core's landed shape (`alpha.8`, `src/catalog.cue`): each map is `[#ContractFQNType]: #<Kind> & {metadata: {A=apiVersion: #APIVersionType, modulePath: "\(M._ref.registryPath)/<kind>/\(A)", catalogVersion: M.version}}`. Members here author `modulePath: "\(id.kindPrefix.<kind>)/<apiVersion>"` and `catalogVersion: id.Version`; `id.kindPrefix` is `RegistryPath + "/<kind>"`, so the stamp and the authored value are the same string by construction. Core `alpha.9` adds `#Platform.#contracts`, a derived fold over these maps; it adds nothing a catalog authors, so the target pin is `alpha.9` and the shape here is unchanged by it.
 
 ## Goals / Non-Goals
 
