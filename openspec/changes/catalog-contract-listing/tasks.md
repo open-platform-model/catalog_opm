@@ -13,9 +13,9 @@
 
 ## 3. k8s/catalog.cue
 
-- [ ] 3.1 Add the `resources/v1` and `resources/v2` imports and the `#resources` map listing every member under `k8s/resources/` per D-B; leave `#traits` and `#blueprints` absent (D-D); rewrite the header comment.
-- [ ] 3.2 `cd k8s && cue eval -e 'len(#resources)' ./` matches the member count, and `opm catalog publish ./k8s --dry-run` exits 0.
-- [ ] 3.3 `task check` green, then commit `feat(k8s): list every resource in the catalog map`
+- [x] 3.1 Add the `resources/v1` and `resources/v2` imports and the `#resources` map listing every member under `k8s/resources/` per D-B; leave `#traits` and `#blueprints` absent (D-D); rewrite the header comment.
+- [x] 3.2 `cd k8s && cue eval -e 'len(#resources)' ./` matches the member count (29), and `opm catalog publish ./k8s --dry-run` passes every gate (58 members, 0 refused); as in 2.3 its only refusal is the tolerated "already holds v1.0.0-alpha.2", exit 2.
+- [x] 3.3 `task check` green, then commit `feat(k8s): list every resource in the catalog map`
 
 ## 4. Listing gate and durable decisions
 
