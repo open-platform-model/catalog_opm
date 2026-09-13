@@ -72,6 +72,17 @@ tasks:
         check opm k8s || rc=1
         exit $rc
 
+  vet:listing:
+    desc: >
+      Enforce the listing rule: every contract member filed under
+      <module>/<kind>/<apiVersion>/ is a key of that module's catalog.cue
+      #<kind> map, and every key names a member. Core validates a listed
+      member; this check is what makes the list complete.
+    cmds:
+      - |
+        set -e
+        for m in {{.MODULES}}; do bash .tasks/listing.sh "$m"; done
+
   tidy:
     desc: Tidy every CUE module manifest
     cmds:
@@ -144,10 +155,11 @@ tasks:
   ## Aggregate
 
   check:
-    desc: Format check, vet, layering, INDEX freshness, and doc-comment report across every module
+    desc: Format check, vet, layering, listing, INDEX freshness, and doc-comment report across every module
     cmds:
       - task: fmt:check
       - task: vet
       - task: vet:layering
+      - task: vet:listing
       - task: generate:index:check
       - task: docs:check

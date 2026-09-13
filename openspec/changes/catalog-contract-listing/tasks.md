@@ -19,6 +19,6 @@
 
 ## 4. Listing gate and durable decisions
 
-- [ ] 4.1 `.tasks/listing.sh` per D-C, run for `opm` and `k8s` by a new `task vet:listing`; wire it into `task check` after `vet:layering`. Verify it passes on the tree, and fails naming the key when one map entry is commented out.
-- [ ] 4.2 `CLAUDE.md` Working Style: the listing rule beside the filing rule (design.md § Durable decisions), and the `vet:listing` row in the commands table.
-- [ ] 4.3 `task check` green, then commit `chore(tasks): gate that every member is listed in its catalog maps`
+- [x] 4.1 `.tasks/listing.sh` per D-C, run for `opm` and `k8s` by a new `task vet:listing`; wire it into `task check` after `vet:layering` and, because `ci.yml` runs the gates one task at a time, as its own CI step after the layering step. Verified: passes on the tree (11 / 26 / 5 and 29 / 0 / 0), and with `tr.#ScalingTrait` commented out fails naming `opmodel.dev/catalogs/opm/traits/scaling@v1beta1`.
+- [x] 4.2 `CLAUDE.md` Working Style: the listing rule beside the filing rule (design.md § Durable decisions), and the `vet:listing` row in the commands table.
+- [x] 4.3 `task check` green, then commit `chore(tasks): gate that every member is listed in its catalog maps`
