@@ -6,10 +6,10 @@
 
 ## 2. opm/catalog.cue
 
-- [ ] 2.1 Add the imports per D-A and the `#resources`, `#traits`, `#blueprints` maps listing every member under `opm/resources/`, `opm/traits/` and `opm/blueprints/` per D-B (include `tra.#BackupTrait` and `tra.#BackupCommandTrait` if `backup-traits-alpha` has landed); rewrite the header comment's "not enumerated here" paragraph.
-- [ ] 2.2 `cd opm && cue eval -e '[len(#resources), len(#traits), len(#blueprints)]' ./` matches the member counts from `grep -rhoE "^#[A-Za-z0-9]+: c\.#(Resource|Trait|Blueprint)" resources traits blueprints | wc -l` per kind, and `cue eval -e '#traits["opmodel.dev/catalogs/opm/traits/scaling@v1beta1"].metadata' ./` shows the stamped `modulePath` and `catalogVersion`.
-- [ ] 2.3 `opm catalog publish ./opm --dry-run` exits 0.
-- [ ] 2.4 `task check` green, then commit `feat(opm): list every resource, trait and blueprint in the catalog maps`
+- [x] 2.1 Add the imports per D-A and the `#resources`, `#traits`, `#blueprints` maps listing every member under `opm/resources/`, `opm/traits/` and `opm/blueprints/` per D-B (include `tra.#BackupTrait` and `tra.#BackupCommandTrait` if `backup-traits-alpha` has landed; it had not, so no `tra` alias yet); rewrite the header comment's "not enumerated here" paragraph.
+- [x] 2.2 `cd opm && cue eval -e '[len(#resources), len(#traits), len(#blueprints)]' ./` matches the member counts from `grep -rhoE "^#[A-Za-z0-9]+: c\.#(Resource|Trait|Blueprint)" resources traits blueprints | wc -l` per kind (11 / 26 / 5), and `cue eval -e '#traits["opmodel.dev/catalogs/opm/traits/scaling@v1beta1"].metadata' ./` shows the stamped `modulePath` and `catalogVersion`.
+- [x] 2.3 `opm catalog publish ./opm --dry-run` passes every gate (65 members, 26 postures, 38 compat comparisons, 0 refused); its only refusal is "already holds v4.0.1", the one CI tolerates outside a release (CLAUDE.md § Release & publishing), so the exit is 2, not 0.
+- [x] 2.4 `task check` green, then commit `feat(opm): list every resource, trait and blueprint in the catalog maps`
 
 ## 3. k8s/catalog.cue
 
