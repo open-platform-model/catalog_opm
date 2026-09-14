@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-alpha.3](https://github.com/open-platform-model/catalog_opm/compare/k8s-v1.0.0-alpha.2...k8s-v1.0.0-alpha.3) (2026-09-14)
+
+
+### Features
+
+* list every contract member in both catalogs ([#81](https://github.com/open-platform-model/catalog_opm/issues/81)) ([9656acc](https://github.com/open-platform-model/catalog_opm/commit/9656accf70bd888a14417f61647c1183fff18d50))
+
 ## [1.0.0-alpha.2](https://github.com/open-platform-model/catalog_opm/compare/k8s-v1.0.0-alpha.1...k8s-v1.0.0-alpha.2) (2026-08-28)
 
 
