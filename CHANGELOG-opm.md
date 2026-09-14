@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.2.0](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.1.1...opm-v4.2.0) (2026-09-14)
+
+
+### Features
+
+* **opm:** add provider-fulfilled backup traits at v1alpha1 ([#86](https://github.com/open-platform-model/catalog_opm/issues/86)) ([1a8607c](https://github.com/open-platform-model/catalog_opm/commit/1a8607c9687555c48b22de2a32183079edc46f68))
+
 ## [4.1.1](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.1.0...opm-v4.1.1) (2026-09-14)
 
 
