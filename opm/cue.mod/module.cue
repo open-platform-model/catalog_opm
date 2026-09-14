@@ -7,7 +7,7 @@ source: {
 }
 deps: {
 	"cue.dev/x/k8s.io@v0": {
-		v:       "v0.10.0"
+		v:       "v0.11.0"
 		default: true
 	}
 	"opmodel.dev/core@v2": {
