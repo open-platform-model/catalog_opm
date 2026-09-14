@@ -17,17 +17,17 @@ Core's landed shape (`alpha.8`, `src/catalog.cue`): each map is `[#ContractFQNTy
 
 ## Decisions
 
-**D-A. One import alias per version segment directory.** `opm/catalog.cue` imports `resources/v1beta1` as `res`, `resources/v1alpha1` as `resa`, `traits/v1beta1` as `tr`, `traits/v1alpha1` as `tra`, `blueprints/v1beta1` as `bp`; `k8s/catalog.cue` imports `resources/v1` and `resources/v2`. A new segment directory adds an alias; the gate catches a directory that is not imported.
+**D-A. One import alias per version segment directory.** `opm/catalog.cue` imports `resources/v1beta1` as `res`, `resources/v1alpha1` as `resa`, `traits/v1beta1` as `tr`, `blueprints/v1beta1` as `bp`, and `traits/v1alpha1` as `tra` once `backup-traits-alpha` creates that directory (the alias appears with the directory; an import of a package that does not exist fails vet); `k8s/catalog.cue` imports `resources/v1` as `v1` and `resources/v2` as `v2`. A new segment directory adds an alias; the gate catches a directory that is not imported.
 
 **D-B. Entries sorted by definition name within each map, as `#transformers` is**, with the experimental `v1alpha1` members grouped last under the same comment `#transformers` uses. Key expression is always `(pkg.#X.metadata.fqn)`, never a string literal, so a renamed member cannot leave a stale key.
 
-**D-C. The listing gate compares two sets per module and kind.** Expected: for every `*.cue` under `<module>/<kind>/`, the authored `fqn:` line, with `\(id.kindPrefix.<kind>)` substituted from `identity/identity.cue`'s `RegistryPath`; a file may hold several members. Listed: `cue eval -e '[for k, _ in #<kind> {k}]' ./` in the module root. Sorted, diffed, non-empty diff fails with the missing and extra keys named. A kind directory that does not exist (k8s traits, blueprints) expects the empty set, which an absent map satisfies.
+**D-C. The listing gate compares two sets per module and kind.** Expected: for every `*.cue` under `<module>/<kind>/`, the authored `fqn:` line, with `\(id.kindPrefix.<kind>)` substituted from `identity/identity.cue`'s `RegistryPath`; a file may hold several members. Listed: `cue export -e '[for k, _ in #<kind> {k}]' ./` in the module root. Sorted, diffed, non-empty diff fails with the missing and extra keys named. A kind directory that does not exist (k8s traits, blueprints) expects the empty set, which an absent map satisfies.
 
 ```sh
 # .tasks/listing.sh <module> — sketch
 for kind in resources traits blueprints; do
   expected=$(grep -rhoE 'fqn: +"\\\(id\.kindPrefix\.'"$kind"'\)/[^"]+"' "$module/$kind" 2>/dev/null | sed "s|.*kindPrefix\.$kind)|$registry/$kind|; s|\"||g" | sort -u)
-  listed=$(cd "$module" && cue eval -e "[for k, _ in #$kind {k}]" ./ | tr -d '[]", ' | sort -u)
+  listed=$(cd "$module" && cue export -e "[for k, _ in #$kind {k}]" ./ | tr -d '[]", ' | sort -u)
   diff <(echo "$expected") <(echo "$listed") || fail "$module #$kind"
 done
 ```
