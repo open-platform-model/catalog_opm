@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.1.0](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.0.1...opm-v4.1.0) (2026-09-14)
+
+
+### Features
+
+* list every contract member in both catalogs ([#81](https://github.com/open-platform-model/catalog_opm/issues/81)) ([9656acc](https://github.com/open-platform-model/catalog_opm/commit/9656accf70bd888a14417f61647c1183fff18d50))
+
 ## [4.0.1](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.0.0...opm-v4.0.1) (2026-08-31)
 
 
