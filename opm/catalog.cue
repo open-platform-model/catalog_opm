@@ -113,8 +113,9 @@ metadata: {
 
 	// Experimental abstraction candidates (v1alpha1 contracts; ex
 	// catalog_opm_experimental — 0010 D47).
-	(t.#AdmissionPolicyTransformer.metadata.fqn):   t.#AdmissionPolicyTransformer
-	(t.#MutatingWebhookTransformer.metadata.fqn):   t.#MutatingWebhookTransformer
-	(t.#NamespaceTransformer.metadata.fqn):         t.#NamespaceTransformer
-	(t.#ValidatingWebhookTransformer.metadata.fqn): t.#ValidatingWebhookTransformer
+	(t.#AdmissionPolicyTransformer.metadata.fqn):         t.#AdmissionPolicyTransformer
+	(t.#MutatingWebhookTransformer.metadata.fqn):         t.#MutatingWebhookTransformer
+	(t.#NamespaceTransformer.metadata.fqn):               t.#NamespaceTransformer
+	(t.#TransformerRegistrationTransformer.metadata.fqn): t.#TransformerRegistrationTransformer
+	(t.#ValidatingWebhookTransformer.metadata.fqn):       t.#ValidatingWebhookTransformer
 }

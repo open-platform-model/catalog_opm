@@ -11,10 +11,10 @@ Three sections. design.md carries no unverified assumption, so section 1 is not 
 
 ## 2. opm/transformers/transformer_registration_transformer.cue
 
-- [ ] 2.1 Add `#TransformerRegistrationTransformer` per design.md § The transformer: `requiredResources` on the contract FQN alone, empty label and trait maps, `producesKinds: ["TransformerRegistration"]`, and a struct `output` whose `metadata.name` is the dot-joined instance namespace and name (D12) and whose `spec.providerRef` is stamped from the same projected metadata (D11). Carry the group, version and kind as literals with a doc comment naming opm-operator as the other side. Verify: `(cd opm && cue vet ./...)` passes.
-- [ ] 2.2 Add the golden fixture in the same file, in the shape design.md's second research entry requires: supply `#transform.#moduleInstance` (metadata name, namespace, fqn, uuid plus `#moduleMetadata.version`) and `#context: #runtimeName`, never `#moduleInstanceMetadata`. Pin the whole rendered object. Verify: `cue export -e '<fixture>' ./transformers` prints the object concretely (the pre-existing fixtures fail this, which is the point), and changing one expected byte makes `cue vet` fail.
-- [ ] 2.3 List the transformer in `opm/catalog.cue` `#transformers`, keyed by its `metadata.fqn`. Verify: `task vet:listing` passes.
-- [ ] 2.4 `task generate:index`, then `task check` green, then commit `feat(transformers): render the transformer-registration claim as the cluster-scoped CR`.
+- [x] 2.1 Add `#TransformerRegistrationTransformer` per design.md § The transformer: `requiredResources` on the contract FQN alone, empty label and trait maps, `producesKinds: ["TransformerRegistration"]`, and a struct `output` whose `metadata.name` is the dot-joined instance namespace and name (D12) and whose `spec.providerRef` is stamped from the same projected metadata (D11). Carry the group, version and kind as literals with a doc comment naming opm-operator as the other side. Verify: `(cd opm && cue vet ./...)` passes.
+- [x] 2.2 Add the golden fixture in the same file, in the shape design.md's second research entry requires: supply `#transform.#moduleInstance` (metadata name, namespace, fqn, uuid plus `#moduleMetadata.version`) and `#context: #runtimeName`, never `#moduleInstanceMetadata`. Pin the whole rendered object. Verify: `cue export -e '<fixture>' ./transformers` prints the object concretely (the pre-existing fixtures fail this, which is the point), and changing one expected byte makes `cue vet` fail.
+- [x] 2.3 List the transformer in `opm/catalog.cue` `#transformers`, keyed by its `metadata.fqn`. Verify: `task vet:listing` passes.
+- [x] 2.4 `task generate:index`, then `task check` green, then commit `feat(transformers): render the transformer-registration claim as the cluster-scoped CR`.
 
 ## 3. Durable decisions
 
