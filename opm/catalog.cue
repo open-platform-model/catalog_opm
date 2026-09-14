@@ -18,6 +18,7 @@ import (
 	res "opmodel.dev/catalogs/opm/resources/v1beta1"
 	resa "opmodel.dev/catalogs/opm/resources/v1alpha1"
 	tr "opmodel.dev/catalogs/opm/traits/v1beta1"
+	tra "opmodel.dev/catalogs/opm/traits/v1alpha1"
 	bp "opmodel.dev/catalogs/opm/blueprints/v1beta1"
 )
 
@@ -72,6 +73,12 @@ metadata: {
 	(tr.#TlsRouteTrait.metadata.fqn):          tr.#TlsRouteTrait
 	(tr.#UpdateStrategyTrait.metadata.fqn):    tr.#UpdateStrategyTrait
 	(tr.#WorkloadIdentityTrait.metadata.fqn):  tr.#WorkloadIdentityTrait
+
+	// Experimental abstraction candidates (v1alpha1 contracts — 0010 D34).
+	// Both are provider-fulfilled: listing them is what makes them visible
+	// to a subscribing platform, and no transformer here implements them.
+	(tra.#BackupTrait.metadata.fqn):        tra.#BackupTrait
+	(tra.#BackupCommandTrait.metadata.fqn): tra.#BackupCommandTrait
 }
 
 #blueprints: {
