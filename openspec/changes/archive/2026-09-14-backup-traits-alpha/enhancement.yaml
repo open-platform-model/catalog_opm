@@ -1,0 +1,17 @@
+# Declares which enhancement decisions this change implements. Consumed by
+# `task enhancements:delivery:log` at archive time.
+#
+# Written after the archive (2026-09-14): the change landed without this file,
+# so the landing was missing from 0015's delivery log.
+#
+# `decisions` is deliberately EMPTY. This change ships the `backup@v1alpha1`
+# policy trait and its PVC-label prerequisite — the first provider-fulfilled
+# contract in any catalog, and the contract 0015's k8up proof consumes — but
+# none of D1..D18 says "define the backup contract". D9 is the registration
+# contract, not this one. Claiming a decision here would mark it delivered on
+# work that did not implement it, so the entry records the landing and claims
+# nothing.
+implements:
+  - enhancement: "0015"
+    decisions: []
+    resolves: []
