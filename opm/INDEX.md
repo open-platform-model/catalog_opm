@@ -30,6 +30,7 @@ CUE module: `opmodel.dev/catalogs/opm@v4`
 |       +-- policy/
 |           +-- v1/
 +-- traits/
+|   +-- v1alpha1/
 |   +-- v1beta1/
 +-- transformers/
 ```
@@ -146,6 +147,7 @@ CUE module: `opmodel.dev/catalogs/opm@v4`
 
 | Definition | File | Description |
 |---|---|---|
+| `#CronSchema` | `schemas/common.cue` | Five whitespace-separated cron fields: minute, hour, day-of-month, month, day-of-week |
 | `#LabelsAnnotationsSchema` | `schemas/common.cue` | Labels and annotations schema |
 | `#NameType` | `schemas/common.cue` | DNS label name type (RFC 1123) |
 | `#VersionSchema` | `schemas/common.cue` | Semantic version schema |
@@ -527,6 +529,18 @@ CUE module: `opmodel.dev/catalogs/opm@v4`
 ---
 
 ## Traits
+
+### v1alpha1
+
+| Definition | File | Description |
+|---|---|---|
+| `#Backup` | `traits/v1alpha1/backup.cue` |  |
+| `#BackupRetentionSchema` | `traits/v1alpha1/backup.cue` | How long captures are kept: keep counts per tier, a keepWithin span, or both |
+| `#BackupSchema` | `traits/v1alpha1/backup.cue` | The backup policy |
+| `#BackupTrait` | `traits/v1alpha1/backup.cue` | Scheduled backup policy for a component's persistent state |
+| `#BackupCommand` | `traits/v1alpha1/backup_command.cue` |  |
+| `#BackupCommandSchema` | `traits/v1alpha1/backup_command.cue` | What a component hands an engine to produce a consistent artefact |
+| `#BackupCommandTrait` | `traits/v1alpha1/backup_command.cue` | The backup is the artefact a command writes to stdout; the command owns its own quiesce |
 
 ### v1beta1
 

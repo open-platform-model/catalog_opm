@@ -56,7 +56,20 @@ import (
 					metadata: {
 						name:      "\(#context.#moduleInstanceMetadata.name)-\(#context.#componentMetadata.name)-\(volumeName)"
 						namespace: #context.#moduleInstanceMetadata.namespace
-						labels:    #context.labels
+
+						// WHY unification and not a key folded into componentLabels:
+						// #context.labels is open and accepts an extra key, while
+						// #context.componentLabels is closed and refuses one
+						// ("field not allowed", surfaced only as an opaque transformer
+						// error at render). The value is the component's volume map key,
+						// which is exactly what a policy naming volumes says, so the two
+						// sides agree by construction.
+
+						// Rendered labels plus the per-volume selection key. An adapter
+						// backing up one of a component's volumes selects that volume's
+						// PVC by matching volume.opmodel.dev/name against the volume's
+						// map key. Labels are mutable, so the key lands in place.
+						labels: #context.labels & {"volume.opmodel.dev/name": volumeName}
 						if len(#context.componentAnnotations) > 0 {
 							annotations: #context.componentAnnotations
 						}
@@ -76,4 +89,46 @@ import (
 			},
 		]
 	}
+}
+
+/////////////////////////////////////////////////////////////////
+//// Test Data
+/////////////////////////////////////////////////////////////////
+
+// Test: a component with two persistentClaim volumes, so the per-volume
+// selection key is proved distinct per PVC rather than constant.
+_testVolumeLabelComponent: {
+	res.#Volumes
+	metadata: name: "db"
+	spec: volumes: {
+		data: persistentClaim: {
+			size:         "10Gi"
+			accessMode:   "ReadWriteOnce"
+			storageClass: "fast"
+		}
+		exports: persistentClaim: {
+			size:         "5Gi"
+			accessMode:   "ReadWriteOnce"
+			storageClass: "standard"
+		}
+	}
+}
+
+_testVolumeLabelOutput: (#PVCTransformer.#transform & {
+	#moduleInstance: metadata: {
+		name:      "app"
+		namespace: "prod"
+	}
+	#component: _testVolumeLabelComponent
+	#context: #runtimeName: "opm-cli"
+}).output
+
+// Interpolation pins: each PVC's name and its volume.opmodel.dev/name label
+// are forced concrete together, so a label that went missing, went constant,
+// or disagreed with the volume map key errors. `cue eval -c -e
+// _testVolumeLabel ./transformers` additionally proves concreteness.
+_testVolumeLabel: {
+	let P = _testVolumeLabelOutput
+	pvc0: "\(P[0].metadata.name)|\(P[0].metadata.labels["volume.opmodel.dev/name"])" & "app-db-data|data"
+	pvc1: "\(P[1].metadata.name)|\(P[1].metadata.labels["volume.opmodel.dev/name"])" & "app-db-exports|exports"
 }
