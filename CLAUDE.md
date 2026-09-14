@@ -80,7 +80,7 @@ A platform subscribes to each catalog it wants: `#registry` is keyed by module p
 
 ### Version-segment filing (0010 D49)
 
-Contract members (resources, traits, blueprints) file under `<module>/<kind>/<apiVersion>/` — e.g. `opm/resources/v1beta1/configmap.cue`, `k8s/resources/v1/deployment.cue`, `opm/resources/v1alpha1/namespace.cue` — with the package clause equal to the version segment (`package v1beta1`) and `metadata.modulePath` carrying it (`"\(id.kindPrefix.resources)/v1beta1"`). The segment is derived from the member's own `apiVersion` and **never enters the fqn** — each catalog's key space stays flat (`…/resources/configmap@v1beta1`). Transformers file flat under `<module>/transformers/` (they have no apiVersion). Consumers import a version package explicitly: `res "opmodel.dev/catalogs/opm/resources/v1beta1"`, `k8s "opmodel.dev/catalogs/k8s/resources/v1"`.
+Contract members (resources, traits, blueprints) file under `<module>/<kind>/<apiVersion>/` — e.g. `opm/resources/v1beta1/configmap.cue`, `k8s/resources/v1/deployment.cue`, `opm/resources/v1alpha1/namespace.cue` — with the package clause equal to the version segment (`package v1beta1`) and `metadata.modulePath` carrying it (`"\(id.kindPrefix.resources)/v1beta1"`). The segment is derived from the member's own `apiVersion` and **never enters the fqn** — each catalog's key space stays flat (`…/resources/configmap@v1beta1`). Transformers file flat under `<module>/transformers/` (they have no apiVersion). Consumers import a version package explicitly: `res "opmodel.dev/catalogs/opm/resources/v1beta1"`, `k8s "opmodel.dev/catalogs/k8s/resources/v1"`. Filing is half of a member's registration; the other half is its entry in the module's `catalog.cue` map (Working Style, Listing), which `task vet:listing` enforces.
 
 This is a pure CUE repository: catalog definitions plus the tooling to validate, index, and publish them. No Go code.
 
@@ -104,13 +104,13 @@ Read these on entry:
 - `Taskfile.yml` — authoritative build/validate/publish entrypoints.
 - `openspec/config.yaml` — normative constitution + OpenSpec artifact rules. This repo has no `CONSTITUTION.md`; that file and this one are the two normative sources, and `Taskfile.yml` wins over both on how commands run.
 - `opm/INDEX.md`, `k8s/INDEX.md` — generated definition indexes (each ships inside its CUE module).
-- `opm/catalog.cue`, `k8s/catalog.cue` — the catalog manifests (`c.#Catalog`, enumerates transformers).
+- `opm/catalog.cue`, `k8s/catalog.cue` — the catalog manifests (`c.#Catalog`, enumerates members and transformers).
 
 ## Repository Layout
 
 ```text
 opm/cue.mod/module.cue   CUE module manifest — opmodel.dev/catalogs/opm@v4
-opm/catalog.cue          catalog manifest (bare c.#Catalog, enumerates transformers)
+opm/catalog.cue          catalog manifest (bare c.#Catalog, enumerates members and transformers)
 opm/identity/            ModulePath + Version (publish-time stamping anchor)
 opm/resources/v1beta1/   #Resource definitions (+ #Component wrappers)
 opm/resources/v1alpha1/  experimental abstraction candidates (ex catalog_opm_experimental)
@@ -121,7 +121,7 @@ opm/schemas/             shared schema types + vendored Kubernetes types
 opm/INDEX.md             generated definition index (ships inside the CUE module)
 
 k8s/cue.mod/module.cue   CUE module manifest — opmodel.dev/catalogs/k8s@v1
-k8s/catalog.cue          catalog manifest (bare c.#Catalog, enumerates transformers)
+k8s/catalog.cue          catalog manifest (bare c.#Catalog, enumerates members and transformers)
 k8s/identity/            ModulePath + Version (publish-time stamping anchor)
 k8s/resources/v1/        passthrough #Resources mirroring upstream GA APIs
 k8s/resources/v2/        passthrough #Resources mirroring upstream v2 APIs (hpa)
@@ -166,11 +166,12 @@ Never hand-edit `apiVersion`/`catalogVersion`/`fqn` to chase a release — only 
 | `task fmt` / `task fmt:check` | Format CUE files / verify formatting, both modules   |
 | `task vet`                    | Validate both catalog packages                       |
 | `task vet:layering`           | Enforce the layering rule (neither catalog imports the other) |
+| `task vet:listing`            | Enforce the listing rule (every member is a key of its catalog map, and every key a member) |
 | `task tidy`                   | Tidy both CUE module manifests                       |
 | `task generate:index`         | Regenerate `opm/INDEX.md` and `k8s/INDEX.md`         |
 | `task generate:index:check`   | Verify both INDEX files are up to date               |
 | `task docs:check`             | Fail on any doc comment over 6 lines in both modules   |
-| `task check`                  | fmt check + vet + layering + INDEX freshness + doc-comment limit |
+| `task check`                  | fmt check + vet + layering + listing + INDEX freshness + doc-comment limit |
 | `task branch-tag`             | Print each module's deterministic `-dev` tag for HEAD (no side effects) |
 
 Every task fans out over the `MODULES` var (`opm k8s`). Adding a third catalog is one string edit there.
@@ -203,8 +204,8 @@ Releases are driven by Conventional Commit types. Use the right type.
 ## Working Style for Agents
 
 - Keep each module's `INDEX.md` in sync when adding, removing, or renaming definitions, or when a module tree changes. `task generate:index` regenerates both (review before commit).
-- When adding a transformer, register it in that module's `catalog.cue` `#transformers` map (keyed by `metadata.fqn`). Resources/traits/blueprints surface transitively through transformer required/optional maps.
-- Run `task check` before finishing — fmt, vet, layering, INDEX freshness and the doc-comment limit in one shot.
+- **Listing:** every contract member is listed in its catalog's `#resources` / `#traits` / `#blueprints` map and every transformer in `#transformers`, keyed `(pkg.#X.metadata.fqn)`, never a string literal; one import alias per version segment directory, `v1alpha1` members grouped last. Listing is what makes a contract visible to a subscribing platform (enhancement 0015 D1), so a provider-fulfilled trait is listed here and implemented nowhere here. `task vet:listing` diffs each map against the members filed under `<module>/<kind>/` and fails naming the missing or extra key; a new member's checklist gains the entry.
+- Run `task check` before finishing — fmt, vet, layering, listing, INDEX freshness and the doc-comment limit in one shot.
 - **Doc comments.** Every `//` block that ends on the line directly above a field or definition is that declaration's doc comment; `cue lsp` hover, `Value.Doc()`, `cue def` and `task generate:index` replay it verbatim. One blank line ends the block, and `cue fmt` preserves that blank line. Three tiers:
   - **Doc comment, at most 6 lines**: the contract an author needs (what it is, what it renders, what a value must satisfy), optionally ending with `See docs/<note>.md`.
   - **`// WHY ...` block above the doc comment, separated from it by one blank line**: rationale that must stay next to the code (measured evaluator behaviour, rendering decisions, history). Every comment above a declaration reads as belonging to it, so the block goes above, never below the field. The blank line between the two groups is load-bearing; the `WHY` prefix marks it so nobody closes the gap. What stays in the doc comment, in this order until 6 lines are used: what it is, what it renders, what a value must satisfy, then the `See` pointer.

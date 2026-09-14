@@ -48,6 +48,9 @@ jobs:
       - name: Enforce family layering
         run: task vet:layering
 
+      - name: Verify every member is listed in its catalog map
+        run: task vet:listing
+
       - name: Verify every INDEX.md is up to date
         run: task generate:index:check
 

@@ -142,14 +142,14 @@ _testPDBNoMaxUnavailable: [
 // The budget must select exactly the workload's pods, so its selector has to be
 // the same value the Deployment transformer used. Compared by length
 // (non-invertible) plus a per-key presence check.
-_testPDBSelectorSize: (len(_testPDBTransformer.spec.selector.matchLabels) + 0) & 2
+_testPDBSelectorSize: (len(_testPDBTransformer.spec.selector.matchLabels) + 0) & 3
 
 _testPDBSelectorMatchesDeployment: [
 	for k, v in (#DeploymentTransformer.#transform & {
 		#component: _testPDBComponent
 		#context:   _testPDBContext
 	}).output.spec.selector.matchLabels if _testPDBTransformer.spec.selector.matchLabels[k] == v {k},
-] & [_, _]
+] & [_, _, _]
 
 // Default naming: no metadata.resourceName, so the budget carries the component's
 // instance-scoped resourceName, byte-identical to the Deployment's name.

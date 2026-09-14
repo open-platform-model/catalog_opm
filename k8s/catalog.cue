@@ -1,8 +1,8 @@
 // Catalog manifest for the OPM Kubernetes catalog. Embeds bare c.#Catalog
 // (modules pattern — no Catalog: wrapper), sources metadata from the sibling
-// identity/ package, and enumerates every transformer keyed by its own
-// metadata.fqn. The #Catalog pattern constraint stamps each entry's
-// modulePath/version in lockstep (enhancement 0001 D19/D25).
+// identity/ package, and enumerates every member keyed by its own
+// metadata.fqn. The #Catalog pattern constraints stamp each entry's
+// modulePath/catalogVersion in lockstep (enhancement 0001 D19/D25).
 //
 // This catalog is the RAW PASSTHROUGH surface: native Kubernetes APIs carried
 // as-is, the last resort for what the abstraction catalog
@@ -10,14 +10,18 @@
 // other way: nothing here imports the abstraction catalog, and the abstraction
 // catalog never imports this one.
 //
-// Resources are not enumerated here — they surface transitively through each
-// transformer's required/optional maps.
+// Resources are listed in #resources (enhancement 0015 D1), one import alias
+// per version segment directory; each member's apiVersion mirrors the upstream
+// Kubernetes API version at adoption (0010 D48). The raw catalog defines no
+// traits or blueprints, so #traits and #blueprints stay absent, which is empty.
 package k8s
 
 import (
 	c "opmodel.dev/core@v2"
 	id "opmodel.dev/catalogs/k8s/identity"
 	t "opmodel.dev/catalogs/k8s/transformers"
+	v1 "opmodel.dev/catalogs/k8s/resources/v1"
+	v2 "opmodel.dev/catalogs/k8s/resources/v2"
 )
 
 c.#Catalog
@@ -25,6 +29,40 @@ metadata: {
 	modulePath:  id.ModulePath
 	version:     id.Version
 	description: "OPM Kubernetes catalog — native Kubernetes APIs carried through as-is"
+}
+
+#resources: {
+	(v1.#APIServiceResource.metadata.fqn):                     v1.#APIServiceResource
+	(v1.#ClusterRoleBindingResource.metadata.fqn):             v1.#ClusterRoleBindingResource
+	(v1.#ClusterRoleResource.metadata.fqn):                    v1.#ClusterRoleResource
+	(v1.#ConfigMapResource.metadata.fqn):                      v1.#ConfigMapResource
+	(v1.#CronJobResource.metadata.fqn):                        v1.#CronJobResource
+	(v1.#CSIDriverResource.metadata.fqn):                      v1.#CSIDriverResource
+	(v1.#DaemonSetResource.metadata.fqn):                      v1.#DaemonSetResource
+	(v1.#DeploymentResource.metadata.fqn):                     v1.#DeploymentResource
+	(v1.#IngressClassResource.metadata.fqn):                   v1.#IngressClassResource
+	(v1.#IngressResource.metadata.fqn):                        v1.#IngressResource
+	(v1.#JobResource.metadata.fqn):                            v1.#JobResource
+	(v1.#MutatingWebhookConfigurationResource.metadata.fqn):   v1.#MutatingWebhookConfigurationResource
+	(v1.#NamespaceResource.metadata.fqn):                      v1.#NamespaceResource
+	(v1.#NetworkPolicyResource.metadata.fqn):                  v1.#NetworkPolicyResource
+	(v1.#ObjectsResource.metadata.fqn):                        v1.#ObjectsResource
+	(v1.#PersistentVolumeClaimResource.metadata.fqn):          v1.#PersistentVolumeClaimResource
+	(v1.#PersistentVolumeResource.metadata.fqn):               v1.#PersistentVolumeResource
+	(v1.#PodDisruptionBudgetResource.metadata.fqn):            v1.#PodDisruptionBudgetResource
+	(v1.#PodResource.metadata.fqn):                            v1.#PodResource
+	(v1.#RoleBindingResource.metadata.fqn):                    v1.#RoleBindingResource
+	(v1.#RoleResource.metadata.fqn):                           v1.#RoleResource
+	(v1.#SecretResource.metadata.fqn):                         v1.#SecretResource
+	(v1.#ServiceAccountResource.metadata.fqn):                 v1.#ServiceAccountResource
+	(v1.#ServiceResource.metadata.fqn):                        v1.#ServiceResource
+	(v1.#StatefulSetResource.metadata.fqn):                    v1.#StatefulSetResource
+	(v1.#StorageClassResource.metadata.fqn):                   v1.#StorageClassResource
+	(v1.#ValidatingWebhookConfigurationResource.metadata.fqn): v1.#ValidatingWebhookConfigurationResource
+	(v1.#VolumeSnapshotClassResource.metadata.fqn):            v1.#VolumeSnapshotClassResource
+
+	// autoscaling/v2 (0010 D48: the segment is upstream's, not this repo's).
+	(v2.#HorizontalPodAutoscalerResource.metadata.fqn): v2.#HorizontalPodAutoscalerResource
 }
 
 #transformers: {
