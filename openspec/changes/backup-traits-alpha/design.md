@@ -5,6 +5,7 @@ See `proposal.md` for motivation. Files and segments:
 - `opm/transformers/pvc_transformer.cue`: one label added to the PVC's `metadata.labels`. Flat transformer file, no segment.
 - `opm/traits/v1alpha1/backup.cue` and `opm/traits/v1alpha1/backup_command.cue`: new directory, `package v1alpha1`, the first `v1alpha1` traits in the module (resources already have a `v1alpha1` segment). Filing per 0010 D49: `modulePath: "\(id.kindPrefix.traits)/v1alpha1"`, `fqn` flat.
 - `opm/schemas/common.cue`: `#CronSchema` beside `#NameType`. The `schemas` package cannot import core, so it holds plain types.
+- `opm/catalog.cue`: both traits keyed into `#traits`, behind a new `tra` alias for the `v1alpha1` traits segment. Filing is only half a member's registration; `task vet:listing` enforces the other half.
 - `docs/transformer-authoring.md` (new), `CLAUDE.md` (one pointer line and one rule), `opm/INDEX.md` (regenerated).
 
 Constraints: doc comments at most 6 lines (`task docs:check`); the publish gates run locally as `opm catalog publish ./opm --dry-run` (exit 0 is GO), which is what catches a trait whose `optional` is pinned. The measured shape this change lands is `enhancements/0015/experiments/02-policy-and-command/contracts/traits/v1alpha1/`; deviations are listed under Research & Decisions.

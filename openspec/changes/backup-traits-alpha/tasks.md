@@ -9,9 +9,10 @@
 - [x] 2.1 `opm/schemas/common.cue`: add `#CronSchema` (five-field, D-D) with a doc comment.
 - [x] 2.2 `opm/traits/v1alpha1/backup.cue` (new directory, `package v1alpha1`): `#BackupTrait`, `#Backup`, `#BackupSchema`, `#BackupRetentionSchema` per the proposal's After block and D-B; doc comments carry the keep-more rule for `method`, `excludes`, `maintenance` and the P1 dependency of `volumes`.
 - [x] 2.3 `opm/traits/v1alpha1/backup_command.cue`: `#BackupCommandTrait`, `#BackupCommand`, `#BackupCommandSchema` per D-C (`optional: bool | *false`, no quote ban, `compensate` a shell line, `fileExtension?` without default); doc comments say which engine class reads `landing` and which reads stdout.
-- [x] 2.4 `task generate:index`; review the two new trait rows and the schema row in `opm/INDEX.md`.
-- [x] 2.5 `opm catalog publish ./opm --dry-run` exits 0 (both traits pass the member-FQN and trait-optional gates; the compatibility gate is off at alpha).
-- [x] 2.6 `task check` green, then commit `feat(traits): add backup and backup-command at v1alpha1`
+- [x] 2.4 `opm/catalog.cue`: key both traits into `#traits` behind a `tra` alias for the new `v1alpha1` segment (`task vet:listing` refuses a member no key names; listing is what makes a provider-fulfilled contract visible to a platform, 0015 D1).
+- [x] 2.5 `task generate:index`; review the two new trait rows and the schema row in `opm/INDEX.md`.
+- [x] 2.6 `opm catalog publish ./opm --dry-run` reports 0 refusals other than already-published (both traits pass the member-FQN and trait-optional gates; the compatibility gate is off at alpha). Outside a release the committed version is live, so that one refusal is expected and the command exits non-zero.
+- [x] 2.7 `task check` green, then commit `feat(traits): add backup and backup-command at v1alpha1`
 
 ## 3. Durable decisions
 
