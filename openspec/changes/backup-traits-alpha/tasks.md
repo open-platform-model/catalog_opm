@@ -15,6 +15,6 @@
 
 ## 3. Durable decisions
 
-- [ ] 3.1 `docs/transformer-authoring.md`: the label-key rule, validation by unification with the measured `error()` behaviour, presence guards on component-derived fields, and the closed `componentLabels` idiom (design.md § Durable decisions).
-- [ ] 3.2 `CLAUDE.md` Working Style: the no-stub rule for provider-fulfilled members and one pointer line to the note, beside the closedness-workaround pointer.
-- [ ] 3.3 `task check` green, then commit `docs(opm): record adapter-authoring rules from the backup experiments`
+- [x] 3.1 `docs/transformer-authoring.md`: the label-key rule, validation by unification with the measured `error()` behaviour, presence guards on component-derived fields, and the closed `componentLabels` idiom (design.md § Durable decisions).
+- [x] 3.2 `CLAUDE.md` Working Style: the no-stub rule for provider-fulfilled members and one pointer line to the note, beside the closedness-workaround pointer.
+- [x] 3.3 `task check` green, then commit `docs(opm): record adapter-authoring rules from the backup experiments`
