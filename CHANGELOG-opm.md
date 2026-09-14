@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.1.1](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.1.0...opm-v4.1.1) (2026-09-14)
+
+
+### Bug Fixes
+
+* **deps:** bump cue.dev/x/k8s.io to v0.11.0 ([#84](https://github.com/open-platform-model/catalog_opm/issues/84)) ([5cadc8c](https://github.com/open-platform-model/catalog_opm/commit/5cadc8c5568f80fb7cd1fee98eebce29df67b74f))
+
 ## [4.1.0](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.0.1...opm-v4.1.0) (2026-09-14)
 
 
