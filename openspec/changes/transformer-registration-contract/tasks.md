@@ -18,6 +18,6 @@ Three sections. design.md carries no unverified assumption, so section 1 is not 
 
 ## 3. Durable decisions
 
-- [ ] 3.1 `CLAUDE.md` Working Style: a transformer fixture supplies `#transform.#moduleInstance`, never `#context.#moduleInstanceMetadata`, with the measured reason (the 0019 D12 projection; `cue vet` stays green because the failure is incomplete-class, so `cue export` is what checks a fixture). Verify: the rule names both the wrong and the right spelling.
-- [ ] 3.2 Record the pre-existing breakage as a follow-up rather than fixing it here: one line in `CLAUDE.md` beside the rule, or a `docs/` note, stating that 21 of the 23 transformer fixtures predate the projection and are unchecked until their own change. Verify: the count and the date are stated, so the follow-up change has its scope.
-- [ ] 3.3 `task check` green, then commit `docs(claude): require the moduleInstance fixture shape for transformers`.
+- [x] 3.1 `CLAUDE.md` Working Style: a transformer fixture supplies `#transform.#moduleInstance`, never `#context.#moduleInstanceMetadata`, with the measured reason (the 0019 D12 projection; `cue vet` stays green because the failure is incomplete-class, so `cue export` is what checks a fixture). Verify: the rule names both the wrong and the right spelling.
+- [x] 3.2 Record the pre-existing breakage as a follow-up rather than fixing it here: one line in `CLAUDE.md` beside the rule, or a `docs/` note, stating that 21 of the 23 transformer fixtures predate the projection and are unchecked until their own change. Verify: the count and the date are stated, so the follow-up change has its scope.
+- [x] 3.3 `task check` green, then commit `docs(claude): require the moduleInstance fixture shape for transformers`.
