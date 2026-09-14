@@ -42,6 +42,7 @@ metadata: {
 	// catalog_opm_experimental — 0010 D47).
 	(resa.#MutatingWebhooksResource.metadata.fqn):            resa.#MutatingWebhooksResource
 	(resa.#NamespacesResource.metadata.fqn):                  resa.#NamespacesResource
+	(resa.#TransformerRegistrationResource.metadata.fqn):     resa.#TransformerRegistrationResource
 	(resa.#ValidatingAdmissionPoliciesResource.metadata.fqn): resa.#ValidatingAdmissionPoliciesResource
 	(resa.#ValidatingWebhooksResource.metadata.fqn):          resa.#ValidatingWebhooksResource
 }

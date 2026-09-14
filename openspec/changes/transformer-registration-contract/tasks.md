@@ -4,10 +4,10 @@ Three sections. design.md carries no unverified assumption, so section 1 is not 
 
 ## 1. opm/resources/v1alpha1/transformer_registration.cue
 
-- [ ] 1.1 Add `#TransformerRegistrationResource` per design.md § The contract: `fulfilment: "catalog"`, no `matchLabels`, `spec.transformerRegistration` with `catalog!`, `version!` and `provides!` typed on core's `#ModulePathType`, `#VersionType` and `#ContractFQNType`. Doc-comment the three required fields and why the contract names a catalog, never a module. Verify: `(cd opm && cue vet ./...)` passes.
-- [ ] 1.2 Add a `#TransformerRegistration` component wrapper beside it, the idiom every member here follows (`#resources: (fqn): <Resource>`). Verify: a component attaching it with all three spec fields vets, and one omitting `catalog` fails naming the field (run once, in place, then remove the failing case).
-- [ ] 1.3 List the member in `opm/catalog.cue` `#resources`, keyed by its `metadata.fqn`. Verify: `task vet:listing` passes; commenting the entry out makes it fail naming the key.
-- [ ] 1.4 `task generate:index`, then `task check` green, then commit `feat(resources): add the transformer-registration contract at v1alpha1`.
+- [x] 1.1 Add `#TransformerRegistrationResource` per design.md § The contract: `fulfilment: "catalog"`, no `matchLabels`, `spec.transformerRegistration` with `catalog!`, `version!` and `provides!` typed on core's `#ModulePathType`, `#VersionType` and `#ContractFQNType`. Doc-comment the three required fields and why the contract names a catalog, never a module. Verify: `(cd opm && cue vet ./...)` passes.
+- [x] 1.2 Add a `#TransformerRegistration` component wrapper beside it, the idiom every member here follows (`#resources: (fqn): <Resource>`). Verify: a component attaching it with all three spec fields vets, and one omitting `catalog` fails naming the field (run once, in place, then remove the failing case).
+- [x] 1.3 List the member in `opm/catalog.cue` `#resources`, keyed by its `metadata.fqn`. Verify: `task vet:listing` passes; commenting the entry out makes it fail naming the key.
+- [x] 1.4 `task generate:index`, then `task check` green, then commit `feat(resources): add the transformer-registration contract at v1alpha1`.
 
 ## 2. opm/transformers/transformer_registration_transformer.cue
 

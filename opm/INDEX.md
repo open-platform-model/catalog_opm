@@ -74,6 +74,8 @@ CUE module: `opmodel.dev/catalogs/opm@v4`
 | `#NamespaceSchema` | `resources/v1alpha1/namespace.cue` | Kubernetes Namespace, emitted with its exact name |
 | `#Namespaces` | `resources/v1alpha1/namespace.cue` |  |
 | `#NamespacesResource` | `resources/v1alpha1/namespace.cue` |  |
+| `#TransformerRegistration` | `resources/v1alpha1/transformer_registration.cue` |  |
+| `#TransformerRegistrationResource` | `resources/v1alpha1/transformer_registration.cue` | A provider module's claim that its catalog implements platform contracts |
 | `#MutatingWebhookConfigurationSchema` | `resources/v1alpha1/webhook.cue` |  |
 | `#MutatingWebhookSchema` | `resources/v1alpha1/webhook.cue` | Mutating-only extension: the mutating admission API additionally supports reinvocationPolicy |
 | `#MutatingWebhooks` | `resources/v1alpha1/webhook.cue` |  |
