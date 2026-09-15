@@ -75,9 +75,10 @@ tasks:
   vet:listing:
     desc: >
       Enforce the listing rule: every contract member filed under
-      <module>/<kind>/<apiVersion>/ is a key of that module's catalog.cue
-      #<kind> map, and every key names a member. Core validates a listed
-      member; this check is what makes the list complete.
+      <module>/<kind>/<apiVersion>/, and every transformer filed flat under
+      <module>/transformers/, is a key of that module's catalog.cue #<kind>
+      map, and every key names a member. Core validates a listed member; this
+      check is what makes the list complete.
     cmds:
       - |
         set -e

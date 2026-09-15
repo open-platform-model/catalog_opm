@@ -74,6 +74,8 @@ CUE module: `opmodel.dev/catalogs/opm@v4`
 | `#NamespaceSchema` | `resources/v1alpha1/namespace.cue` | Kubernetes Namespace, emitted with its exact name |
 | `#Namespaces` | `resources/v1alpha1/namespace.cue` |  |
 | `#NamespacesResource` | `resources/v1alpha1/namespace.cue` |  |
+| `#TransformerRegistration` | `resources/v1alpha1/transformer_registration.cue` |  |
+| `#TransformerRegistrationResource` | `resources/v1alpha1/transformer_registration.cue` | A provider module's claim that its catalog implements platform contracts |
 | `#MutatingWebhookConfigurationSchema` | `resources/v1alpha1/webhook.cue` |  |
 | `#MutatingWebhookSchema` | `resources/v1alpha1/webhook.cue` | Mutating-only extension: the mutating admission API additionally supports reinvocationPolicy |
 | `#MutatingWebhooks` | `resources/v1alpha1/webhook.cue` |  |
@@ -675,6 +677,7 @@ CUE module: `opmodel.dev/catalogs/opm@v4`
 | `#StatefulsetTransformer` | `transformers/statefulset_transformer.cue` | StatefulsetTransformer converts stateful workload components to Kubernetes StatefulSets |
 | `#TcpRouteTransformer` | `transformers/tcp_route_transformer.cue` | TcpRouteTransformer creates Gateway API TCPRoutes from components with TcpRoute and Expose traits |
 | `#TlsRouteTransformer` | `transformers/tls_route_transformer.cue` | TlsRouteTransformer creates Gateway API TLSRoutes from components with TlsRoute and Expose traits |
+| `#TransformerRegistrationTransformer` | `transformers/transformer_registration_transformer.cue` | TransformerRegistrationTransformer renders a provider module's claim as the cluster-scoped TransformerRegistration the operator accepts |
 | `#ValidatingWebhookTransformer` | `transformers/validating_webhook_transformer.cue` | ValidatingWebhookTransformer converts ValidatingWebhooks resources to Kubernetes ValidatingWebhookConfigurations |
 
 ---
