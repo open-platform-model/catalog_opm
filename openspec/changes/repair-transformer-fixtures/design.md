@@ -171,6 +171,32 @@ The gate lands **unwired** in section 1 and is wired into `task check` only in t
 **Decision**: Not usable; the gate needs `cue export` per field.
 **Rationale**: it exits 0. `cue vet -c` does not check hidden fields, which is the same property the library's own pin files record, and every fixture here is hidden on purpose so that an importing package never evaluates them.
 
+## Findings
+
+### Section 2 (workload transformers): None.
+
+No golden literal moved. All 17 fixtures across the five files (`deployment`, `statefulset`,
+`daemonset`, `job`, `cronjob`) export concretely after the input edit alone, and `cue vet ./...`
+still passes with every literal exactly as committed — verified by diffing the batch: the only
+changed lines are the `#moduleInstance` / `#context` plumbing.
+
+The design expected label drift (a component with no `metadata.name` rendering a different
+`app.kubernetes.io/name` than its literal claims). It did not occur here because every one of
+these fixtures already declared `#componentMetadata: name:` equal to its component's own
+`metadata.name`, so the projection computes the same value the hand-written fill did.
+
+### Measured: `cue vet` DOES catch an error-class conflict in a hidden field
+
+Worth recording because it bounds exactly what the new gate adds. Reverting
+`_testDeployDefaultNameResolves`'s pin from `"istio-istiod"` to `"istio-WRONG"` makes
+`cue vet ./...` fail naming the field, even though it is hidden. What `cue vet` cannot see is the
+*incomplete* class: a fixture whose inputs no longer make the output concrete, where the
+interpolation guard is merely unresolved rather than conflicting.
+
+So the two checks are complementary and both are needed: `cue vet` enforces the golden literals,
+and `task vet:fixtures` enforces that there is something concrete for them to be enforced against.
+`cue vet -c` closes neither gap — it does not descend into hidden fields at all.
+
 ## Risks / Trade-offs
 
 - [Re-pinning 44 fixtures is a large mechanical diff in which a real defect could hide] -> two batches with a per-file rule: export must succeed and vet must still pass, and any literal that had to change in a way not explained by the projection is recorded as a Finding before the section's commit.

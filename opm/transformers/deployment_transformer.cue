@@ -256,24 +256,25 @@ import (
 ////   - LEAKED field -> empty comprehension against an empty list.
 /////////////////////////////////////////////////////////////////
 
-// Shared stub context. Core projects #componentMetadata from #component
-// (alpha.7, 0019 D12), so componentLabels resolves to three entries:
-// app.kubernetes.io/name=istiod, module-instance.opmodel.dev/name=istio and
-// the container wrapper's required core.opmodel.dev/workload-type label,
-// which the runtime always rendered. The name here must agree with every
-// component that shares this context.
-_testDeployContext: {
-	#moduleInstanceMetadata: {
+// Shared stub inputs. Core projects BOTH #moduleInstanceMetadata and
+// #componentMetadata at the #transform site (alpha.7, 0019 D12), so a fixture
+// supplies #moduleInstance and #component and never the projections; filling
+// them leaves #moduleInstance at `_` and the output never becomes concrete.
+// componentLabels therefore resolves to three entries:
+// app.kubernetes.io/name=istiod (from #component.metadata.name),
+// module-instance.opmodel.dev/name=istio and the container wrapper's required
+// core.opmodel.dev/workload-type label.
+_testDeployModuleInstance: {
+	metadata: {
 		name:      "istio"
 		namespace: "istio-system"
-		fqn:       "opmodel.dev/catalogs/opm/istio@0.1.0"
-		version:   "0.1.0"
+		fqn:       "opmodel.dev/modules/istio@0.1.0"
 		uuid:      "00000000-0000-0000-0000-000000000000"
 	}
-	#componentMetadata: name: "istiod"
-	#runtimeName: "opm-test"
-	componentAnnotations: {}
+	#moduleMetadata: version: "0.1.0"
 }
+
+_testDeployContext: #runtimeName: "opm-test"
 
 _testDeployContainer: {
 	name: "discovery"
@@ -299,8 +300,9 @@ _testDeployDefaultNameComponent: {
 }
 
 _testDeployDefaultNameTransformer: (#DeploymentTransformer.#transform & {
-	#component: _testDeployDefaultNameComponent
-	#context:   _testDeployContext
+	#moduleInstance: _testDeployModuleInstance
+	#component:      _testDeployDefaultNameComponent
+	#context:        _testDeployContext
 }).output
 
 _testDeployDefaultNameResolves: "\(_testDeployDefaultNameTransformer.metadata.name)" & "istio-istiod"
@@ -361,8 +363,9 @@ _testDeployExactComponent: {
 }
 
 _testDeployExactTransformer: (#DeploymentTransformer.#transform & {
-	#component: _testDeployExactComponent
-	#context:   _testDeployContext
+	#moduleInstance: _testDeployModuleInstance
+	#component:      _testDeployExactComponent
+	#context:        _testDeployContext
 }).output
 
 _testDeployExactNameResolves: "\(_testDeployExactTransformer.metadata.name)" & "istiod"
@@ -437,8 +440,9 @@ _testDeployRecreateComponent: {
 }
 
 _testDeployRecreateTransformer: (#DeploymentTransformer.#transform & {
-	#component: _testDeployRecreateComponent
-	#context:   _testDeployContext
+	#moduleInstance: _testDeployModuleInstance
+	#component:      _testDeployRecreateComponent
+	#context:        _testDeployContext
 }).output
 
 // ABSENT-field guard, NOT the interpolation idiom. The failure mode being
@@ -492,8 +496,9 @@ _testDeployRollingDefaultsComponent: {
 }
 
 _testDeployRollingDefaultsTransformer: (#DeploymentTransformer.#transform & {
-	#component: _testDeployRollingDefaultsComponent
-	#context:   _testDeployContext
+	#moduleInstance: _testDeployModuleInstance
+	#component:      _testDeployRollingDefaultsComponent
+	#context:        _testDeployContext
 }).output
 
 // The strategy is emitted with its type...

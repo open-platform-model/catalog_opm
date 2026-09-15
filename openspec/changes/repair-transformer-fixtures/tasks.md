@@ -11,9 +11,9 @@ Five sections. Section 1 is the spike: it builds the gate and turns design.md's 
 
 ## 2. Repair the workload transformers
 
-- [ ] 2.1 Repair `deployment_transformer.cue`, `statefulset_transformer.cue`, `daemonset_transformer.cue`, `job_transformer.cue` and `cronjob_transformer.cue` per design.md § The repair is mechanical: replace the `#context` fill with `#moduleInstance` plus `#context: #runtimeName`, then re-pin each golden literal against the actual `cue export`. Verify: `bash .tasks/fixtures.sh opm` reports no failure from these five files, and `cue vet ./...` still passes with the literals in place.
-- [ ] 2.2 Triage every literal that had to change: a change explained by the projection (a label whose source moved) is the fixture being stale; anything else is a rendering defect. Record each defect in design.md § Findings with transformer, expected and actual bytes. Verify: design.md either carries a Findings section or states "None." for this batch.
-- [ ] 2.3 `task check` green, then commit `test(transformers): repair the workload transformer fixtures`.
+- [x] 2.1 Repair `deployment_transformer.cue`, `statefulset_transformer.cue`, `daemonset_transformer.cue`, `job_transformer.cue` and `cronjob_transformer.cue` per design.md § The repair is mechanical: replace the `#context` fill with `#moduleInstance` plus `#context: #runtimeName`, then re-pin each golden literal against the actual `cue export`. Verify: `bash .tasks/fixtures.sh opm` reports no failure from these five files, and `cue vet ./...` still passes with the literals in place.
+- [x] 2.2 Triage every literal that had to change: a change explained by the projection (a label whose source moved) is the fixture being stale; anything else is a rendering defect. Record each defect in design.md § Findings with transformer, expected and actual bytes. Verify: design.md either carries a Findings section or states "None." for this batch.
+- [x] 2.3 `task check` green, then commit `test(transformers): repair the workload transformer fixtures`.
 
 ## 3. Repair the remaining transformers
 
