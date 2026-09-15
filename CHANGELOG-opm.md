@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.4.0](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.3.1...opm-v4.4.0) (2026-09-15)
+
+
+### Features
+
+* **resources:** derive a provider catalog's registration from its own transformers ([f02bc21](https://github.com/open-platform-model/catalog_opm/commit/f02bc218f01150d6db3642b7834bf081fec3f6da))
+
 ## [4.3.1](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.3.0...opm-v4.3.1) (2026-09-15)
 
 
