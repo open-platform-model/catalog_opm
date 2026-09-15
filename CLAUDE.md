@@ -163,7 +163,7 @@ Never hand-edit `apiVersion`/`catalogVersion`/`fqn` to chase a release — only 
 
 | Command                       | Purpose                                              |
 | ---                           | ---                                                  |
-| `task fmt` / `task fmt:check` | Format CUE files / verify formatting, both modules   |
+| `task fmt` / `task fmt:check` | Format CUE files / verify formatting, both modules. **`fmt:check` formats, then diffs the git INDEX** — unstaged edits read as a failure even when correctly formatted, so stage before running it or `task check` |
 | `task vet`                    | Validate both catalog packages                       |
 | `task vet:layering`           | Enforce the layering rule (neither catalog imports the other) |
 | `task vet:listing`            | Enforce the listing rule (every member is a key of its catalog map, and every key a member) |
