@@ -254,9 +254,14 @@ and `task vet:fixtures` enforces that there is something concrete for them to be
 
 ## Durable decisions
 
-- **The rendered-output fixture rule** is already in `CLAUDE.md` § Working Style. This change updates its "Known breakage, not yet repaired" sub-bullet: it is replaced by a pointer to `task vet:fixtures` as the standing gate.
-- **`cue vet`, including `-c`, does not check hidden fixtures; `cue export` does** — stated once beside the gate's row in the commands table, so the next author does not re-discover it.
-- Both land in `CLAUDE.md` in the last section, with the gate.
+All five land in `CLAUDE.md` in the last section, with the gate. The first two were declared
+when this design was written; the last three are what implementing it measured.
+
+- **The rendered-output fixture rule** is already in `CLAUDE.md` § Working Style. This change replaces its "Known breakage, not yet repaired" sub-bullet with `task vet:fixtures` as the standing gate, now inside `task check`.
+- **`cue vet`, including `-c`, does not check hidden fixtures; `cue export` does** — stated beside the gate's row in the commands table and in the Working Style bullet, so the next author does not re-discover it. Refined by what section 2 measured: vet DOES fail on an error-class conflict in a hidden field, so the two checks are complementary rather than one superseding the other.
+- **A golden literal unifies ONTO the render, so it asserts presence, never absence.** A key the render does not produce is silently added rather than rejected; absence is checked only by an explicit `] & []` comprehension guard. This is how `role_transformer.cue` carried a label for months that no transformer rendered.
+- **The component fixture, not the context, carries the component's name.** `#context.componentLabels` reads `#component.metadata.name`, so a component stub declaring none fails export with `required field missing: name`; it does not go back on the context as `#componentMetadata`.
+- **A nested `#transform` inside a guard field needs `#moduleInstance` too.** The gate's selector enumerates only top-level fixtures, so such a guard passes vacuously when its inner transform is incomplete.
 
 ## Open Questions
 
