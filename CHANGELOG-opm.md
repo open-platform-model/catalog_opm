@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.3.1](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.3.0...opm-v4.3.1) (2026-09-15)
+
+
+### Bug Fixes
+
+* **transformers:** render TransformerRegistration in the operator's API group ([#91](https://github.com/open-platform-model/catalog_opm/issues/91)) ([7026af6](https://github.com/open-platform-model/catalog_opm/commit/7026af6f063dc166a79a9e3344bec639663a32fa))
+
 ## [4.3.0](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.2.0...opm-v4.3.0) (2026-09-15)
 
 
