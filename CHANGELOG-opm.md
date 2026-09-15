@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.3.0](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.2.0...opm-v4.3.0) (2026-09-15)
+
+
+### Features
+
+* **opm:** add the transformer-registration contract and its renderer ([#88](https://github.com/open-platform-model/catalog_opm/issues/88)) ([1503b5b](https://github.com/open-platform-model/catalog_opm/commit/1503b5b8fd96b37a3a9a5f5c243d7a5cebb79a23))
+
 ## [4.2.0](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.1.1...opm-v4.2.0) (2026-09-14)
 
 
