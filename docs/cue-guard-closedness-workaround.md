@@ -1,11 +1,18 @@
-# Authoring rule: hoist `if … != _|_` propagation guards out of `spec`
+# Closedness authoring rules
+
+Two authoring rules, both about CUE closedness, both measured against the
+toolchain this repo builds with. Rule 1 works around an evaluator bug and carries
+its own retirement condition; rule 2 is specified CUE behaviour, so it has none.
+Neither is precautionary: both are load-bearing today.
+
+## Rule 1: hoist `if … != _|_` propagation guards out of `spec`
 
 **Status:** Permanent authoring rule (re-confirmed 2026-07-16 against CUE `v0.17.1`).
 **Do not retire it.** The underlying evaluator bug is still unfixed, and since the OPM
 toolchain moved to `v0.17.1` this rule is the only thing keeping the catalog off the
 trigger. Retiring it breaks rendering immediately.
 
-## The rule
+### The rule
 
 In a `#Component`/blueprint definition, never write an existence guard whose
 condition references a **nested non-scalar field** (struct or list) *inside*
@@ -37,7 +44,7 @@ if spec.statelessWorkload.scaling != _|_ {
 All five workload blueprints (`opm/blueprints/v1beta1/*.cue`) follow the
 hoisted form. Keep new blueprints consistent with it.
 
-## Why
+### Why
 
 CUE `v0.17.0-alpha.2` introduced an evaluator closedness regression that
 **shipped in the final `v0.17.0` release and is still present in `v0.17.1`**: an
@@ -80,7 +87,7 @@ An alternative workaround (guarding on a required/defaulted scalar leaf, e.g.
 internals and does not cover list-valued fields; the hoisted form is uniform,
 so the catalog standardizes on it.
 
-## Verification recipe
+### Verification recipe
 
 Reproduce/verify with a module that sets a guarded field (e.g. the workspace
 `modules/web_app`, which sets `scaling` + `updateStrategy`):
@@ -103,7 +110,7 @@ is the standalone reproducer committed in the library repo, which asserts the bu
 is still present and fails loudly when upstream finally fixes it — that failure is
 the signal to retire this rule.
 
-## References
+### References
 
 - Full forensic analysis + version matrix: `library/docs/design/cue-closedness-regression-alpha2.md`.
 - **Upstream issue:** [cue-lang/cue#4423](https://github.com/cue-lang/cue/issues/4423)
@@ -116,3 +123,72 @@ the signal to retire this rule.
 Retire this rule only when the library's standalone reproducer starts passing on a
 released CUE version — not merely because #4423 is closed, and not because the
 toolchain has moved past `v0.17.0`.
+
+## Rule 2: a helper EMBEDS the closed definition it extends
+
+**Status:** Permanent. This is specified CUE behaviour, not a bug, so there is
+nothing upstream to fix and nothing to retire. Measured against CUE `v0.17.1`.
+
+### The rule
+
+When a definition is meant to extend another — a pre-bound constructor, an
+ergonomic wrapper, anything a call site unifies with the thing it extends —
+write it as `#Helper: #Base & {…}` and let the call site name `#Helper` alone.
+
+```cue
+// RIGHT — one closed conjunct at the call site:
+#PreBoundRegistration: #TransformerRegistration & {
+    #identity: {…}
+    #transformers: [string]: _
+    _providerSet: {…}
+    spec: transformerRegistration: {…}
+}
+
+x: #PreBoundRegistration & {metadata: name: "k8up", #identity: …}
+```
+
+```cue
+// WRONG — "metadata.name: field not allowed", "metadata.resourceName: field not allowed":
+#PreBoundRegistration: {…}
+x: #TransformerRegistration & #PreBoundRegistration & {metadata: name: "k8up"}
+```
+
+### Why
+
+**Unifying two closed structs closes the result to the INTERSECTION of their
+allowed fields**, not the union. A field that only one conjunct declares is
+refused. Reduced to two lines:
+
+```cue
+#A: {a: int}
+#B: {b: int}
+x: #A & #B & {a: 1, b: 2}
+// x.a: field not allowed
+// x.b: field not allowed
+```
+
+Embedding a plain struct literal into a definition does not escape it either —
+`#C: #A & {b: int}` refuses `b` for the same reason. So there is no spelling
+that adds a regular field to a closed definition from outside.
+
+What the rule costs is nothing, because **closedness does not check definition
+fields (`#x`) or hidden fields (`_x`)**. A helper may add as many of those as it
+likes to the definition it embeds; only regular fields are constrained, and
+those must already be allowed by the base — which is exactly what a helper
+filling in a base's own `spec` body is doing.
+
+### Verification recipe
+
+```bash
+cat > /tmp/closed.cue <<'CUE'
+#A: {a: int}
+#B: {b: int}
+x: #A & #B & {a: 1, b: 2}
+CUE
+cue eval /tmp/closed.cue   # must report both fields as not allowed
+```
+
+The standing guard in this repo is `task vet:fixtures`: the five
+`_testPreBound*Output` fixtures in `opm/transformers/transformer_registration_transformer.cue`
+stop evaluating the moment `#PreBoundRegistration` stops embedding
+`#TransformerRegistration`.
