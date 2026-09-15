@@ -52,6 +52,7 @@ import (
 /////////////////////////////////////////////////////////////////
 
 _testSAResourceComponent: res.#ServiceAccount & {
+	metadata: name: "ci-bot"
 	spec: serviceAccount: {
 		name:           "ci-bot"
 		automountToken: false
@@ -59,18 +60,15 @@ _testSAResourceComponent: res.#ServiceAccount & {
 }
 
 _testSAResourceTransformer: (#ServiceAccountResourceTransformer.#transform & {
-	#component: _testSAResourceComponent
-	#context: {
-		#moduleInstanceMetadata: {
+	#moduleInstance: {
+		metadata: {
 			name:      "test-instance"
 			namespace: "ci"
-			fqn:       "opmodel.dev/catalogs/opm/test-instance@0.1.0"
-			version:   "0.1.0"
+			fqn:       "opmodel.dev/modules/test-instance@0.1.0"
 			uuid:      "00000000-0000-0000-0000-000000000000"
 		}
-		#componentMetadata: {
-			name: "ci-bot"
-		}
-		componentAnnotations: {}
+		#moduleMetadata: version: "0.1.0"
 	}
+	#component: _testSAResourceComponent
+	#context: #runtimeName: "opm-test"
 }).output

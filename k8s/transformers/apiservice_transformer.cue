@@ -60,18 +60,17 @@ import (
 //// Test Data
 /////////////////////////////////////////////////////////////////
 
-_testAPIServiceContext: {
-	#moduleInstanceMetadata: {
+_testAPIServiceModuleInstance: {
+	metadata: {
 		name:      "shop"
 		namespace: "apps"
-		fqn:       "opmodel.dev/catalogs/k8s/shop@0.1.0"
-		version:   "0.1.0"
+		fqn:       "opmodel.dev/modules/shop@0.1.0"
 		uuid:      "00000000-0000-0000-0000-000000000000"
 	}
-	#componentMetadata: name: "metrics"
-	#runtimeName: "opm-test"
-	componentAnnotations: {}
+	#moduleMetadata: version: "0.1.0"
 }
+
+_testAPIServiceContext: #runtimeName: "opm-test"
 
 // Override ignored: metadata.resourceName does not reach an exact-name kind.
 _testAPIServiceOverrideIgnoredComponent: res.#APIService & {
@@ -91,8 +90,9 @@ _testAPIServiceOverrideIgnoredComponent: res.#APIService & {
 }
 
 _testAPIServiceOverrideIgnoredTransformer: (#APIServiceTransformer.#transform & {
-	#component: _testAPIServiceOverrideIgnoredComponent
-	#context:   _testAPIServiceContext
+	#moduleInstance: _testAPIServiceModuleInstance
+	#component:      _testAPIServiceOverrideIgnoredComponent
+	#context:        _testAPIServiceContext
 }).output
 
 _testAPIServiceOverrideIgnoredResolves: "\(_testAPIServiceOverrideIgnoredTransformer.metadata.name)" & "v1beta1.metrics.k8s.io"

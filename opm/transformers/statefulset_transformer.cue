@@ -249,18 +249,17 @@ import (
 //// Test Data
 /////////////////////////////////////////////////////////////////
 
-_testSTSContext: {
-	#moduleInstanceMetadata: {
+_testSTSModuleInstance: {
+	metadata: {
 		name:      "shop"
 		namespace: "apps"
-		fqn:       "opmodel.dev/catalogs/opm/shop@0.1.0"
-		version:   "0.1.0"
+		fqn:       "opmodel.dev/modules/shop@0.1.0"
 		uuid:      "00000000-0000-0000-0000-000000000000"
 	}
-	#componentMetadata: name: "db"
-	#runtimeName: "opm-test"
-	componentAnnotations: {}
+	#moduleMetadata: version: "0.1.0"
 }
+
+_testSTSContext: #runtimeName: "opm-test"
 
 _testSTSContainer: {
 	name: "db"
@@ -296,8 +295,9 @@ _testSTSDefaultComponent: {
 }
 
 _testSTSDefaultTransformer: (#StatefulsetTransformer.#transform & {
-	#component: _testSTSDefaultComponent
-	#context:   _testSTSContext
+	#moduleInstance: _testSTSModuleInstance
+	#component:      _testSTSDefaultComponent
+	#context:        _testSTSContext
 }).output
 
 _testSTSDefaultName:        "\(_testSTSDefaultTransformer.metadata.name)" & "shop-db"
@@ -338,8 +338,9 @@ _testSTSExactComponent: {
 }
 
 _testSTSExactTransformer: (#StatefulsetTransformer.#transform & {
-	#component: _testSTSExactComponent
-	#context:   _testSTSContext
+	#moduleInstance: _testSTSModuleInstance
+	#component:      _testSTSExactComponent
+	#context:        _testSTSContext
 }).output
 
 _testSTSExactName:        "\(_testSTSExactTransformer.metadata.name)" & "database"
@@ -373,8 +374,9 @@ _testSTSStrategyComponent: {
 }
 
 _testSTSStrategyTransformer: (#StatefulsetTransformer.#transform & {
-	#component: _testSTSStrategyComponent
-	#context:   _testSTSContext
+	#moduleInstance: _testSTSModuleInstance
+	#component:      _testSTSStrategyComponent
+	#context:        _testSTSContext
 }).output
 
 // One-element-list form, NOT interpolation. The failure mode is an ABSENT
@@ -418,8 +420,9 @@ _testSTSRollingDefaultsComponent: {
 }
 
 _testSTSRollingDefaultsTransformer: (#StatefulsetTransformer.#transform & {
-	#component: _testSTSRollingDefaultsComponent
-	#context:   _testSTSContext
+	#moduleInstance: _testSTSModuleInstance
+	#component:      _testSTSRollingDefaultsComponent
+	#context:        _testSTSContext
 }).output
 
 // The strategy is emitted with its type...
@@ -438,8 +441,9 @@ _testSTSRollingDefaultsNoParams: [
 // it must equal the name the Service transformer rendered for the SAME stub.
 _testStatefulSetServiceNameMatchesService: "\(_testSTSDefaultTransformer.spec.serviceName)" &
 	"\((#ServiceTransformer.#transform & {
-		#component: _testSTSDefaultComponent
-		#context:   _testSTSContext
+		#moduleInstance: _testSTSModuleInstance
+		#component:      _testSTSDefaultComponent
+		#context:        _testSTSContext
 	}).output.metadata.name)"
 
 // Without #Expose the fallback arm is a read of the component's own short DNS
@@ -472,13 +476,15 @@ _testSTSLegacyExposeComponent: {
 }
 
 _testSTSLegacyExposeTransformer: (#StatefulsetTransformer.#transform & {
-	#component: _testSTSLegacyExposeComponent
-	#context:   _testSTSContext
+	#moduleInstance: _testSTSModuleInstance
+	#component:      _testSTSLegacyExposeComponent
+	#context:        _testSTSContext
 }).output
 
 // serviceName must be the name the #ServiceTransformer renders for the same
 // legacy stub: the instance-scoped default the >= alpha.6 wrapper would have set.
 _testSTSLegacyExposeServiceName: "\(_testSTSLegacyExposeTransformer.spec.serviceName)" & "\((#ServiceTransformer.#transform & {
-	#component: _testSTSLegacyExposeComponent
-	#context:   _testSTSContext
+	#moduleInstance: _testSTSModuleInstance
+	#component:      _testSTSLegacyExposeComponent
+	#context:        _testSTSContext
 }).output.metadata.name)" & "shop-db"

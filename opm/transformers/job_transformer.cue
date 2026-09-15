@@ -217,18 +217,17 @@ import (
 // on the component stub; without it the resourceName default is incomplete and
 // an interpolation guard passes vacuously under plain cue vet (see
 // docs/name-constraints.md). cue eval -c on the guards is the gate.
-_testJobContext: {
-	#moduleInstanceMetadata: {
+_testJobModuleInstance: {
+	metadata: {
 		name:      "batch"
 		namespace: "jobs"
-		fqn:       "opmodel.dev/catalogs/opm/batch@0.1.0"
-		version:   "0.1.0"
+		fqn:       "opmodel.dev/modules/batch@0.1.0"
 		uuid:      "00000000-0000-0000-0000-000000000000"
 	}
-	#componentMetadata: name: "sync"
-	#runtimeName: "opm-test"
-	componentAnnotations: {}
+	#moduleMetadata: version: "0.1.0"
 }
+
+_testJobContext: #runtimeName: "opm-test"
 
 _testJobContainer: {
 	name: "sync"
@@ -258,8 +257,9 @@ _testJobDefaultNameComponent: {
 }
 
 _testJobDefaultNameTransformer: (#JobTransformer.#transform & {
-	#component: _testJobDefaultNameComponent
-	#context:   _testJobContext
+	#moduleInstance: _testJobModuleInstance
+	#component:      _testJobDefaultNameComponent
+	#context:        _testJobContext
 }).output
 
 _testJobDefaultNameResolves: "\(_testJobDefaultNameTransformer.metadata.name)" & "batch-sync"
@@ -284,8 +284,9 @@ _testJobExactNameComponent: {
 }
 
 _testJobExactNameTransformer: (#JobTransformer.#transform & {
-	#component: _testJobExactNameComponent
-	#context:   _testJobContext
+	#moduleInstance: _testJobModuleInstance
+	#component:      _testJobExactNameComponent
+	#context:        _testJobContext
 }).output
 
 _testJobExactNameResolves: "\(_testJobExactNameTransformer.metadata.name)" & "nightly-sync"

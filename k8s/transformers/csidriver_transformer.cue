@@ -57,18 +57,17 @@ import (
 //// Test Data
 /////////////////////////////////////////////////////////////////
 
-_testCSIDriverContext: {
-	#moduleInstanceMetadata: {
+_testCSIDriverModuleInstance: {
+	metadata: {
 		name:      "openebs"
 		namespace: "storage"
-		fqn:       "opmodel.dev/catalogs/k8s/openebs@0.1.0"
-		version:   "0.1.0"
+		fqn:       "opmodel.dev/modules/openebs@0.1.0"
 		uuid:      "00000000-0000-0000-0000-000000000000"
 	}
-	#componentMetadata: name: "zfs-driver"
-	#runtimeName: "opm-test"
-	componentAnnotations: {}
+	#moduleMetadata: version: "0.1.0"
 }
+
+_testCSIDriverContext: #runtimeName: "opm-test"
 
 // Exact naming: the authored name renders verbatim, no instance prefix.
 _testCSIDriverExactNameComponent: res.#CSIDriver & {
@@ -83,8 +82,9 @@ _testCSIDriverExactNameComponent: res.#CSIDriver & {
 }
 
 _testCSIDriverExactNameTransformer: (#CSIDriverTransformer.#transform & {
-	#component: _testCSIDriverExactNameComponent
-	#context:   _testCSIDriverContext
+	#moduleInstance: _testCSIDriverModuleInstance
+	#component:      _testCSIDriverExactNameComponent
+	#context:        _testCSIDriverContext
 }).output
 
 _testCSIDriverExactNameResolves: "\(_testCSIDriverExactNameTransformer.metadata.name)" & "zfs.csi.openebs.io"
@@ -102,8 +102,9 @@ _testCSIDriverOverrideIgnoredComponent: res.#CSIDriver & {
 }
 
 _testCSIDriverOverrideIgnoredTransformer: (#CSIDriverTransformer.#transform & {
-	#component: _testCSIDriverOverrideIgnoredComponent
-	#context:   _testCSIDriverContext
+	#moduleInstance: _testCSIDriverModuleInstance
+	#component:      _testCSIDriverOverrideIgnoredComponent
+	#context:        _testCSIDriverContext
 }).output
 
 _testCSIDriverOverrideIgnoredResolves: "\(_testCSIDriverOverrideIgnoredTransformer.metadata.name)" & "zfs.csi.openebs.io"

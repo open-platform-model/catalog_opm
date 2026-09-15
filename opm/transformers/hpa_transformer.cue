@@ -144,18 +144,17 @@ import (
 //// Test Data
 /////////////////////////////////////////////////////////////////
 
-_testHPAContext: {
-	#moduleInstanceMetadata: {
+_testHPAModuleInstance: {
+	metadata: {
 		name:      "istio"
 		namespace: "istio-system"
-		fqn:       "opmodel.dev/catalogs/opm/istio@0.1.0"
-		version:   "0.1.0"
+		fqn:       "opmodel.dev/modules/istio@0.1.0"
 		uuid:      "00000000-0000-0000-0000-000000000000"
 	}
-	#componentMetadata: name: "istiod"
-	#runtimeName: "opm-test"
-	componentAnnotations: {}
+	#moduleMetadata: version: "0.1.0"
 }
+
+_testHPAContext: #runtimeName: "opm-test"
 
 _testHPAContainer: {
 	name: "discovery"
@@ -189,8 +188,9 @@ _testHPACountOnlyComponent: {
 }
 
 _testHPACountOnlyTransformer: (#HPATransformer.#transform & {
-	#component: _testHPACountOnlyComponent
-	#context:   _testHPAContext
+	#moduleInstance: _testHPAModuleInstance
+	#component:      _testHPACountOnlyComponent
+	#context:        _testHPAContext
 }).output
 
 _testHPAEmitsNothing: (len(_testHPACountOnlyTransformer) + 0) & 0
@@ -198,12 +198,14 @@ _testHPAEmitsNothing: (len(_testHPACountOnlyTransformer) + 0) & 0
 // ...and the Deployment keeps its explicit replica count in that case.
 _testHPADeployKeepsReplicas: [
 	if (#DeploymentTransformer.#transform & {
-		#component: _testHPACountOnlyComponent
-		#context:   _testHPAContext
+		#moduleInstance: _testHPAModuleInstance
+		#component:      _testHPACountOnlyComponent
+		#context:        _testHPAContext
 	}).output.spec.replicas != _|_ {
 		(#DeploymentTransformer.#transform & {
-			#component: _testHPACountOnlyComponent
-			#context:   _testHPAContext
+			#moduleInstance: _testHPAModuleInstance
+			#component:      _testHPACountOnlyComponent
+			#context:        _testHPAContext
 		}).output.spec.replicas
 	},
 ] & [3]
@@ -238,8 +240,9 @@ _testHPAAutoComponent: {
 }
 
 _testHPAAutoTransformer: (#HPATransformer.#transform & {
-	#component: _testHPAAutoComponent
-	#context:   _testHPAContext
+	#moduleInstance: _testHPAModuleInstance
+	#component:      _testHPAAutoComponent
+	#context:        _testHPAContext
 }).output
 
 _testHPAEmitsOne: (len(_testHPAAutoTransformer) + 0) & 1
@@ -267,16 +270,18 @@ _testHPAScaleKind: "\(_testHPAAutoTransformer[0].spec.scaleTargetRef.kind)" & "D
 // expression, so the two can never drift apart silently.
 _testHPATargetMatchesDeployment: "\(_testHPAAutoTransformer[0].spec.scaleTargetRef.name)" &
 	"\((#DeploymentTransformer.#transform & {
-		#component: _testHPAAutoComponent
-		#context:   _testHPAContext
+		#moduleInstance: _testHPAModuleInstance
+		#component:      _testHPAAutoComponent
+		#context:        _testHPAContext
 	}).output.metadata.name)"
 
 // ...and the Deployment must NOT emit replicas when the HPA owns them.
 // Absent-field territory: a golden cannot express this.
 _testHPADeployOmitsReplicas: [
 	if (#DeploymentTransformer.#transform & {
-		#component: _testHPAAutoComponent
-		#context:   _testHPAContext
+		#moduleInstance: _testHPAModuleInstance
+		#component:      _testHPAAutoComponent
+		#context:        _testHPAContext
 	}).output.spec.replicas != _|_ {"leaked"},
 ] & []
 
@@ -310,8 +315,9 @@ _testHPADefaultNameComponent: {
 }
 
 _testHPADefaultNameTransformer: (#HPATransformer.#transform & {
-	#component: _testHPADefaultNameComponent
-	#context:   _testHPAContext
+	#moduleInstance: _testHPAModuleInstance
+	#component:      _testHPADefaultNameComponent
+	#context:        _testHPAContext
 }).output
 
 _testHPADefaultNameResolves:   "\(_testHPADefaultNameTransformer[0].metadata.name)" & "istio-istiod"

@@ -70,6 +70,7 @@ import (
 /////////////////////////////////////////////////////////////////
 
 _testMutatingWebhooksComponent: res.#MutatingWebhooks & {
+	metadata: name: "webhooks"
 	spec: mutatingWebhooks: {
 		// istiod patches this config's caBundle by exact name at runtime.
 		// Exercises the mutating-only reinvocationPolicy plus both selectors.
@@ -106,20 +107,16 @@ _testMutatingWebhooksComponent: res.#MutatingWebhooks & {
 
 _testMutatingWebhooksTransformer: (#MutatingWebhookTransformer.#transform & {
 	#component: _testMutatingWebhooksComponent
-	#context: {
-		#moduleInstanceMetadata: {
+	#moduleInstance: {
+		metadata: {
 			name:      "test-instance"
 			namespace: "istio-system"
-			fqn:       "opmodel.dev/catalogs/opm/test-instance@0.1.0"
-			version:   "0.1.0"
+			fqn:       "opmodel.dev/modules/test-instance@0.1.0"
 			uuid:      "00000000-0000-0000-0000-000000000000"
 		}
-		#componentMetadata: {
-			name: "webhooks"
-		}
-		#runtimeName: "opm-test"
-		componentAnnotations: {}
+		#moduleMetadata: version: "0.1.0"
 	}
+	#context: #runtimeName: "opm-test"
 }).output
 
 // Golden fixture — cue vet fails on any drift, not just schema errors.

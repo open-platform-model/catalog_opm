@@ -63,18 +63,17 @@ import (
 // Transformer fixtures never pass through #Module, so #instance is set by hand
 // on the component stub; without it the resourceName default is incomplete and
 // a golden would unify vacuously (see docs/name-constraints.md).
-_testDeploymentContext: {
-	#moduleInstanceMetadata: {
+_testDeploymentModuleInstance: {
+	metadata: {
 		name:      "shop"
 		namespace: "apps"
-		fqn:       "opmodel.dev/catalogs/k8s/shop@0.1.0"
-		version:   "0.1.0"
+		fqn:       "opmodel.dev/modules/shop@0.1.0"
 		uuid:      "00000000-0000-0000-0000-000000000000"
 	}
-	#componentMetadata: name: "web"
-	#runtimeName: "opm-test"
-	componentAnnotations: {}
+	#moduleMetadata: version: "0.1.0"
 }
+
+_testDeploymentContext: #runtimeName: "opm-test"
 
 // Default naming: instance-prefixed resourceName.
 _testDeploymentDefaultNameComponent: res.#Deployment & {
@@ -90,8 +89,9 @@ _testDeploymentDefaultNameComponent: res.#Deployment & {
 }
 
 _testDeploymentDefaultNameTransformer: (#DeploymentTransformer.#transform & {
-	#component: _testDeploymentDefaultNameComponent
-	#context:   _testDeploymentContext
+	#moduleInstance: _testDeploymentModuleInstance
+	#component:      _testDeploymentDefaultNameComponent
+	#context:        _testDeploymentContext
 }).output
 
 _testDeploymentDefaultNameResolves: "\(_testDeploymentDefaultNameTransformer.metadata.name)" & "shop-web"

@@ -1,6 +1,6 @@
 ## Why
 
-Every transformer in `opm/transformers/` carries a golden fixture in its own file, and that fixture set is this repo's only check on rendered output. Measured 2026-09-15 (cue v0.17.1, core `v2.0.0-alpha.9`): of the 47 rendered-output fixtures in the package, **44 fail `cue export`**, spread over **22 of the 23 transformer files**; only `pvc_transformer.cue` and the D9 registration transformer are clean. Core alpha.7 (enhancement 0019 D12) turned `#TransformerContext.#moduleInstanceMetadata` into a projection computed at the `#transform` site from `#moduleInstance`; 21 files still fill the projection directly, which leaves `#moduleInstance` at `_` so the output never becomes concrete, and `role_transformer.cue` supplies neither `#moduleInstance` nor `#runtimeName`. `cue vet` exits 0 on all of it, because an incomplete value is not an error, so `task check` and CI have been green over fixtures that compare nothing since 2026-09-01.
+Every transformer in `opm/transformers/` carries a golden fixture in its own file, and that fixture set is this repo's only check on rendered output. Measured 2026-09-15 (cue v0.17.1, core `v2.0.0-alpha.9`): of the 47 rendered-output fixtures in the package, **44 fail `cue export`**, spread over **22 of the 23 transformer files** (and, found while building the gate, all 9 of `k8s/`'s in 6 files); only `pvc_transformer.cue` and the D9 registration transformer are clean. Core alpha.7 (enhancement 0019 D12) turned `#TransformerContext.#moduleInstanceMetadata` into a projection computed at the `#transform` site from `#moduleInstance`; 21 files still fill the projection directly, which leaves `#moduleInstance` at `_` so the output never becomes concrete, and `role_transformer.cue` supplies neither `#moduleInstance` nor `#runtimeName`. `cue vet` exits 0 on all of it, because an incomplete value is not an error, so `task check` and CI have been green over fixtures that compare nothing since 2026-09-01.
 
 The rule is already written down (`CLAUDE.md` § Working Style, landed with the D9 registration contract) and the one working example exists. What is missing is the repair and a gate, so the class cannot come back silently.
 
@@ -11,7 +11,9 @@ The rule is already written down (`CLAUDE.md` § Working Style, landed with the 
 - `opm/transformers/role_transformer.cue`: supply both missing inputs, same re-pinning.
 - **A golden literal that disagrees with the rendered output is a finding, not something to overwrite.** These fixtures have never been compared against reality, so a disagreement may be a real rendering defect. Triage each: a fixture wrong about a correct render is repaired here; a transformer wrong about a correct fixture is written up and fixed in its own change, named in this change's design.
 
-Nothing published changes shape: every touched field is a hidden `_test*` fixture. `k8s/` has no transformers and is untouched.
+- `k8s/transformers/`: 9 rendered-output fixtures in 6 files (`apiservice`, `csidriver`, `deployment`, `object`, `storageclass`, `volumesnapshotclass`), all failing for the same reason through six `_test<Name>Context` definitions. **Corrected 2026-09-15** — this proposal originally claimed `k8s/` ships no transformers; it ships 29. Because the gate fans over `MODULES`, these are repaired here too, in their own section.
+
+Nothing published changes shape: every touched field is a hidden `_test*` fixture.
 
 ## Before / After
 
@@ -61,6 +63,7 @@ _testNamespacesTransformer: (#NamespaceTransformer.#transform & {
 ## Impact
 
 - **The `modules` fleet, `opm-modules`, and platforms subscribing to the catalog**: nothing. No member's shape, default or rendered output changes; only hidden fixture fields move. The exception is a transformer found genuinely wrong during triage, which does not land here.
+- **`k8s/`**: 9 hidden fixtures re-pinned, no published member touched.
 - **`cli` fixtures under `testing.opmodel.dev`**: nothing. They pin their own catalog builds and carry their own fixtures.
 - **CI**: gains `task vet:fixtures` inside `task check`. From then on a fixture that stops evaluating fails the build instead of passing quietly.
 - **Release class**: `test:` for the fixture repairs and `chore:` for the gate, neither of which releases. If triage turns up a rendering defect, its fix is a separate `fix:` change with its own release.

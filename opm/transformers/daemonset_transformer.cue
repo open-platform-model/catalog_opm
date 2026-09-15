@@ -278,19 +278,17 @@ _testDSCNIComponent: {
 }
 
 _testDSCNITransformer: (#DaemonSetTransformer.#transform & {
-	#component: _testDSCNIComponent
-	#context: {
-		#moduleInstanceMetadata: {
+	#moduleInstance: {
+		metadata: {
 			name:      "istio"
 			namespace: "istio-system"
-			fqn:       "opmodel.dev/catalogs/opm/istio@0.1.0"
-			version:   "0.1.0"
+			fqn:       "opmodel.dev/modules/istio@0.1.0"
 			uuid:      "00000000-0000-0000-0000-000000000000"
 		}
-		#componentMetadata: name: "istio-cni"
-		#runtimeName: "opm-test"
-		componentAnnotations: {}
+		#moduleMetadata: version: "0.1.0"
 	}
+	#component: _testDSCNIComponent
+	#context: #runtimeName: "opm-test"
 }).output
 
 // Interpolation forces resolution, so a regression to a defaulted disjunction
@@ -340,19 +338,17 @@ _testDSRuntimeClassComponent: {
 }
 
 _testDSRuntimeClassTransformer: (#DaemonSetTransformer.#transform & {
-	#component: _testDSRuntimeClassComponent
-	#context: {
-		#moduleInstanceMetadata: {
+	#moduleInstance: {
+		metadata: {
 			name:      "nvidia-device-plugin"
 			namespace: "kube-system"
-			fqn:       "opmodel.dev/catalogs/opm/test-instance@0.1.0"
-			version:   "0.1.0"
+			fqn:       "opmodel.dev/modules/nvidia-device-plugin@0.1.0"
 			uuid:      "00000000-0000-0000-0000-000000000000"
 		}
-		#componentMetadata: name: "nvidia-device-plugin"
-		#runtimeName: "opm-test"
-		componentAnnotations: {}
+		#moduleMetadata: version: "0.1.0"
 	}
+	#component: _testDSRuntimeClassComponent
+	#context: #runtimeName: "opm-test"
 }).output
 
 // The trait reaches the rendered pod spec as runtimeClassName.
@@ -404,19 +400,17 @@ _testDSStrategyComponent: {
 }
 
 _testDSStrategyTransformer: (#DaemonSetTransformer.#transform & {
-	#component: _testDSStrategyComponent
-	#context: {
-		#moduleInstanceMetadata: {
+	#moduleInstance: {
+		metadata: {
 			name:      "agent"
 			namespace: "kube-system"
-			fqn:       "opmodel.dev/catalogs/opm/test-instance@0.1.0"
-			version:   "0.1.0"
+			fqn:       "opmodel.dev/modules/agent@0.1.0"
 			uuid:      "00000000-0000-0000-0000-000000000000"
 		}
-		#componentMetadata: name: "agent"
-		#runtimeName: "opm-test"
-		componentAnnotations: {}
+		#moduleMetadata: version: "0.1.0"
 	}
+	#component: _testDSStrategyComponent
+	#context: #runtimeName: "opm-test"
 }).output
 
 // ABSENT-field guard (one-element-list form; see deployment_transformer.cue
@@ -462,19 +456,17 @@ _testDSRollingDefaultsComponent: {
 }
 
 _testDSRollingDefaultsTransformer: (#DaemonSetTransformer.#transform & {
-	#component: _testDSRollingDefaultsComponent
-	#context: {
-		#moduleInstanceMetadata: {
+	#moduleInstance: {
+		metadata: {
 			name:      "agent"
 			namespace: "kube-system"
-			fqn:       "opmodel.dev/catalogs/opm/test-instance@0.1.0"
-			version:   "0.1.0"
+			fqn:       "opmodel.dev/modules/agent@0.1.0"
 			uuid:      "00000000-0000-0000-0000-000000000000"
 		}
-		#componentMetadata: name: "agent-rolling"
-		#runtimeName: "opm-test"
-		componentAnnotations: {}
+		#moduleMetadata: version: "0.1.0"
 	}
+	#component: _testDSRollingDefaultsComponent
+	#context: #runtimeName: "opm-test"
 }).output
 
 _testDSRollingDefaultsPresent: [

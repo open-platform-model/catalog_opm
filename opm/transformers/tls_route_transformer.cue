@@ -114,18 +114,17 @@ import (
 // on the component stub; without it the resourceName default (and the #Expose
 // wrapper's expose.name default) is incomplete and a golden would unify
 // vacuously (see docs/name-constraints.md).
-_testTlsRouteContext: {
-	#moduleInstanceMetadata: {
+_testTlsRouteModuleInstance: {
+	metadata: {
 		name:      "shop"
 		namespace: "apps"
-		fqn:       "opmodel.dev/catalogs/opm/shop@0.1.0"
-		version:   "0.1.0"
+		fqn:       "opmodel.dev/modules/shop@0.1.0"
 		uuid:      "00000000-0000-0000-0000-000000000000"
 	}
-	#componentMetadata: name: "web"
-	#runtimeName: "opm-test"
-	componentAnnotations: {}
+	#moduleMetadata: version: "0.1.0"
 }
+
+_testTlsRouteContext: #runtimeName: "opm-test"
 
 _testTlsRouteComponent: {
 	res.#Container
@@ -167,8 +166,9 @@ _testTlsRouteComponent: {
 }
 
 _testTlsRouteTransformer: (#TlsRouteTransformer.#transform & {
-	#component: _testTlsRouteComponent
-	#context:   _testTlsRouteContext
+	#moduleInstance: _testTlsRouteModuleInstance
+	#component:      _testTlsRouteComponent
+	#context:        _testTlsRouteContext
 }).output
 
 // The route's own name follows the component's resourceName.
@@ -177,6 +177,7 @@ _testTlsRouteNameResolves: "\(_testTlsRouteTransformer.metadata.name)" & "shop-w
 // backendRefs must point at the Service the #ServiceTransformer renders for
 // the same stub, whatever expose.name resolves to.
 _testTlsRouteBackendResolves: "\(_testTlsRouteTransformer.spec.rules[0].backendRefs[0].name)" & "\((#ServiceTransformer.#transform & {
-	#component: _testTlsRouteComponent
-	#context:   _testTlsRouteContext
+	#moduleInstance: _testTlsRouteModuleInstance
+	#component:      _testTlsRouteComponent
+	#context:        _testTlsRouteContext
 }).output.metadata.name)" & "shop-web"
