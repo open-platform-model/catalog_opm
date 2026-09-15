@@ -65,18 +65,17 @@ import (
 // Transformer fixtures never pass through #Module, so #instance is set by hand
 // on the component stub; without it the resourceName default is incomplete and
 // a golden would unify vacuously (see docs/name-constraints.md).
-_testVolumeSnapshotClassContext: {
-	#moduleInstanceMetadata: {
+_testVolumeSnapshotClassModuleInstance: {
+	metadata: {
 		name:      "openebs"
 		namespace: "storage"
-		fqn:       "opmodel.dev/catalogs/k8s/openebs@0.1.0"
-		version:   "0.1.0"
+		fqn:       "opmodel.dev/modules/openebs@0.1.0"
 		uuid:      "00000000-0000-0000-0000-000000000000"
 	}
-	#componentMetadata: name: "zfs-snap"
-	#runtimeName: "opm-test"
-	componentAnnotations: {}
+	#moduleMetadata: version: "0.1.0"
 }
+
+_testVolumeSnapshotClassContext: #runtimeName: "opm-test"
 
 // Default naming: instance-prefixed resourceName.
 _testVolumeSnapshotClassDefaultNameComponent: res.#VolumeSnapshotClass & {
@@ -90,8 +89,9 @@ _testVolumeSnapshotClassDefaultNameComponent: res.#VolumeSnapshotClass & {
 }
 
 _testVolumeSnapshotClassDefaultNameTransformer: (#VolumeSnapshotClassTransformer.#transform & {
-	#component: _testVolumeSnapshotClassDefaultNameComponent
-	#context:   _testVolumeSnapshotClassContext
+	#moduleInstance: _testVolumeSnapshotClassModuleInstance
+	#component:      _testVolumeSnapshotClassDefaultNameComponent
+	#context:        _testVolumeSnapshotClassContext
 }).output
 
 _testVolumeSnapshotClassDefaultNameResolves: "\(_testVolumeSnapshotClassDefaultNameTransformer.metadata.name)" & "openebs-zfs-snap"
@@ -110,8 +110,9 @@ _testVolumeSnapshotClassOverrideNameComponent: res.#VolumeSnapshotClass & {
 }
 
 _testVolumeSnapshotClassOverrideNameTransformer: (#VolumeSnapshotClassTransformer.#transform & {
-	#component: _testVolumeSnapshotClassOverrideNameComponent
-	#context:   _testVolumeSnapshotClassContext
+	#moduleInstance: _testVolumeSnapshotClassModuleInstance
+	#component:      _testVolumeSnapshotClassOverrideNameComponent
+	#context:        _testVolumeSnapshotClassContext
 }).output
 
 _testVolumeSnapshotClassOverrideNameResolves: "\(_testVolumeSnapshotClassOverrideNameTransformer.metadata.name)" & "custom"

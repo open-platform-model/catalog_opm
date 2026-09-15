@@ -72,18 +72,17 @@ import (
 //// Test Data
 /////////////////////////////////////////////////////////////////
 
-_testStorageClassContext: {
-	#moduleInstanceMetadata: {
+_testStorageClassModuleInstance: {
+	metadata: {
 		name:      "shop"
 		namespace: "apps"
-		fqn:       "opmodel.dev/catalogs/k8s/shop@0.1.0"
-		version:   "0.1.0"
+		fqn:       "opmodel.dev/modules/shop@0.1.0"
 		uuid:      "00000000-0000-0000-0000-000000000000"
 	}
-	#componentMetadata: name: "fast"
-	#runtimeName: "opm-test"
-	componentAnnotations: {}
+	#moduleMetadata: version: "0.1.0"
 }
+
+_testStorageClassContext: #runtimeName: "opm-test"
 
 // Default naming: instance-prefixed resourceName.
 _testStorageClassDefaultNameComponent: res.#StorageClass & {
@@ -93,8 +92,9 @@ _testStorageClassDefaultNameComponent: res.#StorageClass & {
 }
 
 _testStorageClassDefaultNameTransformer: (#StorageClassTransformer.#transform & {
-	#component: _testStorageClassDefaultNameComponent
-	#context:   _testStorageClassContext
+	#moduleInstance: _testStorageClassModuleInstance
+	#component:      _testStorageClassDefaultNameComponent
+	#context:        _testStorageClassContext
 }).output
 
 _testStorageClassDefaultNameResolves: "\(_testStorageClassDefaultNameTransformer.metadata.name)" & "shop-fast"
@@ -110,8 +110,9 @@ _testStorageClassOverrideNameComponent: res.#StorageClass & {
 }
 
 _testStorageClassOverrideNameTransformer: (#StorageClassTransformer.#transform & {
-	#component: _testStorageClassOverrideNameComponent
-	#context:   _testStorageClassContext
+	#moduleInstance: _testStorageClassModuleInstance
+	#component:      _testStorageClassOverrideNameComponent
+	#context:        _testStorageClassContext
 }).output
 
 _testStorageClassOverrideNameResolves: "\(_testStorageClassOverrideNameTransformer.metadata.name)" & "custom"

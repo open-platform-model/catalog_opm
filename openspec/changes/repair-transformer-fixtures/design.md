@@ -225,6 +225,14 @@ coverage), but the property is worth knowing before trusting a golden block: abs
 only by the explicit `] & []` comprehension guards the workload transformers use, never by a
 golden literal.
 
+### Section 4 (`k8s`): None.
+
+No golden literal moved. All six files carried the identical shared-context shape section 2
+handled, so the input edit alone made all 9 fixtures export, and `cue vet ./...` still passes in
+`k8s` with every literal as committed — verified by the same diff: only plumbing lines changed.
+`k8s` carries no separate golden literal blocks at all; every assertion there is an interpolation
+pin or a comprehension guard, so there was nothing to re-pin.
+
 ### Measured: `cue vet` DOES catch an error-class conflict in a hidden field
 
 Worth recording because it bounds exactly what the new gate adds. Reverting

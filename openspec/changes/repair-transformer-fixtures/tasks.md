@@ -23,9 +23,9 @@ Five sections. Section 1 is the spike: it builds the gate and turns design.md's 
 
 ## 4. Repair the k8s transformers
 
-- [ ] 4.1 Repair the 6 `k8s/transformers/` files the baseline names (`apiservice`, `csidriver`, `deployment`, `object`, `storageclass`, `volumesnapshotclass`), each through its `_test<Name>Context` definition: replace the `#moduleInstanceMetadata` fill with `#moduleInstance` supplied at the `#transform` site plus `#context: #runtimeName`, then re-pin each golden literal against the actual `cue export`. Verify: `bash .tasks/fixtures.sh k8s` exits 0 — all 9 evaluate — and `cue vet ./...` still passes in `k8s`.
-- [ ] 4.2 Triage as in 2.2 and extend design.md § Findings. Verify: every literal that changed is either explained by the projection or recorded as a defect.
-- [ ] 4.3 `task check` green, then commit `test(transformers): repair the k8s transformer fixtures`.
+- [x] 4.1 Repair the 6 `k8s/transformers/` files the baseline names (`apiservice`, `csidriver`, `deployment`, `object`, `storageclass`, `volumesnapshotclass`), each through its `_test<Name>Context` definition: replace the `#moduleInstanceMetadata` fill with `#moduleInstance` supplied at the `#transform` site plus `#context: #runtimeName`, then re-pin each golden literal against the actual `cue export`. Verify: `bash .tasks/fixtures.sh k8s` exits 0 — all 9 evaluate — and `cue vet ./...` still passes in `k8s`.
+- [x] 4.2 Triage as in 2.2 and extend design.md § Findings. Verify: every literal that changed is either explained by the projection or recorded as a defect.
+- [x] 4.3 `task check` green, then commit `test(transformers): repair the k8s transformer fixtures`.
 
 ## 5. Wire the gate and land the durable decisions
 

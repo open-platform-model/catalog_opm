@@ -76,18 +76,17 @@ import (
 //// Test Data
 /////////////////////////////////////////////////////////////////
 
-_testObjectContext: {
-	#moduleInstanceMetadata: {
+_testObjectModuleInstance: {
+	metadata: {
 		name:      "shop"
 		namespace: "apps"
-		fqn:       "opmodel.dev/catalogs/k8s/shop@0.1.0"
-		version:   "0.1.0"
+		fqn:       "opmodel.dev/modules/shop@0.1.0"
 		uuid:      "00000000-0000-0000-0000-000000000000"
 	}
-	#componentMetadata: name: "extras"
-	#runtimeName: "opm-test"
-	componentAnnotations: {}
+	#moduleMetadata: version: "0.1.0"
 }
+
+_testObjectContext: #runtimeName: "opm-test"
 
 // Default naming: the instance-prefixed resourceName prefixes the user segment.
 _testObjectDefaultNameComponent: res.#Objects & {
@@ -101,8 +100,9 @@ _testObjectDefaultNameComponent: res.#Objects & {
 }
 
 _testObjectDefaultNameTransformer: (#ObjectTransformer.#transform & {
-	#component: _testObjectDefaultNameComponent
-	#context:   _testObjectContext
+	#moduleInstance: _testObjectModuleInstance
+	#component:      _testObjectDefaultNameComponent
+	#context:        _testObjectContext
 }).output
 
 _testObjectDefaultNameResolves: "\(_testObjectDefaultNameTransformer[0].metadata.name)" & "shop-extras-issuer"
