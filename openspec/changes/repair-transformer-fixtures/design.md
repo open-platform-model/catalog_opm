@@ -12,7 +12,21 @@ Measured 2026-09-15 (cue v0.17.1, core `v2.0.0-alpha.9`, catalog at 4.3.0), in `
 | Rendered-output fixtures (`_testX: (#Y.#transform & {`) | 47 | 44 |
 | Transformer files (excluding the four `*_helpers.cue`) | 23 | 22 carry at least one failure |
 
-A full sweep of all 231 fields takes 42 seconds.
+A full sweep of all 231 fields takes 42 seconds; the 47-field subset takes 9.
+
+**Correction, measured 2026-09-15 while building the gate:** `k8s/` carries 29 transformers
+and **9 rendered-output fixtures, all 9 failing**, in 6 files. The proposal's claim that
+`k8s/` ships no transformers, and the Non-Goals entry that repeated it, were both wrong —
+they were written from `k8s/`'s *contract* members, where the raw catalog files passthrough
+schemas, not from its `transformers/` directory. The defect class is identical: six
+`_test<Name>Context` definitions fill `#moduleInstanceMetadata` directly. Since `task
+vet:fixtures` fans over `MODULES` and the last section wires it into `task check`, k8s has to
+be repaired here or the gate cannot go green; it is repaired in its own section.
+
+| Set | Count | Failing `cue export` |
+| --- | --- | --- |
+| `k8s/` rendered-output fixtures | 9 | 9 |
+| `k8s/` transformer files carrying one | 6 | 6 |
 
 ## Goals / Non-Goals
 
@@ -26,7 +40,7 @@ A full sweep of all 231 fields takes 42 seconds.
 
 - Fixing a transformer whose rendered output turns out to be wrong. That is a `fix:` change of its own, named here.
 - Component fixtures (`_test*Component`). Many are legitimately non-concrete and are not a golden-output check.
-- `k8s/`, which ships no transformers.
+- `k8s/`'s component fixtures and passthrough schemas. Its 9 rendered-output fixtures ARE in scope — see the correction in Context.
 - Any change to a published member's shape or output.
 
 ## Decisions
@@ -88,6 +102,67 @@ The gate lands **unwired** in section 1 and is wired into `task check` only in t
 **Explored**: Both sweeps, scripted in the scratchpad and run against the tree at 4.3.0 (2026-09-15): all 231 hidden fields, then only the 47 declared as `(#X.#transform & {`.
 **Decision**: The structural selector, 47 fields.
 **Rationale**: the broad sweep reports 92 failures. Spot-checking them, `_testTransformerRegistrationComponent` fails while its sibling output fixture passes: a component fixture holds primitives whose `spec` is a schema, so it is non-concrete by design. Gating on that would either demand concreteness the design forbids or ship with a suppression list.
+
+### The committed baseline
+
+**Context**: sections 2, 3 and 4 need a fixed target, not a count re-measured per run.
+**Explored**: `bash .tasks/fixtures.sh opm` then `… k8s` at HEAD of section 1 (cue v0.17.1, core `v2.0.0-alpha.9`, catalog at 4.3.0, 2026-09-15).
+**Decision**: the list below is the baseline. A section is done when every one of its entries exports.
+**Rationale**: 53 fixtures across 28 files — 44 in 22 `opm` files, 9 in 6 `k8s` files. Every one fails with the same root error, `#moduleInstance.metadata undefined as #moduleInstance is incomplete (type _)`, either directly or through `#context.componentLabels`'s interpolation.
+
+- `opm/transformers/mutating_webhook_transformer.cue` — `_testMutatingWebhooksTransformer`
+- `opm/transformers/namespace_transformer.cue` — `_testNamespacesTransformer`
+- `opm/transformers/sa_resource_transformer.cue` — `_testSAResourceTransformer`
+- `opm/transformers/validating_webhook_transformer.cue` — `_testValidatingWebhooksTransformer`
+- `opm/transformers/admission_policy_transformer.cue` — `_testVAPTransformer`
+- `opm/transformers/crd_transformer.cue` — `_testCRDTransformer`
+- `opm/transformers/crd_transformer.cue` — `_testCRDBareTransformer`
+- `opm/transformers/network_policy_transformer.cue` — `_testNetPolTransformer`
+- `opm/transformers/grpc_route_transformer.cue` — `_testGrpcRouteTransformer`
+- `opm/transformers/http_route_transformer.cue` — `_testHttpRouteTransformer`
+- `opm/transformers/http_route_transformer.cue` — `_testHttpRouteLegacyExposeTransformer`
+- `opm/transformers/service_transformer.cue` — `_testServiceDefaultNameTransformer`
+- `opm/transformers/service_transformer.cue` — `_testServiceExactNameTransformer`
+- `opm/transformers/service_transformer.cue` — `_testServiceUDPTransformer`
+- `opm/transformers/service_transformer.cue` — `_testServiceLegacyExposeTransformer`
+- `opm/transformers/tcp_route_transformer.cue` — `_testTcpRouteTransformer`
+- `opm/transformers/tls_route_transformer.cue` — `_testTlsRouteTransformer`
+- `opm/transformers/configmap_transformer.cue` — `_testConfigMapNamingTransformer`
+- `opm/transformers/secret_transformer.cue` — `_testSecretNamingTransformer`
+- `opm/transformers/cronjob_transformer.cue` — `_testCronJobDefaultNameTransformer`
+- `opm/transformers/cronjob_transformer.cue` — `_testCronJobExactNameTransformer`
+- `opm/transformers/daemonset_transformer.cue` — `_testDSCNITransformer`
+- `opm/transformers/daemonset_transformer.cue` — `_testDSRuntimeClassTransformer`
+- `opm/transformers/daemonset_transformer.cue` — `_testDSStrategyTransformer`
+- `opm/transformers/daemonset_transformer.cue` — `_testDSRollingDefaultsTransformer`
+- `opm/transformers/hpa_transformer.cue` — `_testHPAAutoTransformer`
+- `opm/transformers/hpa_transformer.cue` — `_testHPADefaultNameTransformer`
+- `opm/transformers/job_transformer.cue` — `_testJobDefaultNameTransformer`
+- `opm/transformers/job_transformer.cue` — `_testJobExactNameTransformer`
+- `opm/transformers/statefulset_transformer.cue` — `_testSTSDefaultTransformer`
+- `opm/transformers/statefulset_transformer.cue` — `_testSTSExactTransformer`
+- `opm/transformers/statefulset_transformer.cue` — `_testSTSStrategyTransformer`
+- `opm/transformers/statefulset_transformer.cue` — `_testSTSRollingDefaultsTransformer`
+- `opm/transformers/statefulset_transformer.cue` — `_testSTSLegacyExposeTransformer`
+- `opm/transformers/role_transformer.cue` — `_testNsRoleTransformer`
+- `opm/transformers/role_transformer.cue` — `_testClusterRoleTransformer`
+- `opm/transformers/role_transformer.cue` — `_testExtendedRulesTransformer`
+- `opm/transformers/role_transformer.cue` — `_testEmbeddedRoleOutput`
+- `opm/transformers/deployment_transformer.cue` — `_testDeployDefaultNameTransformer`
+- `opm/transformers/deployment_transformer.cue` — `_testDeployExactTransformer`
+- `opm/transformers/deployment_transformer.cue` — `_testDeployRecreateTransformer`
+- `opm/transformers/deployment_transformer.cue` — `_testDeployRollingDefaultsTransformer`
+- `opm/transformers/pdb_transformer.cue` — `_testPDBTransformer`
+- `opm/transformers/pdb_transformer.cue` — `_testPDBDefaultNameTransformer`
+- `k8s/transformers/apiservice_transformer.cue` — `_testAPIServiceOverrideIgnoredTransformer`
+- `k8s/transformers/csidriver_transformer.cue` — `_testCSIDriverExactNameTransformer`
+- `k8s/transformers/csidriver_transformer.cue` — `_testCSIDriverOverrideIgnoredTransformer`
+- `k8s/transformers/deployment_transformer.cue` — `_testDeploymentDefaultNameTransformer`
+- `k8s/transformers/object_transformer.cue` — `_testObjectDefaultNameTransformer`
+- `k8s/transformers/storageclass_transformer.cue` — `_testStorageClassDefaultNameTransformer`
+- `k8s/transformers/storageclass_transformer.cue` — `_testStorageClassOverrideNameTransformer`
+- `k8s/transformers/volumesnapshotclass_transformer.cue` — `_testVolumeSnapshotClassDefaultNameTransformer`
+- `k8s/transformers/volumesnapshotclass_transformer.cue` — `_testVolumeSnapshotClassOverrideNameTransformer`
 
 ### `cue vet -c` is not an alternative
 

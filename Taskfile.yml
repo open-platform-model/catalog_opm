@@ -84,6 +84,17 @@ tasks:
         set -e
         for m in {{.MODULES}}; do bash .tasks/listing.sh "$m"; done
 
+  vet:fixtures:
+    desc: >
+      Check every rendered-output transformer fixture: a fixture is the
+      `.output` of a `#transform`, and its golden literal only compares
+      something when the field evaluates concretely. `cue vet` (including
+      `-c`) does not check hidden fields, so this exports each one.
+    cmds:
+      - |
+        set -e
+        for m in {{.MODULES}}; do bash .tasks/fixtures.sh "$m"; done
+
   tidy:
     desc: Tidy every CUE module manifest
     cmds:
