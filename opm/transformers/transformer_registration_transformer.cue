@@ -11,6 +11,12 @@ import (
 // derive them. The operator's TransformerRegistration CRD must match these
 // three strings exactly — this file and that CRD are the two sides of one
 // contract, and changing either alone breaks the other.
+// WHY the group is the bare `opmodel.dev`, with no `opm.` or kind-specific
+// prefix: enhancement 0002 D5 chose one flat group for every OPM CRD and
+// rejected prefixed and per-kind groups, paying a full cluster migration for
+// it. A prefixed group here would name a CRD no cluster installs, so the
+// rendered claim could never be applied (measured: `opm` 4.3.0 shipped a
+// dot-prefixed group here and was unappliable).
 
 // TransformerRegistrationTransformer renders a provider module's claim as the
 // cluster-scoped TransformerRegistration the operator accepts. The object's
@@ -54,7 +60,7 @@ import (
 		// One claim per component carrying the contract, so output is a
 		// struct (core's StructKind arm), never a list.
 		output: {
-			apiVersion: "opm.opmodel.dev/v1alpha1"
+			apiVersion: "opmodel.dev/v1alpha1"
 			kind:       "TransformerRegistration"
 			metadata: {
 				// Cluster-scoped, dot-joined (0015 D12): a namespace cannot
@@ -112,7 +118,7 @@ _testTransformerRegistrationOutput: (#TransformerRegistrationTransformer.#transf
 
 // Golden fixture — cue vet fails on any drift, not just schema errors.
 _testTransformerRegistrationOutput: {
-	apiVersion: "opm.opmodel.dev/v1alpha1"
+	apiVersion: "opmodel.dev/v1alpha1"
 	kind:       "TransformerRegistration"
 	metadata: {
 		name: "backup-system.k8up"
