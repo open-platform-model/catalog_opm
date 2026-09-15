@@ -167,11 +167,12 @@ tasks:
   ## Aggregate
 
   check:
-    desc: Format check, vet, layering, listing, INDEX freshness, and doc-comment report across every module
+    desc: Format check, vet, layering, listing, rendered-output fixtures, INDEX freshness, and doc-comment report across every module
     cmds:
       - task: fmt:check
       - task: vet
       - task: vet:layering
       - task: vet:listing
+      - task: vet:fixtures
       - task: generate:index:check
       - task: docs:check

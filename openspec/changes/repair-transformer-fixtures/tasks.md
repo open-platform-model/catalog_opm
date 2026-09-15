@@ -29,6 +29,6 @@ Five sections. Section 1 is the spike: it builds the gate and turns design.md's 
 
 ## 5. Wire the gate and land the durable decisions
 
-- [ ] 5.1 Add `vet:fixtures` to `task check` after `vet:listing`, and add its row to the commands table in `CLAUDE.md`. Verify: `task check` runs it and stays green; reverting one repaired fixture to the old spelling makes `task check` fail naming that field.
-- [ ] 5.2 `CLAUDE.md` § Working Style: replace the "Known breakage, not yet repaired" sub-bullet with the standing gate (`task vet:fixtures`, in `task check`), and state beside it that `cue vet`, including `-c`, does not check hidden fixtures while `cue export` does. Verify: no sentence in `CLAUDE.md` still claims fixtures are unrepaired.
-- [ ] 5.3 `task check` green, then commit `chore(tasks): wire the fixture gate into check`.
+- [x] 5.1 Add `vet:fixtures` to `task check` after `vet:listing`, and add its row to the commands table in `CLAUDE.md`. Verify: `task check` runs it and stays green; reverting one repaired fixture to the old spelling makes `task check` fail naming that field.
+- [x] 5.2 `CLAUDE.md` § Working Style: replace the "Known breakage, not yet repaired" sub-bullet with the standing gate (`task vet:fixtures`, in `task check`), and state beside it that `cue vet`, including `-c`, does not check hidden fixtures while `cue export` does. Verify: no sentence in `CLAUDE.md` still claims fixtures are unrepaired.
+- [x] 5.3 `task check` green, then commit `chore(tasks): wire the fixture gate into check`.
