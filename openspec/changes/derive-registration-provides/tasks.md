@@ -17,3 +17,11 @@ not a spike.
 - [x] 2.1 Add a line to `CLAUDE.md`'s Listing bullet (design.md § Durable decisions): `task vet:listing` keys on a member's `fqn` field, not on its location, so a definition filed under a kind directory with no `fqn` is deliberately not a member and needs no `catalog.cue` entry. The current text reads as though everything under `<kind>/` must be listed. Verify: the line sits with the existing listing guidance rather than in a new section.
 - [x] 2.2 Append a second section to `docs/cue-guard-closedness-workaround.md` (design.md § Durable decisions): unifying two closed definitions closes the result to the intersection of their allowed fields, so a helper that extends a definition EMBEDS it rather than being unified beside it. Carry the reduced case and the measured `metadata.name: field not allowed` failure. Verify: the note's existing guard rule is untouched and the new section stands beside it.
 - [x] 2.3 `task check` green, then commit `docs: record the two closedness rules vet and the listing gate depend on`.
+
+## 3. Verification follow-up
+
+Raised by `/opsx:verify` as S1: the five section-1 fixtures all yield zero or one contract, so
+nothing pinned the fold in the case a real provider catalog hits.
+
+- [x] 3.1 Add a sixth fixture with two transformers requiring two DIFFERENT provider contracts, asserting membership AND order. Measured: the fold accumulates into a struct and reads it back with a comprehension, so `provides` comes out in INSERTION order (the declaration order of `#transformers`, then of each demand map), never sorted — which makes reordering that map a rendered-output change. Not an acceptance risk: `opm-operator`'s `providesDrift` sorts both lists before comparing. Verify: swapping the two golden entries fails `cue export`.
+- [x] 3.2 `task check` green, then commit `test(fixtures): pin the provider fold's output order with a multi-contract fixture`.

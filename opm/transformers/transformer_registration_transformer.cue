@@ -263,3 +263,32 @@ _testPreBoundNonProviderOutput: (#TransformerRegistrationTransformer.#transform 
 }).output
 
 _testPreBoundNonProviderOutput: spec: provides: []
+
+// WHY this fixture pins ORDER and not only membership: the fold accumulates
+// into a struct and reads it back with a comprehension, so provides comes out
+// in INSERTION order — the declaration order of the catalog's #transformers
+// map, then of each transformer's demand map — never sorted (measured, cue
+// v0.17.1). Reordering that map is therefore a rendered-output change. It is
+// not an acceptance risk: opm-operator sorts both lists before comparing.
+
+// Two transformers requiring two DIFFERENT provider contracts: the case a real
+// provider catalog hits, and the only one where order is observable.
+_testPreBoundMultiComponent: res.#PreBoundRegistration & {
+	metadata: name: "provider"
+	#identity: _testPreBoundIdentity
+	#transformers: {
+		backup: requiredTraits: (tra.#BackupTrait.metadata.fqn):         tra.#BackupTrait
+		command: requiredTraits: (tra.#BackupCommandTrait.metadata.fqn): tra.#BackupCommandTrait
+	}
+}
+
+_testPreBoundMultiOutput: (#TransformerRegistrationTransformer.#transform & {
+	#moduleInstance: _testPreBoundInstance
+	#component:      _testPreBoundMultiComponent
+	#context: #runtimeName: "opm-test"
+}).output
+
+_testPreBoundMultiOutput: spec: provides: [
+	"opmodel.dev/catalogs/opm/traits/backup@v1alpha1",
+	"opmodel.dev/catalogs/opm/traits/backup-command@v1alpha1",
+]

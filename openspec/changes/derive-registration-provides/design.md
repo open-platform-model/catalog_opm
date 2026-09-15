@@ -115,6 +115,10 @@ authoring rule, not a fact about this contract.
 
 - [A future reader adds an `fqn` to the helper and breaks `vet:listing`] -> the doc comment says why it has none; the gate fails loudly naming the extra key, so the failure is immediate and self-describing rather than silent.
 - [The open `[string]: _` typing accepts a map that is not transformers at all] -> the fold then yields an empty `provides`, which the operator refuses against its own re-derivation naming both lists. Wrong input fails at acceptance with a named diagnostic rather than silently registering nothing; tightening the type is additive if a real misuse appears.
+- [`provides` is ordered by insertion, not sorted, so reordering a catalog's `#transformers` map is a
+  rendered-output change] -> harmless downstream: `opm-operator`'s `providesDrift` sorts both lists
+  before comparing and says so. `_testPreBoundMultiOutput` pins the order so a change to it is a
+  visible diff rather than a surprise.
 - [The helper is published with no consumer] -> deliberate and cheap: an unused additive definition costs a doc-comment line in `INDEX.md`. The consumer is the first provider catalog, which cannot be written without it.
 
 ## Durable decisions
