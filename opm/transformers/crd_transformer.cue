@@ -139,18 +139,16 @@ _testCRDComponent: {
 
 _testCRDTransformer: (#CRDTransformer.#transform & {
 	#component: _testCRDComponent
-	#context: {
-		#moduleInstanceMetadata: {
+	#moduleInstance: {
+		metadata: {
 			name:      "cert-manager"
 			namespace: "cert-manager"
-			fqn:       "opmodel.dev/catalogs/opm/cert-manager@0.1.0"
-			version:   "0.1.0"
+			fqn:       "opmodel.dev/modules/cert-manager@0.1.0"
 			uuid:      "00000000-0000-0000-0000-000000000000"
 		}
-		#componentMetadata: name: "crds"
-		#runtimeName: "opm-test"
-		componentAnnotations: {}
+		#moduleMetadata: version: "0.1.0"
 	}
+	#context: #runtimeName: "opm-test"
 }).output
 
 _testCRDTransformer: [{
@@ -232,18 +230,16 @@ _testCRDBareComponent: {
 
 _testCRDBareTransformer: (#CRDTransformer.#transform & {
 	#component: _testCRDBareComponent
-	#context: {
-		#moduleInstanceMetadata: {
+	#moduleInstance: {
+		metadata: {
 			name:      "example"
 			namespace: "default"
-			fqn:       "opmodel.dev/catalogs/opm/example@0.1.0"
-			version:   "0.1.0"
+			fqn:       "opmodel.dev/modules/example@0.1.0"
 			uuid:      "00000000-0000-0000-0000-000000000000"
 		}
-		#componentMetadata: name: "crds"
-		#runtimeName: "opm-test"
-		componentAnnotations: {}
+		#moduleMetadata: version: "0.1.0"
 	}
+	#context: #runtimeName: "opm-test"
 }).output
 
 _testCRDNoAnnotationLeak: [

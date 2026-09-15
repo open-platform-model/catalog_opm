@@ -441,8 +441,9 @@ _testSTSRollingDefaultsNoParams: [
 // it must equal the name the Service transformer rendered for the SAME stub.
 _testStatefulSetServiceNameMatchesService: "\(_testSTSDefaultTransformer.spec.serviceName)" &
 	"\((#ServiceTransformer.#transform & {
-		#component: _testSTSDefaultComponent
-		#context:   _testSTSContext
+		#moduleInstance: _testSTSModuleInstance
+		#component:      _testSTSDefaultComponent
+		#context:        _testSTSContext
 	}).output.metadata.name)"
 
 // Without #Expose the fallback arm is a read of the component's own short DNS

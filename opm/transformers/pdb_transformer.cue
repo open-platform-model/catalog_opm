@@ -102,22 +102,22 @@ _testPDBComponent: {
 	}
 }
 
-_testPDBContext: {
-	#moduleInstanceMetadata: {
+_testPDBModuleInstance: {
+	metadata: {
 		name:      "istio"
 		namespace: "istio-system"
-		fqn:       "opmodel.dev/catalogs/opm/istio@0.1.0"
-		version:   "0.1.0"
+		fqn:       "opmodel.dev/modules/istio@0.1.0"
 		uuid:      "00000000-0000-0000-0000-000000000000"
 	}
-	#componentMetadata: name: "istiod"
-	#runtimeName: "opm-test"
-	componentAnnotations: {}
+	#moduleMetadata: version: "0.1.0"
 }
 
+_testPDBContext: #runtimeName: "opm-test"
+
 _testPDBTransformer: (#PDBTransformer.#transform & {
-	#component: _testPDBComponent
-	#context:   _testPDBContext
+	#moduleInstance: _testPDBModuleInstance
+	#component:      _testPDBComponent
+	#context:        _testPDBContext
 }).output
 
 _testPDBName: "\(_testPDBTransformer.metadata.name)" & "istiod"
@@ -146,8 +146,9 @@ _testPDBSelectorSize: (len(_testPDBTransformer.spec.selector.matchLabels) + 0) &
 
 _testPDBSelectorMatchesDeployment: [
 	for k, v in (#DeploymentTransformer.#transform & {
-		#component: _testPDBComponent
-		#context:   _testPDBContext
+		#moduleInstance: _testPDBModuleInstance
+		#component:      _testPDBComponent
+		#context:        _testPDBContext
 	}).output.spec.selector.matchLabels if _testPDBTransformer.spec.selector.matchLabels[k] == v {k},
 ] & [_, _, _]
 
@@ -178,8 +179,9 @@ _testPDBDefaultNameComponent: {
 }
 
 _testPDBDefaultNameTransformer: (#PDBTransformer.#transform & {
-	#component: _testPDBDefaultNameComponent
-	#context:   _testPDBContext
+	#moduleInstance: _testPDBModuleInstance
+	#component:      _testPDBDefaultNameComponent
+	#context:        _testPDBContext
 }).output
 
 _testPDBDefaultNameResolves: "\(_testPDBDefaultNameTransformer.metadata.name)" & "istio-istiod"
@@ -189,6 +191,7 @@ _testPDBDefaultNameResolves: "\(_testPDBDefaultNameTransformer.metadata.name)" &
 // _testHPATargetMatchesDeployment).
 _testPDBNameMatchesDeployment: "\(_testPDBDefaultNameTransformer.metadata.name)" &
 	"\((#DeploymentTransformer.#transform & {
-		#component: _testPDBDefaultNameComponent
-		#context:   _testPDBContext
+		#moduleInstance: _testPDBModuleInstance
+		#component:      _testPDBDefaultNameComponent
+		#context:        _testPDBContext
 	}).output.metadata.name)"

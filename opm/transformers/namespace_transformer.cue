@@ -69,6 +69,7 @@ import (
 /////////////////////////////////////////////////////////////////
 
 _testNamespacesComponent: res.#Namespaces & {
+	metadata: name: "namespace"
 	spec: namespaces: {
 		// Privileged namespace: PSS labels must survive and win over context.
 		"metallb-system": {
@@ -88,20 +89,16 @@ _testNamespacesComponent: res.#Namespaces & {
 
 _testNamespacesTransformer: (#NamespaceTransformer.#transform & {
 	#component: _testNamespacesComponent
-	#context: {
-		#moduleInstanceMetadata: {
+	#moduleInstance: {
+		metadata: {
 			name:      "test-instance"
 			namespace: "metallb-system"
-			fqn:       "opmodel.dev/catalogs/opm/test-instance@0.1.0"
-			version:   "0.1.0"
+			fqn:       "opmodel.dev/modules/test-instance@0.1.0"
 			uuid:      "00000000-0000-0000-0000-000000000000"
 		}
-		#componentMetadata: {
-			name: "namespace"
-		}
-		#runtimeName: "opm-test"
-		componentAnnotations: {}
+		#moduleMetadata: version: "0.1.0"
 	}
+	#context: #runtimeName: "opm-test"
 }).output
 
 // Golden fixtures — cue vet fails on any drift, not just schema errors.

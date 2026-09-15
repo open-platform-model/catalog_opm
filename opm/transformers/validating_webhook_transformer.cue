@@ -70,6 +70,7 @@ import (
 /////////////////////////////////////////////////////////////////
 
 _testValidatingWebhooksComponent: res.#ValidatingWebhooks & {
+	metadata: name: "webhooks"
 	spec: validatingWebhooks: {
 		// istiod patches this config's caBundle by exact name at runtime.
 		"istio-validator-istio-system": {
@@ -135,20 +136,16 @@ _testValidatingWebhooksComponent: res.#ValidatingWebhooks & {
 
 _testValidatingWebhooksTransformer: (#ValidatingWebhookTransformer.#transform & {
 	#component: _testValidatingWebhooksComponent
-	#context: {
-		#moduleInstanceMetadata: {
+	#moduleInstance: {
+		metadata: {
 			name:      "test-instance"
 			namespace: "istio-system"
-			fqn:       "opmodel.dev/catalogs/opm/test-instance@0.1.0"
-			version:   "0.1.0"
+			fqn:       "opmodel.dev/modules/test-instance@0.1.0"
 			uuid:      "00000000-0000-0000-0000-000000000000"
 		}
-		#componentMetadata: {
-			name: "webhooks"
-		}
-		#runtimeName: "opm-test"
-		componentAnnotations: {}
+		#moduleMetadata: version: "0.1.0"
 	}
+	#context: #runtimeName: "opm-test"
 }).output
 
 // Golden fixtures — cue vet fails on any drift, not just schema errors.

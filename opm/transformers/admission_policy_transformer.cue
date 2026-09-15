@@ -103,6 +103,7 @@ import (
 // Mirrors istio's stable-channel policy at 1.30.3 under
 // experimental.stableValidationPolicy.
 _testVAPComponent: res.#ValidatingAdmissionPolicies & {
+	metadata: name: "stable-validation-policy"
 	spec: validatingAdmissionPolicies: "stable-channel-policy-istio-system.istio.io": {
 		failurePolicy: "Fail"
 		matchConstraints: {
@@ -137,18 +138,16 @@ _testVAPComponent: res.#ValidatingAdmissionPolicies & {
 
 _testVAPTransformer: (#AdmissionPolicyTransformer.#transform & {
 	#component: _testVAPComponent
-	#context: {
-		#moduleInstanceMetadata: {
+	#moduleInstance: {
+		metadata: {
 			name:      "istio"
 			namespace: "istio-system"
-			fqn:       "opmodel.dev/catalogs/opm/istio@0.1.0"
-			version:   "0.1.0"
+			fqn:       "opmodel.dev/modules/istio@0.1.0"
 			uuid:      "00000000-0000-0000-0000-000000000000"
 		}
-		#componentMetadata: name: "stable-validation-policy"
-		#runtimeName: "opm-test"
-		componentAnnotations: {}
+		#moduleMetadata: version: "0.1.0"
 	}
+	#context: #runtimeName: "opm-test"
 }).output
 
 // One entry must produce exactly two objects.

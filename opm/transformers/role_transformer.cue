@@ -145,6 +145,7 @@ import (
 
 // Test: namespace-scoped role
 _testNsRoleComponent: res.#Role & {
+	metadata: name: "ci-bot"
 	spec: role: {
 		name:  "pod-reader"
 		scope: "namespace"
@@ -161,16 +162,22 @@ _testNsRoleComponent: res.#Role & {
 }
 
 _testNsRoleTransformer: (#RoleTransformer.#transform & {
-	#component: _testNsRoleComponent
-	#context: {
-		namespace: "default"
-		labels: app: "ci-bot"
-		componentAnnotations: {}
+	#moduleInstance: {
+		metadata: {
+			name:      "ci-bot"
+			namespace: "default"
+			fqn:       "opmodel.dev/modules/ci-bot@0.1.0"
+			uuid:      "00000000-0000-0000-0000-000000000000"
+		}
+		#moduleMetadata: version: "0.1.0"
 	}
+	#component: _testNsRoleComponent
+	#context: #runtimeName: "opm-test"
 }).output
 
 // Test: cluster-scoped role
 _testClusterRoleComponent: res.#Role & {
+	metadata: name: "admin-bot"
 	spec: role: {
 		name:  "cluster-reader"
 		scope: "cluster"
@@ -187,18 +194,24 @@ _testClusterRoleComponent: res.#Role & {
 }
 
 _testClusterRoleTransformer: (#RoleTransformer.#transform & {
-	#component: _testClusterRoleComponent
-	#context: {
-		namespace: "kube-system"
-		labels: app: "admin-bot"
-		componentAnnotations: {}
+	#moduleInstance: {
+		metadata: {
+			name:      "admin-bot"
+			namespace: "kube-system"
+			fqn:       "opmodel.dev/modules/admin-bot@0.1.0"
+			uuid:      "00000000-0000-0000-0000-000000000000"
+		}
+		#moduleMetadata: version: "0.1.0"
 	}
+	#component: _testClusterRoleComponent
+	#context: #runtimeName: "opm-test"
 }).output
 
 // Test: cluster-scoped role exercising both extended #PolicyRuleSchema forms —
 // resourceNames passthrough (cert-manager signer-approval shape), a
 // nonResourceURLs rule, and a legacy 3-field rule for backward compatibility.
 _testExtendedRulesComponent: res.#Role & {
+	metadata: name: "cert-manager"
 	spec: role: {
 		name:  "cert-manager-controller-approve"
 		scope: "cluster"
@@ -223,12 +236,17 @@ _testExtendedRulesComponent: res.#Role & {
 }
 
 _testExtendedRulesTransformer: (#RoleTransformer.#transform & {
-	#component: _testExtendedRulesComponent
-	#context: {
-		namespace: "cert-manager"
-		labels: app: "cert-manager"
-		componentAnnotations: {}
+	#moduleInstance: {
+		metadata: {
+			name:      "cert-manager"
+			namespace: "cert-manager"
+			fqn:       "opmodel.dev/modules/cert-manager@0.1.0"
+			uuid:      "00000000-0000-0000-0000-000000000000"
+		}
+		#moduleMetadata: version: "0.1.0"
 	}
+	#component: _testExtendedRulesComponent
+	#context: #runtimeName: "opm-test"
 }).output
 
 // Test: EMBEDDED authoring form ({res.#Role, ...}), the fleet's style. Unlike
@@ -236,6 +254,7 @@ _testExtendedRulesTransformer: (#RoleTransformer.#transform & {
 // component's own fields, so this is the form that catches a #PolicyRuleSchema
 // disjunction that only resolves via closedness. All three rule shapes.
 _testEmbeddedRoleComponent: {
+	metadata: name: "probe-bot"
 	res.#Role
 	spec: role: {
 		name:  "embedded-probe"
@@ -261,12 +280,17 @@ _testEmbeddedRoleComponent: {
 }
 
 _testEmbeddedRoleOutput: (#RoleTransformer.#transform & {
-	#component: _testEmbeddedRoleComponent
-	#context: {
-		namespace: "probe"
-		labels: app: "probe-bot"
-		componentAnnotations: {}
+	#moduleInstance: {
+		metadata: {
+			name:      "probe-bot"
+			namespace: "probe"
+			fqn:       "opmodel.dev/modules/probe-bot@0.1.0"
+			uuid:      "00000000-0000-0000-0000-000000000000"
+		}
+		#moduleMetadata: version: "0.1.0"
 	}
+	#component: _testEmbeddedRoleComponent
+	#context: #runtimeName: "opm-test"
 }).output
 
 // Interpolation pins: each rendered rule field is forced concrete, so an
@@ -296,6 +320,13 @@ _testMixedRuleRefused: [
 	} & res.#PolicyRuleSchema) != _|_ {"accepted"},
 ] & []
 
+// WHY the labels are spelled out: a golden literal unifies ONTO the rendered
+// output, so an under-specified labels struct ADDS its keys instead of
+// asserting them. This fixture previously claimed `app: "cert-manager"`, which
+// the transformer never renders — it was an artifact of the old hand-filled
+// #context.labels, and unification was quietly injecting it. The four keys
+// below are what #context.labels actually folds.
+
 // Golden fixture — resourceNames passed through verbatim, the
 // nonResourceURLs rule rendered without apiGroups/resources keys, and the
 // legacy rule rendered without any of the new keys.
@@ -305,7 +336,12 @@ _testExtendedRulesTransformer: [
 		kind:       "ClusterRole"
 		metadata: {
 			name: "cert-manager-controller-approve"
-			labels: app: "cert-manager"
+			labels: {
+				"app.kubernetes.io/name":           "cert-manager"
+				"app.kubernetes.io/instance":       "cert-manager"
+				"app.kubernetes.io/managed-by":     "opm-test"
+				"module-instance.opmodel.dev/name": "cert-manager"
+			}
 		}
 		rules: [{
 			apiGroups: ["cert-manager.io"]
@@ -326,7 +362,12 @@ _testExtendedRulesTransformer: [
 		kind:       "ClusterRoleBinding"
 		metadata: {
 			name: "cert-manager-controller-approve"
-			labels: app: "cert-manager"
+			labels: {
+				"app.kubernetes.io/name":           "cert-manager"
+				"app.kubernetes.io/instance":       "cert-manager"
+				"app.kubernetes.io/managed-by":     "opm-test"
+				"module-instance.opmodel.dev/name": "cert-manager"
+			}
 		}
 		roleRef: {
 			apiGroup: "rbac.authorization.k8s.io"

@@ -100,18 +100,16 @@ _testNetPolComponent: tr.#NetworkPolicy & {
 
 _testNetPolTransformer: (#NetworkPolicyTransformer.#transform & {
 	#component: _testNetPolComponent
-	#context: {
-		#moduleInstanceMetadata: {
+	#moduleInstance: {
+		metadata: {
 			name:      "istio"
 			namespace: "istio-system"
-			fqn:       "opmodel.dev/catalogs/opm/istio@0.1.0"
-			version:   "0.1.0"
+			fqn:       "opmodel.dev/modules/istio@0.1.0"
 			uuid:      "00000000-0000-0000-0000-000000000000"
 		}
-		#componentMetadata: name: "istiod"
-		#runtimeName: "opm-test"
-		componentAnnotations: {}
+		#moduleMetadata: version: "0.1.0"
 	}
+	#context: #runtimeName: "opm-test"
 }).output
 
 // The policy's own name follows the component's resourceName.

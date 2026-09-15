@@ -169,18 +169,16 @@ _testServiceDefaultNameComponent: {
 
 _testServiceDefaultNameTransformer: (#ServiceTransformer.#transform & {
 	#component: _testServiceDefaultNameComponent
-	#context: {
-		#moduleInstanceMetadata: {
+	#moduleInstance: {
+		metadata: {
 			name:      "shop"
 			namespace: "apps"
-			fqn:       "opmodel.dev/catalogs/opm/shop@0.1.0"
-			version:   "0.1.0"
+			fqn:       "opmodel.dev/modules/shop@0.1.0"
 			uuid:      "00000000-0000-0000-0000-000000000000"
 		}
-		#componentMetadata: name: "web"
-		#runtimeName: "opm-test"
-		componentAnnotations: {}
+		#moduleMetadata: version: "0.1.0"
 	}
+	#context: #runtimeName: "opm-test"
 }).output
 
 _testServiceDefaultNameTransformer: metadata: name: "shop-web"
@@ -234,18 +232,16 @@ _testServiceExactNameComponent: {
 
 _testServiceExactNameTransformer: (#ServiceTransformer.#transform & {
 	#component: _testServiceExactNameComponent
-	#context: {
-		#moduleInstanceMetadata: {
+	#moduleInstance: {
+		metadata: {
 			name:      "istio"
 			namespace: "istio-system"
-			fqn:       "opmodel.dev/catalogs/opm/istio@0.1.0"
-			version:   "0.1.0"
+			fqn:       "opmodel.dev/modules/istio@0.1.0"
 			uuid:      "00000000-0000-0000-0000-000000000000"
 		}
-		#componentMetadata: name: "istiod"
-		#runtimeName: "opm-test"
-		componentAnnotations: {}
+		#moduleMetadata: version: "0.1.0"
 	}
+	#context: #runtimeName: "opm-test"
 }).output
 
 // Golden: exact name, and each port keeps its upstream port/targetPort pair.
@@ -307,18 +303,16 @@ _testServiceUDPComponent: {
 
 _testServiceUDPTransformer: (#ServiceTransformer.#transform & {
 	#component: _testServiceUDPComponent
-	#context: {
-		#moduleInstanceMetadata: {
+	#moduleInstance: {
+		metadata: {
 			name:      "coredns"
 			namespace: "kube-system"
-			fqn:       "opmodel.dev/catalogs/opm/coredns@0.1.0"
-			version:   "0.1.0"
+			fqn:       "opmodel.dev/modules/coredns@0.1.0"
 			uuid:      "00000000-0000-0000-0000-000000000000"
 		}
-		#componentMetadata: name: "coredns"
-		#runtimeName: "opm-test"
-		componentAnnotations: {}
+		#moduleMetadata: version: "0.1.0"
 	}
+	#context: #runtimeName: "opm-test"
 }).output
 
 // Resolution guards — deliberately NOT written as a golden.
@@ -395,18 +389,16 @@ _testServiceLegacyExposeComponent: {
 
 _testServiceLegacyExposeTransformer: (#ServiceTransformer.#transform & {
 	#component: _testServiceLegacyExposeComponent
-	#context: {
-		#moduleInstanceMetadata: {
+	#moduleInstance: {
+		metadata: {
 			name:      "shop"
 			namespace: "apps"
-			fqn:       "opmodel.dev/catalogs/opm/shop@0.1.0"
-			version:   "0.1.0"
+			fqn:       "opmodel.dev/modules/shop@0.1.0"
 			uuid:      "00000000-0000-0000-0000-000000000000"
 		}
-		#componentMetadata: name: "web"
-		#runtimeName: "opm-test"
-		componentAnnotations: {}
+		#moduleMetadata: version: "0.1.0"
 	}
+	#context: #runtimeName: "opm-test"
 }).output
 
 // Resolution guard: the legacy component renders the same instance-scoped

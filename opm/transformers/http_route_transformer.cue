@@ -137,18 +137,17 @@ import (
 // on the component stub; without it the resourceName default (and the #Expose
 // wrapper's expose.name default) is incomplete and a golden would unify
 // vacuously (see docs/name-constraints.md).
-_testHttpRouteContext: {
-	#moduleInstanceMetadata: {
+_testHttpRouteModuleInstance: {
+	metadata: {
 		name:      "shop"
 		namespace: "apps"
-		fqn:       "opmodel.dev/catalogs/opm/shop@0.1.0"
-		version:   "0.1.0"
+		fqn:       "opmodel.dev/modules/shop@0.1.0"
 		uuid:      "00000000-0000-0000-0000-000000000000"
 	}
-	#componentMetadata: name: "web"
-	#runtimeName: "opm-test"
-	componentAnnotations: {}
+	#moduleMetadata: version: "0.1.0"
 }
+
+_testHttpRouteContext: #runtimeName: "opm-test"
 
 _testHttpRouteComponent: {
 	res.#Container
@@ -190,8 +189,9 @@ _testHttpRouteComponent: {
 }
 
 _testHttpRouteTransformer: (#HttpRouteTransformer.#transform & {
-	#component: _testHttpRouteComponent
-	#context:   _testHttpRouteContext
+	#moduleInstance: _testHttpRouteModuleInstance
+	#component:      _testHttpRouteComponent
+	#context:        _testHttpRouteContext
 }).output
 
 // The route's own name follows the component's resourceName.
@@ -200,8 +200,9 @@ _testHttpRouteNameResolves: "\(_testHttpRouteTransformer.metadata.name)" & "shop
 // backendRefs must point at the Service the #ServiceTransformer renders for
 // the same stub, whatever expose.name resolves to.
 _testHttpRouteBackendResolves: "\(_testHttpRouteTransformer.spec.rules[0].backendRefs[0].name)" & "\((#ServiceTransformer.#transform & {
-	#component: _testHttpRouteComponent
-	#context:   _testHttpRouteContext
+	#moduleInstance: _testHttpRouteModuleInstance
+	#component:      _testHttpRouteComponent
+	#context:        _testHttpRouteContext
 }).output.metadata.name)" & "shop-web"
 
 // Legacy shape: a routed component compiled against a build <= alpha.5, whose
@@ -246,13 +247,15 @@ _testHttpRouteLegacyExposeComponent: {
 }
 
 _testHttpRouteLegacyExposeTransformer: (#HttpRouteTransformer.#transform & {
-	#component: _testHttpRouteLegacyExposeComponent
-	#context:   _testHttpRouteContext
+	#moduleInstance: _testHttpRouteModuleInstance
+	#component:      _testHttpRouteLegacyExposeComponent
+	#context:        _testHttpRouteContext
 }).output
 
 // backendRefs must point at the Service the #ServiceTransformer renders for
 // the same legacy stub: the instance-scoped default.
 _testHttpRouteLegacyExposeBackendResolves: "\(_testHttpRouteLegacyExposeTransformer.spec.rules[0].backendRefs[0].name)" & "\((#ServiceTransformer.#transform & {
-	#component: _testHttpRouteLegacyExposeComponent
-	#context:   _testHttpRouteContext
+	#moduleInstance: _testHttpRouteModuleInstance
+	#component:      _testHttpRouteLegacyExposeComponent
+	#context:        _testHttpRouteContext
 }).output.metadata.name)" & "shop-web"

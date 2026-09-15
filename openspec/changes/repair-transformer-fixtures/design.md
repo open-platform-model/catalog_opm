@@ -185,6 +185,46 @@ The design expected label drift (a component with no `metadata.name` rendering a
 these fixtures already declared `#componentMetadata: name:` equal to its component's own
 `metadata.name`, so the projection computes the same value the hand-written fill did.
 
+### Section 3 (the remaining 17 `opm` files): one stale literal, no rendering defect.
+
+**`role_transformer.cue` — stale, repaired here.** Its four fixtures supplied neither
+`#moduleInstance` nor `#runtimeName`; instead they filled `#context: {namespace, labels,
+componentAnnotations}` by hand. Two consequences, both fixture bugs rather than render bugs:
+
+- `#context.namespace` is not a `#TransformerContext` field at all. The transformer reads
+  `#context.#moduleInstanceMetadata.namespace`, so that fill was inert and the rendered
+  namespace was never checked. It now comes from `#moduleInstance.metadata.namespace`.
+- `#context.labels` IS a field, but a computed fold. Filling it with `labels: app: "<x>"`
+  replaced the fold wholesale, and the golden literal recorded that fake. Expected (old
+  literal): `labels: {app: "cert-manager"}`. Actual render: `{app.kubernetes.io/name,
+  app.kubernetes.io/instance, app.kubernetes.io/managed-by, module-instance.opmodel.dev/name}`,
+  all four `"cert-manager"`, and no `app` key. The literal is re-pinned to those four.
+
+**Six component fixtures gained `metadata: name:`** (`admission_policy`, `configmap`,
+`mutating_webhook`, `namespace`, `secret`, `validating_webhook`). Their old `#context`
+fills supplied `#componentMetadata: name:` for components that never declared one; with the
+projection live, `#context.componentLabels` reads `#component.metadata.name` and the export
+fails `required field missing: name`. The name moves from the context onto the component, which
+is where it now belongs. This is the label drift the design predicted, in its benign form: the
+value is unchanged, only its source moved.
+
+**No rendering defect found.** Verified mechanically rather than by eye: in a scratch copy of the
+module each of the 10 fixtures that carries a separate golden literal block had that block
+renamed to `<field>__GOLDEN`, making the render and the literal two independent fields, and every
+leaf of the golden was compared against the render at the same path. All 10 are exact subsets —
+229 leaves total, every one agreeing, none injecting a path the render does not produce.
+
+### Measured: a golden literal unifies ONTO the render, so it asserts presence, never absence
+
+This is what let `role`'s bogus `app: "cert-manager"` survive: the literal is unified onto the
+rendered value, so a key the render does not produce is silently ADDED rather than rejected, and
+an omitted key is not asserted absent. Two of the ten goldens are nearly vacuous as a result —
+`_testServiceDefaultNameTransformer`'s asserts a single leaf and `_testCRDTransformer`'s eight.
+Strengthening them is out of scope here (this change repairs evaluation, it does not raise
+coverage), but the property is worth knowing before trusting a golden block: absence is checked
+only by the explicit `] & []` comprehension guards the workload transformers use, never by a
+golden literal.
+
 ### Measured: `cue vet` DOES catch an error-class conflict in a hidden field
 
 Worth recording because it bounds exactly what the new gate adds. Reverting

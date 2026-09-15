@@ -92,6 +92,7 @@ import (
 // One component carrying both naming modes: `api` is immutable and takes a
 // content-hash suffix, `db` is mutable and keeps the stable name.
 _testSecretNamingComponent: res.#Secrets & {
+	metadata: name: "mycomponent"
 	spec: secrets: {
 		api: {
 			immutable: true
@@ -106,18 +107,16 @@ _testSecretNamingComponent: res.#Secrets & {
 
 _testSecretNamingTransformer: (#SecretTransformer.#transform & {
 	#component: _testSecretNamingComponent
-	#context: {
-		#moduleInstanceMetadata: {
+	#moduleInstance: {
+		metadata: {
 			name:      "myapp"
 			namespace: "myapp-system"
-			fqn:       "opmodel.dev/catalogs/opm/myapp@0.1.0"
-			version:   "0.1.0"
+			fqn:       "opmodel.dev/modules/myapp@0.1.0"
 			uuid:      "00000000-0000-0000-0000-000000000000"
 		}
-		#componentMetadata: name: "mycomponent"
-		#runtimeName: "opm-test"
-		componentAnnotations: {}
+		#moduleMetadata: version: "0.1.0"
 	}
+	#context: #runtimeName: "opm-test"
 }).output
 
 // Golden — an immutable secret carries the content-hash suffix

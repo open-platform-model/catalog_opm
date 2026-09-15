@@ -17,9 +17,9 @@ Five sections. Section 1 is the spike: it builds the gate and turns design.md's 
 
 ## 3. Repair the remaining transformers
 
-- [ ] 3.1 Repair the other 17 `opm` files the baseline names, `role_transformer.cue` included (it supplies neither `#moduleInstance` nor `#runtimeName` and gains both). Same rule per file: export must succeed and vet must still pass. Verify: `bash .tasks/fixtures.sh opm` exits 0 — all 47 `opm` rendered-output fixtures evaluate.
-- [ ] 3.2 Triage as in 2.2 and extend design.md § Findings. Verify: every literal that changed is either explained by the projection or recorded as a defect.
-- [ ] 3.3 `task check` green, then commit `test(transformers): repair the remaining transformer fixtures`.
+- [x] 3.1 Repair the other 17 `opm` files the baseline names, `role_transformer.cue` included (it supplies neither `#moduleInstance` nor `#runtimeName` and gains both). Same rule per file: export must succeed and vet must still pass. Verify: `bash .tasks/fixtures.sh opm` exits 0 — all 47 `opm` rendered-output fixtures evaluate.
+- [x] 3.2 Triage as in 2.2 and extend design.md § Findings. Verify: every literal that changed is either explained by the projection or recorded as a defect.
+- [x] 3.3 `task check` green, then commit `test(transformers): repair the remaining transformer fixtures`.
 
 ## 4. Repair the k8s transformers
 
