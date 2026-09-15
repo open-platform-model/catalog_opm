@@ -35,6 +35,35 @@ Two facts shape the design:
 
 **Alternative considered — a new `opm/registration/` package.** A clean namespace with no listing ambiguity, at the cost of a fourth import alias for consumers and a directory holding one definition. Not worth it while there is exactly one helper.
 
+### Closed definitions intersect, so the helper embeds the component wrapper
+
+The obvious spelling is a helper that sits beside the component wrapper and is unified with it at
+the call site: `#TransformerRegistration & #PreBoundRegistration & {…}`. It does not evaluate.
+Measured on cue v0.17.1, unifying two closed definitions closes the result to the INTERSECTION of
+their allowed fields, so every field only one conjunct declares is refused:
+
+```cue
+#A: {a: int}
+#B: {b: int}
+x: #A & #B & {a: 1, b: 2} // x.a: field not allowed / x.b: field not allowed
+```
+
+Against the real values that is `_testPreBoundTraitComponent.metadata.name: field not allowed`
+— `metadata` comes from `c.#Component` through `#TransformerRegistration` and the helper never
+declares it. Adding a regular field to a closed definition by embedding an open literal
+(`#C: #A & {b: int}`) is refused for the same reason.
+
+So the helper **embeds** what it extends: `#PreBoundRegistration: #TransformerRegistration & {…}`.
+One closed conjunct, nothing intersected, and everything the helper adds on top is either a
+definition field (`#identity`, `#transformers`), a hidden field (`_providerSet`) — neither of which
+closedness checks — or a `spec.transformerRegistration` field the resource already allows. The call
+site gets shorter too: `res.#PreBoundRegistration & {metadata: name: …, #identity: …, #transformers: …}`.
+
+**Alternative considered — publish the helper as a regular field** (`PreBoundRegistration: {…}`),
+which is not closed and unifies beside the wrapper as originally written. Rejected: a non-definition
+in a catalog package is an exported value that shows up in `cue export` output and reads as data
+rather than as a schema, to buy back a spelling nobody needs.
+
 ### `#transformers` is typed openly, and the fold guards both demand maps
 
 ```cue
@@ -62,6 +91,19 @@ The helper fills the field; it does not relax it. This matters because of the me
 **Decision**: test with a synthetic transformer, and state in the helper's doc comment that it is for a provider catalog to instantiate.
 **Rationale**: the rule is deliberate — a stub transformer in this catalog *is* a provider, so the first real one becomes the second and the match is ambiguous. That makes an empty fold the correct result for `opm` and means the fixture must supply its own input rather than borrow the catalog's.
 
+### Unifying two closed definitions closes to their intersection
+
+**Context**: whether the helper could sit beside `#TransformerRegistration` and be unified with it
+at the call site, as the proposal's first draft had it.
+**Explored**: measured on cue v0.17.1 — the reduced case above, then the five fixtures, which
+failed with `metadata.name: field not allowed` and `metadata.resourceName: field not allowed`
+before the helper embedded the wrapper.
+**Decision**: the helper embeds `#TransformerRegistration`; the call site names one definition.
+**Rationale**: closedness is not checked for definition and hidden fields, so everything the helper
+contributes except the `spec` body is exempt anyway; embedding costs nothing and removes a conjunct
+from every call site. Promoted to `docs/cue-guard-closedness-workaround.md` — it is a general CUE
+authoring rule, not a fact about this contract.
+
 ### The listing gate keys on `fqn`, not on file location
 
 **Context**: whether a non-member definition under `resources/v1alpha1/` would fail `task vet:listing`.
@@ -78,6 +120,10 @@ The helper fills the field; it does not relax it. This matters because of the me
 ## Durable decisions
 
 - **A non-member definition may live under a kind directory, because `vet:listing` keys on `fqn` rather than on location.** Lands as a line in `CLAUDE.md`'s Listing bullet — it is an authoring rule a future catalog author needs, and the current text reads as though everything under `<kind>/` must be listed.
+- **A helper that extends a closed definition embeds it; it is never unified beside it.** Unifying
+  two closed definitions closes the result to the intersection of their allowed fields (measured,
+  cue v0.17.1). Lands as a second section in `docs/cue-guard-closedness-workaround.md`, beside the
+  other closedness rule this repo has to author around.
 - **A provider-fulfilled member's catalog folds to an empty provider set by rule.** Stays with the change: it is a consequence of the existing "ships no transformer here" rule already in `CLAUDE.md`, not a new rule.
 
 ## Open Questions

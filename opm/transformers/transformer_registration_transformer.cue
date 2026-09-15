@@ -4,6 +4,7 @@ import (
 	id "opmodel.dev/catalogs/opm/identity"
 	c "opmodel.dev/core@v2"
 	res "opmodel.dev/catalogs/opm/resources/v1alpha1"
+	tra "opmodel.dev/catalogs/opm/traits/v1alpha1"
 )
 
 // WHY the group, version and kind below are literals: they name a CRD that
@@ -140,3 +141,125 @@ _testTransformerRegistrationOutput: {
 // The rendered object carries exactly the four keys the context fold produces;
 // a fifth would slip past the golden struct above, which unifies openly.
 _testTransformerRegistrationLabelCount: (len(_testTransformerRegistrationOutput.metadata.labels) + 0) & 4
+
+/////////////////////////////////////////////////////////////////
+//// Test Data — #PreBoundRegistration
+/////////////////////////////////////////////////////////////////
+
+// WHY these fixtures build their own transformers: this catalog ships no
+// transformer requiring a provider-fulfilled contract (a provider-fulfilled
+// member ships none here, and never a stub), so the fold over opm's own
+// #transformers is empty by rule and proves nothing. Each fixture supplies
+// the map a real provider catalog would pass, and its golden asserts
+// spec.provides alone — the rest of the object is pinned above.
+
+_testPreBoundInstance: {
+	metadata: {
+		name:      "provider"
+		namespace: "provider-system"
+		fqn:       "opmodel.dev/modules/provider@1.0.0"
+		uuid:      "00000000-0000-0000-0000-000000000000"
+	}
+	#moduleMetadata: version: "1.0.0"
+}
+
+_testPreBoundIdentity: {
+	modulePath: "opmodel.dev/catalogs/k8up@v1"
+	version:    "1.0.0"
+}
+
+// A required trait with fulfilment "provider" yields exactly its FQN.
+_testPreBoundTraitComponent: res.#PreBoundRegistration & {
+	metadata: name: "provider"
+	#identity: _testPreBoundIdentity
+	#transformers: backup: requiredTraits: (tra.#BackupTrait.metadata.fqn): tra.#BackupTrait
+}
+
+_testPreBoundTraitOutput: (#TransformerRegistrationTransformer.#transform & {
+	#moduleInstance: _testPreBoundInstance
+	#component:      _testPreBoundTraitComponent
+	#context: #runtimeName: "opm-test"
+}).output
+
+_testPreBoundTraitOutput: spec: {
+	catalog: "opmodel.dev/catalogs/k8up@v1"
+	version: "1.0.0"
+	provides: ["opmodel.dev/catalogs/opm/traits/backup@v1alpha1"]
+}
+
+// requiredResources alone is enough; the value is synthetic because opm ships
+// no provider-fulfilled RESOURCE and the fold reads fulfilment only.
+_testPreBoundResourceComponent: res.#PreBoundRegistration & {
+	metadata: name: "provider"
+	#identity: _testPreBoundIdentity
+	#transformers: store: requiredResources: {
+		"opmodel.dev/catalogs/k8up/resources/backup-store@v1alpha1": fulfilment: "provider"
+	}
+}
+
+_testPreBoundResourceOutput: (#TransformerRegistrationTransformer.#transform & {
+	#moduleInstance: _testPreBoundInstance
+	#component:      _testPreBoundResourceComponent
+	#context: #runtimeName: "opm-test"
+}).output
+
+_testPreBoundResourceOutput: spec: provides: [
+	"opmodel.dev/catalogs/k8up/resources/backup-store@v1alpha1",
+]
+
+// A transformer declaring neither demand map is tolerated, not an error: both
+// maps are optional on core's #ComponentTransformer.
+_testPreBoundNeitherComponent: res.#PreBoundRegistration & {
+	metadata: name: "provider"
+	#identity: _testPreBoundIdentity
+	#transformers: noop: {}
+}
+
+_testPreBoundNeitherOutput: (#TransformerRegistrationTransformer.#transform & {
+	#moduleInstance: _testPreBoundInstance
+	#component:      _testPreBoundNeitherComponent
+	#context: #runtimeName: "opm-test"
+}).output
+
+// An empty list golden DOES assert emptiness — lists unify by length, unlike
+// the struct goldens above, which only assert presence.
+_testPreBoundNeitherOutput: spec: provides: []
+
+// Two transformers requiring the same contract contribute ONE entry; the
+// struct keys of _providerSet are what deduplicate them.
+_testPreBoundDedupComponent: res.#PreBoundRegistration & {
+	metadata: name: "provider"
+	#identity: _testPreBoundIdentity
+	#transformers: {
+		backup: requiredTraits: (tra.#BackupTrait.metadata.fqn):  tra.#BackupTrait
+		restore: requiredTraits: (tra.#BackupTrait.metadata.fqn): tra.#BackupTrait
+	}
+}
+
+_testPreBoundDedupOutput: (#TransformerRegistrationTransformer.#transform & {
+	#moduleInstance: _testPreBoundInstance
+	#component:      _testPreBoundDedupComponent
+	#context: #runtimeName: "opm-test"
+}).output
+
+_testPreBoundDedupOutput: spec: provides: [
+	"opmodel.dev/catalogs/opm/traits/backup@v1alpha1",
+]
+
+// A catalog-fulfilled requirement is not a claim: the declaring catalog
+// implements it itself, so it never reaches provides.
+_testPreBoundNonProviderComponent: res.#PreBoundRegistration & {
+	metadata: name: "provider"
+	#identity: _testPreBoundIdentity
+	#transformers: reg: requiredResources: {
+		(res.#TransformerRegistrationResource.metadata.fqn): res.#TransformerRegistrationResource
+	}
+}
+
+_testPreBoundNonProviderOutput: (#TransformerRegistrationTransformer.#transform & {
+	#moduleInstance: _testPreBoundInstance
+	#component:      _testPreBoundNonProviderComponent
+	#context: #runtimeName: "opm-test"
+}).output
+
+_testPreBoundNonProviderOutput: spec: provides: []

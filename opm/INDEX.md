@@ -74,6 +74,7 @@ CUE module: `opmodel.dev/catalogs/opm@v4`
 | `#NamespaceSchema` | `resources/v1alpha1/namespace.cue` | Kubernetes Namespace, emitted with its exact name |
 | `#Namespaces` | `resources/v1alpha1/namespace.cue` |  |
 | `#NamespacesResource` | `resources/v1alpha1/namespace.cue` |  |
+| `#PreBoundRegistration` | `resources/v1alpha1/transformer_registration.cue` | #TransformerRegistration pre-bound for a provider catalog: pass the catalog's own identity package and its own #transformers map and the module authors no spec field |
 | `#TransformerRegistration` | `resources/v1alpha1/transformer_registration.cue` |  |
 | `#TransformerRegistrationResource` | `resources/v1alpha1/transformer_registration.cue` | A provider module's claim that its catalog implements platform contracts |
 | `#MutatingWebhookConfigurationSchema` | `resources/v1alpha1/webhook.cue` |  |

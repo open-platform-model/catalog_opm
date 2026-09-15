@@ -10,7 +10,7 @@ Enhancement 0015 D11 states the registration's summary property: *"No field of t
 
 ## What Changes
 
-- `opm/resources/v1alpha1/transformer_registration.cue`: add `#PreBoundRegistration`, a definition a provider catalog unifies with its own identity package and its own `#transformers` map. `catalog` and `version` interpolate from the identity; `provides` derives as a fold over those transformers, collecting every required contract whose value carries `fulfilment: "provider"`, deduplicated through struct keys.
+- `opm/resources/v1alpha1/transformer_registration.cue`: add `#PreBoundRegistration`, `#TransformerRegistration` pre-bound for a provider catalog, which passes its own identity package and its own `#transformers` map. `catalog` and `version` interpolate from the identity; `provides` derives as a fold over those transformers, collecting every required contract whose value carries `fulfilment: "provider"`, deduplicated through struct keys. It **embeds** the component wrapper rather than sitting beside it: unifying two closed definitions closes the result to the intersection of their allowed fields, so a side-by-side `#TransformerRegistration & #PreBoundRegistration` refuses `metadata.name` (measured, cue v0.17.1 — design.md § Closed definitions intersect).
 - `#TransformerRegistrationResource` is **unchanged**. `provides!` stays required; the helper fills it. Keeping the field required is what lets the operator refuse a claim that arrives without one, which CUE's incomplete-value behaviour makes reachable.
 - The resource's doc comment loses the "authored today" note, since it stops being true.
 
@@ -36,7 +36,7 @@ Not breaking. No member's schema changes, no `apiVersion` segment moves, and no 
 
 ```cue
 // The helper (new, in opm/resources/v1alpha1/):
-#PreBoundRegistration: {
+#PreBoundRegistration: #TransformerRegistration & {
 	#identity: {
 		modulePath: c.#ModulePathType
 		version:    c.#VersionType
@@ -64,7 +64,7 @@ Not breaking. No member's schema changes, no `apiVersion` segment moves, and no 
 }
 
 // A provider catalog's module then authors nothing:
-#TransformerRegistration & #PreBoundRegistration & {
+#PreBoundRegistration & {
 	metadata: name: "k8up"
 	#identity: {modulePath: id.ModulePath, version: id.Version}
 	#transformers: k8up.#transformers
