@@ -1,0 +1,15 @@
+# Declares which enhancement decisions this change implements. Consumed by
+# `task enhancements:delivery:log` at archive time.
+#
+# D11 was over-claimed by opm-operator registration-acceptance and removed
+# from 0015's log: that change delivered the re-derivation and verification
+# half. This change delivers the authoring half, the pre-bound registration
+# value whose provides derives from the provider catalog's own transformers,
+# and completes D11.
+#
+# Before logging, diff this list against proposal.md's "Not in this change"
+# section and drop anything it names.
+implements:
+  - enhancement: "0015"
+    decisions: [D11]
+    resolves: []
