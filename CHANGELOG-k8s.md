@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-alpha.4](https://github.com/open-platform-model/catalog_opm/compare/k8s-v1.0.0-alpha.3...k8s-v1.0.0-alpha.4) (2026-09-19)
+
+
+### Bug Fixes
+
+* **deps:** bump core to 2.0.0-alpha.10 ([989d3cc](https://github.com/open-platform-model/catalog_opm/commit/989d3cc47f85ad169608ce3b90bda9958bb6ad17))
+
 ## [1.0.0-alpha.3](https://github.com/open-platform-model/catalog_opm/compare/k8s-v1.0.0-alpha.2...k8s-v1.0.0-alpha.3) (2026-09-14)
 
 
