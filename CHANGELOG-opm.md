@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.4.1](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.4.0...opm-v4.4.1) (2026-09-19)
+
+
+### Bug Fixes
+
+* **deps:** bump core to 2.0.0-alpha.10 ([989d3cc](https://github.com/open-platform-model/catalog_opm/commit/989d3cc47f85ad169608ce3b90bda9958bb6ad17))
+
 ## [4.4.0](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.3.1...opm-v4.4.0) (2026-09-15)
 
 
