@@ -134,7 +134,7 @@ rules:
       enhancement delivery logging wait for archive after the last PR."
     - "Never add a Capabilities section and never create a `specs/` directory; the change's `.openspec.yaml` MUST carry `skip_specs: true` (Principle II)."
     - When the change implements a slice of an enhancement, cite the entry and the decision
-      numbers it satisfies (e.g. `enhancements/0010` D4, D49) rather than restating the design.
+      numbers it satisfies (e.g. `enhancements/0010` D4, D49) or, when only part of a decision lands, the requirement numbers (`0010:D4:R1/R2`) rather than restating the design.
     - "If this change implements decisions from an enhancement in the sibling enhancements/ repo, create enhancement.yaml in this change directory declaring it (implements: [{enhancement: \"NNNN\", decisions: [D1, ...], resolves: []}]). Write it at creation time, while the enhancement is in context; it is what makes archive-time delivery logging mechanical."
 
   design:
