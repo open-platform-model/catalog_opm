@@ -34,4 +34,4 @@
 ## Durable decisions
 
 <!-- Every decision a future catalog author needs, and where it lands at archive time:
-     docs/<note>.md, a CLAUDE.md rule, or "stays with the change". Write "None." if empty. -->
+     docs/<note>.md, a AGENTS.md rule, or "stays with the change". Write "None." if empty. -->

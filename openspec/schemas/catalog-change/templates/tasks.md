@@ -6,5 +6,5 @@
 
 ## 2. Durable decisions <!-- delete this section when design.md says "None." -->
 
-- [ ] 2.1 <!-- Land each promoted decision from design.md in docs/ or CLAUDE.md -->
+- [ ] 2.1 <!-- Land each promoted decision from design.md in docs/ or AGENTS.md -->
 - [ ] 2.2 `task check` green, then commit `<!-- docs(opm): ... -->`

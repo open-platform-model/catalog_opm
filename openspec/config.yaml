@@ -41,7 +41,7 @@ context: |
   - The proposal's **Before / After** CUE block is where intended behavior is reviewed before
     code exists. Write it as CUE, not prose.
   - A decision a FUTURE catalog author needs (a convention, an evaluator pitfall, a filing rule)
-    lands in `docs/` or `CLAUDE.md` before the change is archived. An archived change is never the
+    lands in `docs/` or `AGENTS.md` before the change is archived. An archived change is never the
     only home of an authoring rule. `design.md`'s **Durable decisions** section is where each
     change declares what it promotes.
 
@@ -83,7 +83,7 @@ context: |
   the change itself.
   - **Every merge leaves `main` releasable.** A section MUST end green under the validation
     gates and MUST close with a commit task naming the Conventional Commit it lands as
-    (CLAUDE.md § Commit conventions and release impact). Nothing that would break `main` is carried across a section boundary.
+    (AGENTS.md § Commit conventions and release impact). Nothing that would break `main` is carried across a section boundary.
   - **Work survives a session boundary.** The commit task is the pause point: a session that
     stops there leaves checked boxes and a clean tree, and the next session resumes by running
     apply again.
@@ -102,10 +102,10 @@ context: |
   suggest we split it into the following changes: [list 2-3 changes, each a few sections that
   leave main releasable]. Should we start with the first?"
 
-  ## Everything Else Lives in CLAUDE.md
+  ## Everything Else Lives in AGENTS.md
   Technology standards, build and validation commands, registry variables, CUE style and the
   doc-comment rules, generated `INDEX.md` handling, commit conventions and release classes, and
-  the attribution and `@name` rules are in `CLAUDE.md`, which is loaded in every session and is
+  the attribution and `@name` rules are in `AGENTS.md`, which is loaded in every session and is
   not repeated here. Artifact-level requirements are in the `rules` below and in the schema's
   per-artifact `instruction`.
 
@@ -163,7 +163,7 @@ rules:
     - Call out any change to a definition's closedness, defaults, or required-field set — these
       break consumers in ways an added optional field does not.
     - MUST include a "Durable decisions" section listing every decision a future catalog author
-      needs and where it lands at archive (`docs/<note>.md`, a `CLAUDE.md` rule, or "stays with
+      needs and where it lands at archive (`docs/<note>.md`, a `AGENTS.md` rule, or "stays with
       the change"). Write "None." when empty; never omit the section.
 
   tasks:
@@ -172,7 +172,7 @@ rules:
     - "CRITICAL: Every `## N.` section MUST end green under the validation gates and MUST close
       with a commit task: an ordinary `- [ ] N.M` checkbox whose text names the Conventional
       Commit to make, e.g. `- [ ] 1.4 task check green, then commit feat(resources): add mountPropagation to volume`
-      (types and scopes per CLAUDE.md § Commit conventions and release impact). The commit task is the pause point; nothing uncommitted is carried across
+      (types and scopes per AGENTS.md § Commit conventions and release impact). The commit task is the pause point; nothing uncommitted is carried across
       a section boundary."
     - "CRITICAL: Cut the change into at most about seven sections, each a coherent unit that
       leaves main releasable by itself. If it needs more, or a section cannot end green on its
@@ -181,7 +181,7 @@ rules:
       or the finding written into design.md)."
     - Group tasks by module (`opm/`, `k8s/`) then by member file.
     - Include `task generate:index` as a task whenever definitions are added, removed or renamed.
-    - Include one task per durable decision in design.md that lands it in `docs/` or `CLAUDE.md`.
+    - Include one task per durable decision in design.md that lands it in `docs/` or `AGENTS.md`.
     - Include the validation gates (`task check`, or the four individually) in every section's commit task, not as a
       trailing section; cross-cutting checks (consumer module builds) go into the last real section before
       its commit.
@@ -199,7 +199,7 @@ operations:
     guidance:
       - "Work section by section: every `## N.` block of tasks.md ends with a commit task. Before
         checking that box, run the section's gates (`task check`) on the whole tree and make
-        exactly the named Conventional Commit (types and scopes per CLAUDE.md § Commit conventions and release impact; optional plain Co-Authored-By: Claude
+        exactly the named Conventional Commit (types and scopes per AGENTS.md § Commit conventions and release impact; optional plain Co-Authored-By: Claude
         <noreply@anthropic.com> trailer only, never a session link, never a bare @name, and
         no body line starting with word( because the squash body reaches release-please). Do not start the next section with uncommitted work in the tree."
       - "The commit task is the only delivery operation apply performs: no push, no PR, no tag,
@@ -217,5 +217,5 @@ operations:
   archive:
     guidance:
       - "Archive with `--skip-specs`: this workspace has no specs and the change declares skip_specs. Never let archive create an openspec/specs/ directory."
-      - "Before archiving, read design.md's Durable decisions section. Every entry marked for promotion MUST already be landed in docs/ or CLAUDE.md; if one is not, stop and land it first. An archived change must not be the only home of an authoring rule."
+      - "Before archiving, read design.md's Durable decisions section. Every entry marked for promotion MUST already be landed in docs/ or AGENTS.md; if one is not, stop and land it first. An archived change must not be the only home of an authoring rule."
       - "If this change directory contains enhancement.yaml, finish the archive by logging the landing: from the workspace root run `task enhancements:delivery:log FROM=<archived-change-path> SUMMARY=\"<one line: what landed>\"`. It appends a CUE-validated entry to each declared enhancement's delivery.yaml; confirm it printed 'logged' for every declared enhancement."

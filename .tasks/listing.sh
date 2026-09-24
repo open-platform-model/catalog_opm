@@ -10,7 +10,7 @@ export LC_ALL=C
 # Every contract member filed under <module>/<kind>/<apiVersion>/ — and every
 # transformer filed flat under <module>/transformers/ — MUST be a key of that
 # module's catalog.cue #<kind> map, and every key MUST name a member
-# (enhancement 0015 D1; CLAUDE.md, Working Style, Listing). Core checks that a
+# (enhancement 0015 D1; AGENTS.md, Working Style, Listing). Core checks that a
 # listed member is well-formed; it cannot check that the list is complete,
 # which is what this gate adds.
 #

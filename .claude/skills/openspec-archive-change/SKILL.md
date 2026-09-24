@@ -91,7 +91,7 @@ Archive a completed change in the experimental workflow.
    This repo's `catalog-change` schema has no specs artifact; `design.md`'s
    **Durable decisions** section is where a change declares what outlives it.
    Read that section. For every entry marked for promotion to `docs/` or
-   `CLAUDE.md`, confirm the target file already contains it. If any entry is not
+   `AGENTS.md`, confirm the target file already contains it. If any entry is not
    landed, stop and land it first; an archived change must never be the only
    home of an authoring rule. "None." is a valid section and needs no action.
    A `design.md` without the section is a defect in the change: add it before

@@ -21,7 +21,7 @@ export LC_ALL=C
 # nothing. Measured 2026-09-15 (cue v0.17.1, core v2.0.0-alpha.9): 44 of the 47
 # rendered-output fixtures in opm/transformers/ failed export while `cue vet
 # ./...` exited 0. `cue export -e <field>` forces concreteness and is what makes
-# the golden literals load-bearing. See CLAUDE.md, Working Style.
+# the golden literals load-bearing. See AGENTS.md, Working Style.
 #
 # WHY only this declaration form: sweeping every hidden `_test*` field reports
 # ~92 failures in opm, most of them component fixtures (`_test*Component`) whose

@@ -148,7 +148,7 @@ tasks:
   # CI-only: release.yml publishes releases, branch-publish.yml publishes
   # -dev.* branch builds. Each module publishes independently. There is
   # deliberately no publish task here — a local publish is a gated exception
-  # (Registry Policy rule 2, root CLAUDE.md) and requires explicitly pointing
+  # (Registry Policy rule 2, root AGENTS.md) and requires explicitly pointing
   # opm at the local registry, e.g.
   #   OPM_REGISTRY='opmodel.dev/catalogs=localhost:5000+insecure,opmodel.dev=ghcr.io/open-platform-model,registry.cue.works' \
   #     opm catalog publish ./opm

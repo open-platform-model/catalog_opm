@@ -61,7 +61,7 @@ artifacts:
       - **Risks / Trade-offs**: Known limitations, things that could go wrong.
         Format: [Risk] -> Mitigation.
       - **Durable decisions**: Every decision a FUTURE catalog author needs to know, with
-        where it lands at archive time: `docs/<note>.md`, a `CLAUDE.md` rule, or "stays with
+        where it lands at archive time: `docs/<note>.md`, a `AGENTS.md` rule, or "stays with
         the change". An archived change must never be the only home of an authoring rule.
         If nothing is durable, write "None." rather than omitting the section.
       - **Open Questions**: Unknowns that can safely be answered later without changing the
@@ -97,7 +97,7 @@ artifacts:
         Commit; at most about five sections
       - Order tasks by dependency (what must be done first?)
       - Include `task generate:index` whenever definitions are added, removed or renamed
-      - Include a task that lands each durable decision from design.md in `docs/` or `CLAUDE.md`
+      - Include a task that lands each durable decision from design.md in `docs/` or `AGENTS.md`
       - Each section's last task runs the gates (`task check`) and makes the commit; there is
         no trailing Verification section
       - Delete the Durable decisions section when design.md says "None."
