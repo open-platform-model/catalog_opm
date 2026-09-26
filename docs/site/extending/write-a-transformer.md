@@ -1,0 +1,42 @@
+---
+title: "Write a transformer"
+description: "Teach OPM to render a resource or trait into Kubernetes objects."
+type: how-to
+sidebar:
+  order: 21
+---
+
+<!-- One sentence: this adds a transformer, the part of a catalog that turns a matched component into Kubernetes objects. The reader needs it when a resource or trait in the catalog renders nothing, or when they implement a provider-fulfilled contract another catalog declares. Say that a transformer is evaluated once when a platform is built, with no component present, and that most of the rules below follow from that. Check against: core/src/transformer.cue, catalog_opm/docs/transformer-authoring.md -->
+
+## Before you begin
+
+<!-- The reader must already have: the resources and traits the transformer consumes, defined and listed in a catalog (see "Write a trait"); the Kubernetes object it will emit and its API version (catalog_opm vendors the Kubernetes types under opm/schemas/kubernetes/, for example k8spolicyv1.#PodDisruptionBudget); the cue CLI (catalog_opm CI pins v0.17.1; Verify: the minimum version). The reader has read the concept page "How matching works". Check against: catalog_opm/opm/schemas/kubernetes/, catalog_opm/opm/transformers/pdb_transformer.cue, catalog_opm/.github/workflows/ci.yml -->
+
+## Steps
+
+<!-- The running example can be the pdb transformer: it requires one trait, emits one object and carries a small, complete set of fixtures. -->
+
+1. Create the transformer file.
+   <!-- <module>/transformers/<name>_transformer.cue, package transformers. Transformers file flat: they have no apiVersion, so no version directory. If the transformer implements a provider-fulfilled contract that another catalog declares, it goes in the reader's own catalog, which imports that contract; a platform must carry exactly one transformer requiring the contract, or the render refuses it as oversubscribed. Check against: catalog_opm/AGENTS.md (Version-segment filing, Provider-fulfilled members), core/src/trait.cue (fulfilment), library/opm/errors/oversubscribed.go -->
+2. Declare the transformer's identity.
+   <!-- #<Name>Transformer: c.#ComponentTransformer & {metadata: {...}} with modulePath id.kindPrefix.transformers, name "<name>-transformer", catalogVersion id.Version, fqn "\(id.kindPrefix.transformers)/<name>-transformer@\(id.Version)", and a description, which is required. The fqn is keyed by the catalog build, not by a contract level. Never add apiVersion: the metadata struct is closed and refuses it with "field not allowed". Labels here categorise and are never matched on. Check against: core/src/transformer.cue (metadata), core/SPEC.md section 4.1 Constraints, catalog_opm/opm/transformers/pdb_transformer.cue -->
+3. Declare what it matches.
+   <!-- requiredResources and requiredTraits are maps keyed by the contract's fqn reference, (res.#ContainerResource.metadata.fqn): res.#ContainerResource. requiredLabels are compared with the component's matchLabels, never with metadata.labels (the deployment transformer requires "core.opmodel.dev/workload-type": "stateless"). A component matches when every required label, resource and trait is present. optionalResources and optionalTraits name what the transformer reads when present; listing a trait there is also what counts it as handled. If the transformer should fire only for components that asked for its trait, list the trait under requiredTraits, as the pdb transformer does. If another transformer could match the same component on the same contract, narrow requiredLabels; opm platform check reports such comparable pairs. Check against: core/src/transformer.cue, catalog_opm/opm/transformers/deployment_transformer.cue, library/opm/internal/renderstage/render.cue.tmpl (_optionalCovered), cli/internal/cmd/platform/check.go -->
+4. Write the transform.
+   <!-- #transform: {#component: _, #context: c.#TransformerContext, output: <Kubernetes type> & {...}}. Name the object from #component.#names.resourceName, the namespace from #context.#moduleInstanceMetadata.namespace, labels from #context.labels, annotations from #context.componentAnnotations when non-empty, and selectors from #context.componentLabels. output is a struct for one object, or a list for one object per map entry (the configmap and pvc transformers). Every rendered object carries app.kubernetes.io/managed-by set to the runtime's name. If the object's name is a contract with something outside the module (a CRD, a webhook configuration), render the authored name and mark the line // exact — <contract>. Check against: core/src/transformer.cue (#transform, #TransformerContext), catalog_opm/docs/name-constraints.md (Transformers read names, never derive them), catalog_opm/opm/transformers/configmap_transformer.cue -->
+5. Keep the transform safe to evaluate without a component.
+   <!-- Four rules, each with the wrong and right form from the authoring notes: reject a bad value by unification (#component.spec.x.port & int & >0), never with error(), which fires at platform build and breaks every platform that carries the catalog; guard every field computed from #component on presence (if #component.spec.x != _|_ {...}); add label keys to #context.labels, never to #context.componentLabels, which is closed; never copy resourceName into a label value (up to 253 characters, where a label value allows 63). If the object selects one of a component's volumes, match on the volume.opmodel.dev/name label. Check against: catalog_opm/docs/transformer-authoring.md, catalog_opm/docs/name-constraints.md -->
+6. Add golden fixtures.
+   <!-- In the same file, below the definition: _test<Name>Component (a component stub with metadata.name and #instance), _test<Name>ModuleInstance (metadata name, namespace, fqn and uuid, plus #moduleMetadata: version), _test<Name>Context: #runtimeName: "opm-test", and _test<Name>Transformer: (#<Name>Transformer.#transform & {#moduleInstance: ..., #component: ..., #context: ...}).output. Pin values with an interpolation guard ("\(x.metadata.name)" & "expected"), and absences with a comprehension guard ([if x.spec.y != _|_ {"leaked"}] & []): a golden literal asserts presence, never absence. Include at least one component in the embedded form ({res.#X, tr.#Y, ...}). Supply #moduleInstance, never #context.#moduleInstanceMetadata. If the transformer reads a field whose posture changed within one apiVersion, keep a fallback and add a _test*Legacy* fixture with the older shape. Check against: catalog_opm/opm/transformers/pdb_transformer.cue, catalog_opm/AGENTS.md (Transformer fixtures), catalog_opm/docs/struct-disjunctions.md, catalog_opm/docs/name-constraints.md (Reading fields across builds), catalog_opm/.tasks/fixtures.sh -->
+7. Write the doc comment.
+   <!-- A new catalog member must ship a doc comment directly above #<Name>Transformer: what it renders and from what, at most 6 lines. Rationale goes in a // WHY block above it, separated by one blank line. task docs:check fails a comment over 6 lines. Verify: catalog CI does not yet refuse a member with no doc comment (today it checks length only). Check against: catalog_opm/AGENTS.md (Doc comments), catalog_opm/.tasks/doc-check.sh, catalog_opm/opm/transformers/pdb_transformer.cue -->
+8. List the transformer in the catalog manifest.
+   <!-- Add (t.#<Name>Transformer.metadata.fqn): t.#<Name>Transformer to the #transformers map in catalog.cue. The catalog stamps modulePath and catalogVersion on every entry, and a disagreeing authored value is a conflict. In catalog_opm, task vet:listing checks the map against the files, task generate:index refreshes INDEX.md, and task check runs everything. Check against: catalog_opm/opm/catalog.cue, core/src/catalog.cue (#transformers), catalog_opm/Taskfile.yml -->
+
+## Check that it worked
+
+<!-- One command, from the catalog module directory: cue export -e _test<Name>Transformer --out yaml ./transformers. Success is the rendered object printed in full. Say that cue vet passing proves nothing here: vet, including cue vet -c, never looks inside hidden fields, so a fixture that does not evaluate passes it. In catalog_opm, task vet:fixtures exports every fixture the same way. Check against: catalog_opm/AGENTS.md (Transformer fixtures), catalog_opm/Taskfile.yml (vet:fixtures), catalog_opm/.tasks/fixtures.sh -->
+
+## Related
+
+<!-- Reference: "Catalog members" (what serves each member) and "The Catalog Contract". Concept: "How matching works". Also name the diagnostics entry "Transform failed" and the how-to "Publish a catalog". -->
