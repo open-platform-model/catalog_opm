@@ -33,8 +33,8 @@ Check against: opm/docs/site/authoring/your-first-module.md, catalog_opm/docs/si
 2. Add the raw catalog as a dependency.
 
    <!-- The module's `cue.mod/module.cue` needs `opmodel.dev/catalogs/k8s@v1` in `deps`. With the CUE toolchain: `cue mod get opmodel.dev/catalogs/k8s@v1` in the module directory. Without it: add the entry by hand.
-   Pin the build the target platform carries. `opm config init` pins v1.0.0-alpha.3 in the local default platform, while the latest release is 1.0.0-alpha.4 (catalog_opm/CHANGELOG-k8s.md). A module that requires a newer build than the platform gets a "version skew" warning, or a refusal under `skewPolicy: "refuse"`. Verify both versions at writing time.
-   Check against: cli/internal/config/templates.go (DefaultCatalogPaths, DefaultCatalogPins, skewPolicy), catalog_opm/k8s/cue.mod/module.cue, cli/internal/workflow/render/render.go (formatAdvisories) -->
+   The latest release is 1.0.0-alpha.4 (catalog_opm/CHANGELOG-k8s.md); verify at writing time. Without `--platform`, `opm module build` generates its platform from this pin, so it cannot skew. Against another platform (a `--platform <dir>`, or the cluster Platform an instance render reads), pin the build that platform carries: a module that requires a newer build gets a "version skew" warning, or a refusal under `skewPolicy: "refuse"` (the cluster Platform's `spec.skewPolicy` when the cluster is the source).
+   Check against: cli/internal/config/templates.go (skewPolicy), cli/internal/platform/moduledeps.go, catalog_opm/k8s/cue.mod/module.cue, cli/internal/workflow/render/env.go -->
 
 3. Import the resource package.
 
@@ -50,14 +50,14 @@ Check against: opm/docs/site/authoring/your-first-module.md, catalog_opm/docs/si
 
 5. Make sure the target platform carries the raw catalog.
 
-   <!-- The local default platform from `opm config init` subscribes to both catalogs. A cluster Platform seeded by `opm operator install` subscribes only to `opmodel.dev/catalogs/opm`, so a render against it refuses with an unresolved resource demand: "no enabled catalog defines this contract".
+   <!-- Which platform a command renders against: `opm module build` and `opm module vet` take `--platform <dir>`, else a platform generated from the module's own deps (`cue.mod/module.cue`, one entry per `opmodel.dev/catalogs/*` pin), and never read the cluster; the dependency from step 2 is then enough. `opm module apply` and `opm instance build`, `vet`, `diff` and `apply` take `--platform <dir>`, else the cluster Platform named `cluster`, else a platform generated from the render's own deps (the instance package's, or the module's for `module apply`). `opm config init` writes no platform, and nothing reads `~/.opm/platform/`; pass `--platform ~/.opm/platform` to keep using one. A cluster Platform seeded by `opm operator install` subscribes only to `opmodel.dev/catalogs/opm`, so a render against it refuses with an unresolved resource demand: "no enabled catalog defines this contract".
    - If the module will render against a cluster, reproduce the cluster's platform locally with `opm platform pull <dir>` and build against it with `opm module build --platform <dir>`; `opm platform check <dir>` lists the contracts the platform's catalogs define. If the raw catalog is missing, the platform's owner has to add it; see "Platforms and catalogs".
-   Check against: cli/internal/config/templates.go (DefaultCatalogPath), cli/internal/cmd/operator/install.go, cli/internal/cmd/platform/pull.go, cli/internal/cmd/platform/check.go, library/opm/errors/match.go (describe) -->
+   Check against: cli/internal/platform/resolve.go, cli/internal/platform/moduledeps.go, cli/internal/cmd/config/init.go, cli/internal/cmd/operator/install.go, cli/internal/cmd/platform/pull.go, cli/internal/cmd/platform/check.go, library/opm/errors/match.go (describe) -->
 
 ## Check that it worked
 
 <!-- Command: `opm module build` (with `--platform <dir>` from step 5 when the target is a cluster).
-Success: a line `▸ <component> ← opmodel.dev/catalogs/k8s/transformers/<kind>-transformer@<catalog version>` (`<kind>` is the lower-case kind; the `objects` member's is `object-transformer`) and the object in the YAML with your spec intact and OPM's name and namespace. A refusal naming an unresolved demand points at "Unresolved demands".
+Success: the provenance line `platform: module deps (opmodel.dev/catalogs/k8s@v1 v<version>; ...)` (or `platform: <dir> (--platform)`), a line `▸ <component> ← opmodel.dev/catalogs/k8s/transformers/<kind>-transformer@<catalog version>` (`<kind>` is the lower-case kind; the `objects` member's is `object-transformer`) and the object in the YAML with your spec intact and OPM's name and namespace. A refusal naming an unresolved demand points at "Unresolved demands".
 Check against: cli/internal/workflow/render/log_output.go, catalog_opm/k8s/transformers/ -->
 
 ## Related
