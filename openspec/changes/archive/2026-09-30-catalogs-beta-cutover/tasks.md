@@ -79,8 +79,8 @@ These tasks land both durable decisions from design.md. The target texts are in 
   - `git -C <wt> log origin/main..HEAD --format=%B | grep -i 'release-as'` prints nothing.
   - `git -C <wt-k8s> log origin/main..HEAD --format=%B | grep -c '^Release-As: 1.0.0-beta.1$'` prints `1`.
   - Neither branch's messages contain a bare `@` token.
-- [ ] 6.3 Confirm that design.md's Durable decisions are landed (section 4). Tick 6.1-6.3, then `cd <wt> && openspec archive catalogs-beta-cutover --skip-specs --yes`. `--yes` accepts the still-open boxes 6.4, section 7 and G3; any other open box is a stop. Confirm that no `openspec/specs/` directory was created. There is no `enhancement.yaml`, so no delivery log follows.
-- [ ] 6.4 Tick 6.4 in the archived tasks.md, then commit `chore(openspec): archive catalogs-beta-cutover` (staging the moved change directory by explicit path).
+- [x] 6.3 Confirm that design.md's Durable decisions are landed (section 4). Tick 6.1-6.3, then `cd <wt> && openspec archive catalogs-beta-cutover --skip-specs --yes`. `--yes` accepts the still-open boxes 6.4, section 7 and G3; any other open box is a stop. Confirm that no `openspec/specs/` directory was created. There is no `enhancement.yaml`, so no delivery log follows.
+- [x] 6.4 Tick 6.4 in the archived tasks.md, then commit `chore(openspec): archive catalogs-beta-cutover` (staging the moved change directory by explicit path).
 
 ## 7. Open the PRs
 
