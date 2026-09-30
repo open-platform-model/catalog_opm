@@ -9,7 +9,7 @@ weight: 21
 
 ## Before you begin
 
-<!-- The reader must already have: the resources and traits the transformer consumes, defined and listed in a catalog (see "Write a trait"); the Kubernetes object it will emit and its API version (catalog_opm vendors the Kubernetes types under opm/schemas/kubernetes/, for example k8spolicyv1.#PodDisruptionBudget); the cue CLI (catalog_opm CI pins v0.17.1; Verify: the minimum version). The reader has read the concept page "How matching works". Check against: catalog_opm/opm/schemas/kubernetes/, catalog_opm/opm/transformers/pdb_transformer.cue, catalog_opm/.github/workflows/ci.yml -->
+<!-- The reader must already have: the resources and traits the transformer consumes, defined and listed in a catalog (see "Write a resource" and "Write a trait"); the Kubernetes object it will emit and its API version (catalog_opm vendors the Kubernetes types under opm/schemas/kubernetes/, for example k8spolicyv1.#PodDisruptionBudget); the cue CLI (catalog_opm CI pins v0.17.1; Verify: the minimum version). The reader has read the concept page "How matching works". Check against: catalog_opm/opm/schemas/kubernetes/, catalog_opm/opm/transformers/pdb_transformer.cue, catalog_opm/.github/workflows/ci.yml -->
 
 ## Steps
 
@@ -38,4 +38,4 @@ weight: 21
 
 ## Related
 
-<!-- Reference: "Catalog members" (what serves each member) and "The Catalog Contract". Concept: "How matching works". Also name the diagnostics entry "Transform failed" and the how-to "Publish a catalog". -->
+<!-- Reference: "Catalog members" (what serves each member) and "The Catalog Contract". Concept: "How matching works". Also name the diagnostics entry "Transform failed", the how-to "Write a blueprint" (a blueprint's matchLabels are what requiredLabels select on), and the how-to "Publish a catalog". -->
