@@ -56,7 +56,7 @@ At merge the supervisor appends ` (#N)` to the subject and changes nothing else.
 PR2 (branch `beta/catalogs-beta-cutover`) holds this plan commit, the opm bump and the policy edits. Its squash has type `fix(deps)`, **no footer**, and a body in which no line starts with `word(`:
 
 ```text
-fix(deps): move the opm catalog onto core v2.0.0-beta.1 and adopt the beta line (#N)
+fix(deps): move the opm catalog onto core v2.0.0-beta.1 (#N)
 
 Bumps opmodel.dev/core@v2 to v2.0.0-beta.1 in the opm catalog, sets the
 k8s release-please prerelease-type to beta, and states the beta promise
@@ -67,7 +67,11 @@ the beta counter and never moves the path).
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
-Before merging PR2, grep the final squash message for `release-as`, case-insensitive, and abort on any hit.
+The subject names only what the `opm` release ships: release-please copies the subject, not the body, into `CHANGELOG-opm.md` and the `opm-v4.4.4` release notes, and `opm` stays a stable line. The `k8s` prerelease-type flip and the beta promise live in the body.
+
+Before merging PR2, grep the final squash message for `release-as`, case-insensitive, and abort on any hit. Then run the supervisor's `check-merge-msg.js` on it with `none fix` (no `Release-As`, type `fix`); PR1's message is checked the same way with `1.0.0-beta.1 fix`.
+
+Versions are written as `beta.1` throughout this change. If G1 lands as another core version, or the `k8s` tag is burned and the line lands on a later `beta.N`, the real version replaces `beta.1` everywhere it appears (tasks.md, Gates).
 
 Alternatives rejected:
 
@@ -89,7 +93,7 @@ The two PRs merge strictly one after the other. PR2 never merges while the k8s r
 2. `release.yml` opens `chore(main): release k8s 1.0.0-beta.1`, then pushes `chore: advance k8s identity.Version to 1.0.0-beta.1` onto `release-please--branches--main--components--k8s` and dispatches CI there. List every open release PR (`gh pr list --label 'autorelease: pending'`). Exactly the k8s one must appear. An opm PR, or a k8s title reading `alpha.7`, means the footer was lost. In that case stop and do not merge anything.
 3. **k8s release-PR merge rule:** merge only when the PR's head commit is the identity-advance commit for `1.0.0-beta.1` and the CI run dispatched on that head has passed. Use `gh pr merge <N> --squash --match-head-commit <advance-sha>`, never `--admin`. Merging an earlier head tags a tree that still declares `alpha.6`: `publish-cue` then refuses, and the tag stays with nothing on GHCR.
 4. Confirm `k8s-v1.0.0-beta.1` on GHCR (the k8s half of G3).
-5. Update PR2 (`git merge origin/main`, push). Its CI must be green. Merge PR2 with the D1 message, after the `release-as` grep.
+5. Update PR2 (`git merge origin/main`, push), so its CI runs on the tree that already holds the k8s bump. `main` protection requires only the `Validate catalog` check, not an up-to-date branch, so this is a deliberate re-test rather than a merge precondition. Its CI must be green. Merge PR2 with the D1 message, after the `release-as` grep and `check-merge-msg.js`.
 6. `release.yml` opens `chore(main): release opm 4.4.4` and pushes `chore: advance opm identity.Version to 4.4.4`. Apply the same head-commit rule: `--match-head-commit <advance-sha>`.
 7. Confirm `opm-v4.4.4` on GHCR, which completes G3.
 
@@ -111,30 +115,36 @@ The canonical beta promise is adapted per release class. Apply these texts verba
 
 `AGENTS.md:127`: replace the clause `ships stable \`v4.x.x\` releases (the \`v2.x.x-alpha.x\` line closed at \`2.0.0\`); release-please keeps \`versioning: prerelease\` with \`prerelease: false\`, so a later prerelease is an explicit config flip, and` with:
 
-> ships stable `v4.x.x` releases, and stays stable through the OPM beta while it depends on the `opmodel.dev/core@v2` beta line (the `v2.x.x-alpha.x` line closed at `2.0.0`); release-please keeps `versioning: prerelease` with `prerelease: false`, and
+> ships stable `v4.x.x` releases (opm's own `v2.x.x-alpha.x` line closed at `2.0.0`), and stays stable through the OPM beta while it depends on the `opmodel.dev/core@v2` beta line; release-please keeps `versioning: prerelease` with `prerelease: false`, and
 
 The rest of the bullet (the identity writer, `v1` branch and "Was:" history) is unchanged.
 
 `AGENTS.md:128`: replace the bullet with two:
 
-> - **`opm` is a stable line: a `feat!:` on `opm` bumps the major, and with it the module path (`opmodel.dev/catalogs/opm@vN`).** It has no prerelease counter to advance. A major crossing is the sanctioned way to correct a beta member *in place* when the `v1beta(N+1)` route (0010 D4) would leave the broken shape published under the old segment. It is not a licence to skip that route when a clean new segment is available. Consumers re-pin a path either way. A core beta break that would force an `opm` major needs owner sign-off before it lands.
+> - **`opm` is a stable line: a `feat!:` on `opm` bumps the major, and with it the module path (`opmodel.dev/catalogs/opm@vN`).** It has no prerelease counter to advance. A major crossing is the sanctioned way to correct a `v1betaN` member *in place* when the `v1beta(N+1)` route (0010 D4) would leave the broken shape published under the old segment. It is not a licence to skip that route when a clean new segment is available. Consumers re-pin a path either way. A core beta break that would force an `opm` major needs owner sign-off before it lands.
 > - **`k8s` is a beta line (`opmodel.dev/catalogs/k8s@v1`, from `1.0.0-beta.1`) on the path to GA.** A breaking change is still allowed during beta, but only as a `feat!:` commit whose `BREAKING CHANGE:` footer is the migration note `CHANGELOG-k8s.md` shows. It advances the `-beta.N` counter and never moves the module path to a new major. release-please keeps `prerelease: true` with `prerelease-type: beta`. GA drops the suffix: `prerelease: false` plus a visible carrier commit under `k8s/`, because a root-only config flip opens no release PR.
 
-Append to that `k8s` bullet (durable decision 2):
+Append to that `k8s` bullet (durable decision 2, first half):
 
-> Crossing a release label (alpha to beta, beta to GA) takes a one-shot `Release-As:` footer, or for GA a visible commit, on a commit that touches only `k8s/`: a `prerelease-type` flip alone moves nothing, a root-only or empty commit reaches the wrong packages, and a `release-as` config key is sticky and never used. Merge a catalog release PR only when its head is the `chore: advance <m> identity.Version` commit and the CI dispatched on it passed (`gh pr merge --match-head-commit <sha>`).
+> Crossing a release label (alpha to beta, beta to GA) takes a one-shot `Release-As:` footer, or for GA a visible commit, on a commit that touches only `k8s/`: a `prerelease-type` flip alone moves nothing, a root-only or empty commit reaches the wrong packages, and a `release-as` config key is sticky and never used.
 
-`AGENTS.md:232`, the `feat!:` row of the release table. Its bump cell becomes:
+`AGENTS.md`, Release & publishing: insert a new bullet directly after the release-please bullet (line 217). It applies to both modules, so it sits where an `opm` reader looks, not in the `k8s` bullet (durable decision 2, second half):
 
-> major (bumps the module path too); on `k8s` during beta: next `-beta.N`, path unchanged
+> - Merge a catalog release PR only when its head is the `chore: advance <m> identity.Version to <v>` commit and the CI run dispatched on that head has passed: `gh pr merge <N> --squash --match-head-commit <sha>`, never `--admin`. An earlier head tags a tree whose identity still declares the previous version, `publish-cue` refuses the mismatch, and the version is burned with nothing on GHCR.
+
+The release table (`AGENTS.md:228-233`) keeps its rows, which are right for `opm`. Insert one note between the table and the **Rule of thumb** line:
+
+> On `k8s` during beta every releasable type (`feat:`, `fix:`, `perf:`, `feat!:`) advances `-beta.N`; the module path never moves.
+
+`AGENTS.md:249` (provider-fulfilled members): the stale path `opmodel.dev/catalogs/opm@v2` becomes `opmodel.dev/catalogs/opm@v4`, and `opm@v2` becomes `opm@v4`. The module path is `opmodel.dev/catalogs/opm@v4` (`opm/cue.mod/module.cue:1`).
 
 `openspec/config.yaml:24-27`, Principle I. Replace the `feat!:` bullet with:
 
 ```yaml
   - `opm` is a stable line: a `feat!:` on `opm` bumps the major and with it the module path
-    (`@vN`). A major crossing is the sanctioned way to correct a beta member in place when a
-    `v1beta(N+1)` cascade would keep the broken shape published; a proposal MUST name it. A
-    core beta break that would force an `opm` major needs owner sign-off.
+    (`@vN`). A major crossing is the sanctioned way to correct a `v1betaN` member in place
+    when a `v1beta(N+1)` cascade would keep the broken shape published; a proposal MUST name
+    it. A core beta break that would force an `opm` major needs owner sign-off.
   - `k8s` is a beta line on the path to GA: a break is allowed only as a `feat!:` whose
     `BREAKING CHANGE:` footer is the migration note the changelog shows; it advances
     `-beta.N` and never moves the module path (`@v1`).
@@ -142,7 +152,9 @@ Append to that `k8s` bullet (durable decision 2):
 
 `openspec/config.yaml:119-122`, the proposal rule. The tail `and whether the change relies on the module still shipping the v2 alpha line.` becomes:
 
-> and, for each module touched, which release line it is on (`opm` stable: a break is a new major; `k8s` beta: a break is a `feat!:` with a `BREAKING CHANGE:` migration note that advances `-beta.N`).
+> and, for each module touched, which release line it is on (`opm` stable, where a break is a new major; `k8s` beta, where a break is a `feat!:` with a `BREAKING CHANGE:` migration note that advances `-beta.N`).
+
+This rule is a plain YAML scalar inside the `rules.proposal` list, so its text MUST NOT contain `: ` (a colon followed by a space) or ` #`: either one ends the plain scalar, the file stops parsing, and OpenSpec then ignores the whole config with only a `could not parse` warning while `openspec validate` still passes. The wording above has neither (every colon in it is followed by a backtick). If a reflow or later edit needs one, turn the entry into a double-quoted scalar, as the existing `Delivery mode` and `Capabilities` entries are. Principle I (above) sits inside the `context: |` block scalar, and the `schema.yaml` copy inside an `instruction: |` block scalar, so colons are safe there; the template copy is an HTML comment.
 
 The same tail changes in `openspec/schemas/catalog-change/schema.yaml:31-32` (proposal instruction, Impact bullet) and `openspec/schemas/catalog-change/templates/proposal.md:28-30` (Impact comment). Those two carry the same question, and leaving them would re-ask it in every future proposal.
 
@@ -171,7 +183,7 @@ PR2 squashes to one `fix(deps)` commit. Its inner section commits follow the rep
 - `ci(release): set the k8s prerelease-type to beta` (precedent `bc778ca`)
 - `docs: state the beta promise per catalog release line`
 - `ci(publish): name the beta line in the branch-tag ranking comments` (precedent `b97cf7f`)
-- `chore(openspec): plan catalogs-beta-cutover` and `chore(openspec): archive catalogs-beta-cutover`
+- `chore(openspec): plan catalogs-beta-cutover`, `chore(openspec): revise catalogs-beta-cutover after review` and `chore(openspec): archive catalogs-beta-cutover`
 
 Only the squash message reaches release-please.
 
@@ -208,6 +220,6 @@ Only the squash message reaches release-please.
 
 ## Durable decisions
 
-- The beta promise per release class (`opm` stable, a break is a new major; `k8s` beta, a break is a `feat!:` with a migration note that advances `-beta.N`) -> `AGENTS.md` Repository Rules and the release table, and `openspec/config.yaml` Principle I. Landed in section 4.
-- Crossing a prerelease label needs a one-shot `Release-As` footer on a commit that touches only the target package's path; a config flip alone does nothing, and a config `release-as` key is forbidden. Also, merge a catalog release PR only on its identity-advance head (`--match-head-commit`) -> `AGENTS.md`, as one sentence appended to the `k8s` beta-line bullet. Landed in section 4.
+- The beta promise per release class (`opm` stable, a break is a new major; `k8s` beta, a break is a `feat!:` with a migration note that advances `-beta.N`) -> `AGENTS.md` Repository Rules and a note under the release table, and `openspec/config.yaml` Principle I. Landed in section 4.
+- Crossing a prerelease label needs a one-shot `Release-As` footer on a commit that touches only the target package's path; a config flip alone does nothing, and a config `release-as` key is forbidden -> `AGENTS.md`, one sentence appended to the `k8s` beta-line bullet. Merge a catalog release PR only on its identity-advance head (`--match-head-commit`) -> `AGENTS.md` Release & publishing, a bullet after the release-please bullet. Landed in section 4.
 - The PR split, merge order and exact squash messages -> stays with the change.

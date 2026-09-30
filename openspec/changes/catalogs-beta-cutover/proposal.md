@@ -10,7 +10,7 @@ release-please does not cross onto beta when `prerelease-type` alone flips. From
 - **PR2, the opm and policy PR** (branch `beta/catalogs-beta-cutover`, no footer):
   - `opm/cue.mod/module.cue` gets the same core pin move, from the same supervisor patch.
   - `release-please-config.json` sets the `k8s` package to `"prerelease-type": "beta"`, so that `beta.2` and later follow `beta.1`. The `opm` package keeps `"prerelease": false`. No `release-as` key is added anywhere.
-  - `AGENTS.md` (Repository Rules lines 127-128 and the `feat!:` row of the release table) and `openspec/config.yaml` (Principle I lines 24-27 and the proposal rule at lines 119-122) state the beta promise per release class:
+  - `AGENTS.md` (Repository Rules lines 127-128, a merge-rule bullet in Release & publishing, a beta note under the release table, and the stale `opm@v2` provider path at line 249) and `openspec/config.yaml` (Principle I lines 24-27 and the proposal rule at lines 119-122) state the beta promise per release class:
     - `opm` is a stable line: a break is a new major.
     - `k8s` is a beta line: a break is a `feat!:` with a `BREAKING CHANGE:` migration note, advances `-beta.N` and never moves the path.
   - The same proposal-rule wording is mirrored in `openspec/schemas/catalog-change/schema.yaml` (line 32) and `templates/proposal.md` (line 29).
@@ -60,6 +60,6 @@ None. The cutover implements no enhancement decision; 0021 (versioning policy) i
 
 This change's deliverable is a release operation: crossing `k8s` onto its beta line. So `tasks.md` carries the branch, PR and merge-order steps as tasks, under the sole exception in the `openspec/config.yaml` tasks rules. Its sections map to two PRs, not one. Section 1 ships alone as PR1, and the rest ship as PR2.
 
-Delivery: one PR per section (release-please needs the k8s carrier alone on main after section 1)
+Delivery: two PRs under the release-operation exception: section 1 alone is the k8s carrier (PR1); sections 2-7 are PR2.
 
-Section 1 is PR1. Sections 2-5 ride one PR, PR2, because none of them may carry a footer and none of them touches `k8s/`.
+This is not the per-section mode of `openspec/config.yaml`: no section commit becomes its own PR, and the change never sits active on `main` between PRs. Sections 2-7 ride one PR, PR2, because none of them may carry a footer and none of them touches `k8s/`. The change is archived on PR2's branch before either PR opens.
