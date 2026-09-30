@@ -4,8 +4,8 @@ The supervisor ticks these; no worker ticks a gate. No task, from 1.1 onward, st
 
 Versions below are written as core `v2.0.0-beta.1` and k8s `1.0.0-beta.1`. Substitute the real G1 core version, and the k8s version actually on GHCR after protocol step 3, wherever `beta.1` appears (the SP1 hunk check, 1.2, 1.4, 2.1, the design.md D1 messages, the PR titles and the D5 texts). If k8s lands as a `beta.N` other than `beta.1`, amend PR2's `AGENTS.md`, `README.md` and `docs/site` lines before protocol step 5.
 
-- [ ] G1 core `v2.0.0-beta.1` is resolvable on GHCR (`opmodel.dev/core@v2`).
-- [ ] SP1 **Supervisor patch: root `task deps:update`**, run after G1 on the main checkouts. Only catalog_opm's diff is kept, as a patch file whose path is handed to the worker. Every other repo's main checkout is restored. The patch holds exactly two hunks: `opm/cue.mod/module.cue` and `k8s/cue.mod/module.cue`, each changing `"opmodel.dev/core@v2": v:` from `v2.0.0-alpha.13` to `v2.0.0-beta.1`. Any other hunk means the patch is refused and regenerated.
+- [x] G1 core `v2.0.0-beta.1` is resolvable on GHCR (`opmodel.dev/core@v2`). Recorded version: `v2.0.0-beta.1` (supervisor-confirmed).
+- [x] SP1 **Supervisor patch: root `task deps:update`**, run after G1 on the main checkouts. Only catalog_opm's diff is kept, as a patch file whose path is handed to the worker. Every other repo's main checkout is restored. The patch holds exactly two hunks: `opm/cue.mod/module.cue` and `k8s/cue.mod/module.cue`, each changing `"opmodel.dev/core@v2": v:` from `v2.0.0-alpha.13` to `v2.0.0-beta.1`. Any other hunk means the patch is refused and regenerated.
 - [ ] G3 (produced by this change, confirmed by the supervisor at the end of the merge protocol) `k8s-v1.0.0-beta.1` and `opm-v4.4.4` are on GHCR.
 
 Conventions for every task below:
@@ -20,19 +20,19 @@ Conventions for every task below:
 
 ## 1. k8s carrier, PR1 (`k8s/cue.mod/module.cue`, branch `beta/catalogs-beta-cutover-k8s`)
 
-- [ ] 1.1 Create the PR1 worktree from `origin/main`, never from the change branch: `git -C /var/home/emil/dev/open-platform-model/catalog_opm fetch origin && git -C /var/home/emil/dev/open-platform-model/catalog_opm worktree add .claude/worktrees/beta-catalogs-beta-cutover-k8s -b beta/catalogs-beta-cutover-k8s origin/main`.
-- [ ] 1.2 **(Supervisor patch SP1, k8s hunk only.)** `cd <wt-k8s> && git apply --include='k8s/cue.mod/module.cue' <patch>`. Verify two things:
+- [x] 1.1 Create the PR1 worktree from `origin/main`, never from the change branch: `git -C /var/home/emil/dev/open-platform-model/catalog_opm fetch origin && git -C /var/home/emil/dev/open-platform-model/catalog_opm worktree add .claude/worktrees/beta-catalogs-beta-cutover-k8s -b beta/catalogs-beta-cutover-k8s origin/main`.
+- [x] 1.2 **(Supervisor patch SP1, k8s hunk only.)** `cd <wt-k8s> && git apply --include='k8s/cue.mod/module.cue' <patch>`. Verify two things:
   - `git -C <wt-k8s> diff --stat` shows 1 file, 1 insertion and 1 deletion.
   - The changed line reads `v: "v2.0.0-beta.1"`.
 
   Never hand-edit the pin.
-- [ ] 1.3 `git -C <wt-k8s> add k8s/cue.mod/module.cue`, then `task -d <wt-k8s> check` is green. Then `git -C <wt-k8s> status --short` must print exactly `M  k8s/cue.mod/module.cue` (staged, nothing unstaged, nothing else). If `k8s/INDEX.md`, `k8s/identity/identity.cue`, `k8s/RELEASE` or any other path changed, stop and report it (design.md, Risks).
-- [ ] 1.4 Commit in `<wt-k8s>` with exactly the carrier message from design.md D1: subject `fix(deps): bump opmodel.dev/core@v2 to v2.0.0-beta.1 in the k8s catalog`, the two-line body, then the final block `Release-As: 1.0.0-beta.1` directly followed by `Co-Authored-By: Claude <noreply@anthropic.com>`. Verify with `git -C <wt-k8s> log -1 --format=%B` that the last two lines are exactly those. Then verify that `git -C <wt-k8s> diff --name-only origin/main...HEAD` prints only `k8s/cue.mod/module.cue`. Tick 1.1-1.4 in `<wt>`'s tasks.md; that tick rides the section 2 commit.
+- [x] 1.3 `git -C <wt-k8s> add k8s/cue.mod/module.cue`, then `task -d <wt-k8s> check` is green. Then `git -C <wt-k8s> status --short` must print exactly `M  k8s/cue.mod/module.cue` (staged, nothing unstaged, nothing else). If `k8s/INDEX.md`, `k8s/identity/identity.cue`, `k8s/RELEASE` or any other path changed, stop and report it (design.md, Risks).
+- [x] 1.4 Commit in `<wt-k8s>` with exactly the carrier message from design.md D1: subject `fix(deps): bump opmodel.dev/core@v2 to v2.0.0-beta.1 in the k8s catalog`, the two-line body, then the final block `Release-As: 1.0.0-beta.1` directly followed by `Co-Authored-By: Claude <noreply@anthropic.com>`. Verify with `git -C <wt-k8s> log -1 --format=%B` that the last two lines are exactly those. Then verify that `git -C <wt-k8s> diff --name-only origin/main...HEAD` prints only `k8s/cue.mod/module.cue`. Tick 1.1-1.4 in `<wt>`'s tasks.md; that tick rides the section 2 commit.
 
 ## 2. opm core bump (`opm/cue.mod/module.cue`, PR2)
 
-- [ ] 2.1 **(Supervisor patch SP1, opm hunk only.)** `cd <wt> && git apply --include='opm/cue.mod/module.cue' <patch>`. Verify that `git -C <wt> diff --stat -- opm` shows 1 file, 1 insertion and 1 deletion, and that the `cue.dev/x/k8s.io@v0` dep is untouched. Never hand-edit the pin. Nothing under `k8s/` changes on this branch.
-- [ ] 2.2 `git -C <wt> add opm/cue.mod/module.cue`, then `task -d <wt> check` is green. `git -C <wt> status --short -- opm k8s` must print exactly `M  opm/cue.mod/module.cue`. Then stage this tasks.md and commit `fix(deps): bump opmodel.dev/core@v2 to v2.0.0-beta.1 in the opm catalog`. No `Release-As` footer.
+- [x] 2.1 **(Supervisor patch SP1, opm hunk only.)** `cd <wt> && git apply --include='opm/cue.mod/module.cue' <patch>`. Verify that `git -C <wt> diff --stat -- opm` shows 1 file, 1 insertion and 1 deletion, and that the `cue.dev/x/k8s.io@v0` dep is untouched. Never hand-edit the pin. Nothing under `k8s/` changes on this branch.
+- [x] 2.2 `git -C <wt> add opm/cue.mod/module.cue`, then `task -d <wt> check` is green. `git -C <wt> status --short -- opm k8s` must print exactly `M  opm/cue.mod/module.cue`. Then stage this tasks.md and commit `fix(deps): bump opmodel.dev/core@v2 to v2.0.0-beta.1 in the opm catalog`. No `Release-As` footer.
 
 ## 3. release-please config (`release-please-config.json`, PR2)
 
