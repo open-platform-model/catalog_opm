@@ -9,6 +9,15 @@ permissions:
   contents: read
   packages: write
 
+# One publish per branch at a time. release-please can push a release branch
+# twice within a second (same commit), and two concurrent runs would race to
+# push the same dev tag. Queue, never cancel: cancelling a run mid-publish can
+# leave a partial push behind. The second run then finds the tag already
+# published and the publish step accepts that (see below).
+concurrency:
+  group: branch-publish-${{ github.ref }}
+  cancel-in-progress: false
+
 env:
   CUE_VERSION: 'v0.17.1'
   # Pinned OPM CLI release used for identity writes and publishing; bump
@@ -81,6 +90,12 @@ jobs:
       # though that dirt is unrelated to it. Restore each module's identity
       # file the moment its own publish is done, so the tree is clean again
       # before the next module computes its tag.
+      #
+      # A dev tag names its commit (-0.dev.<commit time>.g<sha>), so a tag that
+      # is already published came from this same commit in an earlier run of
+      # this workflow. When that is the ONLY refusal the module is done, not
+      # failed. Any other refusal still fails the job. The count is matched
+      # exactly: "11 refusals" must not pass for "1 refusal".
       - name: Publish branch tags
         run: |
           set -euo pipefail
@@ -88,6 +103,14 @@ jobs:
             tag=$(bash .tasks/branch-tag.sh "$(pwd)/${m}" "${m}-")
             echo "publishing ${m} at ${tag}"
             opm catalog version set "${tag#v}" "./${m}"
-            opm catalog publish "./${m}"
+            if out=$(opm catalog publish "./${m}" 2>&1); then
+              echo "${out}"
+            elif echo "${out}" | grep -qF "already holds ${tag}" && echo "${out}" | grep -qE '(^|[^0-9])1 refusal$'; then
+              echo "${out}"
+              echo "::notice::${m} ${tag} is already published from this commit; nothing to do"
+            else
+              echo "${out}"
+              exit 1
+            fi
             git checkout -- "${m}/identity/identity.cue"
           done
