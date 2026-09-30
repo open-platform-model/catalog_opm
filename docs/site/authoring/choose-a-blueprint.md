@@ -2,8 +2,7 @@
 title: "Choose a blueprint"
 description: "Pick the blueprint that matches the workload your component describes."
 type: how-to
-sidebar:
-  order: 20
+weight: 20
 ---
 
 <!-- One sentence: this page picks the workload blueprint for a component that runs a container, which decides the Kubernetes workload kind it renders to (Deployment, StatefulSet, DaemonSet, Job or CronJob). Do it once per component, before attaching traits.

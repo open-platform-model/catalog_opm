@@ -2,8 +2,7 @@
 title: "Attach a trait to a component"
 description: "Add behaviour such as scaling, health checks or exposure to one component."
 type: how-to
-sidebar:
-  order: 21
+weight: 21
 ---
 
 <!-- One sentence: attaching a trait adds one behaviour to one component, such as a Service, a disruption budget or a pod security context, without changing its blueprint. Use it whenever the component needs something its blueprint does not already carry.

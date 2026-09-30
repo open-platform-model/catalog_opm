@@ -2,8 +2,7 @@
 title: "Write a transformer"
 description: "Teach OPM to render a resource or trait into Kubernetes objects."
 type: how-to
-sidebar:
-  order: 21
+weight: 21
 ---
 
 <!-- One sentence: this adds a transformer, the part of a catalog that turns a matched component into Kubernetes objects. The reader needs it when a resource or trait in the catalog renders nothing, or when they implement a provider-fulfilled contract another catalog declares. Say that a transformer is evaluated once when a platform is built, with no component present, and that most of the rules below follow from that. Check against: core/src/transformer.cue, catalog_opm/docs/transformer-authoring.md -->
