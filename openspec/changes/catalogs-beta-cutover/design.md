@@ -96,6 +96,7 @@ The two PRs merge strictly one after the other. PR2 never merges while the k8s r
 5. Update PR2 (`git merge origin/main`, push), so its CI runs on the tree that already holds the k8s bump. `main` protection requires only the `Validate catalog` check, not an up-to-date branch, so this is a deliberate re-test rather than a merge precondition. Its CI must be green. Merge PR2 with the D1 message, after the `release-as` grep and `check-merge-msg.js`.
 6. `release.yml` opens `chore(main): release opm 4.4.4` and pushes `chore: advance opm identity.Version to 4.4.4`. Apply the same head-commit rule: `--match-head-commit <advance-sha>`.
 7. Confirm `opm-v4.4.4` on GHCR, which completes G3.
+8. **Freeze.** From G3, no releasable commit touching `opm/` merges on `main` until the supervisor has saved the run-2 patches of root `task deps:update`. A later opm release would pin a core the downstream patches were not cut against.
 
 Serialising closes the window the review found. A push to `main` while a release PR is open lets release-please force-update that branch. The identity advance is then dropped, and it re-lands only on the next run.
 

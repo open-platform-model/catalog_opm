@@ -48,9 +48,14 @@ after:  {opm: "4.4.4", k8s: "1.0.0-beta.1"}
 
 - **Release class.** PR1 squashes as `fix(deps)` with the footer `Release-As: 1.0.0-beta.1` and is the only carrier. Expected release PR: `chore(main): release k8s 1.0.0-beta.1`. PR2 squashes as `fix(deps)` with no footer. Expected release PR: `chore(main): release opm 4.4.4`. The inner section commits of PR2 (`ci(release)`, `docs`, `ci(publish)`, `chore(openspec)`) are hidden types and release nothing on their own. The change no longer relies on any alpha line. It retires the "v2 alpha line" question from the proposal rule.
 - **Gate.** Both PRs merge only after G1 (core `v2.0.0-beta.1` resolvable on GHCR). The two catalog releases together are gate G3 for the rest of the cutover.
-- **Subscribing platforms.** A Platform pins an exact catalog build (0010 D14/D31). `cli/hack/kind-platform.yaml` and the `opm-operator` sample Platform move to opm `4.4.4` and k8s `1.0.0-beta.1`. The supervisor moves them with root `task deps:update` after G3, in `test(fixtures)` PRs in those repos. Nothing is required of them here.
-- **`modules` fleet and `opm-modules`.** They pin `opmodel.dev/catalogs/opm@v4` and pick up `4.4.4` through `task deps:update` after G3, as `fix(deps)` patch releases in their own repos. They do not consume `k8s`.
-- **`cli` fixtures under `testing.opmodel.dev`.** They move through `task deps:pins:fixtures` after G3 (supervisor, `test(fixtures)`). This repo has nothing to do.
+- **Freeze.** From G3, no releasable `opm/` merge lands on `main` until the supervisor has saved the run-2 patches of root `task deps:update`. A later opm release would pin a core the downstream patches were not cut against.
+- **Downstream consumers gated on G3.** Nothing is required of them here; each is its own PR in its own repo, fed by the supervisor's post-G3 `task deps:update` patch (which also moves the Platform pins):
+  - `cli` PR-B (the cli carrier): the CLI templates move onto core beta and the G3 catalog versions. Gate G2, G3 and PR-A merged.
+  - `cli` PR-C (`test(fixtures)`): `hack/platform`, `hack/kind-platform.yaml` and `examples/` move to opm `4.4.4` and k8s `1.0.0-beta.1`. Gate G3.
+  - `opm-operator` carrier (library `v1.0.0-beta.1`, gate G2 and G3) and its sample Platform PR (`test(fixtures)`, `config/samples`, gate G3).
+  - `modules` and `opm-modules`: they pin `opmodel.dev/catalogs/opm@v4` and take `4.4.4` from the post-G3 patch, as `fix(deps)` patch releases. They merge only after G6. They do not consume `k8s`.
+  - `opm-suite-installer`: consumes the G3 catalog versions, together with G1 and G6.
+  - The `testing.opmodel.dev` fixtures in `cli` and `opm-operator` move once through `task deps:pins:fixtures` (supervisor), after cli PR-C and the operator sample Platform PR merge.
 - **Downstream consumers of `k8s`.** A consumer on `opmodel.dev/catalogs/k8s@v1` without an exact pin resolves the highest prerelease, which becomes `1.0.0-beta.1`. The path does not change.
 - **Pinned opm CLI.** CI still installs `v1.0.0-alpha.27`, which publishes a catalog built on a newer core. A cli older than the core it validates has published before (opm-v4.4.3 on core alpha.13 with cli alpha.25). The pin moves later in a separate `ci:` PR (root `task deps:pins:opm-cli`, after G6).
 
