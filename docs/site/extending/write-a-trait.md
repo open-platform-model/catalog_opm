@@ -2,8 +2,7 @@
 title: "Write a trait"
 description: "Define a new trait that components can attach."
 type: how-to
-sidebar:
-  order: 20
+weight: 20
 ---
 
 <!-- One sentence: this adds a new trait (an optional behaviour such as a disruption budget or a grace period) to a catalog, so that module authors can attach it to a component. The reader needs it when no trait in the catalog models the behaviour. Say that the trait only declares a schema, and that it renders nothing until a transformer handles it; that is the next page, "Write a transformer". Check against: core/src/trait.cue, catalog_opm/opm/traits/v1beta1/disruption_budget.cue -->

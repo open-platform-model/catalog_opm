@@ -2,8 +2,7 @@
 title: "Use a raw Kubernetes resource"
 description: "Fall back to a plain Kubernetes object when no OPM abstraction covers what you need."
 type: how-to
-sidebar:
-  order: 23
+weight: 23
 ---
 
 <!-- One sentence: a component can carry a Kubernetes object written in its native shape, from the raw catalog `opmodel.dev/catalogs/k8s@v1`, which OPM passes through with only its name, namespace and labels set. It is the last resort, for objects the abstraction catalog (`opmodel.dev/catalogs/opm@v4`) does not model.
