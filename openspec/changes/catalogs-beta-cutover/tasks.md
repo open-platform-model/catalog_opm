@@ -72,8 +72,8 @@ These tasks land both durable decisions from design.md. The target texts are in 
 
 ## 6. Verify and archive the change (PR2)
 
-- [ ] 6.1 Verify the change by reading `<wt>/.claude/skills/openspec-verify-change/SKILL.md` and following it for `catalogs-beta-cutover`. Run each `openspec` command as `cd <wt> && openspec ...`. Boxes 6.2-6.4, section 7 and gate G3 are expected to be open at this point. Report any other finding as a deviation.
-- [ ] 6.2 Check both branches and the messages:
+- [x] 6.1 Verify the change by reading `<wt>/.claude/skills/openspec-verify-change/SKILL.md` and following it for `catalogs-beta-cutover`. Run each `openspec` command as `cd <wt> && openspec ...`. Boxes 6.2-6.4, section 7 and gate G3 are expected to be open at this point. Report any other finding as a deviation.
+- [x] 6.2 Check both branches and the messages:
   - `task -d <wt-k8s> check` is still green.
   - `git -C <wt> diff --name-only origin/main...HEAD` lists no path under `k8s/` and none of `.release-please-manifest.json`, `opm/identity/`, `opm/RELEASE` or `opm/INDEX.md`.
   - `git -C <wt> log origin/main..HEAD --format=%B | grep -i 'release-as'` prints nothing.
