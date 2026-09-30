@@ -36,8 +36,8 @@ Conventions for every task below:
 
 ## 3. release-please config (`release-please-config.json`, PR2)
 
-- [ ] 3.1 Set `packages.k8s."prerelease-type"` to `"beta"` (design.md D4). Leave `packages.opm` untouched: `"prerelease": false` stays, and `"prerelease-type": "alpha"` stays. Add no `release-as` key. Verify with `jq -e '.packages.k8s["prerelease-type"]=="beta" and .packages.k8s.prerelease==true and .packages.opm.prerelease==false and ([..|objects|has("release-as")]|any|not)' release-please-config.json`. Do not touch `.release-please-manifest.json`.
-- [ ] 3.2 `task -d <wt> check` green, then commit `ci(release): set the k8s prerelease-type to beta`.
+- [x] 3.1 Set `packages.k8s."prerelease-type"` to `"beta"` (design.md D4). Leave `packages.opm` untouched: `"prerelease": false` stays, and `"prerelease-type": "alpha"` stays. Add no `release-as` key. Verify with `jq -e '.packages.k8s["prerelease-type"]=="beta" and .packages.k8s.prerelease==true and .packages.opm.prerelease==false and ([..|objects|has("release-as")]|any|not)' release-please-config.json`. Do not touch `.release-please-manifest.json`.
+- [x] 3.2 `task -d <wt> check` green, then commit `ci(release): set the k8s prerelease-type to beta`.
 
 ## 4. Beta promise per release class (rule files and docs, PR2)
 
