@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.4.4](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.4.3...opm-v4.4.4) (2026-09-30)
+
+
+### Bug Fixes
+
+* **deps:** move the opm catalog onto core v2.0.0-beta.1 ([#106](https://github.com/open-platform-model/catalog_opm/issues/106)) ([b35d644](https://github.com/open-platform-model/catalog_opm/commit/b35d6449ff17957d23abfa96342586eaa9a4efd2))
+
 ## [4.4.3](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.4.2...opm-v4.4.3) (2026-09-30)
 
 
