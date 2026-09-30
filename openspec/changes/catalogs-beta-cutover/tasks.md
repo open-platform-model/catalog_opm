@@ -67,8 +67,8 @@ These tasks land both durable decisions from design.md. The target texts are in 
 
 ## 5. Branch-tag ranking comments (`.tasks/branch-tag.sh`, PR2)
 
-- [ ] 5.1 Rewrite the comment lines 91-93 and 106 as shown in design.md D5, naming the `-beta.N` line and adding `v1.0.0-beta.1` to the ranking chain. Change comments only. `git -C <wt> diff -U0 -- .tasks/branch-tag.sh | grep '^[+-][^+-]' | grep -v '^[+-]#'` prints nothing, and `bash -n .tasks/branch-tag.sh` passes.
-- [ ] 5.2 `task -d <wt> check` green and `cd <wt> && openspec validate catalogs-beta-cutover --strict --no-interactive` green, then commit `ci(publish): name the beta line in the branch-tag ranking comments`.
+- [x] 5.1 Rewrite the comment lines 91-93 and 106 as shown in design.md D5, naming the `-beta.N` line and adding `v1.0.0-beta.1` to the ranking chain. Change comments only. `git -C <wt> diff -U0 -- .tasks/branch-tag.sh | grep '^[+-][^+-]' | grep -v '^[+-]#'` prints nothing, and `bash -n .tasks/branch-tag.sh` passes.
+- [x] 5.2 `task -d <wt> check` green and `cd <wt> && openspec validate catalogs-beta-cutover --strict --no-interactive` green, then commit `ci(publish): name the beta line in the branch-tag ranking comments`.
 
 ## 6. Verify and archive the change (PR2)
 

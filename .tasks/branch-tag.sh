@@ -88,11 +88,12 @@ fi
 # `@vN` when a stable version exists, which tempts the "put dev on the NEXT
 # minor" design. Two things defeat it:
 #
-#   1. With no stable release for the major (a long `-alpha.N` line, which is
-#      where this module lives), `@vN` has nothing to prefer and must pick the
-#      highest prerelease. `1.1.0-dev.*` beats `1.0.0-alpha.3` on the base
-#      version alone, before prerelease identifiers are even consulted — so
-#      moving to the next minor makes it strictly worse, not better.
+#   1. With no stable release for the major (a long `-alpha.N` or `-beta.N`
+#      line, which is where the `k8s` module lives until GA), `@vN` has nothing
+#      to prefer and must pick the highest prerelease. `1.1.0-dev.*` beats
+#      `1.0.0-beta.1` on the base version alone, before prerelease identifiers
+#      are even consulted — so moving to the next minor makes it strictly
+#      worse, not better.
 #   2. Explicit range subscriptions (the opm-operator's platform registry
 #      filters) admit prereleases deliberately. They are unaffected by the
 #      `@vN` stable-preference rule, so a next-minor dev build wins them
@@ -103,7 +104,7 @@ fi
 # always ranks below an alphanumeric one at the same position. Leading the
 # prerelease with `0` puts every branch build under every named channel:
 #
-#   v1.0.0-0.dev.<ct>.g<sha>  <  v1.0.0-alpha.1  <  v1.0.0
+#   v1.0.0-0.dev.<ct>.g<sha>  <  v1.0.0-alpha.1  <  v1.0.0-beta.1  <  v1.0.0
 #
 # One rule, every phase, every query kind. Branch builds stay reachable by
 # exact pin. (`0` is a valid numeric identifier — SemVer prohibits LEADING
