@@ -27,7 +27,8 @@ context: |
     it. A core beta break that would force an `opm` major needs owner sign-off.
   - `k8s` is a beta line on the path to GA: a break is allowed only as a `feat!:` whose
     `BREAKING CHANGE:` footer is the migration note the changelog shows; it advances
-    `-beta.N` and never moves the module path (`@v1`).
+    `-beta.N` and never moves the module path (`@v1`). During beta the publish compat gate
+    is prerelease-exempt, so review must catch an unannounced break.
   - A change that cannot be additive MUST state its downstream migration cost explicitly, naming
     the consumers it breaks (the `modules` fleet, subscribing platforms, `cli` fixtures).
   - Never publish by hand. CI publishes through `opm catalog publish` on release; the only
