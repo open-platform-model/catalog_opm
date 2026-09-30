@@ -32,7 +32,7 @@ Check against: opm/docs/site/authoring/your-first-module.md, catalog_opm/docs/si
 2. Add the raw catalog as a dependency.
 
    <!-- The module's `cue.mod/module.cue` needs `opmodel.dev/catalogs/k8s@v1` in `deps`. With the CUE toolchain: `cue mod get opmodel.dev/catalogs/k8s@v1` in the module directory. Without it: add the entry by hand.
-   The latest release is 1.0.0-alpha.4 (catalog_opm/CHANGELOG-k8s.md); verify at writing time. Without `--platform`, `opm module build` generates its platform from this pin, so it cannot skew. Against another platform (a `--platform <dir>`, or the cluster Platform an instance render reads), pin the build that platform carries: a module that requires a newer build gets a "version skew" warning, or a refusal under `skewPolicy: "refuse"` (the cluster Platform's `spec.skewPolicy` when the cluster is the source).
+   The latest release is 1.0.0-beta.1 (catalog_opm/CHANGELOG-k8s.md); verify at writing time. Without `--platform`, `opm module build` generates its platform from this pin, so it cannot skew. Against another platform (a `--platform <dir>`, or the cluster Platform an instance render reads), pin the build that platform carries: a module that requires a newer build gets a "version skew" warning, or a refusal under `skewPolicy: "refuse"` (the cluster Platform's `spec.skewPolicy` when the cluster is the source).
    Check against: cli/internal/config/templates.go (skewPolicy), cli/internal/platform/moduledeps.go, catalog_opm/k8s/cue.mod/module.cue, cli/internal/workflow/render/env.go -->
 
 3. Import the resource package.

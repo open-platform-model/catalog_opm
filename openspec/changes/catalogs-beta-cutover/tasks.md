@@ -43,27 +43,27 @@ Conventions for every task below:
 
 These tasks land both durable decisions from design.md. The target texts are in design.md D5 and are applied verbatim, apart from reflow.
 
-- [ ] 4.1 `AGENTS.md`:
+- [x] 4.1 `AGENTS.md`:
   - line 127: replace the alpha-line clause.
   - line 128: split into the `opm` stable-line bullet and the `k8s` beta-line bullet, with the `Release-As` crossing sentence appended to the `k8s` bullet.
   - Release & publishing: insert the `--match-head-commit` merge-rule bullet directly after the release-please bullet (line 217).
   - Commit conventions: insert the `k8s` beta note between the release table and the **Rule of thumb** line. The table rows stay unchanged.
   - line 249: `opmodel.dev/catalogs/opm@v2` becomes `opmodel.dev/catalogs/opm@v4`, and `opm@v2` becomes `opm@v4`.
-- [ ] 4.2 `openspec/config.yaml`:
+- [x] 4.2 `openspec/config.yaml`:
   - Principle I, lines 24-27: the two release-line bullets.
   - Proposal rule, lines 119-122: the release-line tail. It is a plain scalar, so it must contain no `: ` and no ` #` (design.md D5).
   - Verify both of these:
     - `cd <wt> && python3 -c 'import yaml;r=yaml.safe_load(open("openspec/config.yaml"))["rules"]["proposal"];assert all(isinstance(x,str) for x in r)'` exits 0.
     - `cd <wt> && openspec instructions proposal --change catalogs-beta-cutover 2>&1` contains neither `could not parse` nor `array of strings`, and does contain `which release line it is on`.
-- [ ] 4.3 `openspec/schemas/catalog-change/schema.yaml:31-32` and `openspec/schemas/catalog-change/templates/proposal.md:28-30`: the same release-line tail as the proposal rule in 4.2. Verify that `python3 -c 'import yaml;yaml.safe_load(open("openspec/schemas/catalog-change/schema.yaml"))'` exits 0.
-- [ ] 4.4 `README.md:60`: the D5 paragraph, covering the `@v4` path, stable `v4.x.x`, and the `k8s` beta line.
-- [ ] 4.5 `docs/site/authoring/use-a-raw-kubernetes-resource.md:35`: `1.0.0-alpha.4` becomes `1.0.0-beta.1`. Nothing else on the line changes.
-- [ ] 4.6 Check for leftovers. Each of these prints nothing:
+- [x] 4.3 `openspec/schemas/catalog-change/schema.yaml:31-32` and `openspec/schemas/catalog-change/templates/proposal.md:28-30`: the same release-line tail as the proposal rule in 4.2. Verify that `python3 -c 'import yaml;yaml.safe_load(open("openspec/schemas/catalog-change/schema.yaml"))'` exits 0.
+- [x] 4.4 `README.md:60`: the D5 paragraph, covering the `@v4` path, stable `v4.x.x`, and the `k8s` beta line.
+- [x] 4.5 `docs/site/authoring/use-a-raw-kubernetes-resource.md:35`: `1.0.0-alpha.4` becomes `1.0.0-beta.1`. Nothing else on the line changes.
+- [x] 4.6 Check for leftovers. Each of these prints nothing:
   - `grep -rn -i 'v2 alpha line\|alpha line closed\|explicit config flip' AGENTS.md README.md openspec/config.yaml openspec/schemas`
   - `grep -n 'major `@v2`' README.md`
   - `git -C <wt> grep -n 'catalogs/opm@v2\|opm@v2' -- AGENTS.md README.md docs`
   - `grep -rn '1.0.0-alpha' docs/site`
-- [ ] 4.7 `task -d <wt> check` green, then commit `docs: state the beta promise per catalog release line`.
+- [x] 4.7 `task -d <wt> check` green, then commit `docs: state the beta promise per catalog release line`.
 
 ## 5. Branch-tag ranking comments (`.tasks/branch-tag.sh`, PR2)
 
