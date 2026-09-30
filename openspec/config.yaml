@@ -21,10 +21,14 @@ context: |
   - The break unit is the member's `apiVersion` (enhancement 0010 D4): a member whose shape breaks
     moves to a new version segment directory; it does not mutate in place. In `k8s`, `apiVersion`
     mirrors the upstream Kubernetes API version at adoption (D48); graduation is upstream's act.
-  - A `feat!:` on `opm` bumps the major and with it the module path (`@vN`), because the alpha
-    line closed at 2.0.0. A major crossing is the sanctioned way to correct a beta member in
-    place when a `v1beta(N+1)` cascade would keep the broken shape published; a proposal MUST
-    name it.
+  - `opm` is a stable line: a `feat!:` on `opm` bumps the major and with it the module path
+    (`@vN`). A major crossing is the sanctioned way to correct a `v1betaN` member in place
+    when a `v1beta(N+1)` cascade would keep the broken shape published; a proposal MUST name
+    it. A core beta break that would force an `opm` major needs owner sign-off.
+  - `k8s` is a beta line on the path to GA: a break is allowed only as a `feat!:` whose
+    `BREAKING CHANGE:` footer is the migration note the changelog shows; it advances
+    `-beta.N` and never moves the module path (`@v1`). During beta the publish compat gate
+    is prerelease-exempt, so review must catch an unannounced break.
   - A change that cannot be additive MUST state its downstream migration cost explicitly, naming
     the consumers it breaks (the `modules` fleet, subscribing platforms, `cli` fixtures).
   - Never publish by hand. CI publishes through `opm catalog publish` on release; the only
@@ -118,8 +122,9 @@ rules:
       them has to do about it.
     - State the release class (`feat:` / `fix:` / `feat!:`) of each section's commit per
       Principle I, whether any member
-      moves to a new `apiVersion` segment, and whether the change relies on the module still
-      shipping the v2 alpha line.
+      moves to a new `apiVersion` segment, and, for each module touched, which release line it
+      is on (`opm` stable, where a break is a new major; `k8s` beta, where a break is a
+      `feat!:` with a `BREAKING CHANGE:` migration note that advances `-beta.N`).
     - Breaking changes MUST be called out explicitly with downstream migration cost — a tightened
       constraint or a changed transformer output counts as breaking even when nothing is removed.
     - The Before / After section MUST show the member's CUE shape, not a prose description
