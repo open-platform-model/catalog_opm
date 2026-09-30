@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-beta.1](https://github.com/open-platform-model/catalog_opm/compare/k8s-v1.0.0-alpha.6...k8s-v1.0.0-beta.1) (2026-09-30)
+
+
+### Bug Fixes
+
+* **deps:** bump opmodel.dev/core@v2 to v2.0.0-beta.1 in the k8s catalog ([#105](https://github.com/open-platform-model/catalog_opm/issues/105)) ([75d61f8](https://github.com/open-platform-model/catalog_opm/commit/75d61f8271a602470a89b7967d0da0ea860902cc))
+
 ## [1.0.0-alpha.6](https://github.com/open-platform-model/catalog_opm/compare/k8s-v1.0.0-alpha.5...k8s-v1.0.0-alpha.6) (2026-09-30)
 
 
