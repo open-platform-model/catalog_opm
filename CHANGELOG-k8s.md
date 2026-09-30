@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-alpha.5](https://github.com/open-platform-model/catalog_opm/compare/k8s-v1.0.0-alpha.4...k8s-v1.0.0-alpha.5) (2026-09-30)
+
+
+### Bug Fixes
+
+* **deps:** bump core to v2.0.0-alpha.12 and cue.dev/x/k8s.io to v0.12.0 ([d710b03](https://github.com/open-platform-model/catalog_opm/commit/d710b03c650a410afa385aade3f755d2338879a4))
+
 ## [1.0.0-alpha.4](https://github.com/open-platform-model/catalog_opm/compare/k8s-v1.0.0-alpha.3...k8s-v1.0.0-alpha.4) (2026-09-19)
 
 
