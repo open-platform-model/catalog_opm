@@ -7,7 +7,7 @@ The owner asked for two new guides: "Write a resource" and "Write a blueprint". 
 - Two new scaffold pages under `docs/site/extending/`, written in the same shape as their siblings. Each page is a planning brief, not finished prose: front matter, a one-sentence brief, then `## Before you begin`, `## Steps`, `## Check that it worked` and `## Related`, with an HTML planning comment under each heading and each step. Every step brief ends with `Check against:` and real source paths. Each claim that is not yet confirmed is marked `Verify:` inside its brief.
   - `write-a-resource.md`, "Write a resource", `weight: 17`. The running example is the abstraction catalog's `namespaces` resource (`opm/resources/v1alpha1/namespace.cue`) and its transformer.
   - `write-a-blueprint.md`, "Write a blueprint", `weight: 19`. The running example is `stateless-workload` (`opm/blueprints/v1beta1/stateless_workload.cue`).
-- `write-a-trait.md`: `weight: 20` becomes `weight: 18`, so the section reads resource, trait, blueprint, transformer, then cli's "Publish a catalog" at 22. Its Related brief also names the two new pages.
+- `write-a-trait.md`: `weight: 20` becomes `weight: 18`, so the section reads resource, trait, blueprint, transformer, then cli's "Publish a catalog" at 22. Its opening brief says "the page" instead of "the next page", because the transformer page no longer follows it. Step 5 names "Write a resource", and step 11 names "Write a blueprint" and marks the compatibility gate's view of `composedTraits` as `Verify:`. Step 1 marks the alpha-reshape rule as `Verify:`, as the resource page does, because the Catalog Contract says alpha may change in place. Its Related brief stays as it was.
 - `write-a-transformer.md`: its Before you begin brief names "Write a resource" beside "Write a trait", and its Related brief names "Write a blueprint". Its weight stays 21.
 - No other content changes. No catalog member, schema, transformer or rule file changes. Nothing is breaking.
 
@@ -68,12 +68,15 @@ weight: 18
   | `extending/write-a-resource.md` (new) | catalog_opm | 17 |
   | `extending/write-a-trait.md` (renumbered from 20) | catalog_opm | 18 |
   | `extending/write-a-blueprint.md` (new) | catalog_opm | 19 |
-  | `extending/write-a-transformer.md` (unchanged) | catalog_opm | 21 |
+  | `extending/write-a-transformer.md` (weight unchanged) | catalog_opm | 21 |
   | `extending/publish-a-catalog.md` (unchanged) | cli | 22 |
 
-  Both new pages pass the dialect lint from `orchestration.md` section 4.1. Neither page links to another page yet: the briefs name pages by title, as the siblings do.
-- **Release class.** One section, committed as `docs(site):`. `docs` is hidden from release-please, and `docs/site/` is outside both package paths, so no release PR opens and no catalog version moves. No member moves to a new `apiVersion` segment. The change does not rely on the v2 alpha line.
-- **Outside this change.** Three texts still describe the Extending section as traits, transformers and catalogs only: enhancement 0018's page inventory (`enhancements/0018/02-design.md`), the opmodel.dev section overview ("Add your own traits, transformers and catalogs ..."), and the planning comment in opm's `docs/site/_index.md` ("a missing trait, transformer or catalog"). The two inventory rows go to enhancements in a separate PR. The other two belong to their owning repos.
+  Both new pages pass the dialect lint from `openspec/changes/archive/2026-09-30-adopt-hugo-page-dialect/orchestration.md` section 4.1. Neither page links to another page yet: the briefs name pages by title, as the siblings do.
+- **Release class.** Two sections, each committed as `docs(site):`. `docs` is hidden from release-please, and `docs/site/` is outside both package paths, so no release PR opens and no catalog version moves. No member moves to a new `apiVersion` segment. The change does not rely on the v2 alpha line.
+- **Outside this change.**
+  - Five texts still describe the Extending section as traits, transformers and catalogs only, or name only the old guides: enhancement 0018's page inventory (`enhancements/0018/02-design.md`), the opmodel.dev section overview ("Add your own traits, transformers and catalogs ..."), the planning comment in opm's `docs/site/_index.md` ("a missing trait, transformer or catalog"), cli's `docs/site/extending/publish-a-catalog.md` Before you begin brief (it names only "Write a trait" and "Write a transformer"), and core's `docs/site/concepts/platforms-and-catalogs.md` opening brief (it names only "Write a transformer" and "Publish a catalog" for writing and publishing catalogs). The two inventory rows go to enhancements in a separate PR, which merges after this one or with it. The other four belong to their owning repos.
+  - Two comments in blueprint source are out of date, and the new blueprint brief says so rather than repeating them: all five blueprints call the wrapper's `metadata.labels` a transitional duplicate until the matcher reads only `matchLabels` (it already does), and `stateful_workload.cue` calls its `#nameConstraint` load-bearing (the `#Container` wrapper's computed rule already covers it). Fixing them touches member files, so it is its own change.
+  - Whether an alpha member's shape change must be a new `v1alpha2` file or may be an edit in place is unsettled: `write-a-trait.md` stated the first, the Catalog Contract says the second. Both extending pages now mark it `Verify:`.
 - **Touches.** `docs/site/extending/write-a-resource.md` (new), `docs/site/extending/write-a-blueprint.md` (new), `docs/site/extending/write-a-trait.md`, `docs/site/extending/write-a-transformer.md`, and this change directory, because the archive commit rides the PR.
 
 ## Enhancement
