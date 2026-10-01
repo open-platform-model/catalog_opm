@@ -35,11 +35,12 @@ The shipped pins that G1 judges are `opm/cue.mod/module.cue:13-15` and
 **Non-Goals:**
 
 - G2 (`cascade/freshness`) and G3 (`cascade/settled`). They live in the shared cascade
-  workflows (later phase X1).
+  workflows of `.github` `add-release-cascade-workflows` (a later phase).
 - Running G1 on every PR. The owner scoped G1 to release PRs (workspace `RELEASING.md`,
   section "Gates").
 - Splitting "Verify the published build" out of `publish-cue`, and the notify job. Both belong
-  to `join-release-cascade` (C1).
+  to catalog_opm `join-release-cascade` (workspace `RELEASING.md`, section
+  "Rollout and changes").
 
 ## Decisions
 
@@ -67,7 +68,7 @@ The shipped pins that G1 judges are `opm/cue.mod/module.cue:13-15` and
       - |
         rc=0
         for m in {{.MODULES}}; do
-          if grep -nE 'v: "[^"]*-0\.dev\.' "$m/cue.mod/module.cue"; then
+          if grep -nE -- '-0\.dev\.' "$m/cue.mod/module.cue"; then
             echo "G1: $m/cue.mod/module.cue pins a dev build; a release must pin published versions" >&2
             rc=1
           fi
@@ -93,7 +94,8 @@ check name in the ruleset, and a skipped job would read as a pass.
 
 ### D2. Both catalogs are checked on every release PR
 
-release-please keeps one release PR per catalog (`release.yml:92-93`), but G1 scans both
+release-please keeps one release PR per catalog (`release-please-config.json`,
+`"separate-pull-requests": true`), but G1 scans both
 `MODULES`. A dev pin in `k8s` therefore also blocks an `opm` release PR. This is deliberate:
 `main` should never carry a dev pin, and a scan per module would need the component name parsed
 from the ref for no real gain.
@@ -103,7 +105,7 @@ from the ref for no real gain.
 ```yaml
       - name: Read the pinned opm CLI version
         run: |
-          test -s .opm-cli-version
+          grep -qxE 'v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?' .opm-cli-version
           echo "OPM_CLI_VERSION=$(cat .opm-cli-version)" >> "$GITHUB_ENV"
 ```
 
@@ -117,9 +119,10 @@ Placement in each job:
 | `release.yml` | `publish-cue` | `Clone the released tag` (`:144`) | `Install opm` (`:149`) |
 
 The `Install opm` step bodies do not change: they already read `${OPM_CLI_VERSION}`. The step
-name is the same in every job, which helps `grep`. The `test -s` line comes before the verbatim
-`echo` line. A missing or empty file would otherwise write `OPM_CLI_VERSION=`, and the step
-would still succeed, because a failing command substitution inside `echo` does not trip
+name is the same in every job, which helps `grep`. The `grep -qxE` line comes before the verbatim
+`echo` line and requires the file to hold exactly one tag-shaped line (a file holding only a
+newline fails it, which `test -s` would let through). A missing, empty or malformed file would
+otherwise write `OPM_CLI_VERSION=`, and the step would still succeed, because a failing command substitution inside `echo` does not trip
 `bash -e`. The install would then fail later with an unclear 404 on `.../download//...`.
 
 `publish-cue` reads the file from the **released tag**. The CLI that publishes a release is
@@ -149,7 +152,8 @@ artifact that nobody consumes, made from a bot commit. Feature branches and the
 
 The move (section 1) keeps `v1.0.0-beta.2`, so it changes no behaviour and can be checked on
 its own: CI installs the same binary as before. The bump (section 2) is then the one-line
-`ci(deps)` diff that the cascade will produce later, and a regression bisects to it alone.
+`ci(deps)` diff that the cascade will produce later, and a reviewer can check it on its own; on
+`main` the PR squashes to one `ci:` commit.
 
 ## Research & Decisions
 
@@ -180,7 +184,7 @@ locally before it commits.
 ## Risks / Trade-offs
 
 - [Re-running `publish-cue` for a tag cut before section 1 merges finds no `.opm-cli-version`]
-  -> `test -s` fails loudly in the read step. No such re-run is planned: every existing tag is
+  -> the `grep -qxE` guard fails loudly in the read step. No such re-run is planned: every existing tag is
   already published, and AGENTS.md says a failed release is fixed by releasing the next version.
 - [The workspace `deps:pins:opm-cli` still edits workflow literals when this merges] -> stated as
   a dependency in proposal.md. The workspace `docs/release-cascade` branch must merge first.
@@ -190,9 +194,11 @@ locally before it commits.
   branch protection already requires `Validate catalog` (checked 2026-10-01 with
   `gh api .../branches/main/protection`; dispatched CI exists to satisfy it, `ci.yml:7-10`). The owner's
   D14 ruleset keeps it required.
-- [A grep on `v: "..."` misses a pin written in another CUE shape] -> `cue mod tidy` and
-  `opm catalog version set` always write the `v: "<version>"` form. A hand-written shape would
-  fail `task tidy`'s diff anyway.
+- [A pin written in an unusual CUE shape slips past the dev-pin check] -> the grep matches any
+  `-0.dev.` anywhere in `cue.mod/module.cue`, not only after `v: "`, so the spelling of the pin
+  does not matter (`cue fmt` leaves `v:"..."` as written, and no CI step diffs `task tidy`). The
+  `module:` and `language.version` lines never carry a dev tag, so the wider match has no false
+  positives.
 
 ## Durable decisions
 

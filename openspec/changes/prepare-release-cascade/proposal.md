@@ -43,14 +43,14 @@ reads them.
 **Before** (any pin passes on a release PR)
 
 ```cue
-deps: "opmodel.dev/core@v2": v: "v2.0.1-0.dev.1790000000.gabc1234" // nothing refuses this
+deps: "opmodel.dev/core@v2": v: "v2.0.0-0.dev.1790000000.gabc1234" // nothing refuses this
 ```
 
 **After** (`task deps:release-check` on a `release-please--*` ref)
 
 ```cue
 deps: "opmodel.dev/core@v2": v: "v2.0.0-beta.1"                     // passes
-deps: "opmodel.dev/core@v2": v: "v2.0.1-0.dev.1790000000.gabc1234" // G1 fails the required check
+deps: "opmodel.dev/core@v2": v: "v2.0.0-0.dev.1790000000.gabc1234" // G1 fails the required check
 // and any tracked opm/cue.mod/local-module.cue or k8s/cue.mod/local-module.cue fails it too
 ```
 
@@ -63,13 +63,15 @@ env:
 # After: .opm-cli-version at the repo root contains the single line  v1.0.0-beta.4
 #        and each CLI-installing job runs, before "Install opm":
 - name: Read the pinned opm CLI version
-  run: echo "OPM_CLI_VERSION=$(cat .opm-cli-version)" >> "$GITHUB_ENV"
+  run: |
+    grep -qxE 'v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?' .opm-cli-version
+    echo "OPM_CLI_VERSION=$(cat .opm-cli-version)" >> "$GITHUB_ENV"
 ```
 
 ## Impact
 
 - **Published catalogs: none.** No file under `opm/` or `k8s/` changes, so both catalogs stay
-  byte-identical. Every section is a non-releasing commit type (`ci:`, `ci(deps):`, `docs:`).
+  byte-identical. Every section is a non-releasing commit type (`ci:`, `ci(deps):`).
   Nothing advances `opm` (stable line) or `k8s` (beta line).
 - **modules fleet, subscribing platforms, cli fixtures:** nothing to do.
 - **Workspace `task deps:pins:opm-cli`** (`.tasks/deps/opm-cli.sh:22-28`) edits
@@ -87,10 +89,12 @@ env:
 - Depends on: workspace `docs/release-cascade`. Its `.tasks/deps/opm-cli.sh` must read and write
   `.opm-cli-version` before this change merges. Otherwise the next `task deps:pins:opm-cli` run
   silently skips this repo.
-- Gates: catalog_opm `add-deps-cascade-task` (B1, a later phase). Its release-tool bump writes
+- Gates: catalog_opm `add-deps-cascade-task` (a later phase). Its release-tool bump writes
   `.opm-cli-version` and relies on the `deps/**` exclusion.
-- Gates: catalog_opm `join-release-cascade` (C1, a later phase). The receiver pushes `deps/cascade`
+- Gates: catalog_opm `join-release-cascade` (a later phase). The receiver pushes `deps/cascade`
   and needs G1 present.
+- The OpenSpec archive commit rides this change's PR; nothing is pushed to `main` afterwards
+  (workspace `RELEASING.md`, section "Owner settings").
 - Peers (same phase, independent): library `prepare-release-cascade`, opm-operator
   `prepare-release-cascade`, cli `prepare-release-cascade`. Each adds G1 in its own repo. There is
   no ordering between them.
