@@ -208,7 +208,7 @@ Never hand-edit `apiVersion`/`catalogVersion`/`fqn` to chase a release — only 
 | `task docs:check`             | Fail on any doc comment over 6 lines in both modules   |
 | `task check`                  | fmt check + vet + layering + listing + rendered-output fixtures + INDEX freshness + doc-comment limit |
 | `task branch-tag`             | Print each module's deterministic `-dev` tag for HEAD (no side effects) |
-| `task deps:release-check`     | G1 release-pin gate: fail on any `-0.dev.` in either `cue.mod/module.cue` or a tracked `cue.mod/local-module.cue` (CI runs it on release-please branches; safe anywhere) |
+| `task deps:release-check`     | G1 release-pin gate: fail on any `-0.dev.` in either catalog's `cue.mod/module.cue`, or on any tracked `cue.mod/local-module.cue` (CI runs it on release-please branches; safe anywhere) |
 
 Every task fans out over the `MODULES` var (`opm k8s`). Adding a third catalog is one string edit there.
 
