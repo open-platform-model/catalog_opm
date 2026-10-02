@@ -74,6 +74,11 @@ on:
     branches: [main]
   workflow_dispatch:
     inputs:
+      mode:
+        description: release only, until docs-kit add-docs-revisions adds revision
+        type: choice
+        options: [release]
+        required: true
       tag:
         description: An opm release tag with no docs bundle yet (opm-v4.4.5)
         type: string
@@ -94,20 +99,20 @@ jobs:
     if: github.event_name == 'workflow_dispatch'
     permissions: {contents: read, packages: write, id-token: write}
     uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.1.0
-    with: {project: catalog-opm, mode: release, tag: "${{ inputs.tag }}"}
+    with: {project: catalog-opm, mode: "${{ inputs.mode }}", tag: "${{ inputs.tag }}"}
 ```
 
-One project, so no matrix. The dispatch offers `release` only: it is the backfill and the recovery path for a release whose `publish-docs` job did not run. It MUST be dispatched on `main` (`gh workflow run docs.yml --ref main -f tag=opm-v4.4.5`); `publish.yml` refuses any other ref. `cue-registry` keeps its default (`opmodel.dev=ghcr.io/open-platform-model,registry.cue.works`), the value `ci.yml` uses.
+One project, so no matrix. The dispatch's `mode` offers `release` only: it is the backfill and the recovery path for a release whose `publish-docs` job did not run, and the `revision` choice is added later without renaming anything (docs-kit `orchestration.md`, "Follow-up: docs-kit add-docs-revisions"). It MUST be dispatched on `main` (`gh workflow run docs.yml --ref main -f mode=release -f tag=opm-v4.4.5`); `publish.yml` refuses any other ref. `cue-registry` keeps its default (`opmodel.dev=ghcr.io/open-platform-model,registry.cue.works`), the value `ci.yml` uses.
 
 ### `release.yml`: `publish-docs` after `publish-cue`, only for an opm release
+
+release-please sets `opm--tag_name` (the job's `opm_tag_name` output) only when it released `opm` in this run, so the job's condition is that output being non-empty.
 
 ```yaml
 publish-docs:
   name: Publish the opm docs bundle
   needs: [release-please, publish-cue]
-  if: >-
-    needs.release-please.outputs.releases_created == 'true' &&
-    contains(fromJSON(needs.release-please.outputs.paths_released), 'opm')
+  if: needs.release-please.outputs.opm_tag_name != ''
   permissions: {contents: read, packages: write, id-token: write}
   uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.1.0
   with:
@@ -130,11 +135,11 @@ publish-docs:
 | `docs:bundle` | `opm-docs build --project catalog-opm --out out` (a local preview; `out/` is gitignored; opmodel.dev reads it with `--local catalog-opm=<this repo>/out/catalog-opm`, docs-kit C7) |
 | `docs:bundle:check` | the pin check, then `opm-docs check --project catalog-opm` |
 
-The pin check refuses unless every `open-platform-model/docs-kit/.github/workflows/publish.yml@` reference under `.github/workflows/` names the version in `.opm-docs-version`: a workflow `uses:` ref cannot be read from a file, so two pins exist and the check keeps them equal. `task check` runs `docs:bundle:check`, so a section gate catches a member the bundle build refuses (a doc comment that does not open with its description, a page that fails the dialect) before the PR's `Docs / check` does. `ci.yml` does not run it; `Docs / check` is the PR gate.
+The pin check refuses unless every `open-platform-model/docs-kit/.github/workflows/publish.yml@` reference under `.github/workflows/` names the version in `.opm-docs-version`: a workflow `uses:` ref cannot be read from a file, so two pins exist and the check keeps them equal. It reads the version from the ref (`@v0.1.0`) or, if docs-kit's review settles on SHA pinning (docs-kit C5, "Known conflict"), from the comment after the SHA (`@<40 hex> # v0.1.0`); every `uses:` snippet in this design then takes that form and nothing else here changes. `task check` runs `docs:bundle:check`, so a section gate catches a member the bundle build refuses (a doc comment that does not open with its description, a page that fails the dialect) before the PR's `Docs / check` does. `ci.yml` does not run it; `Docs / check` is the PR gate.
 
 ### Docs revisions are left to `add-docs-revisions`
 
-docs-kit plans revisions as its own change. When it ships, catalog_opm needs a `revision` choice and a `fix` input on the `docs.yml` dispatch and a `publish.yml` ref bump with `.opm-docs-version`: three lines and a pin bump, planned and gated by that change. Planning them here as a gated section would keep this change active on `main` for an unscheduled dependency, and the pin bump has to happen in that change anyway.
+docs-kit plans revisions as its own change, released as `v0.2.0`. Its `orchestration.md` names catalog_opm's part as a `ci` PR with no OpenSpec change: `.opm-docs-version` and the `publish.yml@` refs move to `v0.2.0`, and the dispatch gains the `revision` choice and a `fix` input. Planning that here as a gated section would keep this change active on `main` for an unscheduled dependency, and the pin bump belongs with the release that brings the mode.
 
 ### What section 3 removes
 
@@ -147,14 +152,14 @@ docs-kit plans revisions as its own change. When it ships, catalog_opm needs a `
 | `branch-publish.yml` | `Setup Go` (its `task check` needs no Go: `opm-docs` is a binary) |
 | `release.yml`, job `release-please` | `Setup Go`, `Install Task`, `task generate:reference`, `docs/site/reference` in `git add`, and the `git status --porcelain -- docs/site/reference` test, so the step reads `if git diff --quiet; then`. The GHCR login goes too unless `opm catalog version set` needs a registry: the implementer runs it on a scratch checkout with no credentials and records the result in the section's commit body |
 
-`vet:descriptions` stays: the summary rule now feeds the bundle. Its `desc` and `.tasks/description-check.sh`'s header stop saying "generated site reference" and say the published catalog reference. `docs/site/reference/kubernetes-resources.md` is not in the table: the `k8s` removal (gate G3) takes it.
+`vet:descriptions` stays: the summary rule now feeds the bundle. Its `desc` and `.tasks/description-check.sh`'s header stop saying "generated site reference" and say the published catalog reference. `docs/site/reference/kubernetes-resources.md` belongs to the `k8s` removal (gate G3); section 3 deletes it only if that change left it.
 
 ## Research & Decisions
 
 ### Where the release bundle is published
 **Context**: A release bundle must be signed on `refs/heads/main` (docs-kit C9) and must not describe a version GHCR does not serve.
-**Explored**: `release: published` (the release App's token does fire it, but its `github.ref` is the tag, which `publish.yml` refuses); a matrix over `paths_released` mapping `<module>` to `catalog-<module>` (docs-kit's `orchestration.md`, which would call `publish.yml` for a `catalog-k8s` project this repository does not declare); one job gated on `opm` being released.
-**Decision**: One `publish-docs` job in `release.yml`, `needs: [release-please, publish-cue]`, gated on `opm` in `paths_released`.
+**Explored**: `release: published` (the release App's token does fire it, but its `github.ref` is the tag, which `publish.yml` refuses); a matrix over `paths_released` mapping `<module>` to `catalog-<module>` (the first draft of docs-kit's `orchestration.md`, which would call `publish.yml` for a `catalog-k8s` project this repository does not declare); one job gated on `opm` being released, as the amended `orchestration.md` also has it.
+**Decision**: One `publish-docs` job in `release.yml`, `needs: [release-please, publish-cue]`, gated on a non-empty `opm_tag_name`.
 **Rationale**: Same run, `main` ref, after the module is on GHCR; correct whether or not the `k8s` catalog still exists.
 
 ### How `task check` gets `opm-docs`
