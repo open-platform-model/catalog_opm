@@ -20,9 +20,6 @@ concurrency:
 
 env:
   CUE_VERSION: 'v0.17.1'
-  # Pinned OPM CLI release used for identity writes and publishing; bump
-  # deliberately, never float.
-  OPM_CLI_VERSION: 'v1.0.0-beta.2'
   # opm resolves the registry via --registry > OPM_REGISTRY > config file — it
   # does NOT read CUE_REGISTRY. CUE_REGISTRY stays for task check's raw cue
   # invocations. opmodel.dev -> GHCR resolves both the core dependency and the
@@ -43,6 +40,14 @@ jobs:
           # branch-tag.sh reads the highest stable git tag for the current
           # major; need full history (and tags) for that.
           fetch-depth: 0
+
+      # The opm CLI pin lives in .opm-cli-version only, so a bump never edits a
+      # workflow file. The grep refuses a missing, empty or malformed file here,
+      # rather than letting Install opm fail later with an unclear 404.
+      - name: Read the pinned opm CLI version
+        run: |
+          grep -qxE 'v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?' .opm-cli-version
+          echo "OPM_CLI_VERSION=$(cat .opm-cli-version)" >> "$GITHUB_ENV"
 
       - name: Setup CUE
         uses: cue-lang/setup-cue@a93fa358375740cd8b0078f76355512b9208acb1 # v1.0.1

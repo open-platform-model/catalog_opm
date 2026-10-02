@@ -1,12 +1,12 @@
 ## 1. Read the opm CLI pin from `.opm-cli-version` (no version change)
 
-- [ ] 1.1 Create the repo-root `.opm-cli-version` with the single line `v1.0.0-beta.2` and a trailing newline
-- [ ] 1.2 `.github/workflows/ci.yml`: delete the workflow-level `OPM_CLI_VERSION` and its comment (`:18-19`). In job `ci`, add the step `Read the pinned opm CLI version` (design D3) between `Clone the code` and `Install opm`
-- [ ] 1.3 `.github/workflows/branch-publish.yml`: delete `OPM_CLI_VERSION` and its comment (`:23-25`). In job `publish`, add the same step after `Clone the code`
-- [ ] 1.4 `.github/workflows/release.yml`: delete `OPM_CLI_VERSION` and its comment (`:15-17`). Add the same step in job `release-please`, after `Clone the code` (`:59`), and in job `publish-cue`, after `Clone the released tag` (`:144`)
-- [ ] 1.5 `grep -rn "OPM_CLI_VERSION:" .github/workflows/` prints nothing. `grep -c 'cat .opm-cli-version' .github/workflows/*.yml` counts 1 in ci.yml, 1 in branch-publish.yml and 2 in release.yml. `go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.7 .github/workflows/*.yml` exits 0
-- [ ] 1.6 `AGENTS.md` § Release & publishing: add a bullet. The opm CLI that CI and release install is pinned in `.opm-cli-version` only; no version literal goes under `.github/workflows/`; a bump is a `ci(deps)` commit, made by root `task deps:pins:opm-cli` (design, Durable decisions)
-- [ ] 1.7 `task check` green, then commit `ci: read the pinned opm CLI version from .opm-cli-version`
+- [x] 1.1 Create the repo-root `.opm-cli-version` with the single line `v1.0.0-beta.2` and a trailing newline
+- [x] 1.2 `.github/workflows/ci.yml`: delete the workflow-level `OPM_CLI_VERSION` and its comment (`:18-19`). In job `ci`, add the step `Read the pinned opm CLI version` (design D3) between `Clone the code` and `Install opm`
+- [x] 1.3 `.github/workflows/branch-publish.yml`: delete `OPM_CLI_VERSION` and its comment (`:23-25`). In job `publish`, add the same step after `Clone the code`
+- [x] 1.4 `.github/workflows/release.yml`: delete `OPM_CLI_VERSION` and its comment (`:15-17`). Add the same step in job `release-please`, after `Clone the code` (`:59`), and in job `publish-cue`, after `Clone the released tag` (`:144`)
+- [x] 1.5 `grep -rn "OPM_CLI_VERSION:" .github/workflows/` prints nothing. `grep -c 'cat .opm-cli-version' .github/workflows/*.yml` counts 1 in ci.yml, 1 in branch-publish.yml and 2 in release.yml. `go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.7 .github/workflows/*.yml` exits 0
+- [x] 1.6 `AGENTS.md` § Release & publishing: add a bullet. The opm CLI that CI and release install is pinned in `.opm-cli-version` only; no version literal goes under `.github/workflows/`; a bump is a `ci(deps)` commit, made by root `task deps:pins:opm-cli` (design, Durable decisions)
+- [x] 1.7 `task check` green, then commit `ci: read the pinned opm CLI version from .opm-cli-version`
 
 ## 2. Bump the opm CLI to `v1.0.0-beta.4`
 
