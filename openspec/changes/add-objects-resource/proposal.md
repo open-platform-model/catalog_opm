@@ -11,7 +11,7 @@ The k8s catalog's answer validates almost nothing. Its `#ObjectsResource` is `{a
   - **Name.** `metadata.name` defaults to the map key and is rendered exactly as written, never prefixed, so references between objects (`roleRef.name`, a backend's service name) hold.
   - **Namespace.** A namespaced kind gets the instance namespace unless the object sets one; a cluster-scoped kind refuses one. Scope comes from the kind table for built-in kinds and from a `#scope` definition field, never rendered, for any other kind, where it is required.
   - **Labels** are merged over the render context's labels (the object's value wins); annotations pass through as written.
-- **New schema package `opm/schemas/kinds/`**: `table.cue`, a generated table `#Table: [apiVersion]: [kind]: {schema?, scope?}` covering `cue.dev/x/k8s.io` v0.12.0 and the Kubernetes v1.34.0 OpenAPI spec, plus a CUE self-consistency assertion that `cue vet` runs.
+- **New schema package `opm/schemas/kinds/`**: `table.cue`, a generated table `#Table: [apiVersion]: [kind]: {schema?, scope?}` covering `cue.dev/x/k8s.io` v0.12.0 and the Kubernetes v1.36.0 OpenAPI spec (the release that x/k8s.io version is generated from; corrected from v1.34.0 in section 2, see design.md), plus a CUE self-consistency assertion that `cue vet` runs.
 - **New transformer `objects-transformer`** (`opm/transformers/objects_transformer.cue`), listed in `catalog.cue` with the resource.
 - **New maintainer tool `tools/kindgen/`** (Go, its own `go.mod`) and `task generate:kinds`, which regenerate the table when `cue.dev/x/k8s.io` is bumped. CI does not run it.
 - **Docs.** `docs/site/authoring/use-a-raw-kubernetes-resource.md` is rewritten around `#Objects`; `docs/name-constraints.md` records the names-as-written carve-out.
@@ -36,7 +36,7 @@ The k8s catalog's answer validates almost nothing. Its `#ObjectsResource` is `{a
 	"rbac.authorization.k8s.io/v1": ClusterRole: {schema: rbac_v1.#ClusterRole, scope: "Cluster"}
 	// In the OpenAPI spec but not in x/k8s.io: known scope, no schema.
 	"certificates.k8s.io/v1": CertificateSigningRequest: scope: "Cluster"
-	// ... about 100 kinds over 35 group-versions
+	// ... 101 kinds over 36 group-versions
 }
 
 // opm/resources/v1alpha1/objects.cue
@@ -94,7 +94,7 @@ A module author writes:
 - **Subscribing platforms.** A platform on `opmodel.dev/catalogs/opm@v4` gains the contract when it re-pins to `4.5.0`; nothing else changes.
 - **`cli` fixtures under `testing.opmodel.dev`.** None reached.
 - **Kernel.** The render must hand the transformer the component's `#scope` definition field; section 1 verifies that through `opm module build` before any member lands.
-- **Ceiling.** Built-in kinds validate against Kubernetes 1.34 (x/k8s.io v0.12.0). A field added in a later Kubernetes is refused, and there is deliberately no per-object escape (owner decision, 2026-10-02). Raising the ceiling is an x/k8s.io bump plus `task generate:kinds`.
+- **Ceiling.** Built-in kinds validate against Kubernetes 1.36 (x/k8s.io v0.12.0; the planning text said 1.34, which section 2 measured as wrong). A field added in a later Kubernetes is refused, and there is deliberately no per-object escape (owner decision, 2026-10-02). Raising the ceiling is an x/k8s.io bump plus `task generate:kinds`.
 
 ## Enhancement
 

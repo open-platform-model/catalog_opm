@@ -14,6 +14,7 @@ CUE module: `opmodel.dev/catalogs/opm@v4`
 |   +-- v1alpha1/
 |   +-- v1beta1/
 +-- schemas/
+|   +-- kinds/
 |   +-- kubernetes/
 |       +-- apiextensions/
 |       |   +-- v1/
@@ -156,6 +157,12 @@ CUE module: `opmodel.dev/catalogs/opm@v4`
 | `#VersionSchema` | `schemas/common.cue` | Semantic version schema |
 | `#NormalizeCPU` | `schemas/quantity.cue` | #NormalizeCPU normalizes CPU input to Kubernetes canonical form |
 | `#NormalizeMemory` | `schemas/quantity.cue` | #NormalizeMemory normalizes memory input to Kubernetes binary format |
+
+### kinds
+
+| Definition | File | Description |
+|---|---|---|
+| `#Table` | `schemas/kinds/table.cue` | Every built-in Kubernetes kind, keyed by apiVersion then kind, with its closed schema and its scope |
 
 ### kubernetes/apiextensions/v1
 
