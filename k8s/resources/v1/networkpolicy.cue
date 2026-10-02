@@ -10,8 +10,8 @@ import (
 //// NetworkPolicy Resource Definition
 /////////////////////////////////////////////////////////////////
 
-// #NetworkPolicyResource defines a native Kubernetes NetworkPolicy as an OPM resource.
-// Use this to control ingress and egress traffic between pods.
+// A native Kubernetes NetworkPolicy that controls ingress and egress traffic
+// between pods.
 #NetworkPolicyResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1"
@@ -19,7 +19,7 @@ import (
 		apiVersion:     "v1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/networkpolicy@v1"
-		description:    "A native Kubernetes NetworkPolicy resource"
+		description:    "A native Kubernetes NetworkPolicy that controls ingress and egress traffic between pods"
 		labels: {
 			"resource.opmodel.dev/category": "network"
 		}

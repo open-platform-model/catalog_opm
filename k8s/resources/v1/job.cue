@@ -10,8 +10,7 @@ import (
 //// Job Resource Definition
 /////////////////////////////////////////////////////////////////
 
-// #JobResource defines a native Kubernetes Job as an OPM resource.
-// Use this for batch or one-off tasks that run to completion.
+// A native Kubernetes Job for a batch or one-off task that runs to completion.
 #JobResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1"
@@ -19,7 +18,7 @@ import (
 		apiVersion:     "v1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/job@v1"
-		description:    "A native Kubernetes Job resource"
+		description:    "A native Kubernetes Job for a batch or one-off task that runs to completion"
 		labels: {
 			"resource.opmodel.dev/category": "workload"
 		}

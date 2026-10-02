@@ -65,6 +65,9 @@ jobs:
       - name: Verify every member is listed in its catalog map
         run: task vet:listing
 
+      - name: Verify every member has a description
+        run: task vet:descriptions
+
       - name: Verify every INDEX.md is up to date
         run: task generate:index:check
 

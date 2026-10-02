@@ -12,9 +12,9 @@ import (
 // the policy: this catalog declares it and ships no transformer, not even a
 // stub (0010 D37).
 
-// The backup is the artefact a command writes to stdout; the command owns
-// its own quiesce. Renders nothing here; a platform's backup engine adapter
-// reads it.
+// A backup taken by running a command whose standard output is the backup
+// artefact. The command owns its own quiesce. Renders nothing here; a
+// platform's backup engine adapter reads it.
 #BackupCommandTrait: c.#Trait & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.traits)/v1alpha1"
@@ -22,7 +22,7 @@ import (
 		apiVersion:     "v1alpha1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.traits)/backup-command@v1alpha1"
-		description:    "The backup is the artefact a command writes to stdout; the command owns its quiesce"
+		description:    "A backup taken by running a command whose standard output is the backup artefact"
 		labels: {
 			"trait.opmodel.dev/category": "storage"
 		}

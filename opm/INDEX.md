@@ -44,19 +44,19 @@ CUE module: `opmodel.dev/catalogs/opm@v4`
 | Definition | File | Description |
 |---|---|---|
 | `#DaemonWorkload` | `blueprints/v1beta1/daemon_workload.cue` |  |
-| `#DaemonWorkloadBlueprint` | `blueprints/v1beta1/daemon_workload.cue` |  |
+| `#DaemonWorkloadBlueprint` | `blueprints/v1beta1/daemon_workload.cue` | A workload that runs one pod on every node, or on selected nodes (DaemonSet) |
 | `#DaemonWorkloadSchema` | `blueprints/v1beta1/daemon_workload.cue` |  |
 | `#ScheduledTaskWorkload` | `blueprints/v1beta1/scheduled_task_workload.cue` |  |
-| `#ScheduledTaskWorkloadBlueprint` | `blueprints/v1beta1/scheduled_task_workload.cue` |  |
+| `#ScheduledTaskWorkloadBlueprint` | `blueprints/v1beta1/scheduled_task_workload.cue` | A task workload that runs on a cron schedule (CronJob) |
 | `#ScheduledTaskWorkloadSchema` | `blueprints/v1beta1/scheduled_task_workload.cue` |  |
 | `#StatefulWorkload` | `blueprints/v1beta1/stateful_workload.cue` |  |
-| `#StatefulWorkloadBlueprint` | `blueprints/v1beta1/stateful_workload.cue` |  |
+| `#StatefulWorkloadBlueprint` | `blueprints/v1beta1/stateful_workload.cue` | A workload whose pods keep a stable identity and their own storage (StatefulSet) |
 | `#StatefulWorkloadSchema` | `blueprints/v1beta1/stateful_workload.cue` |  |
 | `#StatelessWorkload` | `blueprints/v1beta1/stateless_workload.cue` |  |
-| `#StatelessWorkloadBlueprint` | `blueprints/v1beta1/stateless_workload.cue` |  |
+| `#StatelessWorkloadBlueprint` | `blueprints/v1beta1/stateless_workload.cue` | A workload of interchangeable pods with no stable identity (Deployment) |
 | `#StatelessWorkloadSchema` | `blueprints/v1beta1/stateless_workload.cue` |  |
 | `#TaskWorkload` | `blueprints/v1beta1/task_workload.cue` |  |
-| `#TaskWorkloadBlueprint` | `blueprints/v1beta1/task_workload.cue` |  |
+| `#TaskWorkloadBlueprint` | `blueprints/v1beta1/task_workload.cue` | A task that runs to completion once (Job) |
 | `#TaskWorkloadSchema` | `blueprints/v1beta1/task_workload.cue` |  |
 
 ---
@@ -69,21 +69,21 @@ CUE module: `opmodel.dev/catalogs/opm@v4`
 |---|---|---|
 | `#AdmissionResourceRule` | `resources/v1alpha1/admission_policy.cue` |  |
 | `#ValidatingAdmissionPolicies` | `resources/v1alpha1/admission_policy.cue` |  |
-| `#ValidatingAdmissionPoliciesResource` | `resources/v1alpha1/admission_policy.cue` | CEL-based admission validation, the in-process alternative to a validating webhook: no serving certificate, no CA bundle, no availability coupling to a pod |
+| `#ValidatingAdmissionPoliciesResource` | `resources/v1alpha1/admission_policy.cue` | CEL ValidatingAdmissionPolicies with their bindings, rendered with exact names |
 | `#ValidatingAdmissionPolicySchema` | `resources/v1alpha1/admission_policy.cue` |  |
 | `#NamespaceSchema` | `resources/v1alpha1/namespace.cue` | Kubernetes Namespace, emitted with its exact name |
 | `#Namespaces` | `resources/v1alpha1/namespace.cue` |  |
-| `#NamespacesResource` | `resources/v1alpha1/namespace.cue` |  |
+| `#NamespacesResource` | `resources/v1alpha1/namespace.cue` | Cluster namespaces owned by this module, rendered with exact names |
 | `#PreBoundRegistration` | `resources/v1alpha1/transformer_registration.cue` | #TransformerRegistration pre-bound for a provider catalog: pass the catalog's own identity package and its own #transformers map and the module authors no spec field |
 | `#TransformerRegistration` | `resources/v1alpha1/transformer_registration.cue` |  |
 | `#TransformerRegistrationResource` | `resources/v1alpha1/transformer_registration.cue` | A provider module's claim that its catalog implements platform contracts |
 | `#MutatingWebhookConfigurationSchema` | `resources/v1alpha1/webhook.cue` |  |
 | `#MutatingWebhookSchema` | `resources/v1alpha1/webhook.cue` | Mutating-only extension: the mutating admission API additionally supports reinvocationPolicy |
 | `#MutatingWebhooks` | `resources/v1alpha1/webhook.cue` |  |
-| `#MutatingWebhooksResource` | `resources/v1alpha1/webhook.cue` |  |
+| `#MutatingWebhooksResource` | `resources/v1alpha1/webhook.cue` | MutatingWebhookConfigurations rendered with exact names |
 | `#ValidatingWebhookConfigurationSchema` | `resources/v1alpha1/webhook.cue` | The webhooks lists are declared per variant (not on the shared meta schema) so the mutating elements can carry reinvocationPolicy without fighting the closed base #WebhookSchema |
 | `#ValidatingWebhooks` | `resources/v1alpha1/webhook.cue` |  |
-| `#ValidatingWebhooksResource` | `resources/v1alpha1/webhook.cue` |  |
+| `#ValidatingWebhooksResource` | `resources/v1alpha1/webhook.cue` | ValidatingWebhookConfigurations rendered with exact names |
 | `#WebhookConfigurationMetaSchema` | `resources/v1alpha1/webhook.cue` | Shared config-level metadata |
 | `#WebhookSchema` | `resources/v1alpha1/webhook.cue` |  |
 
@@ -93,11 +93,11 @@ CUE module: `opmodel.dev/catalogs/opm@v4`
 |---|---|---|
 | `#ConfigMapSchema` | `resources/v1beta1/configmap.cue` | ConfigMap specification |
 | `#ConfigMaps` | `resources/v1beta1/configmap.cue` |  |
-| `#ConfigMapsResource` | `resources/v1beta1/configmap.cue` |  |
+| `#ConfigMapsResource` | `resources/v1beta1/configmap.cue` | ConfigMaps of non-sensitive key-value configuration, keyed by name |
 | `#ContentHash` | `resources/v1beta1/configmap.cue` | Deterministic 10-character hex hash of a string data map |
 | `#ImmutableName` | `resources/v1beta1/configmap.cue` | K8s resource name for a ConfigMap |
 | `#Container` | `resources/v1beta1/container.cue` |  |
-| `#ContainerResource` | `resources/v1beta1/container.cue` |  |
+| `#ContainerResource` | `resources/v1beta1/container.cue` | The main container of a workload: image, ports, environment, probes and resources |
 | `#ContainerSchema` | `resources/v1beta1/container.cue` | Container specification |
 | `#EnvFromSource` | `resources/v1beta1/container.cue` | Bulk injection source — inject all keys from a ConfigMap or Secret as env vars |
 | `#EnvVarSchema` | `resources/v1beta1/container.cue` | Environment variable |
@@ -112,19 +112,19 @@ CUE module: `opmodel.dev/catalogs/opm@v4`
 | `#CRDSchema` | `resources/v1beta1/crd.cue` | Kubernetes CustomResourceDefinition |
 | `#CRDVersionSchema` | `resources/v1beta1/crd.cue` | A single version entry in a CRD |
 | `#CRDs` | `resources/v1beta1/crd.cue` |  |
-| `#CRDsResource` | `resources/v1beta1/crd.cue` |  |
+| `#CRDsResource` | `resources/v1beta1/crd.cue` | CustomResourceDefinitions to install in the cluster, keyed by name |
 | `#NonResourcePolicyRuleSchema` | `resources/v1beta1/role.cue` | ClusterRole (scope: "cluster") only — enforced in review/docs, not schema |
 | `#PolicyRuleSchema` | `resources/v1beta1/role.cue` | Single RBAC permission rule, exactly one of the two k8s forms |
 | `#ResourcePolicyRuleSchema` | `resources/v1beta1/role.cue` |  |
 | `#Role` | `resources/v1beta1/role.cue` |  |
-| `#RoleResource` | `resources/v1beta1/role.cue` |  |
+| `#RoleResource` | `resources/v1beta1/role.cue` | An RBAC role with its rules and the subjects it binds, at namespace or cluster scope |
 | `#RoleSchema` | `resources/v1beta1/role.cue` |  |
 | `#RoleSubjectSchema` | `resources/v1beta1/role.cue` | Role subject — embeds an identity directly via CUE reference |
 | `#SecretSchema` | `resources/v1beta1/secret.cue` | Secret specification |
 | `#Secrets` | `resources/v1beta1/secret.cue` |  |
-| `#SecretsResource` | `resources/v1beta1/secret.cue` |  |
+| `#SecretsResource` | `resources/v1beta1/secret.cue` | Secrets of sensitive key-value data, keyed by name |
 | `#ServiceAccount` | `resources/v1beta1/service_account.cue` |  |
-| `#ServiceAccountResource` | `resources/v1beta1/service_account.cue` |  |
+| `#ServiceAccountResource` | `resources/v1beta1/service_account.cue` | A ServiceAccount rendered on its own, apart from any workload |
 | `#ServiceAccountSchema` | `resources/v1beta1/service_account.cue` |  |
 | `#WorkloadIdentitySchema` | `resources/v1beta1/service_account.cue` | Workload identity — used by #WorkloadIdentityTrait and as a #RoleSubjectSchema variant |
 | `#EmptyDirSchema` | `resources/v1beta1/volume.cue` |  |
@@ -142,7 +142,7 @@ CUE module: `opmodel.dev/catalogs/opm@v4`
 | `#VolumeMountSchema` | `resources/v1beta1/volume.cue` | Volume mount spec — defines container mount point |
 | `#VolumeSchema` | `resources/v1beta1/volume.cue` | Volume specification — defines storage source |
 | `#Volumes` | `resources/v1beta1/volume.cue` |  |
-| `#VolumesResource` | `resources/v1beta1/volume.cue` |  |
+| `#VolumesResource` | `resources/v1beta1/volume.cue` | Volumes a workload mounts, from scratch space to persistent claims, keyed by name |
 
 ---
 
@@ -543,7 +543,7 @@ CUE module: `opmodel.dev/catalogs/opm@v4`
 | `#BackupTrait` | `traits/v1alpha1/backup.cue` | Scheduled backup policy for a component's persistent state |
 | `#BackupCommand` | `traits/v1alpha1/backup_command.cue` |  |
 | `#BackupCommandSchema` | `traits/v1alpha1/backup_command.cue` | What a component hands an engine to produce a consistent artefact |
-| `#BackupCommandTrait` | `traits/v1alpha1/backup_command.cue` | The backup is the artefact a command writes to stdout; the command owns its own quiesce |
+| `#BackupCommandTrait` | `traits/v1alpha1/backup_command.cue` | A backup taken by running a command whose standard output is the backup artefact |
 
 ### v1beta1
 
@@ -551,94 +551,94 @@ CUE module: `opmodel.dev/catalogs/opm@v4`
 |---|---|---|
 | `#CronJobConfig` | `traits/v1beta1/cron_job_config.cue` |  |
 | `#CronJobConfigSchema` | `traits/v1beta1/cron_job_config.cue` |  |
-| `#CronJobConfigTrait` | `traits/v1beta1/cron_job_config.cue` |  |
+| `#CronJobConfigTrait` | `traits/v1beta1/cron_job_config.cue` | CronJob settings for a scheduled task: schedule, concurrency and job history |
 | `#DisruptionBudget` | `traits/v1beta1/disruption_budget.cue` |  |
 | `#DisruptionBudgetSchema` | `traits/v1beta1/disruption_budget.cue` | Exactly one of minAvailable or maxUnavailable must be set |
-| `#DisruptionBudgetTrait` | `traits/v1beta1/disruption_budget.cue` |  |
+| `#DisruptionBudgetTrait` | `traits/v1beta1/disruption_budget.cue` | How many of a workload's pods must stay available during voluntary disruptions |
 | `#EncryptionConfig` | `traits/v1beta1/encryption.cue` |  |
 | `#EncryptionConfigSchema` | `traits/v1beta1/encryption.cue` |  |
-| `#EncryptionConfigTrait` | `traits/v1beta1/encryption.cue` |  |
+| `#EncryptionConfigTrait` | `traits/v1beta1/encryption.cue` | Declares whether a workload requires encryption at rest and in transit |
 | `#Expose` | `traits/v1beta1/expose.cue` | Component wrapper: attaches the trait and supplies the Service name's default, the component's own short DNS name (0019 D22) |
 | `#ExposeSchema` | `traits/v1beta1/expose.cue` | Service expose specification |
-| `#ExposeTrait` | `traits/v1beta1/expose.cue` |  |
+| `#ExposeTrait` | `traits/v1beta1/expose.cue` | Exposes a workload's ports through a Kubernetes Service |
 | `#GracefulShutdown` | `traits/v1beta1/graceful_shutdown.cue` |  |
 | `#GracefulShutdownSchema` | `traits/v1beta1/graceful_shutdown.cue` |  |
-| `#GracefulShutdownTrait` | `traits/v1beta1/graceful_shutdown.cue` |  |
+| `#GracefulShutdownTrait` | `traits/v1beta1/graceful_shutdown.cue` | The termination grace period a workload's pods get to shut down |
 | `#GrpcRoute` | `traits/v1beta1/grpc_route.cue` |  |
 | `#GrpcRouteMatchSchema` | `traits/v1beta1/grpc_route.cue` |  |
 | `#GrpcRouteRuleSchema` | `traits/v1beta1/grpc_route.cue` |  |
 | `#GrpcRouteSchema` | `traits/v1beta1/grpc_route.cue` |  |
-| `#GrpcRouteTrait` | `traits/v1beta1/grpc_route.cue` |  |
+| `#GrpcRouteTrait` | `traits/v1beta1/grpc_route.cue` | Gateway API gRPC routing rules for a workload |
 | `#HostIPC` | `traits/v1beta1/host_ipc.cue` |  |
-| `#HostIPCTrait` | `traits/v1beta1/host_ipc.cue` | Enables hostIPC: true on the pod spec, sharing the node's IPC namespace |
+| `#HostIPCTrait` | `traits/v1beta1/host_ipc.cue` | Shares the node's IPC namespace with the workload's pods (hostIPC) |
 | `#HostNetwork` | `traits/v1beta1/host_network.cue` |  |
-| `#HostNetworkTrait` | `traits/v1beta1/host_network.cue` | Enables hostNetwork: true on the pod spec, sharing the node's network namespace |
+| `#HostNetworkTrait` | `traits/v1beta1/host_network.cue` | Shares the node's network namespace with the workload's pods (hostNetwork) |
 | `#HostPID` | `traits/v1beta1/host_pid.cue` |  |
-| `#HostPIDTrait` | `traits/v1beta1/host_pid.cue` | Enables hostPID: true on the pod spec, sharing the node's PID namespace |
+| `#HostPIDTrait` | `traits/v1beta1/host_pid.cue` | Shares the node's PID namespace with the workload's pods (hostPID) |
 | `#HttpRoute` | `traits/v1beta1/http_route.cue` |  |
 | `#HttpRouteMatchSchema` | `traits/v1beta1/http_route.cue` |  |
 | `#HttpRouteRuleSchema` | `traits/v1beta1/http_route.cue` |  |
 | `#HttpRouteSchema` | `traits/v1beta1/http_route.cue` |  |
-| `#HttpRouteTrait` | `traits/v1beta1/http_route.cue` |  |
+| `#HttpRouteTrait` | `traits/v1beta1/http_route.cue` | Gateway API HTTP routing rules for a workload |
 | `#ImagePullSecrets` | `traits/v1beta1/image_pull_secrets.cue` |  |
 | `#ImagePullSecretsSchema` | `traits/v1beta1/image_pull_secrets.cue` | References to pre-existing K8s Secrets |
-| `#ImagePullSecretsTrait` | `traits/v1beta1/image_pull_secrets.cue` | References pre-existing K8s Secrets (type kubernetes |
+| `#ImagePullSecretsTrait` | `traits/v1beta1/image_pull_secrets.cue` | Existing Secrets the kubelet uses to pull images from private registries |
 | `#InitContainers` | `traits/v1beta1/init_containers.cue` |  |
 | `#InitContainersSchema` | `traits/v1beta1/init_containers.cue` | Init container shape — alias of #ContainerSchema |
-| `#InitContainersTrait` | `traits/v1beta1/init_containers.cue` |  |
+| `#InitContainersTrait` | `traits/v1beta1/init_containers.cue` | Containers that run to completion before a workload's main container starts |
 | `#JobConfig` | `traits/v1beta1/job_config.cue` |  |
 | `#JobConfigSchema` | `traits/v1beta1/job_config.cue` |  |
-| `#JobConfigTrait` | `traits/v1beta1/job_config.cue` |  |
+| `#JobConfigTrait` | `traits/v1beta1/job_config.cue` | Job settings for a task: completions, parallelism, retries and deadlines |
 | `#NetworkPolicy` | `traits/v1beta1/network_policy.cue` |  |
 | `#NetworkPolicyEgressRule` | `traits/v1beta1/network_policy.cue` |  |
 | `#NetworkPolicyIngressRule` | `traits/v1beta1/network_policy.cue` | An empty rule (`{}`) means "allow all in this direction" — the idiom istiod uses for egress, because features like JWKS resolution need to reach user-defined endpoints |
 | `#NetworkPolicyPeer` | `traits/v1beta1/network_policy.cue` |  |
 | `#NetworkPolicyPort` | `traits/v1beta1/network_policy.cue` |  |
 | `#NetworkPolicySchema` | `traits/v1beta1/network_policy.cue` |  |
-| `#NetworkPolicyTrait` | `traits/v1beta1/network_policy.cue` | #NetworkPolicyTrait attaches an ingress/egress policy to a workload |
+| `#NetworkPolicyTrait` | `traits/v1beta1/network_policy.cue` | Ingress and egress network policy for a workload's pods |
 | `#PodMetadata` | `traits/v1beta1/pod_metadata.cue` |  |
 | `#PodMetadataSchema` | `traits/v1beta1/pod_metadata.cue` | Pod-template metadata, distinct from the workload object's own metadata |
-| `#PodMetadataTrait` | `traits/v1beta1/pod_metadata.cue` |  |
+| `#PodMetadataTrait` | `traits/v1beta1/pod_metadata.cue` | Labels and annotations applied to the pod template, not to the workload object |
 | `#PodScheduling` | `traits/v1beta1/pod_scheduling.cue` |  |
 | `#PodSchedulingSchema` | `traits/v1beta1/pod_scheduling.cue` | Named `podScheduling`, not `scheduling`, because a one-character difference from the existing `scaling` trait is a reading hazard in module bodies |
-| `#PodSchedulingTrait` | `traits/v1beta1/pod_scheduling.cue` |  |
+| `#PodSchedulingTrait` | `traits/v1beta1/pod_scheduling.cue` | Node selection, tolerations and priority class for a workload's pods |
 | `#TolerationSchema` | `traits/v1beta1/pod_scheduling.cue` | A `key`-less toleration with operator "Exists" tolerates EVERY taint, which is why `key` is optional |
 | `#RestartPolicy` | `traits/v1beta1/restart_policy.cue` |  |
 | `#RestartPolicySchema` | `traits/v1beta1/restart_policy.cue` |  |
-| `#RestartPolicyTrait` | `traits/v1beta1/restart_policy.cue` |  |
+| `#RestartPolicyTrait` | `traits/v1beta1/restart_policy.cue` | The restart policy of a workload's pods: Always, OnFailure or Never |
 | `#RouteAttachmentSchema` | `traits/v1beta1/route_common.cue` | Shared attachment fields for route schemas (gateway, TLS, className) |
 | `#RouteHeaderMatch` | `traits/v1beta1/route_common.cue` | Header match for route rules |
 | `#RouteRuleBase` | `traits/v1beta1/route_common.cue` | Base fields shared by all route rules |
 | `#RuntimeClass` | `traits/v1beta1/runtime_class.cue` |  |
-| `#RuntimeClassTrait` | `traits/v1beta1/runtime_class.cue` | Selects the container runtime that executes the pod, by setting `runtimeClassName` on the pod spec |
+| `#RuntimeClassTrait` | `traits/v1beta1/runtime_class.cue` | Selects the container runtime that runs the workload's pods (runtimeClassName) |
 | `#AutoscalingSpec` | `traits/v1beta1/scaling.cue` |  |
 | `#MetricSpec` | `traits/v1beta1/scaling.cue` |  |
 | `#MetricTargetSpec` | `traits/v1beta1/scaling.cue` |  |
 | `#Scaling` | `traits/v1beta1/scaling.cue` |  |
 | `#ScalingSchema` | `traits/v1beta1/scaling.cue` |  |
-| `#ScalingTrait` | `traits/v1beta1/scaling.cue` |  |
+| `#ScalingTrait` | `traits/v1beta1/scaling.cue` | The replica count of a workload, with optional autoscaling |
 | `#SecurityContext` | `traits/v1beta1/security_context.cue` |  |
-| `#SecurityContextTrait` | `traits/v1beta1/security_context.cue` |  |
+| `#SecurityContextTrait` | `traits/v1beta1/security_context.cue` | Pod-level security settings for a workload: user, groups, privilege and capabilities |
 | `#SidecarContainers` | `traits/v1beta1/sidecar_containers.cue` |  |
 | `#SidecarContainersSchema` | `traits/v1beta1/sidecar_containers.cue` | Sidecar container shape — alias of #ContainerSchema |
-| `#SidecarContainersTrait` | `traits/v1beta1/sidecar_containers.cue` |  |
+| `#SidecarContainersTrait` | `traits/v1beta1/sidecar_containers.cue` | Additional containers that run beside a workload's main container |
 | `#Sizing` | `traits/v1beta1/sizing.cue` |  |
 | `#SizingSchema` | `traits/v1beta1/sizing.cue` |  |
-| `#SizingTrait` | `traits/v1beta1/sizing.cue` |  |
+| `#SizingTrait` | `traits/v1beta1/sizing.cue` | Vertical sizing for a workload: resource requests and limits |
 | `#VerticalScalingSchema` | `traits/v1beta1/sizing.cue` | Placeholder for future VPA support |
 | `#TcpRoute` | `traits/v1beta1/tcp_route.cue` |  |
 | `#TcpRouteRuleSchema` | `traits/v1beta1/tcp_route.cue` | No L7 match fields for TCP |
 | `#TcpRouteSchema` | `traits/v1beta1/tcp_route.cue` |  |
-| `#TcpRouteTrait` | `traits/v1beta1/tcp_route.cue` |  |
+| `#TcpRouteTrait` | `traits/v1beta1/tcp_route.cue` | Gateway API TCP routing rules for a workload |
 | `#TlsRoute` | `traits/v1beta1/tls_route.cue` |  |
 | `#TlsRouteRuleSchema` | `traits/v1beta1/tls_route.cue` | No L7 match fields for TLS |
 | `#TlsRouteSchema` | `traits/v1beta1/tls_route.cue` |  |
-| `#TlsRouteTrait` | `traits/v1beta1/tls_route.cue` |  |
+| `#TlsRouteTrait` | `traits/v1beta1/tls_route.cue` | Gateway API TLS routing rules for a workload |
 | `#UpdateStrategy` | `traits/v1beta1/update_strategy.cue` |  |
 | `#UpdateStrategySchema` | `traits/v1beta1/update_strategy.cue` |  |
-| `#UpdateStrategyTrait` | `traits/v1beta1/update_strategy.cue` |  |
+| `#UpdateStrategyTrait` | `traits/v1beta1/update_strategy.cue` | How a workload replaces its pods on update: RollingUpdate, Recreate or OnDelete |
 | `#WorkloadIdentity` | `traits/v1beta1/workload_identity.cue` |  |
-| `#WorkloadIdentityTrait` | `traits/v1beta1/workload_identity.cue` |  |
+| `#WorkloadIdentityTrait` | `traits/v1beta1/workload_identity.cue` | The ServiceAccount identity a workload's pods run as |
 
 ---
 

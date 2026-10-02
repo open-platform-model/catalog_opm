@@ -10,8 +10,7 @@ import (
 //// PersistentVolume Resource Definition
 /////////////////////////////////////////////////////////////////
 
-// #PersistentVolumeResource defines a native Kubernetes PV as an OPM resource.
-// Use this for cluster-scoped persistent volume provisioning.
+// A native Kubernetes PersistentVolume, provisioned at cluster scope.
 #PersistentVolumeResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1"
@@ -19,7 +18,7 @@ import (
 		apiVersion:     "v1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/persistentvolume@v1"
-		description:    "A native Kubernetes PersistentVolume resource"
+		description:    "A native Kubernetes PersistentVolume, provisioned at cluster scope"
 		labels: {
 			"resource.opmodel.dev/category": "storage"
 		}

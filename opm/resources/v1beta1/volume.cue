@@ -9,6 +9,8 @@ import (
 //// Volumes Resource
 /////////////////////////////////////////////////////////////////
 
+// Volumes a workload mounts, from scratch space to persistent claims, keyed by
+// name. A persistentClaim entry also renders a PersistentVolumeClaim.
 #VolumesResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1beta1"
@@ -16,7 +18,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/volumes@v1beta1"
-		description:    "A volume definition for workloads"
+		description:    "Volumes a workload mounts, from scratch space to persistent claims, keyed by name"
 		labels: {
 			"resource.opmodel.dev/category": "storage"
 		}

@@ -6,6 +6,8 @@ import (
 	res "opmodel.dev/catalogs/opm/resources/v1beta1"
 )
 
+// CronJob settings for a scheduled task: schedule, concurrency and job
+// history.
 #CronJobConfigTrait: c.#Trait & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.traits)/v1beta1"
@@ -13,7 +15,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.traits)/cron-job-config@v1beta1"
-		description:    "A trait to configure CronJob-specific settings for scheduled task workloads"
+		description:    "CronJob settings for a scheduled task: schedule, concurrency and job history"
 		labels: {
 			"trait.opmodel.dev/category": "workload"
 		}

@@ -10,8 +10,8 @@ import (
 //// ClusterRoleBinding Resource Definition
 /////////////////////////////////////////////////////////////////
 
-// #ClusterRoleBindingResource defines a native Kubernetes ClusterRoleBinding as an OPM resource.
-// Use this to bind a ClusterRole to subjects cluster-wide.
+// A native Kubernetes ClusterRoleBinding that binds a ClusterRole to subjects
+// cluster-wide.
 #ClusterRoleBindingResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1"
@@ -19,7 +19,7 @@ import (
 		apiVersion:     "v1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/clusterrolebinding@v1"
-		description:    "A native Kubernetes ClusterRoleBinding resource"
+		description:    "A native Kubernetes ClusterRoleBinding that binds a ClusterRole to subjects cluster-wide"
 		labels: {
 			"resource.opmodel.dev/category": "rbac"
 		}

@@ -10,9 +10,9 @@ import (
 //// APIService Resource Definition
 /////////////////////////////////////////////////////////////////
 
-// #APIServiceResource defines a native Kubernetes APIService
-// (apiregistration.k8s.io/v1) as an OPM resource. Use this to register an
-// aggregated API server (e.g. metrics-server). Cluster-scoped.
+// A native Kubernetes APIService that registers an aggregated API server.
+// Cluster-scoped, apiregistration.k8s.io/v1. Use it for an aggregated API
+// server such as metrics-server.
 #APIServiceResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1"
@@ -20,7 +20,7 @@ import (
 		apiVersion:     "v1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/apiservice@v1"
-		description:    "A native Kubernetes APIService (aggregated API registration) resource"
+		description:    "A native Kubernetes APIService that registers an aggregated API server"
 		labels: {
 			"resource.opmodel.dev/category": "apiregistration"
 		}

@@ -15,6 +15,7 @@ import (
 	initContainers?: [...tr.#InitContainersSchema]
 }
 
+// A task that runs to completion once (Job).
 #TaskWorkloadBlueprint: c.#Blueprint & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.blueprints)/v1beta1"
@@ -22,7 +23,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.blueprints)/task-workload@v1beta1"
-		description:    "A one-time task workload that runs to completion (Job)"
+		description:    "A task that runs to completion once (Job)"
 	}
 
 	// Answers the container resource's required matching key (0010 D36):

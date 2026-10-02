@@ -6,6 +6,7 @@ import (
 	res "opmodel.dev/catalogs/opm/resources/v1beta1"
 )
 
+// Containers that run to completion before a workload's main container starts.
 #InitContainersTrait: c.#Trait & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.traits)/v1beta1"
@@ -13,7 +14,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.traits)/init-containers@v1beta1"
-		description:    "A trait to specify init containers for a workload"
+		description:    "Containers that run to completion before a workload's main container starts"
 		labels: {
 			"trait.opmodel.dev/category": "workload"
 		}

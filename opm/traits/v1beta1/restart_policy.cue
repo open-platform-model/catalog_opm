@@ -6,6 +6,7 @@ import (
 	res "opmodel.dev/catalogs/opm/resources/v1beta1"
 )
 
+// The restart policy of a workload's pods: Always, OnFailure or Never.
 #RestartPolicyTrait: c.#Trait & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.traits)/v1beta1"
@@ -13,7 +14,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.traits)/restart-policy@v1beta1"
-		description:    "A trait to specify the restart policy for a workload"
+		description:    "The restart policy of a workload's pods: Always, OnFailure or Never"
 		labels: {
 			"trait.opmodel.dev/category": "workload"
 		}

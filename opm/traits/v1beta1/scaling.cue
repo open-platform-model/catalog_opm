@@ -6,6 +6,8 @@ import (
 	res "opmodel.dev/catalogs/opm/resources/v1beta1"
 )
 
+// The replica count of a workload, with optional autoscaling. With auto set,
+// it also renders a HorizontalPodAutoscaler.
 #ScalingTrait: c.#Trait & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.traits)/v1beta1"
@@ -13,7 +15,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.traits)/scaling@v1beta1"
-		description:    "A trait to specify scaling behavior for a workload"
+		description:    "The replica count of a workload, with optional autoscaling"
 		labels: {
 			"trait.opmodel.dev/category": "workload"
 		}

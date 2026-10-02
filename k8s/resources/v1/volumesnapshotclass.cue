@@ -10,10 +10,9 @@ import (
 //// VolumeSnapshotClass Resource Definition
 /////////////////////////////////////////////////////////////////
 
-// #VolumeSnapshotClassResource defines a native VolumeSnapshotClass
-// (snapshot.storage.k8s.io/v1) as an OPM resource. Use this to define
-// cluster-wide snapshot driver configurations; the rendered name is the
-// component's resourceName, like StorageClass.
+// A native Kubernetes VolumeSnapshotClass that configures a snapshot driver.
+// It is snapshot.storage.k8s.io/v1, and the rendered name is the component's
+// resourceName, like StorageClass.
 #VolumeSnapshotClassResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1"
@@ -21,7 +20,7 @@ import (
 		apiVersion:     "v1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/volumesnapshotclass@v1"
-		description:    "A native Kubernetes VolumeSnapshotClass resource"
+		description:    "A native Kubernetes VolumeSnapshotClass that configures a snapshot driver"
 		labels: {
 			"resource.opmodel.dev/category": "storage"
 		}

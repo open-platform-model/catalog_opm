@@ -6,6 +6,8 @@ import (
 	res "opmodel.dev/catalogs/opm/resources/v1beta1"
 )
 
+// Exposes a workload's ports through a Kubernetes Service. The route traits
+// render only beside it.
 #ExposeTrait: c.#Trait & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.traits)/v1beta1"
@@ -13,7 +15,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.traits)/expose@v1beta1"
-		description:    "A trait to expose a workload via a service"
+		description:    "Exposes a workload's ports through a Kubernetes Service"
 		labels: {
 			"trait.opmodel.dev/category": "network"
 		}

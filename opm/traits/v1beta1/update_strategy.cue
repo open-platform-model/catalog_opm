@@ -6,6 +6,8 @@ import (
 	res "opmodel.dev/catalogs/opm/resources/v1beta1"
 )
 
+// How a workload replaces its pods on update: RollingUpdate, Recreate or
+// OnDelete.
 #UpdateStrategyTrait: c.#Trait & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.traits)/v1beta1"
@@ -13,7 +15,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.traits)/update-strategy@v1beta1"
-		description:    "A trait to specify the update strategy for a workload"
+		description:    "How a workload replaces its pods on update: RollingUpdate, Recreate or OnDelete"
 		labels: {
 			"trait.opmodel.dev/category": "workload"
 		}

@@ -10,8 +10,7 @@ import (
 //// Pod Resource Definition
 /////////////////////////////////////////////////////////////////
 
-// #PodResource defines a native Kubernetes Pod as an OPM resource.
-// Use this for standalone pods; prefer Deployment or StatefulSet for
+// A native Kubernetes Pod, standalone. Prefer Deployment or StatefulSet for
 // production workloads that need scheduling guarantees.
 #PodResource: c.#Resource & {
 	metadata: {
@@ -20,7 +19,7 @@ import (
 		apiVersion:     "v1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/pod@v1"
-		description:    "A native Kubernetes Pod resource"
+		description:    "A native Kubernetes Pod, standalone"
 		labels: {
 			"resource.opmodel.dev/category": "workload"
 		}

@@ -9,6 +9,9 @@ import (
 //// Role Resource
 /////////////////////////////////////////////////////////////////
 
+// An RBAC role with its rules and the subjects it binds, at namespace or
+// cluster scope. Renders a Role and a RoleBinding, or a ClusterRole and a
+// ClusterRoleBinding.
 #RoleResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1beta1"
@@ -16,7 +19,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/role@v1beta1"
-		description:    "An RBAC Role definition with rules and CUE-referenced subjects"
+		description:    "An RBAC role with its rules and the subjects it binds, at namespace or cluster scope"
 		labels: {
 			"resource.opmodel.dev/category": "security"
 		}

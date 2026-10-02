@@ -10,9 +10,8 @@ import (
 //// ValidatingWebhookConfiguration Resource Definition
 /////////////////////////////////////////////////////////////////
 
-// #ValidatingWebhookConfigurationResource defines a native Kubernetes
-// ValidatingWebhookConfiguration as an OPM resource.
-// Use this to register admission webhooks that validate resource requests.
+// A native Kubernetes ValidatingWebhookConfiguration that registers validating
+// admission webhooks.
 #ValidatingWebhookConfigurationResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1"
@@ -20,7 +19,7 @@ import (
 		apiVersion:     "v1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/validatingwebhookconfiguration@v1"
-		description:    "A native Kubernetes ValidatingWebhookConfiguration resource"
+		description:    "A native Kubernetes ValidatingWebhookConfiguration that registers validating admission webhooks"
 		labels: {
 			"resource.opmodel.dev/category": "admission"
 		}

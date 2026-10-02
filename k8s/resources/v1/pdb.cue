@@ -10,8 +10,7 @@ import (
 //// PodDisruptionBudget Resource Definition
 /////////////////////////////////////////////////////////////////
 
-// #PodDisruptionBudgetResource defines a native Kubernetes PodDisruptionBudget as an OPM resource.
-// Use this to limit voluntary disruptions during cluster maintenance or rolling updates.
+// A native Kubernetes PodDisruptionBudget that limits voluntary disruptions.
 #PodDisruptionBudgetResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1"
@@ -19,7 +18,7 @@ import (
 		apiVersion:     "v1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/poddisruptionbudget@v1"
-		description:    "A native Kubernetes PodDisruptionBudget resource"
+		description:    "A native Kubernetes PodDisruptionBudget that limits voluntary disruptions"
 		labels: {
 			"resource.opmodel.dev/category": "policy"
 		}

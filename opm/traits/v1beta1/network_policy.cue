@@ -21,7 +21,8 @@ import (
 // rule this establishes: a standalone RESOURCE may incubate in the experimental
 // catalog, but a TRAIT that has to ride a stable blueprint must live here.
 
-// #NetworkPolicyTrait attaches an ingress/egress policy to a workload.
+// Ingress and egress network policy for a workload's pods. Renders a
+// NetworkPolicy that selects the workload's pods.
 #NetworkPolicyTrait: c.#Trait & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.traits)/v1beta1"

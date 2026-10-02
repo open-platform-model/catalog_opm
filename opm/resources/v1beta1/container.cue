@@ -11,6 +11,10 @@ import (
 //// Container Resource
 /////////////////////////////////////////////////////////////////
 
+// The main container of a workload: image, ports, environment, probes and
+// resources. A component that declares it must answer the
+// core.opmodel.dev/workload-type match label, usually through a workload
+// blueprint.
 #ContainerResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1beta1"
@@ -18,7 +22,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/container@v1beta1"
-		description:    "A container definition for workloads"
+		description:    "The main container of a workload: image, ports, environment, probes and resources"
 		labels: {
 			"resource.opmodel.dev/category": "workload"
 		}

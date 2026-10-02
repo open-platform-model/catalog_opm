@@ -10,9 +10,8 @@ import (
 //// MutatingWebhookConfiguration Resource Definition
 /////////////////////////////////////////////////////////////////
 
-// #MutatingWebhookConfigurationResource defines a native Kubernetes
-// MutatingWebhookConfiguration as an OPM resource.
-// Use this to register admission webhooks that mutate resource requests.
+// A native Kubernetes MutatingWebhookConfiguration that registers mutating
+// admission webhooks.
 #MutatingWebhookConfigurationResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1"
@@ -20,7 +19,7 @@ import (
 		apiVersion:     "v1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/mutatingwebhookconfiguration@v1"
-		description:    "A native Kubernetes MutatingWebhookConfiguration resource"
+		description:    "A native Kubernetes MutatingWebhookConfiguration that registers mutating admission webhooks"
 		labels: {
 			"resource.opmodel.dev/category": "admission"
 		}

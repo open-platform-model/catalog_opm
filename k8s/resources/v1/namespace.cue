@@ -10,8 +10,7 @@ import (
 //// Namespace Resource Definition
 /////////////////////////////////////////////////////////////////
 
-// #NamespaceResource defines a native Kubernetes Namespace as an OPM resource.
-// Use this to create and manage cluster-scoped namespace isolation boundaries.
+// A native Kubernetes Namespace.
 #NamespaceResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1"
@@ -19,7 +18,7 @@ import (
 		apiVersion:     "v1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/namespace@v1"
-		description:    "A native Kubernetes Namespace resource"
+		description:    "A native Kubernetes Namespace"
 		labels: {
 			"resource.opmodel.dev/category": "cluster"
 		}

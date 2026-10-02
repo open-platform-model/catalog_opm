@@ -84,6 +84,17 @@ tasks:
         set -e
         for m in {{.MODULES}}; do bash .tasks/listing.sh "$m"; done
 
+  vet:descriptions:
+    desc: >
+      Refuse a catalog member without a description: every member of a
+      module's #resources, #traits, #blueprints and #transformers maps carries
+      a non-blank metadata.description, its one-line summary in the generated
+      site reference.
+    cmds:
+      - |
+        set -e
+        for m in {{.MODULES}}; do bash .tasks/description-check.sh "$m"; done
+
   vet:fixtures:
     desc: >
       Check every rendered-output transformer fixture: a fixture is the
@@ -191,12 +202,13 @@ tasks:
   ## Aggregate
 
   check:
-    desc: Format check, vet, layering, listing, rendered-output fixtures, INDEX freshness, and doc-comment report across every module
+    desc: Format check, vet, layering, listing, descriptions, rendered-output fixtures, INDEX freshness, and doc-comment report across every module
     cmds:
       - task: fmt:check
       - task: vet
       - task: vet:layering
       - task: vet:listing
+      - task: vet:descriptions
       - task: vet:fixtures
       - task: generate:index:check
       - task: docs:check

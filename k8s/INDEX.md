@@ -32,69 +32,69 @@ CUE module: `opmodel.dev/catalogs/k8s@v1`
 | Definition | File | Description |
 |---|---|---|
 | `#APIService` | `resources/v1/apiservice.cue` |  |
-| `#APIServiceResource` | `resources/v1/apiservice.cue` | #APIServiceResource defines a native Kubernetes APIService (apiregistration |
+| `#APIServiceResource` | `resources/v1/apiservice.cue` | A native Kubernetes APIService that registers an aggregated API server |
 | `#ClusterRole` | `resources/v1/cluster_role.cue` |  |
-| `#ClusterRoleResource` | `resources/v1/cluster_role.cue` | #ClusterRoleResource defines a native Kubernetes ClusterRole as an OPM resource |
+| `#ClusterRoleResource` | `resources/v1/cluster_role.cue` | A native Kubernetes ClusterRole, granting permissions cluster-wide or in every namespace |
 | `#ClusterRoleBinding` | `resources/v1/cluster_role_binding.cue` |  |
-| `#ClusterRoleBindingResource` | `resources/v1/cluster_role_binding.cue` | #ClusterRoleBindingResource defines a native Kubernetes ClusterRoleBinding as an OPM resource |
+| `#ClusterRoleBindingResource` | `resources/v1/cluster_role_binding.cue` | A native Kubernetes ClusterRoleBinding that binds a ClusterRole to subjects cluster-wide |
 | `#ConfigMap` | `resources/v1/configmap.cue` |  |
-| `#ConfigMapResource` | `resources/v1/configmap.cue` | #ConfigMapResource defines a native Kubernetes ConfigMap as an OPM resource |
+| `#ConfigMapResource` | `resources/v1/configmap.cue` | A native Kubernetes ConfigMap of non-sensitive key-value data |
 | `#CronJob` | `resources/v1/cronjob.cue` |  |
-| `#CronJobResource` | `resources/v1/cronjob.cue` | #CronJobResource defines a native Kubernetes CronJob as an OPM resource |
+| `#CronJobResource` | `resources/v1/cronjob.cue` | A native Kubernetes CronJob that runs a job on a cron schedule |
 | `#CSIDriver` | `resources/v1/csidriver.cue` |  |
-| `#CSIDriverResource` | `resources/v1/csidriver.cue` | #CSIDriverResource defines a native Kubernetes CSIDriver as an OPM resource |
+| `#CSIDriverResource` | `resources/v1/csidriver.cue` | A native Kubernetes CSIDriver, rendered under its authored name |
 | `#DaemonSet` | `resources/v1/daemonset.cue` |  |
-| `#DaemonSetResource` | `resources/v1/daemonset.cue` | #DaemonSetResource defines a native Kubernetes DaemonSet as an OPM resource |
+| `#DaemonSetResource` | `resources/v1/daemonset.cue` | A native Kubernetes DaemonSet that runs a pod on every node, or on selected nodes |
 | `#Deployment` | `resources/v1/deployment.cue` |  |
-| `#DeploymentResource` | `resources/v1/deployment.cue` | #DeploymentResource defines a native Kubernetes Deployment as an OPM resource |
+| `#DeploymentResource` | `resources/v1/deployment.cue` | A native Kubernetes Deployment, for direct control over the Deployment spec |
 | `#Ingress` | `resources/v1/ingress.cue` |  |
-| `#IngressResource` | `resources/v1/ingress.cue` | #IngressResource defines a native Kubernetes Ingress as an OPM resource |
+| `#IngressResource` | `resources/v1/ingress.cue` | A native Kubernetes Ingress that routes external HTTP and HTTPS traffic to services |
 | `#IngressClass` | `resources/v1/ingressclass.cue` |  |
-| `#IngressClassResource` | `resources/v1/ingressclass.cue` | #IngressClassResource defines a native Kubernetes IngressClass as an OPM resource |
+| `#IngressClassResource` | `resources/v1/ingressclass.cue` | A native Kubernetes IngressClass that configures an ingress controller implementation |
 | `#Job` | `resources/v1/job.cue` |  |
-| `#JobResource` | `resources/v1/job.cue` | #JobResource defines a native Kubernetes Job as an OPM resource |
+| `#JobResource` | `resources/v1/job.cue` | A native Kubernetes Job for a batch or one-off task that runs to completion |
 | `#MutatingWebhookConfiguration` | `resources/v1/mutating_webhook.cue` |  |
-| `#MutatingWebhookConfigurationResource` | `resources/v1/mutating_webhook.cue` | #MutatingWebhookConfigurationResource defines a native Kubernetes MutatingWebhookConfiguration as an OPM resource |
+| `#MutatingWebhookConfigurationResource` | `resources/v1/mutating_webhook.cue` | A native Kubernetes MutatingWebhookConfiguration that registers mutating admission webhooks |
 | `#Namespace` | `resources/v1/namespace.cue` |  |
-| `#NamespaceResource` | `resources/v1/namespace.cue` | #NamespaceResource defines a native Kubernetes Namespace as an OPM resource |
+| `#NamespaceResource` | `resources/v1/namespace.cue` | A native Kubernetes Namespace |
 | `#NetworkPolicy` | `resources/v1/networkpolicy.cue` |  |
-| `#NetworkPolicyResource` | `resources/v1/networkpolicy.cue` | #NetworkPolicyResource defines a native Kubernetes NetworkPolicy as an OPM resource |
+| `#NetworkPolicyResource` | `resources/v1/networkpolicy.cue` | A native Kubernetes NetworkPolicy that controls ingress and egress traffic between pods |
 | `#ObjectEntrySchema` | `resources/v1/object.cue` | A single arbitrary object plus its scope discriminator |
 | `#Objects` | `resources/v1/object.cue` |  |
-| `#ObjectsResource` | `resources/v1/object.cue` | #ObjectsResource renders arbitrary Kubernetes objects — built-in kinds OR Custom Resource instances (Issuer, Gateway, MongoDBCommunity, …) |
+| `#ObjectsResource` | `resources/v1/object.cue` | Arbitrary Kubernetes objects, including Custom Resource instances |
 | `#PodDisruptionBudget` | `resources/v1/pdb.cue` |  |
-| `#PodDisruptionBudgetResource` | `resources/v1/pdb.cue` | #PodDisruptionBudgetResource defines a native Kubernetes PodDisruptionBudget as an OPM resource |
+| `#PodDisruptionBudgetResource` | `resources/v1/pdb.cue` | A native Kubernetes PodDisruptionBudget that limits voluntary disruptions |
 | `#Pod` | `resources/v1/pod.cue` |  |
-| `#PodResource` | `resources/v1/pod.cue` | #PodResource defines a native Kubernetes Pod as an OPM resource |
+| `#PodResource` | `resources/v1/pod.cue` | A native Kubernetes Pod, standalone |
 | `#PersistentVolume` | `resources/v1/pv.cue` |  |
-| `#PersistentVolumeResource` | `resources/v1/pv.cue` | #PersistentVolumeResource defines a native Kubernetes PV as an OPM resource |
+| `#PersistentVolumeResource` | `resources/v1/pv.cue` | A native Kubernetes PersistentVolume, provisioned at cluster scope |
 | `#PersistentVolumeClaim` | `resources/v1/pvc.cue` |  |
-| `#PersistentVolumeClaimResource` | `resources/v1/pvc.cue` | #PersistentVolumeClaimResource defines a native Kubernetes PVC as an OPM resource |
+| `#PersistentVolumeClaimResource` | `resources/v1/pvc.cue` | A native Kubernetes PersistentVolumeClaim that requests persistent storage |
 | `#Role` | `resources/v1/role.cue` |  |
-| `#RoleResource` | `resources/v1/role.cue` | #RoleResource defines a native Kubernetes Role as an OPM resource |
+| `#RoleResource` | `resources/v1/role.cue` | A native Kubernetes Role that grants permissions within a namespace |
 | `#RoleBinding` | `resources/v1/role_binding.cue` |  |
-| `#RoleBindingResource` | `resources/v1/role_binding.cue` | #RoleBindingResource defines a native Kubernetes RoleBinding as an OPM resource |
+| `#RoleBindingResource` | `resources/v1/role_binding.cue` | A native Kubernetes RoleBinding that binds a Role or ClusterRole to subjects in a namespace |
 | `#Secret` | `resources/v1/secret.cue` |  |
-| `#SecretResource` | `resources/v1/secret.cue` | #SecretResource defines a native Kubernetes Secret as an OPM resource |
+| `#SecretResource` | `resources/v1/secret.cue` | A native Kubernetes Secret for sensitive data such as passwords, tokens and TLS certificates |
 | `#Service` | `resources/v1/service.cue` |  |
-| `#ServiceResource` | `resources/v1/service.cue` | #ServiceResource defines a native Kubernetes Service as an OPM resource |
+| `#ServiceResource` | `resources/v1/service.cue` | A native Kubernetes Service that exposes workloads inside or outside the cluster |
 | `#ServiceAccount` | `resources/v1/serviceaccount.cue` |  |
-| `#ServiceAccountResource` | `resources/v1/serviceaccount.cue` | #ServiceAccountResource defines a native Kubernetes ServiceAccount as an OPM resource |
+| `#ServiceAccountResource` | `resources/v1/serviceaccount.cue` | A native Kubernetes ServiceAccount that gives pods an identity |
 | `#StatefulSet` | `resources/v1/statefulset.cue` |  |
-| `#StatefulSetResource` | `resources/v1/statefulset.cue` | #StatefulSetResource defines a native Kubernetes StatefulSet as an OPM resource |
+| `#StatefulSetResource` | `resources/v1/statefulset.cue` | A native Kubernetes StatefulSet, for direct control over the StatefulSet spec |
 | `#StorageClass` | `resources/v1/storageclass.cue` |  |
-| `#StorageClassResource` | `resources/v1/storageclass.cue` | #StorageClassResource defines a native Kubernetes StorageClass as an OPM resource |
+| `#StorageClassResource` | `resources/v1/storageclass.cue` | A native Kubernetes StorageClass that configures a storage provisioner |
 | `#ValidatingWebhookConfiguration` | `resources/v1/validating_webhook.cue` |  |
-| `#ValidatingWebhookConfigurationResource` | `resources/v1/validating_webhook.cue` | #ValidatingWebhookConfigurationResource defines a native Kubernetes ValidatingWebhookConfiguration as an OPM resource |
+| `#ValidatingWebhookConfigurationResource` | `resources/v1/validating_webhook.cue` | A native Kubernetes ValidatingWebhookConfiguration that registers validating admission webhooks |
 | `#VolumeSnapshotClass` | `resources/v1/volumesnapshotclass.cue` |  |
-| `#VolumeSnapshotClassResource` | `resources/v1/volumesnapshotclass.cue` | #VolumeSnapshotClassResource defines a native VolumeSnapshotClass (snapshot |
+| `#VolumeSnapshotClassResource` | `resources/v1/volumesnapshotclass.cue` | A native Kubernetes VolumeSnapshotClass that configures a snapshot driver |
 
 ### v2
 
 | Definition | File | Description |
 |---|---|---|
 | `#HorizontalPodAutoscaler` | `resources/v2/hpa.cue` |  |
-| `#HorizontalPodAutoscalerResource` | `resources/v2/hpa.cue` | #HorizontalPodAutoscalerResource defines a native Kubernetes HPA v2 as an OPM resource |
+| `#HorizontalPodAutoscalerResource` | `resources/v2/hpa.cue` | A native Kubernetes HorizontalPodAutoscaler that scales replicas on metrics |
 
 ---
 

@@ -6,6 +6,7 @@ import (
 	res "opmodel.dev/catalogs/opm/resources/v1beta1"
 )
 
+// Additional containers that run beside a workload's main container.
 #SidecarContainersTrait: c.#Trait & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.traits)/v1beta1"
@@ -13,7 +14,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.traits)/sidecar-containers@v1beta1"
-		description:    "A trait to specify sidecar containers for a workload"
+		description:    "Additional containers that run beside a workload's main container"
 		labels: {
 			"trait.opmodel.dev/category": "workload"
 		}

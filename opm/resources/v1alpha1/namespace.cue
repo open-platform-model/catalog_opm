@@ -9,6 +9,7 @@ import (
 //// Namespaces Resource
 /////////////////////////////////////////////////////////////////
 
+// Cluster namespaces owned by this module, rendered with exact names.
 #NamespacesResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1alpha1"
@@ -16,7 +17,7 @@ import (
 		apiVersion:     "v1alpha1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/namespaces@v1alpha1"
-		description:    "Cluster namespaces owned by this module, emitted with exact names"
+		description:    "Cluster namespaces owned by this module, rendered with exact names"
 		labels: {
 			"resource.opmodel.dev/category": "cluster"
 		}

@@ -10,8 +10,7 @@ import (
 //// PersistentVolumeClaim Resource Definition
 /////////////////////////////////////////////////////////////////
 
-// #PersistentVolumeClaimResource defines a native Kubernetes PVC as an OPM resource.
-// Use this to request persistent storage for stateful workloads.
+// A native Kubernetes PersistentVolumeClaim that requests persistent storage.
 #PersistentVolumeClaimResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1"
@@ -19,7 +18,7 @@ import (
 		apiVersion:     "v1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/persistentvolumeclaim@v1"
-		description:    "A native Kubernetes PersistentVolumeClaim resource"
+		description:    "A native Kubernetes PersistentVolumeClaim that requests persistent storage"
 		labels: {
 			"resource.opmodel.dev/category": "storage"
 		}

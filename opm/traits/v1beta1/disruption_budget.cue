@@ -6,6 +6,8 @@ import (
 	res "opmodel.dev/catalogs/opm/resources/v1beta1"
 )
 
+// How many of a workload's pods must stay available during voluntary
+// disruptions. Renders a PodDisruptionBudget.
 #DisruptionBudgetTrait: c.#Trait & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.traits)/v1beta1"
@@ -13,7 +15,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.traits)/disruption-budget@v1beta1"
-		description:    "Availability constraints during voluntary disruptions"
+		description:    "How many of a workload's pods must stay available during voluntary disruptions"
 		labels: {
 			"trait.opmodel.dev/category": "workload"
 		}

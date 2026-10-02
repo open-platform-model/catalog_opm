@@ -10,9 +10,9 @@ import (
 //// CSIDriver Resource Definition
 /////////////////////////////////////////////////////////////////
 
-// #CSIDriverResource defines a native Kubernetes CSIDriver as an OPM resource.
-// The authored `metadata.name` renders verbatim: it is the name kubelet and
-// every StorageClass.provisioner refer to, so no instance prefix applies.
+// A native Kubernetes CSIDriver, rendered under its authored name. The
+// authored `metadata.name` renders verbatim: it is the name kubelet and every
+// StorageClass.provisioner refer to, so no instance prefix applies.
 #CSIDriverResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1"
@@ -20,7 +20,7 @@ import (
 		apiVersion:     "v1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/csidriver@v1"
-		description:    "A native Kubernetes CSIDriver resource"
+		description:    "A native Kubernetes CSIDriver, rendered under its authored name"
 		labels: {
 			"resource.opmodel.dev/category": "storage"
 		}
