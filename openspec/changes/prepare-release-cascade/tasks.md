@@ -10,9 +10,9 @@
 
 ## 2. Bump the opm CLI to `v1.0.0-beta.4`
 
-- [ ] 2.1 Set `.opm-cli-version` to `v1.0.0-beta.4`, the only diff in this section
-- [ ] 2.2 Download the beta.4 `opm-linux-amd64.tar.gz` and `checksums.txt` into a scratch directory and verify the checksum, as `Install opm` does. Then run `opm catalog publish ./opm --dry-run` and `opm catalog publish ./k8s --dry-run` with `OPM_REGISTRY='opmodel.dev=ghcr.io/open-platform-model,registry.cue.works'`. Each may refuse only with "already holds" and "1 refusal" (the tolerance at `ci.yml:94`). Dry-run only, never a publish
-- [ ] 2.3 `task check` green, then commit `ci(deps): bump opm CLI to v1.0.0-beta.4`
+- [x] 2.1 Set `.opm-cli-version` to `v1.0.0-beta.4`, the only diff in this section
+- [x] 2.2 Download the beta.4 `opm-linux-amd64.tar.gz` and `checksums.txt` into a scratch directory and verify the checksum, as `Install opm` does. Then run `opm catalog publish ./opm --dry-run` and `opm catalog publish ./k8s --dry-run` with `OPM_REGISTRY='opmodel.dev=ghcr.io/open-platform-model,registry.cue.works'`. Each may refuse only with "already holds" and "1 refusal" (the tolerance at `ci.yml:94`). Dry-run only, never a publish
+- [x] 2.3 `task check` green, then commit `ci(deps): bump opm CLI to v1.0.0-beta.4`
 
 ## 3. G1 release-pin gate in `Validate catalog`
 
