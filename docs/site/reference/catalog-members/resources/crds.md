@@ -15,7 +15,7 @@ type: reference
 | Module path | `opmodel.dev/catalogs/opm/resources/v1beta1` |
 | Definition | `#CRDsResource` in `opm/resources/v1beta1/crd.cue` |
 | Component wrapper | `#CRDs` |
-| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.4.5` |
+| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `extension` |
 | Fulfilment | `catalog`: the declaring catalog implements it |
 
@@ -79,7 +79,7 @@ Each entry renders one CustomResourceDefinition.
 
 ## Served by
 
-These transformers in `opmodel.dev/catalogs/opm@v4` version `4.4.5` require this resource or read it when present.
+These transformers in `opmodel.dev/catalogs/opm@v4` version `4.5.0` require this resource or read it when present.
 
 | Transformer | Demand | What it does |
 | --- | --- | --- |

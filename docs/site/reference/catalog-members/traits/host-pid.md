@@ -15,7 +15,7 @@ type: reference
 | Module path | `opmodel.dev/catalogs/opm/traits/v1beta1` |
 | Definition | `#HostPIDTrait` in `opm/traits/v1beta1/host_pid.cue` |
 | Component wrapper | `#HostPID` |
-| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.4.5` |
+| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `security` |
 | Fulfilment | `catalog`: the declaring catalog implements it |
 | Optional posture | advisory: `optional` defaults to `true`, so an unhandled trait warns and the render continues; a module may override it where it attaches the trait |
@@ -35,7 +35,7 @@ Required for workloads that must observe or signal host processes.
 
 ## Served by
 
-These transformers in `opmodel.dev/catalogs/opm@v4` version `4.4.5` require this trait or read it when present.
+These transformers in `opmodel.dev/catalogs/opm@v4` version `4.5.0` require this trait or read it when present.
 
 | Transformer | Demand | What it does |
 | --- | --- | --- |

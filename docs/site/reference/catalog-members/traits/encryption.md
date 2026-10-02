@@ -20,7 +20,7 @@ type: reference
 | Module path | `opmodel.dev/catalogs/opm/traits/v1beta1` |
 | Definition | `#EncryptionConfigTrait` in `opm/traits/v1beta1/encryption.cue` |
 | Component wrapper | `#EncryptionConfig` |
-| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.4.5` |
+| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `security` |
 | Fulfilment | `catalog`: the declaring catalog implements it |
 | Optional posture | advisory: `optional` defaults to `true`, so an unhandled trait warns and the render continues; a module may override it where it attaches the trait |
