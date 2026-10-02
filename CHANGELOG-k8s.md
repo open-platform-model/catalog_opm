@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-beta.2](https://github.com/open-platform-model/catalog_opm/compare/k8s-v1.0.0-beta.1...k8s-v1.0.0-beta.2) (2026-10-02)
+
+
+### Bug Fixes
+
+* **catalog:** describe every member and generate the catalog reference ([#113](https://github.com/open-platform-model/catalog_opm/issues/113)) ([ac57a74](https://github.com/open-platform-model/catalog_opm/commit/ac57a7469ce74c1db37a4641e05613c6b739bde8))
+
 ## [1.0.0-beta.1](https://github.com/open-platform-model/catalog_opm/compare/k8s-v1.0.0-alpha.6...k8s-v1.0.0-beta.1) (2026-09-30)
 
 
