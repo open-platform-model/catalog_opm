@@ -26,8 +26,8 @@
 
 ## 4. Docs and durable decisions
 
-- [ ] 4.1 Rewrite `docs/site/authoring/use-a-raw-kubernetes-resource.md` around `#Objects` from `opmodel.dev/catalogs/opm/resources/v1alpha1`: when to reach for it (step 1 forks stay), validation and the 1.36 ceiling, `#scope` for custom resources, names as written, no extra dependency or platform subscription
-- [ ] 4.2 `docs/name-constraints.md`: add the `#ObjectsResource` row (names as written, slot top); AGENTS.md Naming bullet: name the carve-out
-- [ ] 4.3 `docs/transformer-authoring.md`: new section, a definition field for OPM-only input read across packages
-- [ ] 4.4 AGENTS.md Dependencies: regenerating the kind table on an x/k8s.io bump (which Kubernetes tag, and that the PR names the kinds added)
-- [ ] 4.5 `task check` green, then commit `docs: document the objects resource`
+- [x] 4.1 Rewrite `docs/site/authoring/use-a-raw-kubernetes-resource.md` around `#Objects` from `opmodel.dev/catalogs/opm/resources/v1alpha1`: when to reach for it (step 1 forks stay), validation and the 1.36 ceiling, `#scope` for custom resources, names as written, no extra dependency or platform subscription
+- [x] 4.2 `docs/name-constraints.md`: add the `#ObjectsResource` row (names as written, slot top); AGENTS.md Naming bullet: name the carve-out
+- [x] 4.3 `docs/transformer-authoring.md`: new section, a definition field for OPM-only input read across packages
+- [x] 4.4 AGENTS.md Dependencies: regenerating the kind table on an x/k8s.io bump (which Kubernetes tag, and that the PR names the kinds added)
+- [x] 4.5 `task check` green, then commit `docs: document the objects resource`
