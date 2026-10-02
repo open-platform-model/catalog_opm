@@ -4,11 +4,8 @@ version: "3"
 silent: true
 
 vars:
-  # The CUE modules this repo publishes. Each is its own module root with its
-  # own cue.mod/, identity/ and catalog.cue; they share only this repo's CI.
-  #   opm — opmodel.dev/catalogs/opm@v4, the abstraction catalog
-  #   k8s — opmodel.dev/catalogs/k8s@v1, the raw Kubernetes passthrough catalog
-  MODULES: opm k8s
+  # The CUE module this repo publishes: opmodel.dev/catalogs/opm@v4.
+  MODULES: opm
   # The Kubernetes release the cue.dev/x/k8s.io pin in opm/cue.mod/module.cue
   # is generated from (v0.12.0: v1.36.0). tools/kindgen reads each kind's
   # scope from this tag's OpenAPI spec; move it with every x/k8s.io bump.
@@ -48,33 +45,6 @@ tasks:
           echo "vet: $m"
           (cd "$m" && cue vet ./...)
         done
-
-  vet:layering:
-    desc: >
-      Enforce the family layering rule: the abstraction catalog and the raw
-      Kubernetes catalog are separate CUE modules and neither imports the
-      other. The module boundary makes this structural; this check keeps an
-      import from quietly reintroducing the coupling.
-    cmds:
-      - |
-        # Match IMPORT lines only: an import is a quoted path at the start of a
-        # line (bare or aliased). Prose in a doc comment naming the other
-        # catalog is not a dependency and must not fail the check.
-        check() {
-          local here="$1" other="$2"
-          local violations
-          violations=$(grep -rlnE "^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*[[:space:]]+)?\"opmodel\.dev/catalogs/${other}[/@\"]" \
-            "$here" --include='*.cue' 2>/dev/null || true)
-          if [ -n "$violations" ]; then
-            echo "Layering violation — the ${here} catalog must not import the ${other} catalog:" >&2
-            echo "$violations" >&2
-            return 1
-          fi
-        }
-        rc=0
-        check k8s opm || rc=1
-        check opm k8s || rc=1
-        exit $rc
 
   vet:listing:
     desc: >
@@ -150,20 +120,20 @@ tasks:
 
   ## Site reference
   #
-  # tools/refgen (a Go module of its own) loads both catalogs the way `cue
-  # vet` does and writes the catalog reference under docs/site/reference/:
-  # one page per opm blueprint, resource and trait, and the k8s table.
+  # tools/refgen (a Go module of its own) loads the catalog the way `cue vet`
+  # does and writes the catalog reference under docs/site/reference/: one
+  # page per blueprint, resource and trait.
   # Regenerate after any member or transformer change; release.yml
   # regenerates on the release PR, because every page carries the module's
   # identity.Version.
 
   generate:reference:
-    desc: Regenerate the catalog reference pages under docs/site/reference/ from both catalogs (tools/refgen)
+    desc: Regenerate the catalog reference pages under docs/site/reference/ from the catalog (tools/refgen)
     cmds:
       - go run -C tools/refgen . -repo "$(pwd)"
 
   generate:reference:check:
-    desc: Verify the catalog reference matches both catalogs (exits non-zero if a page is stale or orphaned)
+    desc: Verify the catalog reference matches the catalog (exits non-zero if a page is stale or orphaned)
     cmds:
       - go run -C tools/refgen . -repo "$(pwd)" -check
 
@@ -215,7 +185,7 @@ tasks:
   # set; `opm catalog publish ./opm --dry-run` runs every gate without pushing.
 
   branch-tag:
-    desc: "Print a module's branch-publish tag for HEAD (MODULE=opm|k8s; defaults to all)"
+    desc: "Print the module's branch-publish tag for HEAD"
     cmds:
       - |
         set -e
@@ -250,11 +220,10 @@ tasks:
   ## Aggregate
 
   check:
-    desc: Format check, vet, layering, listing, descriptions, rendered-output fixtures, INDEX freshness, the generator tests, the generated site reference, and doc-comment report across every module
+    desc: Format check, vet, listing, descriptions, rendered-output fixtures, INDEX freshness, the generator tests, the generated site reference, and doc-comment report across every module
     cmds:
       - task: fmt:check
       - task: vet
-      - task: vet:layering
       - task: vet:listing
       - task: vet:descriptions
       - task: vet:fixtures

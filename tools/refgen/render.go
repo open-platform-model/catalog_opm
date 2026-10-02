@@ -13,7 +13,6 @@ const (
 	referenceDir   = "docs/site/reference"
 	membersDir     = referenceDir + "/catalog-members"
 	membersURL     = "/docs/reference/catalog-members/"
-	rawPage        = referenceDir + "/kubernetes-resources.md"
 	enforcementURL = "/docs/concepts/what-enforces-a-rule/"
 	decisionsURL   = "/enhancements/0010/decisions/"
 	contractURL    = "/docs/reference/catalog-contract/"
@@ -39,8 +38,8 @@ type page struct {
 	block bool   // true: splice body between the markers of the existing file
 }
 
-// renderSite renders every page of both catalogs.
-func renderSite(root string, abs, raw *module) ([]page, error) {
+// renderSite renders every page of the catalog.
+func renderSite(root string, abs *module) ([]page, error) {
 	assignPages(abs)
 	roots := specRoots(abs)
 	byFQN := map[string]*member{}
@@ -65,11 +64,6 @@ func renderSite(root string, abs, raw *module) ([]page, error) {
 		"Generated from %s version %s: %d blueprints, %d resources and %d traits.",
 		code(abs.path), code(abs.version), counts[kindBlueprint], counts[kindResource], counts[kindTrait])})
 
-	rawBody, err := rawTable(raw)
-	if err != nil {
-		return nil, err
-	}
-	pages = append(pages, page{path: rawPage, block: true, body: rawBody})
 	sort.Slice(pages, func(i, j int) bool { return pages[i].path < pages[j].path })
 	return pages, nil
 }
@@ -430,46 +424,4 @@ func kindIndex(mod *module, dir string) string {
 	}
 	b.WriteString(endMarker + "\n")
 	return b.String()
-}
-
-// rawTable renders the raw Kubernetes family's table.
-func rawTable(mod *module) (string, error) {
-	var b strings.Builder
-	n := 0
-	for _, m := range mod.members {
-		if m.kind == kindResource {
-			n++
-		}
-	}
-	fmt.Fprintf(&b, "Generated from %s version %s: %d resources, each served by the transformer named beside it.\n\n", code(mod.path), code(mod.version), n)
-	b.WriteString("| Resource | FQN | Description | Served by |\n| --- | --- | --- | --- |\n")
-	ms := append([]*member(nil), mod.members...)
-	sort.Slice(ms, func(i, j int) bool {
-		a, b := strings.ToLower(title(ms[i])), strings.ToLower(title(ms[j]))
-		if a != b {
-			return a < b
-		}
-		return ms[i].fqn < ms[j].fqn
-	})
-	for _, m := range ms {
-		if m.kind != kindResource {
-			return "", fmt.Errorf("%s: the raw catalog lists a %s; the table holds only resources", m.fqn, strings.TrimSuffix(m.kind, "s"))
-		}
-		if _, err := splitDoc(m.doc, m.description); err != nil {
-			return "", fmt.Errorf("%s (%s): %w", m.def.name, m.def.filename, err)
-		}
-		var by []string
-		for _, s := range servedBy(mod, m) {
-			by = append(by, fmt.Sprintf("%s (%s)", code(s.t.name), s.demand))
-		}
-		servedText := strings.Join(by, ", ")
-		if servedText == "" {
-			servedText = "none, **Not implemented**"
-			if m.fulfilment == "provider" {
-				servedText = "none, **Provided by your platform**"
-			}
-		}
-		fmt.Fprintf(&b, "| %s | %s | %s | %s |\n", title(m), cell(code(m.fqn)), cell(mdText(m.description)), cell(servedText))
-	}
-	return b.String(), nil
 }

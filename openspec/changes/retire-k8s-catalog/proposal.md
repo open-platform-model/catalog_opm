@@ -10,7 +10,7 @@ With one module left, the two-module layout (`opm/` and `k8s/` side by side, Tas
 - **Move `opm/` to `src/`** with `git mv`. `module: "opmodel.dev/catalogs/opm@v4"` and every import path stay byte-identical, so the published artifact does not change.
   - release-please: the package key (its path) becomes `src`; `component` stays `opm`, so tags stay `opm-vX.Y.Z`. `CHANGELOG-opm.md` becomes `CHANGELOG.md`. Per-package outputs in `release.yml` move from `opm--*` to `src--*`.
   - Taskfile: the `MODULES` loops collapse to the one module directory; `branch-tag` passes the `opm-` tag prefix explicitly, because it was derived from the directory name.
-  - `.tasks/*.sh`, `tools/refgen` and every "Check against" path in `docs/site/` name `src/`.
+  - `.tasks/*.sh`, `tools/refgen`, `tools/kindgen` and every "Check against" path in `docs/site/` name `src/`.
 - **Rewrite the repository's description of itself as one catalog**: `AGENTS.md`, `README.md`, `openspec/config.yaml` (Principles I, III and IV), `openspec/schemas/catalog-change/schema.yaml` and its templates, and every page under `docs/site/` that names the raw catalog, `k8s/` or two catalogs.
 - **Update the planned change `publish-docs-bundle`** in place: its extractor path `./opm` becomes `./src`, and its gate G3 notes that this change has landed.
 - Nothing is **BREAKING** for a consumer of `opmodel.dev/catalogs/opm@v4`. For `k8s`, see Impact.
@@ -32,7 +32,7 @@ packages: {
 	k8s: {component: "k8s", "changelog-path": "/CHANGELOG-k8s.md", prerelease: true}
 }
 // .release-please-manifest.json
-{opm: "4.4.5", k8s: "1.0.0-beta.2"}
+{opm: "4.5.0", k8s: "1.0.0-beta.2"}
 ```
 
 **After**
@@ -41,7 +41,7 @@ packages: {
 "src/": cue.mod: module: "opmodel.dev/catalogs/opm@v4"
 
 packages: src: {component: "opm", "changelog-path": "/CHANGELOG.md"}
-{src: "4.5.0"} // whatever opm has released when this lands
+{src: "4.5.0"}
 ```
 
 ## Impact

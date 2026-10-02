@@ -114,7 +114,7 @@ jobs:
       - name: Publish branch tags
         run: |
           set -euo pipefail
-          for m in opm k8s; do
+          for m in opm; do
             tag=$(bash .tasks/branch-tag.sh "$(pwd)/${m}" "${m}-")
             echo "publishing ${m} at ${tag}"
             opm catalog version set "${tag#v}" "./${m}"

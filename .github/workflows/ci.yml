@@ -68,9 +68,6 @@ jobs:
       - name: Vet CUE catalog
         run: task vet
 
-      - name: Enforce family layering
-        run: task vet:layering
-
       - name: Verify every member is listed in its catalog map
         run: task vet:listing
 
@@ -118,7 +115,7 @@ jobs:
         run: |
           set -euo pipefail
           rc=0
-          for m in opm k8s; do
+          for m in opm; do
             echo "::group::publish gates — ${m}"
             if out=$(opm catalog publish "./${m}" --dry-run 2>&1); then
               echo "${out}"

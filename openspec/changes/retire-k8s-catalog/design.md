@@ -66,13 +66,17 @@ Each task runs once against `{{.MODULE_DIR}}`. The `.tasks/*.sh` scripts keep ta
 
 ### D5. `tools/refgen`
 
-`refgen` loads `src/` only, stops writing the `k8s` table and fails if `kubernetes-resources.md` reappears (its orphan check already covers a page it no longer generates). The page is deleted. This keeps `task generate:reference:check` green until `publish-docs-bundle` section 3 retires `refgen`; that change's gate G3 waits on this one.
+`refgen` loads `src/` only, stops writing the `k8s` table and fails if `kubernetes-resources.md` reappears. Its orphan check covers only the generated member directories, not this authored page under `docs/site/reference/`, so the retired path is named explicitly: `-check` fails while the file exists and a write removes it. The page is deleted. This keeps `task generate:reference:check` green until `publish-docs-bundle` section 3 retires `refgen`; that change's gate G3 waits on this one.
+
+### D6. `tools/kindgen`
+
+`kindgen` (added by `add-objects-resource`, which merged before this change) reads the `cue.dev/x/k8s.io` pin from `<module>/cue.mod/module.cue`, loads the x/k8s.io packages through that module and writes `<module>/schemas/kinds/table.cue`. Its module directory moves from `opm` to `src` with the rest. The generated table names no repository path, so it stays byte-identical; `KUBERNETES_VERSION` (`v1.36.0`, the release x/k8s.io `v0.12.0` is generated from) does not move. The `generate:kinds` and `test:kindgen` tasks and the kind-table lines in `AGENTS.md` (Purpose, Repository Layout, Dependencies, the command table) name `src/`.
 
 ## Research & Decisions
 
 ### Which files name `opm/`, `k8s/` or two catalogs
 **Context**: The move has to reach every path and every description, including comments that say "Check against: catalog_opm/opm/...".
-**Explored**: Workspace-wide grep (2026-10-02) for `catalogs/k8s`, `k8s catalog`, `raw catalog`, `two catalogs`, `catalog_opm/opm/` and `./opm`. In this repository: `AGENTS.md`, `README.md`, `Taskfile.yml`, `release-please-config.json`, `.release-please-manifest.json`, the three workflows, `.tasks/generate-index.sh`, `.tasks/fixtures.sh`, `.tasks/branch-tag.sh`, `tools/refgen/{main,render,refgen_test}.go`, `openspec/config.yaml`, the schema and its templates, `docs/name-constraints.md`, all seven pages under `docs/site/authoring/` and `docs/site/extending/`, `docs/site/reference/kubernetes-resources.md`, and the `publish-docs-bundle` change. Outside it: listed in the proposal's Impact.
+**Explored**: Workspace-wide grep (2026-10-02) for `catalogs/k8s`, `k8s catalog`, `raw catalog`, `two catalogs`, `catalog_opm/opm/` and `./opm`. In this repository: `AGENTS.md`, `README.md`, `Taskfile.yml`, `release-please-config.json`, `.release-please-manifest.json`, the three workflows, `.tasks/generate-index.sh`, `.tasks/fixtures.sh`, `.tasks/branch-tag.sh`, `tools/refgen/{main,render,refgen_test}.go`, `tools/kindgen/{main,kinds}.go`, `openspec/config.yaml`, the schema and its templates, `docs/name-constraints.md`, all seven pages under `docs/site/authoring/` and `docs/site/extending/`, `docs/site/reference/kubernetes-resources.md`, and the `publish-docs-bundle` change. Outside it: listed in the proposal's Impact.
 **Decision**: tasks.md names each file; section 3 ends with a grep that must come back empty.
 **Rationale**: A path in a comment rots silently; only the closing grep makes the rewrite complete.
 

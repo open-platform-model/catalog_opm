@@ -19,23 +19,6 @@
           "path": "RELEASE"
         }
       ]
-    },
-    "k8s": {
-      "release-type": "simple",
-      "package-name": "catalog_k8s",
-      "changelog-path": "/CHANGELOG-k8s.md",
-      "versioning": "prerelease",
-      "bump-minor-pre-major": false,
-      "bump-patch-for-minor-pre-major": false,
-      "prerelease": true,
-      "prerelease-type": "beta",
-      "component": "k8s",
-      "extra-files": [
-        {
-          "type": "generic",
-          "path": "RELEASE"
-        }
-      ]
     }
   },
   "changelog-sections": [

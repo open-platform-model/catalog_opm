@@ -32,8 +32,6 @@ jobs:
       paths_released: ${{ steps.release.outputs.paths_released }}
       opm_tag_name: ${{ steps.release.outputs['opm--tag_name'] }}
       opm_version: ${{ steps.release.outputs['opm--version'] }}
-      k8s_tag_name: ${{ steps.release.outputs['k8s--tag_name'] }}
-      k8s_version: ${{ steps.release.outputs['k8s--version'] }}
     steps:
       # A PR opened or pushed with GITHUB_TOKEN holds its CI runs for manual
       # approval. Acting as the release App lets the release PR's CI start on
@@ -113,7 +111,7 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          for m in opm k8s; do
+          for m in opm; do
             BRANCH="release-please--branches--main--components--${m}"
             if ! git fetch origin "$BRANCH" 2>/dev/null; then
               echo "${m}: no open release branch - nothing to advance"
@@ -143,7 +141,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          for m in opm k8s; do
+          for m in opm; do
             gh workflow run ci.yml \
               --repo "${{ github.repository }}" \
               --ref "release-please--branches--main--components--${m}" \

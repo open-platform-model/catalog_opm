@@ -1,8 +1,7 @@
 // Command refgen generates the catalog reference pages under
-// docs/site/reference/ from the two catalog modules of this repository.
+// docs/site/reference/ from the catalog module of this repository.
 //
-// It loads opm/ (the abstraction catalog) and k8s/ (the raw Kubernetes
-// catalog) the way `cue vet` does, evaluates the four catalog maps
+// It loads opm/ the way `cue vet` does, evaluates the four catalog maps
 // (#resources, #traits, #blueprints and #transformers) and reads each
 // member's doc comment and spec schema from the source. Every fact on a page
 // is computed from the catalog; nothing is transcribed by hand (workspace
@@ -33,8 +32,7 @@
 //     contract's single provider (0010:D32) and the refused render of a
 //     load-bearing trait (0010:D28) by the kernel.
 //
-// What it does not derive: examples (no member carries one) and, on the raw
-// table, the abstraction that covers the same ground (no field links them).
+// What it does not derive: examples (no member carries one).
 //
 // Usage, from anywhere:
 //
@@ -71,18 +69,14 @@ func fatal(err error) {
 	os.Exit(1)
 }
 
-// run loads both catalogs, renders every page and either writes them or
+// run loads the catalog, renders every page and either writes them or
 // compares them with what is committed.
 func run(root string, check bool) error {
 	abs, err := loadModule(root, "opm")
 	if err != nil {
 		return err
 	}
-	raw, err := loadModule(root, "k8s")
-	if err != nil {
-		return err
-	}
-	pages, err := renderSite(root, abs, raw)
+	pages, err := renderSite(root, abs)
 	if err != nil {
 		return err
 	}
