@@ -2,7 +2,7 @@
 
 Today `tools/refgen` (own `go.mod`, `cuelang.org/go` v0.17.1) loads both catalog modules and writes `docs/site/reference/catalog-members/` (one page per `opm` blueprint, resource and trait), the generated block of `catalog-members/_index.md`, and the table in `docs/site/reference/kubernetes-resources.md`. `task generate:reference:check` and `task test:refgen` run in `task check` and in `ci.yml`; `release.yml`'s identity advance runs `task generate:reference` on every release PR, because every page carries `identity.Version`. Three workflows install Go only for refgen (`ci.yml`, `branch-publish.yml`, `release.yml`). opmodel.dev's v1.0 version reads this repository's `docs/site/` from `main` while `main` still releases opm 4.x (opmodel.dev `site/versions.conf`), so a file deleted on `main` leaves the site at its next build.
 
-The authored contract page is `docs/site/reference/catalog-contract.md` (title "The Catalog Contract", `type: reference`, `weight: 5`). No page in this repository links it or the member pages; the references are maintainer "Check against" pointers inside HTML comments in `docs/site/extending/` (four, to the contract file) and `docs/site/authoring/` (two, to `catalog-members/`). Outside this repository only cli's `docs/site/reference/registry-namespaces.md` links `/docs/reference/catalog-contract/`.
+The authored contract page is `docs/site/reference/catalog-contract.md` (title "The Catalog Contract", `type: reference`, `weight: 5`). No page links the contract page; it is named only by maintainer "Check against" pointers inside HTML comments in `docs/site/extending/` (four). The member pages are linked by `docs/site/reference/kubernetes-resources.md` (lines 8 and 51, to `/docs/reference/catalog-members/`), which the `k8s` removal takes with it, and named by two "Check against" pointers in `docs/site/authoring/`; `catalog-members/_index.md` links `kubernetes-resources.md` and goes in section 3. Outside this repository only cli's `docs/site/reference/registry-namespaces.md` links `/docs/reference/catalog-contract/`.
 
 Contracts this change consumes, from docs-kit's change `build-opm-docs-phase-1` (`design.md`):
 
@@ -29,7 +29,7 @@ No member file, `apiVersion` segment, definition, default, closedness or require
 - A `catalog-k8s` bundle. The `k8s` catalog is being removed from this repository by another change; section 3 waits for it (gate G3).
 - Docs revisions. Their dispatch belongs to docs-kit's change `add-docs-revisions` (Decisions, "Docs revisions are left to add-docs-revisions").
 - Any edit to opmodel.dev, cli, docs-kit or the workspace repository.
-- Redirects from the old Reference URLs (opmodel.dev's decision, after section 3).
+- Redirects from the old Reference URLs. There are none (decided): the opmodel.dev build that gains the tab stops mounting the old pages and maps links to them onto the tab's alias forms.
 
 ## Decisions
 
@@ -95,7 +95,7 @@ jobs:
     permissions: {contents: read, packages: write, id-token: write}
     uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.1.0
     with: {project: catalog-opm, mode: edge}
-  release:
+  dispatch:
     if: github.event_name == 'workflow_dispatch'
     permissions: {contents: read, packages: write, id-token: write}
     uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.1.0
@@ -135,10 +135,10 @@ docs-kit C12 fixes this for callers: the local tool is the checksum-verified rel
 | Task | Runs |
 | --- | --- |
 | `tools:opm-docs` | install or reuse `.bin/opm-docs` as above |
-| `docs:bundle` | depends on `tools:opm-docs`; `opm-docs build --project catalog-opm --out out` (a local preview; `out/` is gitignored; opmodel.dev reads it with `--local catalog-opm=<this repo>/out/catalog-opm`, docs-kit C7) |
+| `docs:bundle` | depends on `tools:opm-docs`; `opm-docs build --project catalog-opm --out out` (a local preview of `main` as the edge segment; `out/` is gitignored; opmodel.dev reads it with `--local catalog-opm@edge=<this repo>/out/catalog-opm`, docs-kit C7's `<project>@<segment>=<dir>`) |
 | `docs:bundle:check` | depends on `tools:opm-docs`; the pin check, then `opm-docs check --project catalog-opm` |
 
-The pin check refuses unless every `open-platform-model/docs-kit/.github/workflows/publish.yml@` reference under `.github/workflows/` names the version in `.opm-docs-version`: a workflow `uses:` ref cannot be read from a file, so two pins exist and the check keeps them equal. It reads the version from the ref (`@v0.1.0`) or, if docs-kit's review settles on SHA pinning (docs-kit C5, "Known conflict"), from the comment after the SHA (`@<40 hex> # v0.1.0`); every `uses:` snippet in this design then takes that form and nothing else here changes. `task check` runs `docs:bundle:check`, so a section gate catches a member the bundle build refuses (a doc comment that does not open with its description, a page that fails the dialect) before the PR's `Docs / check` does. `ci.yml` does not run it; `Docs / check` is the PR gate.
+The pin check refuses unless every `open-platform-model/docs-kit/.github/workflows/publish.yml@` reference under `.github/workflows/` names the version in `.opm-docs-version`: a workflow `uses:` ref cannot be read from a file, so two pins exist and the check keeps them equal. Callers pin `publish.yml` by tag (owner decision, docs-kit C5), so the check reads the version from the ref (`@v0.1.0`). `task check` runs `docs:bundle:check`, so a section gate catches a member the bundle build refuses (a doc comment that does not open with its description, a page that fails the dialect) before the PR's `Docs / check` does. `ci.yml` does not run it; `Docs / check` is the PR gate.
 
 ### Docs revisions are left to `add-docs-revisions`
 
@@ -172,8 +172,8 @@ docs-kit plans revisions as its own change, released as `v0.2.0`. Its `orchestra
 **Rationale**: The local check runs the bytes CI runs, and section 3 can drop Go entirely.
 
 ### Moving the contract page before the generator goes
-**Context**: The site's Reference reads `docs/site/` from `main`, so deleting the contract page in section 1 would remove it from the site before the Catalogs tab exists.
-**Explored**: Move in section 1 (a gap on the site), copy in section 1 and delete in section 3 (two copies for a window), a symlink (the dialect refuses symlinks, docs-kit C11).
+**Context**: The site's Reference reads `docs/site/` from `main` until opmodel.dev's `add-catalogs-tab` stops mounting the catalog pages, so deleting the contract page in section 1 would remove it from the site before the Catalogs tab exists.
+**Explored**: Move in section 1 (a gap on the site), copy in section 1 and delete in section 3 (two copies in git for a window, one on the site at any time), a symlink (the dialect refuses symlinks, docs-kit C11).
 **Decision**: Copy in section 1, mark the old copy as moved, delete it in section 3.
 **Rationale**: No reader loses the page, and the comment stops an edit landing in the copy that is about to go.
 
@@ -181,7 +181,7 @@ docs-kit plans revisions as its own change, released as `v0.2.0`. Its `orchestra
 
 - [The backfill of `opm-v4.4.5` builds a tree cut before `docs/catalogs/opm/` existed] -> Per docs-kit C5, sources resolve against the release tree and the missing `markdown` directory yields no pages, so `4.4.5.0` carries the generated landing; the contract landing reaches 4.4 with the next opm release (or a docs revision once `add-docs-revisions` ships). Section 2 records the result.
 - [`Release / publish-docs` does not run or fails (a failed `publish-cue` leg, a registry outage)] -> The `docs.yml` dispatch publishes the release that has no bundle; `AGENTS.md` says so.
-- [The contract text exists twice between sections 1 and 3] -> The old copy carries a "moved" comment, and gate G3 keeps the window to the opmodel.dev and cli merges.
+- [The contract text exists twice in git between sections 1 and 3] -> The site shows only one of them at any time (the Reference copy until opmodel.dev's merge, the bundle landing after it); the old copy carries a "moved" comment, and gate G3 ends the window.
 - [Two docs-kit pins (`.opm-docs-version` and the `publish.yml@` refs)] -> `docs:bundle:check` refuses a mismatch; a bump changes both in one PR, which needs the Workflows permission the release cascade bot lacks.
 - [`task check` downloads a binary on first run] -> cached in `.bin/`; every gate here already needs the network for the CUE registry.
 - [This PR's `Docs / check` is the first real run of `publish.yml`] -> A failure there is a docs-kit defect: report it to docs-kit, never work around it in this repository.
@@ -191,6 +191,6 @@ docs-kit plans revisions as its own change, released as `v0.2.0`. Its `orchestra
 ## Durable decisions
 
 - `docs/catalogs/opm/` holds pages that ship only in the docs bundle; `docs/site/` holds pages opmodel.dev reads for a site version: `AGENTS.md`, Repository Layout and a new "Docs bundles" subsection under Release & publishing (section 1).
-- What publishes when (`edge` on every push to `main`, `<version>.0` from `release.yml` after `publish-cue`, the `docs.yml` dispatch as backfill and recovery), how to preview (`task docs:bundle`, opmodel.dev's `--local`), and that `.opm-docs-version` and the `publish.yml@` refs move together: `AGENTS.md`, "Docs bundles" (section 1).
+- What publishes when (`edge` on every push to `main`, `<version>.0` from `release.yml` after `publish-cue`, the `docs.yml` dispatch as backfill and recovery), how to preview (`task docs:bundle`, then opmodel.dev's `--local catalog-opm@edge=<this repo>/out/catalog-opm`), and that `.opm-docs-version` and the `publish.yml@` refs move together: `AGENTS.md`, "Docs bundles" (section 1).
 - The catalog reference is published by docs-kit and never committed; the doc-comment rules that shape it (description first, `// WHY` blocks and banners dropped, citations stripped, marks and enforcement derived) are enforced by `opm-docs build` and documented in docs-kit: `AGENTS.md` (Purpose, Repository Layout, Dependencies, the commands table, Release & publishing, Working Style) and `openspec/config.yaml` (context and Principle II) (section 3).
 - The digests and tags of the first published bundles, and what the 4.4.5 backfill's landing was: stays with the change (section 2).
