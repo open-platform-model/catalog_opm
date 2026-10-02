@@ -15,7 +15,7 @@ type: reference
 | Module path | `opmodel.dev/catalogs/opm/traits/v1beta1` |
 | Definition | `#HostIPCTrait` in `opm/traits/v1beta1/host_ipc.cue` |
 | Component wrapper | `#HostIPC` |
-| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.4.4` |
+| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.4.5` |
 | Category | `security` |
 | Fulfilment | `catalog`: the declaring catalog implements it |
 | Optional posture | advisory: `optional` defaults to `true`, so an unhandled trait warns and the render continues; a module may override it where it attaches the trait |
@@ -35,7 +35,7 @@ Required for workloads that use shared memory or IPC mechanisms with host proces
 
 ## Served by
 
-These transformers in `opmodel.dev/catalogs/opm@v4` version `4.4.4` require this trait or read it when present.
+These transformers in `opmodel.dev/catalogs/opm@v4` version `4.4.5` require this trait or read it when present.
 
 | Transformer | Demand | What it does |
 | --- | --- | --- |
