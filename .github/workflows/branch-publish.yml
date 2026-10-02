@@ -4,6 +4,8 @@ on:
   push:
     branches-ignore:
       - main
+      # Release cascade bot branches (deps/cascade) never publish dev catalogs.
+      - 'deps/**'
 
 permissions:
   contents: read
