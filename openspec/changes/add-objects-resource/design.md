@@ -133,6 +133,17 @@ What CI does check, through `cue vet`, is `check.cue`: for every table entry wit
 **Decision**: Keep D2 and D3 as designed; neither fallback is needed.
 **Rationale**: The kernel hands the transformer the component's definition fields, and the `error()` sits in a pattern constraint that is never instantiated without a concrete entry. The missing-`#scope` message is the one section 3 must improve.
 
+### Refusal spellings and closedness (section 3)
+**Context**: Task 3.2: refuse `metadata.namespace` on a `Cluster` object, and pick the clearest spelling for the built-in-group refusal and a missing `#scope` that still holds under a platform build.
+**Explored**: 2026-10-02, cue v0.17.1, each case unified with `#ObjectsResource.spec.objects` and exported, then rendered through `opm module build` against a local replacement of the worktree. Findings:
+- The prototype's top-level `...` reopened the embedded closed schema: a Deployment with `specc: {}` was accepted. Embedding a closed definition into a struct that has `...` reopens it, at the top level and in `metadata` alike. `...` now appears only in the open arms (custom kinds, and a table kind with no schema), so `specc` and `metadata.labelz` on a built-in kind are refused as `field not allowed`.
+- A missing `#scope` as the prototype's bare disjunction surfaced only at transform time (`output is not concrete ... unresolved disjunction`). An `error()` in the arm reads `cert-manager.io/v1 Issuer is not a Kubernetes 1.36 object kind: set #scope to "Namespaced" or "Cluster"`, at the entry's path. The guard must hold only for a concrete `apiVersion` and `kind` (`x != _|_` is false for a non-concrete `x`); unguarded, the open arm, which the bare definition selects, fired at `cue vet`.
+- Namespace refusal: a comprehension testing `X.metadata.namespace != _|_` worked at export but made every valid cluster-scoped built-in object read as bottom to a `!= _|_` test. An optional field holding the error, `metadata: namespace?: error(...)`, does not, and names the field: `...metadata.namespace: rbac.authorization.k8s.io/v1 ClusterRole is cluster-scoped: remove metadata.namespace`.
+- A table-scope `#scope` embedded through a nested list index was silently dropped (a wrong `#scope` on a Deployment passed); a plain `if` comprehension in the arm keeps it, and the conflict reads `#scope: conflicting values "Namespaced" and "Cluster"`.
+- The built-in-group refusal keeps the `error()` form: `apps/v2 Deployment is not a Kubernetes 1.36 kind, and its API group is built in: check apiVersion and kind`.
+**Decision**: The spellings above, pinned by `_testObjectsRefused` and its valid twins `_testObjectsAccepted` in `objects_transformer.cue`. Re-measured through the kernel: every message reaches the render error at `values.#components.<c>.spec.objects.<key>`; with no objects component the render and `opm platform check` stay green.
+**Rationale**: Each refusal names the entry and says what to change; the missing required `apiVersion` or `kind` falls through to CUE's own `field is required but not present`.
+
 ## Risks / Trade-offs
 
 - [The kernel does not carry the definition field `#scope` through to the transformer] → Section 1 renders a fixture module through `opm module build` against a local replacement of this catalog before any member lands. If `#scope` is lost, the fallback is a regular field the transformer strips, decided before section 2.

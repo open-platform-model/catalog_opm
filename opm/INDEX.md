@@ -75,6 +75,9 @@ CUE module: `opmodel.dev/catalogs/opm@v4`
 | `#NamespaceSchema` | `resources/v1alpha1/namespace.cue` | Kubernetes Namespace, emitted with its exact name |
 | `#Namespaces` | `resources/v1alpha1/namespace.cue` |  |
 | `#NamespacesResource` | `resources/v1alpha1/namespace.cue` | Cluster namespaces owned by this module, rendered with exact names |
+| `#ObjectSchema` | `resources/v1alpha1/objects.cue` | One Kubernetes object, written as the API server takes it |
+| `#Objects` | `resources/v1alpha1/objects.cue` |  |
+| `#ObjectsResource` | `resources/v1alpha1/objects.cue` | Kubernetes objects rendered as written, one output object per map entry |
 | `#PreBoundRegistration` | `resources/v1alpha1/transformer_registration.cue` | #TransformerRegistration pre-bound for a provider catalog: pass the catalog's own identity package and its own #transformers map and the module authors no spec field |
 | `#TransformerRegistration` | `resources/v1alpha1/transformer_registration.cue` |  |
 | `#TransformerRegistrationResource` | `resources/v1alpha1/transformer_registration.cue` | A provider module's claim that its catalog implements platform contracts |
@@ -673,6 +676,7 @@ CUE module: `opmodel.dev/catalogs/opm@v4`
 | `#ServiceName` | `transformers/name_helpers.cue` | #ServiceName resolves the name of the Service an Expose component renders: expose |
 | `#NamespaceTransformer` | `transformers/namespace_transformer.cue` | NamespaceTransformer converts Namespaces resources to Kubernetes Namespaces |
 | `#NetworkPolicyTransformer` | `transformers/network_policy_transformer.cue` | NetworkPolicyTransformer converts the #NetworkPolicyTrait to a Kubernetes NetworkPolicy whose podSelector is the workload's own rendered pod labels |
+| `#ObjectsTransformer` | `transformers/objects_transformer.cue` | ObjectsTransformer renders each entry of an objects resource as written |
 | `#PDBTransformer` | `transformers/pdb_transformer.cue` | PDBTransformer realizes #DisruptionBudgetTrait as a PodDisruptionBudget |
 | `#PodSchedulingFields` | `transformers/pod_helpers.cue` | Pod-spec scheduling fields from #PodSchedulingTrait |
 | `#PodTemplateMetadata` | `transformers/pod_helpers.cue` | Pod-template metadata: context labels merged with #PodMetadataTrait labels, plus pod-only annotations |

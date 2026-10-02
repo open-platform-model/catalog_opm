@@ -16,13 +16,13 @@
 
 ## 3. `opm/resources/v1alpha1/objects.cue` and `opm/transformers/objects_transformer.cue`
 
-- [ ] 3.1 `#ObjectsResource`, `#Objects` and `#ObjectSchema` per design D1 to D4, with the doc comment opening on the description and stating the 1.36 ceiling and the name-collision rule
-- [ ] 3.2 Refuse `metadata.namespace` on a `Cluster` object; measure the refusal spellings for the built-in-group case and a missing `#scope`, and keep the clearest that holds under section 1's platform-build check
-- [ ] 3.3 `#ObjectsTransformer` per D5
-- [ ] 3.4 Fixtures: the three-object golden (Deployment, ClusterRole, ClusterIssuer), an author-set namespace kept, an embedded-form component (`{res.#Objects, ...}`, AGENTS.md Struct disjunctions), and one refusal fixture per case in design Research & Decisions; assert absence of `#scope` and of a namespace with the `] & []` guard
-- [ ] 3.5 List the resource and the transformer in `opm/catalog.cue`
-- [ ] 3.6 `task generate:index` and `task generate:reference`
-- [ ] 3.7 `task check` green, then commit `feat(resources): add the objects resource`
+- [x] 3.1 `#ObjectsResource`, `#Objects` and `#ObjectSchema` per design D1 to D4, with the doc comment opening on the description and stating the 1.36 ceiling and the name-collision rule
+- [x] 3.2 Refuse `metadata.namespace` on a `Cluster` object; measure the refusal spellings for the built-in-group case and a missing `#scope`, and keep the clearest that holds under section 1's platform-build check
+- [x] 3.3 `#ObjectsTransformer` per D5
+- [x] 3.4 Fixtures: the three-object golden (Deployment, ClusterRole, ClusterIssuer), an author-set namespace kept, an embedded-form component (`{res.#Objects, ...}`, AGENTS.md Struct disjunctions), and one refusal fixture per case in design Research & Decisions; assert absence of `#scope` and of a namespace with the `] & []` guard
+- [x] 3.5 List the resource and the transformer in `opm/catalog.cue`
+- [x] 3.6 `task generate:index` and `task generate:reference`
+- [x] 3.7 `task check` green, then commit `feat(resources): add the objects resource`
 
 ## 4. Docs and durable decisions
 
