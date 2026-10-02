@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.4.5](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.4.4...opm-v4.4.5) (2026-10-02)
+
+
+### Bug Fixes
+
+* **catalog:** describe every member and generate the catalog reference ([#113](https://github.com/open-platform-model/catalog_opm/issues/113)) ([ac57a74](https://github.com/open-platform-model/catalog_opm/commit/ac57a7469ce74c1db37a4641e05613c6b739bde8))
+
 ## [4.4.4](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.4.3...opm-v4.4.4) (2026-09-30)
 
 
