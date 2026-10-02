@@ -164,6 +164,30 @@ tasks:
           printf '%s\t%s\n' "$m" "$(bash .tasks/branch-tag.sh "$(pwd)/$m" "$m-")"
         done
 
+  ## Release
+
+  deps:release-check:
+    desc: >
+      G1 release-pin gate: fail if either catalog pins a -0.dev. dependency in
+      cue.mod/module.cue or tracks a cue.mod/local-module.cue. CI runs it on
+      release-please branches; safe to run anywhere.
+    cmds:
+      - |
+        rc=0
+        for m in {{.MODULES}}; do
+          if grep -nE -- '-0\.dev\.' "$m/cue.mod/module.cue"; then
+            echo "G1: $m/cue.mod/module.cue pins a dev build; a release must pin published versions" >&2
+            rc=1
+          fi
+        done
+        tracked=$(git ls-files -- '*cue.mod/local-module.cue')
+        if [ -n "$tracked" ]; then
+          echo "G1: tracked local replacement(s), never shipped in a release:" >&2
+          echo "$tracked" >&2
+          rc=1
+        fi
+        exit $rc
+
   ## Aggregate
 
   check:

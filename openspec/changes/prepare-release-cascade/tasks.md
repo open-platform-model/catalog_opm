@@ -16,11 +16,11 @@
 
 ## 3. G1 release-pin gate in `Validate catalog`
 
-- [ ] 3.1 `Taskfile.yml`: add `deps:release-check` (design D1). It fails on any `-0.dev.` anywhere in `<m>/cue.mod/module.cue` for each of `MODULES` (`grep -nE -- '-0\.dev\.'`, no `v: "` anchor), and on any tracked `cue.mod/local-module.cue`, naming the file
-- [ ] 3.2 `.github/workflows/ci.yml`, job `ci`: add the step `Release-pin gate (G1)` after `Install Task`, guarded by `if: startsWith(github.head_ref || github.ref_name, 'release-please--')`, running `task deps:release-check`, with the comment from design D1
-- [ ] 3.3 Negative check, local and uncommitted: set `opm/cue.mod/module.cue`'s core pin to `v2.0.0-0.dev.1790000000.gabc1234` and confirm `task deps:release-check` exits non-zero naming `opm`; revert. Create and `git add` an empty `k8s/cue.mod/local-module.cue` and confirm it fails naming that path; `git rm --cached` it and delete it. On the clean tree the task exits 0
-- [ ] 3.4 `AGENTS.md`: add a `task deps:release-check` row to § Build And Dev Commands, and a § Release & publishing bullet: G1 runs inside `Validate catalog` on `release-please--*` refs (pull_request or dispatched), what it refuses, and that it is a step, never its own job (design, Durable decisions)
-- [ ] 3.5 `task check` green, `task deps:release-check` green and `go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.7 .github/workflows/*.yml` exits 0, then commit `ci: add the release-pin gate to Validate catalog`
+- [x] 3.1 `Taskfile.yml`: add `deps:release-check` (design D1). It fails on any `-0.dev.` anywhere in `<m>/cue.mod/module.cue` for each of `MODULES` (`grep -nE -- '-0\.dev\.'`, no `v: "` anchor), and on any tracked `cue.mod/local-module.cue`, naming the file
+- [x] 3.2 `.github/workflows/ci.yml`, job `ci`: add the step `Release-pin gate (G1)` after `Install Task`, guarded by `if: startsWith(github.head_ref || github.ref_name, 'release-please--')`, running `task deps:release-check`, with the comment from design D1
+- [x] 3.3 Negative check, local and uncommitted: set `opm/cue.mod/module.cue`'s core pin to `v2.0.0-0.dev.1790000000.gabc1234` and confirm `task deps:release-check` exits non-zero naming `opm`; revert. Create and `git add` an empty `k8s/cue.mod/local-module.cue` and confirm it fails naming that path; `git rm --cached` it and delete it. On the clean tree the task exits 0
+- [x] 3.4 `AGENTS.md`: add a `task deps:release-check` row to § Build And Dev Commands, and a § Release & publishing bullet: G1 runs inside `Validate catalog` on `release-please--*` refs (pull_request or dispatched), what it refuses, and that it is a step, never its own job (design, Durable decisions)
+- [x] 3.5 `task check` green, `task deps:release-check` green and `go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.7 .github/workflows/*.yml` exits 0, then commit `ci: add the release-pin gate to Validate catalog`
 
 ## 4. Skip branch publish on `deps/**`
 

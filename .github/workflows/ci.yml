@@ -42,6 +42,14 @@ jobs:
         with:
           version: 3.x
 
+      # G1 release-pin gate (workspace RELEASING.md, section "Gates"). Release PR CI
+      # arrives either as pull_request (head_ref set) or as the workflow_dispatch run
+      # release.yml starts on the release branch (head_ref empty, ref_name set).
+      # A step, never its own job: a skipped job would read as a passing check.
+      - name: Release-pin gate (G1)
+        if: startsWith(github.head_ref || github.ref_name, 'release-please--')
+        run: task deps:release-check
+
       - name: Login to GHCR (read deps)
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
