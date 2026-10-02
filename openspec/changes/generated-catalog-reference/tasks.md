@@ -16,6 +16,7 @@
 - [x] 2.5 `task generate:reference` and `task generate:reference:check` (also refuses orphan pages), in `task check`; update the two planning-comment paths in `docs/site/authoring/`
 - [x] 2.6 Verify on the real site build: `task build` and `task lint:sources` in `opmodel.dev` with `OPM_SRC_CATALOG_OPM` set to this worktree
 - [x] 2.7 `task check` green, then commit `docs(site): generate the catalog reference from both catalogs`
+- [x] 2.8 Review fix found in section 3: show a non-concrete match label as the catalog wrote it (not merged with core's label type) and an absent `appliesTo` as not declared; `task check` green, then commit `docs(site): show authored match-label constraints in the reference`
 
 ## 3. CI, release and repository rules (.github/, AGENTS.md, openspec/config.yaml)
 

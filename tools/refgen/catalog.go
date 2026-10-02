@@ -267,6 +267,15 @@ func readMember(kind, fqn string, v cue.Value, defs map[string]*defSrc) (*member
 	if m.matchLabels, err = labels(v.LookupPath(cue.ParsePath("matchLabels"))); err != nil {
 		return nil, fmt.Errorf("matchLabels: %w", err)
 	}
+	// A constraint rather than a value evaluates together with core's label
+	// type; show it as the catalog wrote it.
+	for i, l := range m.matchLabels {
+		if l.concrete == "" {
+			if a := authoredLabel(d, l.key); a != "" {
+				m.matchLabels[i].value = a
+			}
+		}
+	}
 	keys, err := fieldNames(v.LookupPath(cue.ParsePath("spec")))
 	if err != nil || len(keys) != 1 {
 		return nil, fmt.Errorf("spec: expected exactly one field, got %v", keys)

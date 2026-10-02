@@ -20,7 +20,7 @@ The main container of a workload: image, ports, environment, probes and resource
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.4.4` |
 | Category | `workload` |
 | Fulfilment | `catalog`: the declaring catalog implements it |
-| Match label | `"core.opmodel.dev/workload-type"!: ("stateless" \| "stateful" \| "daemon" \| "task" \| "scheduled-task") & (string \| int \| bool \| [string \| int \| bool])` (required) |
+| Match label | `"core.opmodel.dev/workload-type"!: "stateless" \| "stateful" \| "daemon" \| "task" \| "scheduled-task"` (required) |
 
 ## Spec
 

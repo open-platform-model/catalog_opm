@@ -42,27 +42,49 @@ type specRef struct {
 // shapes, named on a page rather than printed in full.
 const vendoredPrefix = "/schemas/kubernetes/"
 
-// specField finds the `spec:` field of a member definition: a field of the
-// struct literal the definition unifies with its core kind.
-func specField(e ast.Expr) *ast.Field {
+// specField finds the `spec:` field of a member definition.
+func specField(e ast.Expr) *ast.Field { return fieldIn(e, "spec") }
+
+// fieldIn finds a field of the struct literal a definition unifies with its
+// core kind (`c.#Trait & {...}`), or of a plain struct literal.
+func fieldIn(e ast.Expr, name string) *ast.Field {
 	switch x := e.(type) {
 	case *ast.BinaryExpr:
-		if f := specField(x.X); f != nil {
+		if f := fieldIn(x.X, name); f != nil {
 			return f
 		}
-		return specField(x.Y)
+		return fieldIn(x.Y, name)
 	case *ast.StructLit:
 		for _, el := range x.Elts {
 			if f, ok := el.(*ast.Field); ok {
-				if n, _, err := ast.LabelName(f.Label); err == nil && n == "spec" {
+				if n, _, err := ast.LabelName(f.Label); err == nil && n == name {
 					return f
 				}
 			}
 		}
 	case *ast.ParenExpr:
-		return specField(x.X)
+		return fieldIn(x.X, name)
 	}
 	return nil
+}
+
+// authoredLabel returns the authored value expression of one matchLabels
+// key, as written in the definition, or "" when the definition does not
+// write it.
+func authoredLabel(d *defSrc, key string) string {
+	ml := fieldIn(d.field.Value, "matchLabels")
+	if ml == nil {
+		return ""
+	}
+	f := fieldIn(ml.Value, key)
+	if f == nil {
+		return ""
+	}
+	s, err := formatNode(f.Value)
+	if err != nil {
+		return ""
+	}
+	return s
 }
 
 // refsIn lists the definition references in n, in source order and without

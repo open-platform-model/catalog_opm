@@ -125,7 +125,7 @@ func links(fqns []string, byFQN map[string]*member) string {
 		}
 	}
 	if len(out) == 0 {
-		return "none"
+		return "not declared"
 	}
 	return strings.Join(out, ", ")
 }

@@ -21,7 +21,7 @@ Ingress and egress network policy for a workload's pods.
 | Category | `network` |
 | Fulfilment | `catalog`: the declaring catalog implements it |
 | Optional posture | advisory: `optional` defaults to `true`, so an unhandled trait warns and the render continues; a module may override it where it attaches the trait |
-| Applies to (declared) | none |
+| Applies to (declared) | not declared |
 
 ## Spec
 
