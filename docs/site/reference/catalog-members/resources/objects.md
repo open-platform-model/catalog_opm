@@ -15,7 +15,7 @@ type: reference
 | Module path | `opmodel.dev/catalogs/opm/resources/v1alpha1` |
 | Definition | `#ObjectsResource` in `opm/resources/v1alpha1/objects.cue` |
 | Component wrapper | `#Objects` |
-| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.4.5` |
+| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `extension` |
 | Fulfilment | `catalog`: the declaring catalog implements it |
 
@@ -366,7 +366,7 @@ A built-in kind validates against its closed Kubernetes 1.36 definition, with no
 
 ## Served by
 
-These transformers in `opmodel.dev/catalogs/opm@v4` version `4.4.5` require this resource or read it when present.
+These transformers in `opmodel.dev/catalogs/opm@v4` version `4.5.0` require this resource or read it when present.
 
 | Transformer | Demand | What it does |
 | --- | --- | --- |

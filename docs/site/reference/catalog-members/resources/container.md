@@ -15,7 +15,7 @@ type: reference
 | Module path | `opmodel.dev/catalogs/opm/resources/v1beta1` |
 | Definition | `#ContainerResource` in `opm/resources/v1beta1/container.cue` |
 | Component wrapper | `#Container` |
-| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.4.5` |
+| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `workload` |
 | Fulfilment | `catalog`: the declaring catalog implements it |
 | Match label | `"core.opmodel.dev/workload-type"!: "stateless" \| "stateful" \| "daemon" \| "task" \| "scheduled-task"` (required) |
@@ -206,7 +206,7 @@ A component that declares it must answer the core.opmodel.dev/workload-type matc
 
 ## Served by
 
-These transformers in `opmodel.dev/catalogs/opm@v4` version `4.4.5` require this resource or read it when present.
+These transformers in `opmodel.dev/catalogs/opm@v4` version `4.5.0` require this resource or read it when present.
 
 | Transformer | Demand | What it does |
 | --- | --- | --- |

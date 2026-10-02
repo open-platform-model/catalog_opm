@@ -15,7 +15,7 @@ type: reference
 | Module path | `opmodel.dev/catalogs/opm/blueprints/v1beta1` |
 | Definition | `#ScheduledTaskWorkloadBlueprint` in `opm/blueprints/v1beta1/scheduled_task_workload.cue` |
 | Component wrapper | `#ScheduledTaskWorkload` |
-| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.4.5` |
+| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Composed resources | [Container](/docs/reference/catalog-members/resources/container/) |
 | Composed traits | [CronJobConfig](/docs/reference/catalog-members/traits/cron-job-config/), [RestartPolicy](/docs/reference/catalog-members/traits/restart-policy/), [SidecarContainers](/docs/reference/catalog-members/traits/sidecar-containers/), [InitContainers](/docs/reference/catalog-members/traits/init-containers/) |
 | Match label | `"core.opmodel.dev/workload-type": "scheduled-task"` |
