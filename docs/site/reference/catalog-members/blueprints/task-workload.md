@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/blueprints/task-workload@v1beta1` |
 | API version | `v1beta1`, beta ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/blueprints/v1beta1` |
-| Definition | `#TaskWorkloadBlueprint` in `opm/blueprints/v1beta1/task_workload.cue` |
+| Definition | `#TaskWorkloadBlueprint` in `src/blueprints/v1beta1/task_workload.cue` |
 | Component wrapper | `#TaskWorkload` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Composed resources | [Container](/docs/reference/catalog-members/resources/container/) |

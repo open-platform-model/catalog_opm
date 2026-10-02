@@ -41,7 +41,7 @@ if spec.statelessWorkload.scaling != _|_ {
 }
 ```
 
-All five workload blueprints (`opm/blueprints/v1beta1/*.cue`) follow the
+All five workload blueprints (`src/blueprints/v1beta1/*.cue`) follow the
 hoisted form. Keep new blueprints consistent with it.
 
 ### Why
@@ -189,6 +189,6 @@ cue eval /tmp/closed.cue   # must report both fields as not allowed
 ```
 
 The standing guard in this repo is `task vet:fixtures`: the five
-`_testPreBound*Output` fixtures in `opm/transformers/transformer_registration_transformer.cue`
+`_testPreBound*Output` fixtures in `src/transformers/transformer_registration_transformer.cue`
 stop evaluating the moment `#PreBoundRegistration` stops embedding
 `#TransformerRegistration`.

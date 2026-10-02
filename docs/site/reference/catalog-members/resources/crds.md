@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/resources/crds@v1beta1` |
 | API version | `v1beta1`, beta ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/resources/v1beta1` |
-| Definition | `#CRDsResource` in `opm/resources/v1beta1/crd.cue` |
+| Definition | `#CRDsResource` in `src/resources/v1beta1/crd.cue` |
 | Component wrapper | `#CRDs` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `extension` |

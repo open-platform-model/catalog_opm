@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/traits/network-policy@v1beta1` |
 | API version | `v1beta1`, beta ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/traits/v1beta1` |
-| Definition | `#NetworkPolicyTrait` in `opm/traits/v1beta1/network_policy.cue` |
+| Definition | `#NetworkPolicyTrait` in `src/traits/v1beta1/network_policy.cue` |
 | Component wrapper | `#NetworkPolicy` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `network` |

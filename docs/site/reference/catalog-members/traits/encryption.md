@@ -18,7 +18,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/traits/encryption@v1beta1` |
 | API version | `v1beta1`, beta ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/traits/v1beta1` |
-| Definition | `#EncryptionConfigTrait` in `opm/traits/v1beta1/encryption.cue` |
+| Definition | `#EncryptionConfigTrait` in `src/traits/v1beta1/encryption.cue` |
 | Component wrapper | `#EncryptionConfig` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `security` |

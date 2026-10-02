@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/traits/host-ipc@v1beta1` |
 | API version | `v1beta1`, beta ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/traits/v1beta1` |
-| Definition | `#HostIPCTrait` in `opm/traits/v1beta1/host_ipc.cue` |
+| Definition | `#HostIPCTrait` in `src/traits/v1beta1/host_ipc.cue` |
 | Component wrapper | `#HostIPC` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `security` |

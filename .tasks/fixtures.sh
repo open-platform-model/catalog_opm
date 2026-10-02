@@ -19,7 +19,7 @@ export LC_ALL=C
 # check hidden fields, and an incomplete value is not an error, so a fixture
 # whose inputs no longer make the output concrete passes vet while comparing
 # nothing. Measured 2026-09-15 (cue v0.17.1, core v2.0.0-alpha.9): 44 of the 47
-# rendered-output fixtures in opm/transformers/ failed export while `cue vet
+# rendered-output fixtures in the opm catalog's transformers/ failed export while `cue vet
 # ./...` exited 0. `cue export -e <field>` forces concreteness and is what makes
 # the golden literals load-bearing. See AGENTS.md, Working Style.
 #
@@ -31,13 +31,13 @@ export LC_ALL=C
 # naming convention, so renaming a fixture keeps it covered.
 #
 # Usage (run from the repo root):
-#   bash .tasks/fixtures.sh <module>          # opm | k8s
+#   bash .tasks/fixtures.sh <module_dir>      # src
 #
 # Reports each failure as `<file>: <field>` plus CUE's own first error line.
 # Exits 0 when every fixture evaluates, 1 otherwise. A module with no
 # transformers/ directory has nothing to check and exits 0.
 
-MODULE="${1:?Error: module argument required. Usage: bash .tasks/fixtures.sh opm}"
+MODULE="${1:?Error: module argument required. Usage: bash .tasks/fixtures.sh src}"
 MODULE="${MODULE%/}"
 
 [[ -f "$MODULE/cue.mod/module.cue" ]] \

@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/traits/cron-job-config@v1beta1` |
 | API version | `v1beta1`, beta ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/traits/v1beta1` |
-| Definition | `#CronJobConfigTrait` in `opm/traits/v1beta1/cron_job_config.cue` |
+| Definition | `#CronJobConfigTrait` in `src/traits/v1beta1/cron_job_config.cue` |
 | Component wrapper | `#CronJobConfig` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `workload` |

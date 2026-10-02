@@ -28,10 +28,8 @@ artifacts:
         any code exists. Keep it to the fields that change.
       - **Impact**: Downstream consumers reached (the `modules` fleet, platforms subscribing
         to the catalog, `cli` fixtures under `testing.opmodel.dev`), and what each has to do.
-        State the release class (`feat:` / `fix:` / `feat!:`) and, for each module touched,
-        which release line it is on (`opm` stable, where a break is a new major; `k8s` beta,
-        where a break is a `feat!:` with a `BREAKING CHANGE:` migration note that advances
-        `-beta.N`).
+        State the release class (`feat:` / `fix:` / `feat!:`); `opm` is a stable line, where a
+        break is a new major.
       - **Enhancement**: When the change implements decisions from an entry in the sibling
         `enhancements/` repo, cite the entry and decision numbers instead of restating the
         design, and create `enhancement.yaml` in this change directory now.
@@ -93,7 +91,8 @@ artifacts:
       checkbox format to track progress. Tasks not using `- [ ]` won't be tracked.
 
       Guidelines:
-      - Group tasks by module (`opm/`, `k8s/`) then by member file, under ## numbered headings
+      - Group tasks by kind directory (`src/resources/`, `src/traits/`, …) then by member
+        file, under ## numbered headings
       - Each task MUST be a checkbox: `- [ ] X.Y Task description`
       - Every ## section ends green and closes with a commit task naming its Conventional
         Commit; at most about five sections
@@ -106,7 +105,7 @@ artifacts:
 
       Example:
       ```
-      ## 1. opm/resources/v1beta1/volume.cue
+      ## 1. src/resources/v1beta1/volume.cue
 
       - [ ] 1.1 Add the `mountPropagation` field with its constraint
       - [ ] 1.2 Update the doc comment and run `task generate:index`

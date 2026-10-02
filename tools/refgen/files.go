@@ -20,6 +20,14 @@ func generatedDirs() []string {
 	return out
 }
 
+// retiredPages were generated once and are generated no more. They sit
+// outside the generated directories, so the orphan walk would not see one
+// that came back.
+var retiredPages = []string{
+	// The table of the retired k8s module.
+	referenceDir + "/kubernetes-resources.md",
+}
+
 // content returns what a page's file must hold: the generated file itself,
 // or the existing authored file with its marked block replaced.
 func content(root string, p page) (string, error) {
@@ -60,13 +68,21 @@ func splice(old, body, name string) (string, error) {
 	return strings.Join(out, "\n"), nil
 }
 
-// orphans lists the pages in the generated directories that no output names.
+// orphans lists the pages in the generated directories that no output
+// names, and every retired page that exists.
 func orphans(root string, pages []page) ([]string, error) {
 	want := map[string]bool{}
 	for _, p := range pages {
 		want[p.path] = true
 	}
 	var out []string
+	for _, r := range retiredPages {
+		if _, err := os.Stat(filepath.Join(root, r)); err == nil {
+			out = append(out, r)
+		} else if !errors.Is(err, fs.ErrNotExist) {
+			return nil, err
+		}
+	}
 	for _, d := range generatedDirs() {
 		err := filepath.WalkDir(filepath.Join(root, d), func(path string, e fs.DirEntry, err error) error {
 			if errors.Is(err, fs.ErrNotExist) {
@@ -124,8 +140,9 @@ func writePages(root string, pages []page) error {
 	return nil
 }
 
-// checkPages fails when any page differs from what the catalogs produce, or
-// a generated directory holds a page they no longer produce.
+// checkPages fails when any page differs from what the catalog produces, a
+// generated directory holds a page it no longer produces, or a retired page
+// exists.
 func checkPages(root string, pages []page) error {
 	var stale []string
 	for _, p := range pages {

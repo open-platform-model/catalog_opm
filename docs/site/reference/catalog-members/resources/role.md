@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/resources/role@v1beta1` |
 | API version | `v1beta1`, beta ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/resources/v1beta1` |
-| Definition | `#RoleResource` in `opm/resources/v1beta1/role.cue` |
+| Definition | `#RoleResource` in `src/resources/v1beta1/role.cue` |
 | Component wrapper | `#Role` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `security` |

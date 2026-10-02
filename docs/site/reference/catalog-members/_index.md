@@ -1,6 +1,6 @@
 ---
 title: "Catalog members"
-description: "One generated entry per blueprint, resource and trait in the abstraction family."
+description: "One generated entry per blueprint, resource and trait in the abstraction catalog."
 weight: 3
 ---
 
@@ -17,4 +17,4 @@ Generated from `opmodel.dev/catalogs/opm@v4` version `4.5.0`: 5 blueprints, 13 r
 - [Choose a blueprint](/docs/authoring/choose-a-blueprint/)
 - [Attach a trait to a component](/docs/authoring/attach-a-trait/)
 - [Resources and traits](/docs/concepts/resources-and-traits/)
-- [Raw Kubernetes resources](/docs/reference/kubernetes-resources/), for what the abstraction family does not model
+- [Use a raw Kubernetes resource](/docs/authoring/use-a-raw-kubernetes-resource/), for what the abstractions do not model

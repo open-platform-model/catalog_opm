@@ -26,17 +26,18 @@ export LC_ALL=C
 # WHY the version substitution: a transformer's key is build-scoped
 # (`…/transformers/<name>@<version>`), so its authored fqn interpolates
 # id.Version while a contract member's carries its own apiVersion literally.
-# Version is read through cue rather than grepped: opm commits a plain string,
-# k8s a defaulted disjunction, and only the evaluator resolves both.
+# Version is read through cue rather than grepped: it may be committed as a
+# plain string or as a defaulted disjunction, and only the evaluator resolves
+# both.
 # Sorted and diffed; a non-empty diff fails naming the missing (`<`) and
 # extra (`>`) keys.
 #
 # Usage (run from the repo root):
-#   bash .tasks/listing.sh <module>          # opm | k8s
+#   bash .tasks/listing.sh <module_dir>      # src
 #
 # Exits 0 when every kind agrees, 1 otherwise.
 
-MODULE="${1:?Error: module argument required. Usage: bash .tasks/listing.sh opm}"
+MODULE="${1:?Error: module argument required. Usage: bash .tasks/listing.sh src}"
 MODULE="${MODULE%/}"
 
 [[ -f "$MODULE/catalog.cue" ]] \

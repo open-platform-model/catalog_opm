@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/traits/graceful-shutdown@v1beta1` |
 | API version | `v1beta1`, beta ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/traits/v1beta1` |
-| Definition | `#GracefulShutdownTrait` in `opm/traits/v1beta1/graceful_shutdown.cue` |
+| Definition | `#GracefulShutdownTrait` in `src/traits/v1beta1/graceful_shutdown.cue` |
 | Component wrapper | `#GracefulShutdown` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `workload` |

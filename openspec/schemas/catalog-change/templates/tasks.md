@@ -1,4 +1,4 @@
-## 1. <!-- opm/<kind>/<apiVersion>/<member>.cue -->
+## 1. <!-- src/<kind>/<apiVersion>/<member>.cue -->
 
 - [ ] 1.1 <!-- Task description -->
 - [ ] 1.2 <!-- `task generate:index` if definitions were added, removed or renamed -->

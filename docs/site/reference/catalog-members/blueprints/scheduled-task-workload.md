@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/blueprints/scheduled-task-workload@v1beta1` |
 | API version | `v1beta1`, beta ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/blueprints/v1beta1` |
-| Definition | `#ScheduledTaskWorkloadBlueprint` in `opm/blueprints/v1beta1/scheduled_task_workload.cue` |
+| Definition | `#ScheduledTaskWorkloadBlueprint` in `src/blueprints/v1beta1/scheduled_task_workload.cue` |
 | Component wrapper | `#ScheduledTaskWorkload` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Composed resources | [Container](/docs/reference/catalog-members/resources/container/) |

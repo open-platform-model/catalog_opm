@@ -18,7 +18,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/traits/sizing@v1beta1` |
 | API version | `v1beta1`, beta ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/traits/v1beta1` |
-| Definition | `#SizingTrait` in `opm/traits/v1beta1/sizing.cue` |
+| Definition | `#SizingTrait` in `src/traits/v1beta1/sizing.cue` |
 | Component wrapper | `#Sizing` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `workload` |

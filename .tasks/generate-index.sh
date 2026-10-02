@@ -9,19 +9,17 @@ set -euo pipefail
 export LC_ALL=C
 # generate-index.sh — Print INDEX.md to stdout for one CUE module.
 #
-# Repo layout: this repo publishes TWO CUE modules, each in its own
-# subdirectory with its own cue.mod/, identity/ and INDEX.md:
-#   opm/  opmodel.dev/catalogs/opm@v4   (abstraction catalog)
-#   k8s/  opmodel.dev/catalogs/k8s@v1   (raw Kubernetes passthrough catalog)
-# The script therefore takes the MODULE directory, not the repo root.
+# Repo layout: the CUE module (opmodel.dev/catalogs/opm@v4) lives in src/,
+# with its own cue.mod/, identity/ and INDEX.md. The script takes the MODULE
+# directory, not the repo root.
 #
 # Usage (run from the repo root):
-#   bash .tasks/generate-index.sh "$(pwd)/opm"
+#   bash .tasks/generate-index.sh "$(pwd)/src"
 #
 # The caller redirects stdout to the desired output file:
-#   bash .tasks/generate-index.sh "$(pwd)/opm" > opm/INDEX.md
+#   bash .tasks/generate-index.sh "$(pwd)/src" > src/INDEX.md
 
-CUE_RELDIR="${1:?Error: module_dir argument required. Usage: bash .tasks/generate-index.sh \"\$(pwd)/opm\"}"
+CUE_RELDIR="${1:?Error: module_dir argument required. Usage: bash .tasks/generate-index.sh \"\$(pwd)/src\"}"
 CUE_DIR="${CUE_RELDIR%/}"
 
 # ── Fail fast: validate required paths exist ──────────────────────────────────
@@ -38,8 +36,11 @@ MODULE_NAME=$(
     | sed 's/module:[[:space:]]*"\(.*\)"/\1/'
 )
 
-# Display label = trailing path component of the module directory (e.g. opm)
-MODULE_LABEL=$(basename "$CUE_DIR")
+# Display label = last element of the module path, without its major
+# (opmodel.dev/catalogs/opm@v4 -> opm). Never the directory name: INDEX.md
+# ships inside the module, so the title must not move when the directory does.
+MODULE_LABEL=${MODULE_NAME%@*}
+MODULE_LABEL=${MODULE_LABEL##*/}
 
 # ── ASCII directory tree (dirs only, no cue.mod/, pure ASCII) ─────────────────
 

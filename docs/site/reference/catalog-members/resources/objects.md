@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/resources/objects@v1alpha1` |
 | API version | `v1alpha1`, alpha ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/resources/v1alpha1` |
-| Definition | `#ObjectsResource` in `opm/resources/v1alpha1/objects.cue` |
+| Definition | `#ObjectsResource` in `src/resources/v1alpha1/objects.cue` |
 | Component wrapper | `#Objects` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `extension` |

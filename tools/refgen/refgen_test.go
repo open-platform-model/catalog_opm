@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -156,5 +158,23 @@ func TestStripCitations(t *testing.T) {
 	want := "spec: x: #S\n\n#S: {\n\t// The name, with no fallback. Required.\n\tname!: string // Example: \"a\"\n\t// Untouched\n\t//   indented example\n\tother?: int\n}"
 	if got := stripCodeCitations(code); got != want {
 		t.Errorf("stripCodeCitations:\n%s\nwant:\n%s", got, want)
+	}
+}
+
+func TestOrphansNamesARetiredPage(t *testing.T) {
+	root := t.TempDir()
+	if got, err := orphans(root, nil); err != nil || len(got) != 0 {
+		t.Fatalf("empty tree: got %v, %v; want none", got, err)
+	}
+	retired := filepath.Join(root, retiredPages[0])
+	if err := os.MkdirAll(filepath.Dir(retired), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(retired, []byte("back\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	got, err := orphans(root, nil)
+	if err != nil || len(got) != 1 || got[0] != retiredPages[0] {
+		t.Fatalf("got %v, %v; want [%s]", got, err, retiredPages[0])
 	}
 }

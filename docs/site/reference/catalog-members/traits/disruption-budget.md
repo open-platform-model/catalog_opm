@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/traits/disruption-budget@v1beta1` |
 | API version | `v1beta1`, beta ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/traits/v1beta1` |
-| Definition | `#DisruptionBudgetTrait` in `opm/traits/v1beta1/disruption_budget.cue` |
+| Definition | `#DisruptionBudgetTrait` in `src/traits/v1beta1/disruption_budget.cue` |
 | Component wrapper | `#DisruptionBudget` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `workload` |

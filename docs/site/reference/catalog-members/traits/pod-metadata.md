@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/traits/pod-metadata@v1beta1` |
 | API version | `v1beta1`, beta ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/traits/v1beta1` |
-| Definition | `#PodMetadataTrait` in `opm/traits/v1beta1/pod_metadata.cue` |
+| Definition | `#PodMetadataTrait` in `src/traits/v1beta1/pod_metadata.cue` |
 | Component wrapper | `#PodMetadata` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `workload` |

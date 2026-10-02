@@ -124,4 +124,4 @@ if o.#scope == "Namespaced" if o.metadata.namespace == _|_ {
 
 A refusal that depends on such a field sits in the member's schema, behind guards that hold
 only for a concrete entry, never in the transformer (rule 3). See
-`opm/resources/v1alpha1/objects.cue` for the schema side.
+`src/resources/v1alpha1/objects.cue` for the schema side.

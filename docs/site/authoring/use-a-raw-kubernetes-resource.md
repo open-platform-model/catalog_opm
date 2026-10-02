@@ -8,12 +8,12 @@ weight: 23
 <!-- One sentence: a component can carry Kubernetes objects written in their native shape through the `objects` resource of the abstraction catalog (`#Objects` in `opmodel.dev/catalogs/opm/resources/v1alpha1`), which renders each one as written. It is the last resort, for objects no abstraction models: a custom resource instance (Issuer, IPAddressPool, ServiceMonitor) or a kind such as StorageClass, CSIDriver or APIService.
 Say plainly what the reader gives up: an objects entry takes no traits and joins no blueprint, and the member is alpha (`v1alpha1`): a catalog release may tighten it.
 It needs nothing beyond the abstraction catalog the module already depends on: no extra dependency, no extra platform subscription.
-Check against: catalog_opm/opm/resources/v1alpha1/objects.cue, catalog_opm/opm/catalog.cue -->
+Check against: catalog_opm/src/resources/v1alpha1/objects.cue, catalog_opm/src/catalog.cue -->
 
 ## Before you begin
 
-<!-- By title: a module, as built in "Your first module". Having read "Choose a blueprint" and "Attach a trait to a component", since step 1 sends most readers back there. The module pins `opmodel.dev/catalogs/opm@v4` at the first release carrying `objects@v1alpha1` or later; verify the version in catalog_opm/CHANGELOG-opm.md at writing time.
-Check against: opm/docs/site/authoring/your-first-module.md, catalog_opm/docs/site/authoring/choose-a-blueprint.md, catalog_opm/docs/site/authoring/attach-a-trait.md, catalog_opm/CHANGELOG-opm.md -->
+<!-- By title: a module, as built in "Your first module". Having read "Choose a blueprint" and "Attach a trait to a component", since step 1 sends most readers back there. The module pins `opmodel.dev/catalogs/opm@v4` at the first release carrying `objects@v1alpha1` or later; verify the version in catalog_opm/CHANGELOG.md at writing time.
+Check against: opm/docs/site/authoring/your-first-module.md, catalog_opm/docs/site/authoring/choose-a-blueprint.md, catalog_opm/docs/site/authoring/attach-a-trait.md, catalog_opm/CHANGELOG.md -->
 
 ## Steps
 
@@ -27,25 +27,25 @@ Check against: opm/docs/site/authoring/your-first-module.md, catalog_opm/docs/si
    - If it is an Ingress, there is no Ingress abstraction; the route traits render Gateway API routes instead. Write an Ingress as an objects entry only when the cluster serves Ingress and not the Gateway API.
    - Secrets: leave out of this page; secrets documentation is pending.
    - Otherwise (APIService, CSIDriver, IngressClass, Pod, PersistentVolume, StorageClass, or a custom resource) continue with `#Objects`.
-   Check against: catalog_opm/opm/resources/v1beta1/, catalog_opm/opm/resources/v1alpha1/, catalog_opm/opm/traits/v1beta1/, catalog_opm/opm/transformers/role_transformer.cue -->
+   Check against: catalog_opm/src/resources/v1beta1/, catalog_opm/src/resources/v1alpha1/, catalog_opm/src/traits/v1beta1/, catalog_opm/src/transformers/role_transformer.cue -->
 
 2. Import the resource package.
 
    <!-- `resa "opmodel.dev/catalogs/opm/resources/v1alpha1"`. The alias is the author's choice; pick one that does not collide with `res`, the usual alias for `resources/v1beta1`.
-   Check against: catalog_opm/opm/resources/v1alpha1/objects.cue -->
+   Check against: catalog_opm/src/resources/v1alpha1/objects.cue -->
 
 3. Give the objects a component of their own.
 
    <!-- A new entry in `#components` that embeds `resa.#Objects` and writes each object under `spec: objects: <name>:` exactly as the API server takes it: `apiVersion`, `kind`, `metadata`, `spec` and any other top-level field. One component may hold many objects; each renders as one object.
    The objects resource may also sit beside a workload's resources in the same component (a ServiceMonitor next to the workload it scrapes); its transformer renders the entries independently of the rest. A trait attached to a component holding only objects matches no transformer and is reported as unhandled.
    Show one example with two entries: a ClusterRole (built-in, cluster-scoped) and a cert-manager ClusterIssuer with `#scope: "Cluster"` (custom).
-   Check against: catalog_opm/opm/resources/v1alpha1/objects.cue (#Objects, #ObjectSchema), catalog_opm/opm/transformers/objects_transformer.cue (fixtures, including the embedded form) -->
+   Check against: catalog_opm/src/resources/v1alpha1/objects.cue (#Objects, #ObjectSchema), catalog_opm/src/transformers/objects_transformer.cue (fixtures, including the embedded form) -->
 
 4. Name each object as it must appear in the cluster.
 
    <!-- The map key is `metadata.name` unless the entry sets one, and the name renders exactly as written: never prefixed with the instance or component name, so references between objects (`roleRef.name`, a backend's Service name) hold.
    The cost: two instances of one module in one namespace, or two modules choosing the same name, render the same object. Put the instance name into each name when a module can be installed twice in one namespace. `metadata.resourceName` on the component does not rename these objects.
-   Check against: catalog_opm/opm/transformers/objects_transformer.cue, catalog_opm/docs/name-constraints.md (the #ObjectsResource row) -->
+   Check against: catalog_opm/src/transformers/objects_transformer.cue, catalog_opm/docs/name-constraints.md (the #ObjectsResource row) -->
 
 5. State the scope of a custom resource.
 
@@ -53,7 +53,7 @@ Check against: opm/docs/site/authoring/your-first-module.md, catalog_opm/docs/si
    - A Namespaced object without `metadata.namespace` renders into the instance's namespace; one that sets it keeps it.
    - A Cluster object must not set `metadata.namespace`; the render refuses it.
    - Labels you write merge over OPM's context labels, and yours win on a clash. Annotations and every other field pass through untouched.
-   Check against: catalog_opm/opm/resources/v1alpha1/objects.cue, catalog_opm/opm/schemas/kinds/table.cue, catalog_opm/opm/transformers/objects_transformer.cue -->
+   Check against: catalog_opm/src/resources/v1alpha1/objects.cue, catalog_opm/src/schemas/kinds/table.cue, catalog_opm/src/transformers/objects_transformer.cue -->
 
 6. Fix what validation refuses.
 
@@ -65,13 +65,13 @@ Check against: opm/docs/site/authoring/your-first-module.md, catalog_opm/docs/si
    - `<apiVersion> <kind> is cluster-scoped: remove metadata.namespace`.
    - `#scope: conflicting values "Namespaced" and "Cluster"`: a `#scope` that disagrees with a built-in kind's scope; remove it.
    A custom resource is not validated. An author may unify an entry with a schema they import themselves (for example from `cue.dev/x/crd/...`); the catalog ships none.
-   Check against: catalog_opm/opm/resources/v1alpha1/objects.cue, catalog_opm/opm/transformers/objects_transformer.cue (_testObjectsRefused), catalog_opm/openspec/changes/archive/*-add-objects-resource/design.md (Research & Decisions) -->
+   Check against: catalog_opm/src/resources/v1alpha1/objects.cue, catalog_opm/src/transformers/objects_transformer.cue (_testObjectsRefused), catalog_opm/openspec/changes/archive/*-add-objects-resource/design.md (Research & Decisions) -->
 
 ## Check that it worked
 
 <!-- Command: `opm module build` (with `--platform <dir>` when the target is a cluster; `opm platform pull <dir>` writes the cluster's platform, and any platform subscribing to `opmodel.dev/catalogs/opm@v4` at the release carrying this member serves it).
 Success: a line `▸ <component> ← opmodel.dev/catalogs/opm/transformers/objects-transformer@<catalog version>` and each object in the YAML with your fields intact, its name as written, and a namespace only on namespaced objects. A refusal naming an unresolved demand for `objects@v1alpha1` means the platform's catalog predates the member: see "Unresolved demands".
-Check against: cli/internal/workflow/render/log_output.go, catalog_opm/opm/transformers/objects_transformer.cue -->
+Check against: cli/internal/workflow/render/log_output.go, catalog_opm/src/transformers/objects_transformer.cue -->
 
 ## Related
 

@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/resources/config-maps@v1beta1` |
 | API version | `v1beta1`, beta ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/resources/v1beta1` |
-| Definition | `#ConfigMapsResource` in `opm/resources/v1beta1/configmap.cue` |
+| Definition | `#ConfigMapsResource` in `src/resources/v1beta1/configmap.cue` |
 | Component wrapper | `#ConfigMaps` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `config` |

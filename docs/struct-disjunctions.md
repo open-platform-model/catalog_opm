@@ -83,7 +83,7 @@ cd opm && cue eval -c -e '_testEmbeddedRoleTransformer' ./transformers
 
 See `_testEmbeddedRoleComponent` / `_testEmbeddedRoleTransformer` and the
 negative fixture `_testMixedRuleRefused` in
-`opm/transformers/role_transformer.cue` for the reference shapes.
+`src/transformers/role_transformer.cue` for the reference shapes.
 
 ## References
 

@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/resources/transformer-registration@v1alpha1` |
 | API version | `v1alpha1`, alpha ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/resources/v1alpha1` |
-| Definition | `#TransformerRegistrationResource` in `opm/resources/v1alpha1/transformer_registration.cue` |
+| Definition | `#TransformerRegistrationResource` in `src/resources/v1alpha1/transformer_registration.cue` |
 | Component wrapper | `#TransformerRegistration` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `cluster` |

@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/resources/namespaces@v1alpha1` |
 | API version | `v1alpha1`, alpha ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/resources/v1alpha1` |
-| Definition | `#NamespacesResource` in `opm/resources/v1alpha1/namespace.cue` |
+| Definition | `#NamespacesResource` in `src/resources/v1alpha1/namespace.cue` |
 | Component wrapper | `#Namespaces` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `cluster` |
