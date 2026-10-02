@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/traits/job-config@v1beta1` |
 | API version | `v1beta1`, beta ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/traits/v1beta1` |
-| Definition | `#JobConfigTrait` in `opm/traits/v1beta1/job_config.cue` |
+| Definition | `#JobConfigTrait` in `src/traits/v1beta1/job_config.cue` |
 | Component wrapper | `#JobConfig` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `workload` |

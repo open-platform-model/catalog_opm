@@ -22,11 +22,11 @@ export LC_ALL=C
 # instead, the same way listing.sh reads the maps.
 #
 # Usage (run from the repo root):
-#   bash .tasks/description-check.sh <module>    # opm | k8s
+#   bash .tasks/description-check.sh <module_dir>    # src
 #
 # Exits 0 when every listed member has a description, 1 otherwise.
 
-MODULE="${1:?Error: module argument required. Usage: bash .tasks/description-check.sh opm}"
+MODULE="${1:?Error: module argument required. Usage: bash .tasks/description-check.sh src}"
 MODULE="${MODULE%/}"
 
 [[ -f "$MODULE/catalog.cue" ]] \

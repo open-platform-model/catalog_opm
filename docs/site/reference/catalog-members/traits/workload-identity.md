@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/traits/workload-identity@v1beta1` |
 | API version | `v1beta1`, beta ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/traits/v1beta1` |
-| Definition | `#WorkloadIdentityTrait` in `opm/traits/v1beta1/workload_identity.cue` |
+| Definition | `#WorkloadIdentityTrait` in `src/traits/v1beta1/workload_identity.cue` |
 | Component wrapper | `#WorkloadIdentity` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `security` |

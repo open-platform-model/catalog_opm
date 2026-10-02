@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/traits/tls-route@v1beta1` |
 | API version | `v1beta1`, beta ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/traits/v1beta1` |
-| Definition | `#TlsRouteTrait` in `opm/traits/v1beta1/tls_route.cue` |
+| Definition | `#TlsRouteTrait` in `src/traits/v1beta1/tls_route.cue` |
 | Component wrapper | `#TlsRoute` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `network` |

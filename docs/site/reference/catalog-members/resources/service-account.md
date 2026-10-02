@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/resources/service-account@v1beta1` |
 | API version | `v1beta1`, beta ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/resources/v1beta1` |
-| Definition | `#ServiceAccountResource` in `opm/resources/v1beta1/service_account.cue` |
+| Definition | `#ServiceAccountResource` in `src/resources/v1beta1/service_account.cue` |
 | Component wrapper | `#ServiceAccount` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `security` |

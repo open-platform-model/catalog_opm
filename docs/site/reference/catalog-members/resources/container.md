@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/resources/container@v1beta1` |
 | API version | `v1beta1`, beta ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/resources/v1beta1` |
-| Definition | `#ContainerResource` in `opm/resources/v1beta1/container.cue` |
+| Definition | `#ContainerResource` in `src/resources/v1beta1/container.cue` |
 | Component wrapper | `#Container` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `workload` |

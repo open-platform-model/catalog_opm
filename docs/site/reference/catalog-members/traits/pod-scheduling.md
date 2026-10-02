@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/traits/pod-scheduling@v1beta1` |
 | API version | `v1beta1`, beta ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/traits/v1beta1` |
-| Definition | `#PodSchedulingTrait` in `opm/traits/v1beta1/pod_scheduling.cue` |
+| Definition | `#PodSchedulingTrait` in `src/traits/v1beta1/pod_scheduling.cue` |
 | Component wrapper | `#PodScheduling` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `workload` |

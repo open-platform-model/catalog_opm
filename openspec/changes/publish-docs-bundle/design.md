@@ -43,14 +43,14 @@ bundles: {
 		placement: {kind: "tab", root: "/catalogs/opm/"}
 		version: {from: "tag", prefix: "opm-v"}
 		sources: [
-			{kind: "cue-catalog", module: "./opm"},
+			{kind: "cue-catalog", module: "./src"},
 			{kind: "markdown", dir: "docs/catalogs/opm"},
 		]
 	}
 }
 ```
 
-It sits outside both module roots, so `cue` run from `opm/` never loads it and `opm catalog publish ./opm` never ships it, and it changes no release-please package (its commit touches no file under `opm/` or `k8s/`). It carries no `package` clause, as docs-kit C6 shows it. `task fmt` and `task fmt:check` MUST format and diff it alongside the module trees, so it stays `cue fmt` clean.
+It sits outside the module root, so `cue` run from `src/` never loads it and `opm catalog publish ./src` never ships it, and it changes no release-please package (its commit touches no file under `src/`). It carries no `package` clause, as docs-kit C6 shows it. `task fmt` and `task fmt:check` MUST format and diff it alongside the module trees, so it stays `cue fmt` clean.
 
 ### The contract page is the landing, at `docs/catalogs/opm/_index.md`
 
@@ -60,7 +60,7 @@ It sits outside both module roots, so `cue` run from `opm/` never loads it and `
 - the body unchanged, with no hand-written members section: the renderer appends the generated `## Catalog members` block after the authored body (docs-kit C6, C8, "Page renderer"), so the landing links the kind indexes with the build's own segment and counts. The build refuses an authored landing that already holds a `## Catalog members` heading;
 - the two "See also" links (`/docs/reference/registry-namespaces/`, `/docs/reference/cli/`) unchanged: a `/docs/` link from a tab page resolves in the site's default version (docs-kit C8).
 
-`docs/site/reference/catalog-contract.md` stays until section 3, because the site's Reference shows it until the Catalogs tab is live. Section 1 marks it with an HTML comment on the line after its front matter ("Moved to `docs/catalogs/opm/_index.md`; edit there. This copy is deleted when publish-docs-bundle section 3 lands.") and moves the four "Check against" pointers in `docs/site/extending/` to the new path. Section 3 moves the two pointers to `catalog-members/` in `docs/site/authoring/` to `catalog_opm/opm/INDEX.md`, the generated index that stays in git.
+`docs/site/reference/catalog-contract.md` stays until section 3, because the site's Reference shows it until the Catalogs tab is live. Section 1 marks it with an HTML comment on the line after its front matter ("Moved to `docs/catalogs/opm/_index.md`; edit there. This copy is deleted when publish-docs-bundle section 3 lands.") and moves the four "Check against" pointers in `docs/site/extending/` to the new path. Section 3 moves the two pointers to `catalog-members/` in `docs/site/authoring/` to `catalog_opm/src/INDEX.md`, the generated index that stays in git.
 
 ### `docs.yml`: check, edge and the release backfill
 
@@ -106,7 +106,7 @@ One project, so no matrix. The dispatch's `mode` offers `release` only: it is th
 
 ### `release.yml`: `publish-docs` after `publish-cue`, only for an opm release
 
-release-please sets `opm--tag_name` (the job's `opm_tag_name` output) only when it released `opm` in this run, so the job's condition is that output being non-empty.
+release-please sets `src--tag_name` (the job's `opm_tag_name` output; the package path is `src`, the component `opm`) only when it released `opm` in this run, so the job's condition is that output being non-empty.
 
 ```yaml
 publish-docs:
@@ -180,6 +180,7 @@ docs-kit plans revisions as its own change, released as `v0.2.0`. Its `orchestra
 ## Risks / Trade-offs
 
 - [The backfill of `opm-v4.4.5` builds a tree cut before `docs/catalogs/opm/` existed] -> Per docs-kit C5, sources resolve against the release tree and the missing `markdown` directory yields no pages, so `4.4.5.0` carries the generated landing; the contract landing reaches 4.4 with the next opm release (or a docs revision once `add-docs-revisions` ships). Section 2 records the result.
+- [A backfilled tag predates `retire-k8s-catalog`] -> Every tag up to and including `opm-v4.5.0` has the module directory at `opm/`, not `src/`, so the `cue-catalog` source `./src` resolves to nothing in that release tree. The backfill MUST take the extractor path per tag (the `opm/` directory before `retire-k8s-catalog`, `src/` after) or be limited to tags cut after that change.
 - [`Release / publish-docs` does not run or fails (a failed `publish-cue` leg, a registry outage)] -> The `docs.yml` dispatch publishes the release that has no bundle; `AGENTS.md` says so.
 - [The contract text exists twice in git between sections 1 and 3] -> The site shows only one of them at any time (the Reference copy until opmodel.dev's merge, the bundle landing after it); the old copy carries a "moved" comment, and gate G3 ends the window.
 - [Two docs-kit pins (`.opm-docs-version` and the `publish.yml@` refs)] -> `docs:bundle:check` refuses a mismatch; a bump changes both in one PR, which needs the Workflows permission the release cascade bot lacks.

@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/resources/mutating-webhooks@v1alpha1` |
 | API version | `v1alpha1`, alpha ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/resources/v1alpha1` |
-| Definition | `#MutatingWebhooksResource` in `opm/resources/v1alpha1/webhook.cue` |
+| Definition | `#MutatingWebhooksResource` in `src/resources/v1alpha1/webhook.cue` |
 | Component wrapper | `#MutatingWebhooks` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `admission` |

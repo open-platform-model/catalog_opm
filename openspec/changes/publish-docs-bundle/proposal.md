@@ -10,13 +10,13 @@ Nothing in this change starts before its gate holds. Each gate is external to th
 | --- | --- |
 | 1. Publish the opm docs bundle | **G1**: docs-kit `v0.1.0` is released (the tag exists, the GitHub Release carries the `opm-docs_0.1.0_<os>_<arch>.tar.gz` archives and `checksums.txt`) and the contracts are re-read at that tag. |
 | 2. Go live (owner) | **G2**: section 1 is merged and its first `Docs / edge` run on `main` is green. |
-| 3. Retire tools/refgen | **G3**: section 2 is done; opmodel.dev `add-catalogs-tab` is merged and the Catalogs tab is live at `https://open-platform-model.github.io/opmodel.dev/catalogs/opm/4/`; the removal of the `k8s` catalog from this repository (another change, not this one) is merged on `main`, because until then refgen still writes the `k8s` table and no bundle replaces it. |
+| 3. Retire tools/refgen | **G3**: section 2 is done; opmodel.dev `add-catalogs-tab` is merged and the Catalogs tab is live at `https://open-platform-model.github.io/opmodel.dev/catalogs/opm/4/`; the removal of the `k8s` catalog from this repository (change `retire-k8s-catalog`, which also moved the opm module from `opm/` to `src/`) is merged on `main`, because until then refgen still writes the `k8s` table and no bundle replaces it. |
 
 Delivery: one PR per section (opmodel.dev needs the published catalog-opm bundle after section 1)
 
 ## What Changes
 
-- **Section 1, publish the opm docs bundle.** A root `docs-kit.cue` declaring one bundle, `catalog-opm` (the `cue-catalog` extractor over `./opm` plus a `markdown` source, `docs/catalogs/opm`). The authored catalog contract page becomes the bundle's landing at `docs/catalogs/opm/_index.md`, followed by the "Catalog members" block docs-kit's renderer appends. A new `.github/workflows/docs.yml` calls docs-kit's reusable `publish.yml@v0.1.0`: `check` on pull requests, `edge` on every push to `main`, and a `workflow_dispatch` that publishes a release with no bundle yet. `release.yml` gains a `publish-docs` job after `publish-cue`, run only when release-please released `opm`. Two Taskfile tasks build and check the bundle locally with a pinned `opm-docs` binary; `task check` runs the bundle check. `AGENTS.md` gains the docs bundle rules. `tools/refgen` and its pages keep running unchanged.
+- **Section 1, publish the opm docs bundle.** A root `docs-kit.cue` declaring one bundle, `catalog-opm` (the `cue-catalog` extractor over `./src` plus a `markdown` source, `docs/catalogs/opm`). The authored catalog contract page becomes the bundle's landing at `docs/catalogs/opm/_index.md`, followed by the "Catalog members" block docs-kit's renderer appends. A new `.github/workflows/docs.yml` calls docs-kit's reusable `publish.yml@v0.1.0`: `check` on pull requests, `edge` on every push to `main`, and a `workflow_dispatch` that publishes a release with no bundle yet. `release.yml` gains a `publish-docs` job after `publish-cue`, run only when release-please released `opm`. Two Taskfile tasks build and check the bundle locally with a pinned `opm-docs` binary; `task check` runs the bundle check. `AGENTS.md` gains the docs bundle rules. `tools/refgen` and its pages keep running unchanged.
 - **Section 2, go live (owner).** The owner makes `ghcr.io/open-platform-model/docs/catalog-opm` public and dispatches the backfill of `opm-v4.4.5`, so the tab has its first minor (docs-kit DESIGN decision 8). The section's commit records the verified digests and tags in `design.md`.
 - **Section 3, retire tools/refgen.** Delete `tools/refgen/`, the committed `docs/site/reference/catalog-members/` and `docs/site/reference/catalog-contract.md`; remove `generate:reference`, `generate:reference:check` and `test:refgen` from the Taskfile and CI, the reference regeneration from the release PR's identity advance, and the `Setup Go` steps that only refgen needed. `vet:descriptions` stays. `AGENTS.md` and `openspec/config.yaml` stop describing refgen.
 - **Not in this change.** No `catalog-k8s` bundle: the `k8s` catalog is being removed from this repository by another change. No docs-revision dispatch: revisions are docs-kit's separate change `add-docs-revisions` (`v0.2.0`), whose orchestration plans catalog_opm's part as a later `ci` PR (the `revision` choice and `fix` input on the dispatch, the pin bump) outside this change (design.md, "Docs revisions are left to add-docs-revisions").
@@ -59,7 +59,7 @@ bundles: {
 		placement: {kind: "tab", root: "/catalogs/opm/"}
 		version: {from: "tag", prefix: "opm-v"}
 		sources: [
-			{kind: "cue-catalog", module: "./opm"},
+			{kind: "cue-catalog", module: "./src"},
 			{kind: "markdown", dir: "docs/catalogs/opm"},
 		]
 	}
@@ -78,7 +78,7 @@ check:
 
 ## Impact
 
-- **Release class.** Section 1 is `ci(docs):`, section 2 `docs(openspec):`, section 3 `ci(docs):`. None touches a file under `opm/` or `k8s/`, so neither release line moves: no `opm` release, no `k8s` `-beta.N`. No member moves to a new `apiVersion` segment, nothing is breaking, and the published CUE modules are byte-identical before and after.
+- **Release class.** Section 1 is `ci(docs):`, section 2 `docs(openspec):`, section 3 `ci(docs):`. None touches a file under `src/`, so the release line does not move: no `opm` release. No member moves to a new `apiVersion` segment, nothing is breaking, and the published CUE modules are byte-identical before and after.
 - **Modules fleet, subscribing platforms, cli fixtures.** Nothing to do. They consume the CUE modules, which do not change.
 - **opmodel.dev** (`add-catalogs-tab`) pulls `ghcr.io/open-platform-model/docs/catalog-opm` from section 2 on, tags `4.4` and `edge` (docs-kit C4, C7). There is no double-publish window: the opmodel.dev build that gains the tab stops mounting `docs/site/reference/catalog-members/**` and `docs/site/reference/catalog-contract.md` and maps links to them onto the tab's alias forms (`/catalogs/opm/4/...`). There are no redirects from the old URLs. Section 3 then deletes files the site no longer reads.
 - **cli** links the contract page from `docs/site/reference/registry-namespaces.md`. Its fix to `/catalogs/opm/4/` needs the Catalogs tab and may merge before or after section 3, since opmodel.dev maps the old link target.

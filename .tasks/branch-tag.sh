@@ -26,21 +26,22 @@ set -euo pipefail
 # (a dirty tree would lie about the SHA the consumer ends up with).
 #
 # Usage (from the repo root):
-#   bash .tasks/branch-tag.sh "$(pwd)/opm" "opm-"
+#   bash .tasks/branch-tag.sh "$(pwd)/src" "opm-"
 #
 # Arguments:
-#   module_dir   the CUE module directory (this repo publishes opm/ and k8s/)
-#   tag_prefix   release-please component prefix on this module's git tags
-#                ("opm-", "k8s-"). Used ONLY to find this module's existing
-#                releases; the tag printed is always the bare version form,
-#                because `opm catalog version set` consumes it.
+#   module_dir   the CUE module directory (src)
+#   tag_prefix   release-please component prefix on the module's git tags
+#                ("opm-"). It is the component, not the directory name. Used
+#                ONLY to find the module's existing releases; the tag printed
+#                is always the bare version form, because
+#                `opm catalog version set` consumes it.
 #
 # The prefix is REQUIRED and is not allowed to fall back to bare `vX.Y.Z`
-# tags: this repo's bare tags belong to the pre-split single-module line, and
-# a v1.* bare tag from the old opm catalog would otherwise be mistaken for a
-# release of the k8s catalog, which is also major v1.
+# tags: this repo's bare tags belong to an older line of the catalog, and
+# the k8s-v* tags to the retired k8s module; neither is a release of the
+# module this script tags.
 
-CUE_RELDIR="${1:?Error: module_dir argument required. Usage: bash .tasks/branch-tag.sh \"\$(pwd)/opm\" \"opm-\"}"
+CUE_RELDIR="${1:?Error: module_dir argument required. Usage: bash .tasks/branch-tag.sh \"\$(pwd)/src\" \"opm-\"}"
 CUE_DIR="${CUE_RELDIR%/}"
 TAG_PREFIX="${2:?Error: tag_prefix argument required (e.g. \"opm-\")}"
 
@@ -89,7 +90,7 @@ fi
 # minor" design. Two things defeat it:
 #
 #   1. With no stable release for the major (a long `-alpha.N` or `-beta.N`
-#      line, which is where the `k8s` module lives until GA), `@vN` has nothing
+#      line, as before a major's first stable release), `@vN` has nothing
 #      to prefer and must pick the highest prerelease. `1.1.0-dev.*` beats
 #      `1.0.0-beta.1` on the base version alone, before prerelease identifiers
 #      are even consulted — so moving to the next minor makes it strictly

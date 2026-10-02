@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/traits/host-pid@v1beta1` |
 | API version | `v1beta1`, beta ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/traits/v1beta1` |
-| Definition | `#HostPIDTrait` in `opm/traits/v1beta1/host_pid.cue` |
+| Definition | `#HostPIDTrait` in `src/traits/v1beta1/host_pid.cue` |
 | Component wrapper | `#HostPID` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `security` |

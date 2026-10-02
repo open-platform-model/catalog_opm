@@ -9,16 +9,16 @@
 
 ## 2. Move `opm/` to `src/`
 
-- [ ] 2.1 `git mv opm src`; `git mv CHANGELOG-opm.md CHANGELOG.md`
-- [ ] 2.2 `release-please-config.json` and `.release-please-manifest.json` per design D1 (package key `src`, component `opm`, `changelog-path: "/CHANGELOG.md"`, no `prerelease-type`)
-- [ ] 2.3 Workflows per design D2: `src--tag_name` and `src--version` outputs, the `paths_released` matrix replaced by one publish job, the identity-advance loop written out once (component `opm`, directory `src`), `opm catalog publish ./src`, every path filter and `working-directory` on `src`
-- [ ] 2.4 `Taskfile.yml` per design D3: `MODULE_DIR: src`, loops removed, `branch-tag` passes `opm-` literally; the `KUBERNETES_VERSION` comment and the `generate:kinds` block name `src/`
-- [ ] 2.5 `.tasks/generate-index.sh`: take the INDEX title from the module path, not the directory name (design D3); `task generate:index:check` shows `src/INDEX.md` unchanged
-- [ ] 2.6 `.tasks/generate-index.sh`, `.tasks/fixtures.sh`, `.tasks/branch-tag.sh`, `.tasks/listing.sh`, `.tasks/description-check.sh`, `.tasks/doc-check.sh`: every usage example and comment names `src`
-- [ ] 2.7 `tools/refgen`: load `src/`; its tests pass; `task generate:reference` (each member page's Definition row now names `src/`). `tools/kindgen` (design D6): read `src/cue.mod/module.cue`, write `src/schemas/kinds/table.cue`, package doc names `src/`; `task test:kindgen` passes
-- [ ] 2.8 `openspec/changes/publish-docs-bundle/`: `./opm` becomes `./src` in proposal, design and tasks; its G3 notes this change; its design's backfill note states the old path for tags before this change
-- [ ] 2.9 `opm catalog publish ./src --dry-run` reports the same tree digest as `opm catalog publish ./opm --dry-run` on `main` (design, Risks)
-- [ ] 2.10 `task check` green, then commit `refactor: move the opm module to src/`
+- [x] 2.1 `git mv opm src`; `git mv CHANGELOG-opm.md CHANGELOG.md`
+- [x] 2.2 `release-please-config.json` and `.release-please-manifest.json` per design D1 (package key `src`, component `opm`, `changelog-path: "/CHANGELOG.md"`, no `prerelease-type`)
+- [x] 2.3 Workflows per design D2: `src--tag_name` and `src--version` outputs, the `paths_released` matrix replaced by one publish job, the identity-advance loop written out once (component `opm`, directory `src`), `opm catalog publish ./src`, every path filter and `working-directory` on `src`
+- [x] 2.4 `Taskfile.yml` per design D3: `MODULE_DIR: src`, loops removed, `branch-tag` passes `opm-` literally; the `KUBERNETES_VERSION` comment and the `generate:kinds` block name `src/`
+- [x] 2.5 `.tasks/generate-index.sh`: take the INDEX title from the module path, not the directory name (design D3); `task generate:index:check` shows `src/INDEX.md` unchanged
+- [x] 2.6 `.tasks/generate-index.sh`, `.tasks/fixtures.sh`, `.tasks/branch-tag.sh`, `.tasks/listing.sh`, `.tasks/description-check.sh`, `.tasks/doc-check.sh`: every usage example and comment names `src`
+- [x] 2.7 `tools/refgen`: load `src/`; its tests pass; `task generate:reference` (each member page's Definition row now names `src/`). `tools/kindgen` (design D6): read `src/cue.mod/module.cue`, write `src/schemas/kinds/table.cue`, package doc names `src/`; `task test:kindgen` passes
+- [x] 2.8 `openspec/changes/publish-docs-bundle/`: `./opm` becomes `./src` in proposal, design and tasks; its G3 notes this change; its design's backfill note states the old path for tags before this change
+- [x] 2.9 `opm catalog publish ./src --dry-run` reports the same tree digest as `opm catalog publish ./opm --dry-run` on `main` (design, Risks)
+- [x] 2.10 `task check` green, then commit `refactor: move the opm module to src/`
 
 ## 3. One catalog in every description
 

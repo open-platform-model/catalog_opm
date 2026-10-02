@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/traits/image-pull-secrets@v1beta1` |
 | API version | `v1beta1`, beta ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/traits/v1beta1` |
-| Definition | `#ImagePullSecretsTrait` in `opm/traits/v1beta1/image_pull_secrets.cue` |
+| Definition | `#ImagePullSecretsTrait` in `src/traits/v1beta1/image_pull_secrets.cue` |
 | Component wrapper | `#ImagePullSecrets` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `security` |

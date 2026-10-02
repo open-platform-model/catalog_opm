@@ -2,7 +2,7 @@
 
 - **G1, before section 1**: docs-kit `v0.1.0` is released (the tag exists and its GitHub Release carries the `opm-docs_0.1.0_<os>_<arch>.tar.gz` archives and `checksums.txt`), and docs-kit's contracts (`docs/contracts.md` at `v0.1.0`, C1 to C12) still read as design.md "Context" quotes them.
 - **G2, before section 2**: section 1 is merged, its PR's `Docs / check` run was green, and the first `Docs / edge` run on `main` is green.
-- **G3, before section 3**: section 2 is done; opmodel.dev `add-catalogs-tab` is merged and `https://open-platform-model.github.io/opmodel.dev/catalogs/opm/4/` serves the Catalogs tab (the site has then stopped mounting this repository's catalog member and contract pages); the change that removes the `k8s` catalog from this repository is merged on `main` (no `k8s/` module).
+- **G3, before section 3**: section 2 is done; opmodel.dev `add-catalogs-tab` is merged and `https://open-platform-model.github.io/opmodel.dev/catalogs/opm/4/` serves the Catalogs tab (the site has then stopped mounting this repository's catalog member and contract pages); the change that removes the `k8s` catalog from this repository (`retire-k8s-catalog`, which also moved the opm module to `src/`) is merged on `main` (no `k8s/` module).
 
 ## 1. Publish the opm docs bundle (gate G1; docs-kit.cue, docs/catalogs/, .github/, Taskfile.yml)
 
@@ -33,7 +33,7 @@
 - [ ] 3.4 `ci.yml`: remove `Setup Go`, "Test the reference generator" and "Verify the generated site reference is up to date"; `branch-publish.yml`: remove `Setup Go`
 - [ ] 3.5 `release.yml`, job `release-please`: run `opm catalog version set` on a scratch checkout with no registry credentials; remove `Setup Go`, `Install Task`, `task generate:reference`, `docs/site/reference` from `git add` and the `git status --porcelain` test, and the GHCR login with its comment unless the scratch run needed a registry
 - [ ] 3.6 Reword `vet:descriptions`' `desc` and `.tasks/description-check.sh`'s header from "generated site reference" to the published catalog reference
-- [ ] 3.7 Point the two "Check against" comments that name `catalog-members/` (`docs/site/authoring/attach-a-trait.md`, `choose-a-blueprint.md`) at `catalog_opm/opm/INDEX.md`
+- [ ] 3.7 Point the two "Check against" comments that name `catalog-members/` (`docs/site/authoring/attach-a-trait.md`, `choose-a-blueprint.md`) at `catalog_opm/src/INDEX.md`
 - [ ] 3.8 Land the third durable decision: `AGENTS.md` (Purpose's "one Go program" paragraph, the layout lines for `docs/site/` and `tools/refgen/`, the Dependencies Go bullet, the three refgen rows of the commands table and the `task check` row, the release-please bullet's `task generate:reference` clause, the "Site reference" Working Style bullet rewritten as the published catalog reference, and the `task check` bullet) and `openspec/config.yaml` (the context's "The only Go code is `tools/refgen/`" sentence and Principle II's `task generate:reference` bullet)
 - [ ] 3.9 `grep -rn "refgen\|generate:reference\|docs/site/reference" --exclude-dir=archive .` names only this change's own files
 - [ ] 3.10 `task check` green, then commit `ci(docs): retire tools/refgen and its committed pages`

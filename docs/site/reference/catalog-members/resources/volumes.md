@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/resources/volumes@v1beta1` |
 | API version | `v1beta1`, beta ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/resources/v1beta1` |
-| Definition | `#VolumesResource` in `opm/resources/v1beta1/volume.cue` |
+| Definition | `#VolumesResource` in `src/resources/v1beta1/volume.cue` |
 | Component wrapper | `#Volumes` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `storage` |

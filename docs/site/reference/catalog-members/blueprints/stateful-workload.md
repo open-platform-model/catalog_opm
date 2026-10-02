@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/blueprints/stateful-workload@v1beta1` |
 | API version | `v1beta1`, beta ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/blueprints/v1beta1` |
-| Definition | `#StatefulWorkloadBlueprint` in `opm/blueprints/v1beta1/stateful_workload.cue` |
+| Definition | `#StatefulWorkloadBlueprint` in `src/blueprints/v1beta1/stateful_workload.cue` |
 | Component wrapper | `#StatefulWorkload` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Composed resources | [Container](/docs/reference/catalog-members/resources/container/), [Volumes](/docs/reference/catalog-members/resources/volumes/) |

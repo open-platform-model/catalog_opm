@@ -1,4 +1,4 @@
-// Command kindgen generates opm/schemas/kinds/table.cue, the table the
+// Command kindgen generates src/schemas/kinds/table.cue, the table the
 // objects resource dispatches on: every built-in Kubernetes kind, keyed by
 // apiVersion then kind, with its closed cue.dev/x/k8s.io definition and its
 // scope.
@@ -6,7 +6,7 @@
 // It joins two inputs:
 //
 //   - Schemas: every package of the cue.dev/x/k8s.io version that
-//     opm/cue.mod/module.cue pins, loaded through the opm module the way
+//     src/cue.mod/module.cue pins, loaded through that module the way
 //     `cue vet` loads it. A definition whose apiVersion and kind are concrete,
 //     and whose kind does not end in List, is a kind.
 //   - Scope: the OpenAPI spec (api/openapi-spec/swagger.json) of the
@@ -57,7 +57,7 @@ func run(repo, tag, swaggerPath string) error {
 	if err != nil {
 		return err
 	}
-	opmDir := filepath.Join(root, "opm")
+	opmDir := filepath.Join(root, "src")
 	ctx := context.Background()
 
 	spec, err := readSpec(ctx, tag, swaggerPath)

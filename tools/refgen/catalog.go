@@ -25,7 +25,7 @@ const (
 
 // module is one loaded catalog module.
 type module struct {
-	label   string // module directory name: opm
+	label   string // module directory name: src
 	path    string // module path with its major: opmodel.dev/catalogs/opm@v4
 	base    string // module path without its major: opmodel.dev/catalogs/opm
 	version string // identity.Version, the build these pages describe

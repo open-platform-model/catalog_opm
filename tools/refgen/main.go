@@ -1,7 +1,7 @@
 // Command refgen generates the catalog reference pages under
 // docs/site/reference/ from the catalog module of this repository.
 //
-// It loads opm/ the way `cue vet` does, evaluates the four catalog maps
+// It loads src/ the way `cue vet` does, evaluates the four catalog maps
 // (#resources, #traits, #blueprints and #transformers) and reads each
 // member's doc comment and spec schema from the source. Every fact on a page
 // is computed from the catalog; nothing is transcribed by hand (workspace
@@ -72,7 +72,7 @@ func fatal(err error) {
 // run loads the catalog, renders every page and either writes them or
 // compares them with what is committed.
 func run(root string, check bool) error {
-	abs, err := loadModule(root, "opm")
+	abs, err := loadModule(root, "src")
 	if err != nil {
 		return err
 	}

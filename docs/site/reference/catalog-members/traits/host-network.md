@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/traits/host-network@v1beta1` |
 | API version | `v1beta1`, beta ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/traits/v1beta1` |
-| Definition | `#HostNetworkTrait` in `opm/traits/v1beta1/host_network.cue` |
+| Definition | `#HostNetworkTrait` in `src/traits/v1beta1/host_network.cue` |
 | Component wrapper | `#HostNetwork` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `network` |

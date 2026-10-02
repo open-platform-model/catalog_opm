@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/resources/secrets@v1beta1` |
 | API version | `v1beta1`, beta ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/resources/v1beta1` |
-| Definition | `#SecretsResource` in `opm/resources/v1beta1/secret.cue` |
+| Definition | `#SecretsResource` in `src/resources/v1beta1/secret.cue` |
 | Component wrapper | `#Secrets` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `config` |

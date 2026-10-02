@@ -18,7 +18,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/traits/backup@v1alpha1` |
 | API version | `v1alpha1`, alpha ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/traits/v1alpha1` |
-| Definition | `#BackupTrait` in `opm/traits/v1alpha1/backup.cue` |
+| Definition | `#BackupTrait` in `src/traits/v1alpha1/backup.cue` |
 | Component wrapper | `#Backup` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `storage` |

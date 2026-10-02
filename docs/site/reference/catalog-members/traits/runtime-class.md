@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/traits/runtime-class@v1beta1` |
 | API version | `v1beta1`, beta ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/traits/v1beta1` |
-| Definition | `#RuntimeClassTrait` in `opm/traits/v1beta1/runtime_class.cue` |
+| Definition | `#RuntimeClassTrait` in `src/traits/v1beta1/runtime_class.cue` |
 | Component wrapper | `#RuntimeClass` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `runtime` |

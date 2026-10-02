@@ -13,7 +13,7 @@ type: reference
 | FQN | `opmodel.dev/catalogs/opm/resources/validating-admission-policies@v1alpha1` |
 | API version | `v1alpha1`, alpha ([contract levels](/docs/reference/catalog-contract/)) |
 | Module path | `opmodel.dev/catalogs/opm/resources/v1alpha1` |
-| Definition | `#ValidatingAdmissionPoliciesResource` in `opm/resources/v1alpha1/admission_policy.cue` |
+| Definition | `#ValidatingAdmissionPoliciesResource` in `src/resources/v1alpha1/admission_policy.cue` |
 | Component wrapper | `#ValidatingAdmissionPolicies` |
 | Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `admission` |

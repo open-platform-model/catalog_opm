@@ -31,7 +31,7 @@ env:
 
 jobs:
   publish:
-    name: Publish both catalogs (dev tags)
+    name: Publish the catalog (dev tag)
     # Forks have no access to GITHUB_TOKEN with packages:write — skip cleanly.
     if: github.event.repository.fork == false
     runs-on: ubuntu-latest
@@ -95,16 +95,9 @@ jobs:
       # pushed tag equals the tree's own declared Version (D18); a --version
       # flag diverging from the committed release version would be a refusal.
       #
-      # Each module derives its own tag from its own release line: branch-tag.sh
-      # takes the module dir plus that module's release-please tag prefix, and
-      # the two modules sit on different majors, so they cannot share one.
-      #
-      # branch-tag.sh's dirty-worktree guard runs `git status` repo-wide, not
-      # scoped to one module dir, so a version-set write left over from an
-      # earlier module in this loop would trip the NEXT module's guard even
-      # though that dirt is unrelated to it. Restore each module's identity
-      # file the moment its own publish is done, so the tree is clean again
-      # before the next module computes its tag.
+      # branch-tag.sh takes the module directory (src) and the release-please
+      # tag prefix it reads releases from (opm-, from the component). The two
+      # differ, so neither is derived from the other.
       #
       # A dev tag names its commit (-0.dev.<commit time>.g<sha>), so a tag that
       # is already published came from this same commit in an earlier run of
@@ -114,18 +107,15 @@ jobs:
       - name: Publish branch tags
         run: |
           set -euo pipefail
-          for m in opm; do
-            tag=$(bash .tasks/branch-tag.sh "$(pwd)/${m}" "${m}-")
-            echo "publishing ${m} at ${tag}"
-            opm catalog version set "${tag#v}" "./${m}"
-            if out=$(opm catalog publish "./${m}" 2>&1); then
-              echo "${out}"
-            elif echo "${out}" | grep -qF "already holds ${tag}" && echo "${out}" | grep -qE '(^|[^0-9])1 refusal$'; then
-              echo "${out}"
-              echo "::notice::${m} ${tag} is already published from this commit; nothing to do"
-            else
-              echo "${out}"
-              exit 1
-            fi
-            git checkout -- "${m}/identity/identity.cue"
-          done
+          tag=$(bash .tasks/branch-tag.sh "$(pwd)/src" "opm-")
+          echo "publishing opm at ${tag}"
+          opm catalog version set "${tag#v}" ./src
+          if out=$(opm catalog publish ./src 2>&1); then
+            echo "${out}"
+          elif echo "${out}" | grep -qF "already holds ${tag}" && echo "${out}" | grep -qE '(^|[^0-9])1 refusal$'; then
+            echo "${out}"
+            echo "::notice::opm ${tag} is already published from this commit; nothing to do"
+          else
+            echo "${out}"
+            exit 1
+          fi
