@@ -138,3 +138,23 @@ func TestMark(t *testing.T) {
 		}
 	}
 }
+
+func TestStripCitations(t *testing.T) {
+	cases := map[string]string{
+		"failing the render loudly (0010 D28) beats it":            "failing the render loudly beats it",
+		"refuses it structurally (0015 D10), so nothing is gated": "refuses it structurally, so nothing is gated",
+		"with no fallback (0019:D22). Required.":                   "with no fallback. Required.",
+		"per 0010:D4:R2 and 0010:D49 the key moves":                "the key moves",
+		"no citation here (see docs/x.md)":                         "no citation here (see docs/x.md)",
+	}
+	for in, want := range cases {
+		if got := stripCitations(in); got != want {
+			t.Errorf("stripCitations(%q) = %q, want %q", in, got, want)
+		}
+	}
+	code := "spec: x: #S\n\n#S: {\n\t// The name, with no fallback (0019\n\t// D22). Required.\n\tname!: string // Example: \"a\" (0010:D4)\n\t// Untouched\n\t//   indented example\n\tother?: int\n}"
+	want := "spec: x: #S\n\n#S: {\n\t// The name, with no fallback. Required.\n\tname!: string // Example: \"a\"\n\t// Untouched\n\t//   indented example\n\tother?: int\n}"
+	if got := stripCodeCitations(code); got != want {
+		t.Errorf("stripCodeCitations:\n%s\nwant:\n%s", got, want)
+	}
+}

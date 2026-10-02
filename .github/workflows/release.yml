@@ -80,6 +80,11 @@ jobs:
           sudo install -m 0755 "${tmp}/opm" /usr/local/bin/opm
           rm -rf "${tmp}" opm-linux-amd64.tar.gz checksums.txt LICENSE
 
+      # task generate:reference below loads both catalogs, which resolves
+      # opmodel.dev/core@v2 from GHCR: the same read login ci.yml uses.
+      - name: Login to GHCR (read deps)
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
       # The site reference under docs/site/reference/ stamps every page with
       # identity.Version, so the identity advance below regenerates it in the
       # same commit; without it the release PR fails its own staleness check.

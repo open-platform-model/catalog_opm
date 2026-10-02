@@ -12,7 +12,11 @@
 //
 //   - The summary is the member's metadata.description, which MUST open the
 //     member's doc comment (followed by a period); the rest of the doc comment
-//     is the notes. A member that breaks this is refused.
+//     is the notes. A member that breaks this is refused. The summary is the
+//     page's front-matter description, which the site shows as the lead, so
+//     the body does not repeat it.
+//   - Decision citations ("0010 D28", "0019:D22") are stripped from the notes
+//     and from the comments in a spec block: a reader cannot resolve them.
 //   - The spec is the authored `spec:` field and every definition it
 //     references in the same module, transitively, printed with cue/format.
 //     Another member's own spec schema is linked rather than repeated, and

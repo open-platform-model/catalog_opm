@@ -223,7 +223,7 @@ func renderSpec(mod *module, m *member, roots map[string]*member) (*specView, er
 			b.WriteString(code)
 		}
 	}
-	view.code = b.String()
+	view.code = stripCodeCitations(b.String())
 	return view, nil
 }
 

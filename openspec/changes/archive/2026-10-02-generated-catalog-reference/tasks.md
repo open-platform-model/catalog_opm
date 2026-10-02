@@ -24,3 +24,10 @@
 - [x] 3.2 `release.yml`: install Go and Task in the release-please job and regenerate the reference in the identity-advance commit
 - [x] 3.3 `AGENTS.md` and `openspec/config.yaml`: drop "no Go code", add the reference rule (Durable decisions)
 - [x] 3.4 `task check` green, then commit `ci: check the catalog reference and regenerate it on release PRs`
+
+## 4. Review fixes (tools/refgen/, opm/, .github/)
+
+- [x] 4.1 `release.yml`: log in to GHCR before the identity advance regenerates the reference
+- [x] 4.2 Member pages: drop the body summary that repeats the front-matter description; strip decision citations from notes and spec-block comments; add the blueprint served-by caveat
+- [x] 4.3 `opm/resources/v1beta1/container.cue` (`gpu` history into a `// WHY` block), `role.cue` (self-contained form comments), `opm/traits/v1beta1/sizing.cue` (no "future" wording); `AGENTS.md` comment rule
+- [x] 4.4 `task check` green, then commit `docs(site): keep maintainer text and citations off the reference pages`

@@ -75,7 +75,11 @@ var docNote = regexp.MustCompile(`\bdocs/[a-z0-9-]+\.md\b`)
 func notesMarkdown(root string, paras []string) string {
 	var out []string
 	for _, p := range paras {
-		text := mdText(strings.Join(strings.Fields(p), " "))
+		plain := stripCitations(strings.Join(strings.Fields(p), " "))
+		if plain == "" {
+			continue
+		}
+		text := mdText(plain)
 		text = linkDocNotes(root, text)
 		out = append(out, text)
 	}

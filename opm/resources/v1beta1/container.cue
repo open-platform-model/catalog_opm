@@ -183,10 +183,12 @@ import (
 		memory?: number | string & =~"^[0-9]+[MG]i$"
 	}
 
-	// A single GPU claim. Kept exactly as-is: modules published against earlier
-	// catalog versions set it (jellyfin v2.4.0), and a module's resource FQNs
-	// embed the catalog version under exact-FQN transformer matching, so this
-	// field cannot be renamed or folded into `gpus` without stranding them.
+	// WHY: Kept exactly as-is: modules published against earlier catalog
+	// versions set it (jellyfin v2.4.0), and a module's resource FQNs embed the
+	// catalog version under exact-FQN transformer matching, so this field
+	// cannot be renamed or folded into `gpus` without stranding them.
+
+	// A single GPU claim.
 	gpu?: #GpuResourceSchema
 
 	// WHY: Needed whenever one container must hold devices from two different device

@@ -252,9 +252,10 @@ func mark(m *member, served []service) (kind, heading, body string, ok bool) {
 		noun, without), true
 }
 
-// memberPage renders one member's page, in the fixed order: summary, at a
-// glance, spec, notes, served by, enforcement. The example part is never
-// written: no member carries one.
+// memberPage renders one member's page, in the fixed order: summary (the
+// front-matter description, shown as the page lead), at a glance, spec,
+// notes, served by, enforcement. The example part is never written: no
+// member carries one.
 func memberPage(root string, mod *module, m *member, roots map[string]*member, byFQN map[string]*member) (string, error) {
 	notes, err := splitDoc(m.doc, m.description)
 	if err != nil {
@@ -271,8 +272,8 @@ func memberPage(root string, mod *module, m *member, roots map[string]*member, b
 	fmt.Fprintf(&b, "---\ntitle: %s\ndescription: %s\ntype: reference\n---\n\n%s\n\n",
 		yamlString(title(m)), yamlString(m.description), beginMarker)
 
-	// Summary.
-	fmt.Fprintf(&b, "%s.\n\n", mdText(m.description))
+	// Summary: the description, which the site renders from the front
+	// matter as the page's lead, so the body does not repeat it.
 
 	// At a glance.
 	b.WriteString("## At a glance\n\n")
@@ -349,7 +350,7 @@ func memberPage(root string, mod *module, m *member, roots map[string]*member, b
 	b.WriteString("## Served by\n\n")
 	switch {
 	case m.kind == kindBlueprint && len(served) > 0:
-		fmt.Fprintf(&b, "These transformers in %s require only what this blueprint supplies: its match labels answer their required labels, and it composes every resource and trait they require.\n\n", code(mod.path))
+		fmt.Fprintf(&b, "These transformers in %s require only what this blueprint supplies: its match labels answer their required labels, and it composes every resource and trait they require. A listed transformer can still emit nothing for a component that leaves out the optional fields it renders from.\n\n", code(mod.path))
 		b.WriteString("| Transformer | What it does |\n| --- | --- |\n")
 		for _, s := range served {
 			fmt.Fprintf(&b, "| %s | %s |\n", code(s.t.name), cell(mdText(s.t.description)))

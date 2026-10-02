@@ -625,7 +625,7 @@ CUE module: `opmodel.dev/catalogs/opm@v4`
 | `#Sizing` | `traits/v1beta1/sizing.cue` |  |
 | `#SizingSchema` | `traits/v1beta1/sizing.cue` |  |
 | `#SizingTrait` | `traits/v1beta1/sizing.cue` | Vertical sizing for a workload: resource requests and limits |
-| `#VerticalScalingSchema` | `traits/v1beta1/sizing.cue` | Placeholder for future VPA support |
+| `#VerticalScalingSchema` | `traits/v1beta1/sizing.cue` | An empty struct: it admits no fields, and no transformer reads it |
 | `#TcpRoute` | `traits/v1beta1/tcp_route.cue` |  |
 | `#TcpRouteRuleSchema` | `traits/v1beta1/tcp_route.cue` | No L7 match fields for TCP |
 | `#TcpRouteSchema` | `traits/v1beta1/tcp_route.cue` |  |

@@ -57,7 +57,8 @@ import (
 	// For `signers`, the apiserver special-cases "<domain>/*" wildcards
 	// (e.g. "issuers.cert-manager.io/*") — passed through verbatim.
 	resourceNames?: [...string]
-	// Present -> not this form (see the WHY block on #PolicyRuleSchema).
+	// Belongs to the other form: setting it rules this form out, so a rule
+	// matches exactly one arm of #PolicyRuleSchema.
 	nonResourceURLs?: _|_
 }
 
@@ -65,7 +66,8 @@ import (
 #NonResourcePolicyRuleSchema: {
 	nonResourceURLs!: [_, ...] & [...string]
 	verbs!: [...string]
-	// Present -> not this form (see the WHY block on #PolicyRuleSchema).
+	// Belongs to the other form: setting it rules this form out, so a rule
+	// matches exactly one arm of #PolicyRuleSchema.
 	apiGroups?:     _|_
 	resources?:     _|_
 	resourceNames?: _|_

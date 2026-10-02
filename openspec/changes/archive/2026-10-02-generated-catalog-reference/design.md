@@ -82,6 +82,14 @@ The raw table would name the abstraction that covers the same ground only if the
 
 The stamp, every `catalogVersion` and every transformer FQN carry `identity.Version`, which `opm catalog version set` advances on the release PR. The identity-advance step in `release.yml` therefore runs `task generate:reference` and commits the pages with the identity file; without it a release PR fails its own staleness check. `branch-publish.yml` stamps its `-dev` version after `task check`, into a working tree it never commits, so it needs nothing.
 
+### Review follow-ups
+
+- The site renders the front-matter description as the page lead, so a member page does not repeat it as a body paragraph; the summary part is that lead.
+- Decision citations in published comments (`0010 D28`, `0015 D10`, `0019 D21`, `0019 D22`) cannot be resolved by a reader, so the generator strips them from notes and from spec-block comments, as core's generator does. The linked `0010:D28` and `0010:D32` in enforcement rows stay: they resolve.
+- Comments that reached pages but were maintainer text move or change at the source: the `gpu` field's history becomes a `// WHY` block, role's pointer to a stripped WHY block is made self-contained, and sizing's "future VPA support" says what the empty schema is today.
+- The release-please job logs in to GHCR before regenerating, since loading the catalogs resolves core from GHCR.
+- A blueprint's served-by notes that a listed transformer can emit nothing for a component that leaves out the optional fields it renders from (the HPA transformer without `scaling.auto`).
+
 ## Research & Decisions
 
 ### How to load the catalogs

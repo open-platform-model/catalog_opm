@@ -38,5 +38,5 @@ import (
 	autoScaling?: #VerticalScalingSchema
 }
 
-// Placeholder for future VPA support.
+// An empty struct: it admits no fields, and no transformer reads it.
 #VerticalScalingSchema: {}
