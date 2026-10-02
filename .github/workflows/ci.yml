@@ -15,8 +15,6 @@ env:
   # OPM_REGISTRY (never CUE_REGISTRY); raw cue reads CUE_REGISTRY.
   CUE_REGISTRY: 'opmodel.dev=ghcr.io/open-platform-model,registry.cue.works'
   OPM_REGISTRY: 'opmodel.dev=ghcr.io/open-platform-model,registry.cue.works'
-  # Pinned OPM CLI release for the publish-gate dry-run; bump deliberately.
-  OPM_CLI_VERSION: 'v1.0.0-beta.2'
 
 jobs:
   ci:
@@ -25,6 +23,14 @@ jobs:
     steps:
       - name: Clone the code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      # The opm CLI pin lives in .opm-cli-version only, so a bump never edits a
+      # workflow file. The grep refuses a missing, empty or malformed file here,
+      # rather than letting Install opm fail later with an unclear 404.
+      - name: Read the pinned opm CLI version
+        run: |
+          grep -qxE 'v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?' .opm-cli-version
+          echo "OPM_CLI_VERSION=$(cat .opm-cli-version)" >> "$GITHUB_ENV"
 
       - name: Setup CUE
         uses: cue-lang/setup-cue@a93fa358375740cd8b0078f76355512b9208acb1 # v1.0.1
@@ -35,6 +41,14 @@ jobs:
         uses: go-task/setup-task@3be4020d41929789a01026e0e427a4321ce0ad44 # v2.0.0
         with:
           version: 3.x
+
+      # G1 release-pin gate (workspace RELEASING.md, section "Gates"). Release PR CI
+      # arrives either as pull_request (head_ref set) or as the workflow_dispatch run
+      # release.yml starts on the release branch (head_ref empty, ref_name set).
+      # A step, never its own job: a skipped job would read as a passing check.
+      - name: Release-pin gate (G1)
+        if: startsWith(github.head_ref || github.ref_name, 'release-please--')
+        run: task deps:release-check
 
       - name: Login to GHCR (read deps)
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
