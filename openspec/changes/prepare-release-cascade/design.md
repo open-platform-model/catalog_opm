@@ -36,8 +36,8 @@ The shipped pins that G1 judges are `opm/cue.mod/module.cue:13-15` and
 
 - G2 (`cascade/freshness`) and G3 (`cascade/settled`). They live in the shared cascade
   workflows of `.github` `add-release-cascade-workflows` (a later phase).
-- Running G1 on every PR. The owner scoped G1 to release PRs (workspace `RELEASING.md`,
-  section "Gates").
+- Running G1 on every PR. G1 runs on release PRs only: owner decision 2026-10-01
+  (RELEASING.md, Gates).
 - Splitting "Verify the published build" out of `publish-cue`, and the notify job. Both belong
   to catalog_opm `join-release-cascade` (workspace `RELEASING.md`, section
   "Rollout and changes").
@@ -193,7 +193,7 @@ locally before it commits.
 - [G1 is advisory until the ruleset requires `Validate catalog`] -> catalog_opm's `main`
   branch protection already requires `Validate catalog` (checked 2026-10-01 with
   `gh api .../branches/main/protection`; dispatched CI exists to satisfy it, `ci.yml:7-10`). The owner's
-  D14 ruleset keeps it required.
+  ruleset keeps it required: owner decision 2026-10-01 (RELEASING.md, Owner settings).
 - [A pin written in an unusual CUE shape slips past the dev-pin check] -> the grep matches any
   `-0.dev.` anywhere in `cue.mod/module.cue`, not only after `v: "`, so the spelling of the pin
   does not matter (`cue fmt` leaves `v:"..."` as written, and no CI step diffs `task tidy`). The

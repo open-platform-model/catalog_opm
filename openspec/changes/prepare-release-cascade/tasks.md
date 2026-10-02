@@ -27,3 +27,8 @@
 - [ ] 4.1 `.github/workflows/branch-publish.yml`: add `'deps/**'` under `on.push.branches-ignore` next to `main` (design D4), with a one-line comment saying cascade bot branches never publish dev catalogs
 - [ ] 4.2 `AGENTS.md` § Release & publishing: amend the `branch-publish.yml` bullet from "for non-main branches" to "for non-main branches except `deps/**` (release cascade bot branches)" (design, Durable decisions)
 - [ ] 4.3 `go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.7 .github/workflows/*.yml` exits 0 (the check from 1.5). `task check` green, then commit `ci: skip branch publish on deps branches`
+
+## 5. Archive
+
+- [ ] 5.1 Archive the change on this branch (openspec archive), so the archive rides the implementing PR; never push to main (owner decision 2026-10-01, RELEASING.md, Owner settings)
+- [ ] 5.2 `openspec validate --all --strict` green, then commit `chore(openspec): archive prepare-release-cascade`

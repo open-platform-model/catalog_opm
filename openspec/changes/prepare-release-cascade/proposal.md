@@ -93,8 +93,8 @@ env:
   `.opm-cli-version` and relies on the `deps/**` exclusion.
 - Gates: catalog_opm `join-release-cascade` (a later phase). The receiver pushes `deps/cascade`
   and needs G1 present.
-- The OpenSpec archive commit rides this change's PR; nothing is pushed to `main` afterwards
-  (workspace `RELEASING.md`, section "Owner settings").
+- The OpenSpec archive commit rides this change's PR; nothing is pushed to `main` afterwards:
+  owner decision 2026-10-01 (RELEASING.md, Owner settings). tasks.md section 5 does it.
 - Peers (same phase, independent): library `prepare-release-cascade`, opm-operator
   `prepare-release-cascade`, cli `prepare-release-cascade`. Each adds G1 in its own repo. There is
   no ordering between them.
