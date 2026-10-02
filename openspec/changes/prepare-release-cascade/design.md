@@ -36,8 +36,8 @@ The shipped pins that G1 judges are `opm/cue.mod/module.cue:13-15` and
 
 - G2 (`cascade/freshness`) and G3 (`cascade/settled`). They live in the shared cascade
   workflows of `.github` `add-release-cascade-workflows` (a later phase).
-- Running G1 on every PR. G1 runs on release PRs only: owner decision 2026-10-01
-  (RELEASING.md, Gates).
+- Running G1 on every PR. G1 runs on release PRs only (workspace RELEASING.md, section
+  "Gates").
 - Splitting "Verify the published build" out of `publish-cue`, and the notify job. Both belong
   to catalog_opm `join-release-cascade` (workspace `RELEASING.md`, section
   "Rollout and changes").
@@ -120,8 +120,9 @@ Placement in each job:
 
 The `Install opm` step bodies do not change: they already read `${OPM_CLI_VERSION}`. The step
 name is the same in every job, which helps `grep`. The `grep -qxE` line comes before the verbatim
-`echo` line and requires the file to hold exactly one tag-shaped line (a file holding only a
-newline fails it, which `test -s` would let through). A missing, empty or malformed file would
+`echo` line and requires a tag-shaped line (a file holding only a newline fails it, which
+`test -s` would let through; a file with extra lines still fails, later, when GitHub refuses
+the second `$GITHUB_ENV` line). A missing, empty or malformed file would
 otherwise write `OPM_CLI_VERSION=`, and the step would still succeed, because a failing command substitution inside `echo` does not trip
 `bash -e`. The install would then fail later with an unclear 404 on `.../download//...`.
 
@@ -180,6 +181,9 @@ Nothing touches `opm catalog`.
 **Decision**: bump straight from beta.2 to beta.4. Section 2 still runs both dry-run publishes
 locally before it commits.
 **Rationale**: the CI dry-run (`ci.yml:82-103`) is the real proof, and it runs on the PR.
+`v1.0.0-beta.5` (2026-10-01) landed after planning. beta.4 stays the deliberate catch-up
+target, matching opm-operator's prepare-release-cascade; the first `task deps:pins:opm-cli`
+after merge moves the pin on through `.opm-cli-version`.
 
 ## Risks / Trade-offs
 
