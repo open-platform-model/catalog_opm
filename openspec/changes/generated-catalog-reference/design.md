@@ -100,6 +100,7 @@ The stamp, every `catalogVersion` and every transformer FQN carry `identity.Vers
 
 - [`task check` now needs Go] -> CI installs it from `tools/refgen/go.mod`; a contributor without Go can still run every CUE gate individually.
 - [A release PR's identity commit grows from one file to the identity file plus the regenerated pages] -> the commit is still made by the same step on the same branch, and the staleness check proves it complete.
+- [A cascade `fix(deps)` PR that moves the core pin could change an evaluated default a page shows, and the bot cannot regenerate] -> the pages read only catalog-authored values and core type names, so a core bump leaves them unchanged unless core changes a default the catalog inherits; if one does, the staleness check names the page and a human regenerates on the cascade branch.
 - [The doc-comment rule is stricter than before: a member's doc comment must open with its description] -> the generator names the member and the expected sentence; `AGENTS.md` states the rule.
 
 ## Durable decisions

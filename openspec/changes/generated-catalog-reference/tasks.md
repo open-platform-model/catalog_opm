@@ -20,7 +20,7 @@
 
 ## 3. CI, release and repository rules (.github/, AGENTS.md, openspec/config.yaml)
 
-- [ ] 3.1 `ci.yml`: install Go from `tools/refgen/go.mod` and run `task generate:reference:check`
-- [ ] 3.2 `release.yml`: install Go and Task in the release-please job and regenerate the reference in the identity-advance commit
-- [ ] 3.3 `AGENTS.md` and `openspec/config.yaml`: drop "no Go code", add the reference rule (Durable decisions)
-- [ ] 3.4 `task check` green, then commit `ci: check the catalog reference and regenerate it on release PRs`
+- [x] 3.1 `ci.yml`: install Go from `tools/refgen/go.mod` and run `task generate:reference:check`
+- [x] 3.2 `release.yml`: install Go and Task in the release-please job and regenerate the reference in the identity-advance commit
+- [x] 3.3 `AGENTS.md` and `openspec/config.yaml`: drop "no Go code", add the reference rule (Durable decisions)
+- [x] 3.4 `task check` green, then commit `ci: check the catalog reference and regenerate it on release PRs`

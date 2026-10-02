@@ -80,6 +80,20 @@ jobs:
           sudo install -m 0755 "${tmp}/opm" /usr/local/bin/opm
           rm -rf "${tmp}" opm-linux-amd64.tar.gz checksums.txt LICENSE
 
+      # The site reference under docs/site/reference/ stamps every page with
+      # identity.Version, so the identity advance below regenerates it in the
+      # same commit; without it the release PR fails its own staleness check.
+      - name: Setup Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: tools/refgen/go.mod
+          cache-dependency-path: tools/refgen/go.sum
+
+      - name: Install Task
+        uses: go-task/setup-task@3be4020d41929789a01026e0e427a4321ce0ad44 # v2.0.0
+        with:
+          version: 3.x
+
       # Release-please decides the version; the identity file is written only by
       # opm's own writer (enhancement 0011 D3/D15 — no x-release-please-version
       # annotation, which would be a second writer and reintroduce drift). The
@@ -103,11 +117,12 @@ jobs:
             git checkout -B "$BRANCH" FETCH_HEAD
             VERSION=$(jq -r --arg m "$m" '.[$m]' .release-please-manifest.json)
             opm catalog version set "$VERSION" "./${m}"
-            if git diff --quiet; then
+            task generate:reference
+            if git diff --quiet && [ -z "$(git status --porcelain -- docs/site/reference)" ]; then
               echo "${m}: identity.Version already declares ${VERSION}"
               continue
             fi
-            git add "${m}/identity/identity.cue"
+            git add "${m}/identity/identity.cue" docs/site/reference
             git commit -m "chore: advance ${m} identity.Version to ${VERSION}"
             git push origin "$BRANCH"
           done

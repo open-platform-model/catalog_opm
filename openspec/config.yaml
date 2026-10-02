@@ -11,7 +11,8 @@ context: |
   typed entirely against `opmodel.dev/core@v2` and instantiate its constructs (`#Resource`,
   `#Trait`, `#Blueprint`, `#ComponentTransformer`); neither defines new core constructs. Platforms
   subscribe to them and modules demand contracts from them, always as published dependencies,
-  never by filesystem path. This is a pure CUE repository. There is no Go code here.
+  never by filesystem path. The catalogs are pure CUE. The only Go code is `tools/refgen/`, which
+  generates the site reference under `docs/site/reference/` and ships in neither module.
 
   ### I. The Catalog Is a Published Contract
   Platforms and modules pin these modules; a member they already unify against cannot be taken
@@ -39,6 +40,9 @@ context: |
   normative document, and this OpenSpec workspace deliberately has no specs artifact.
   - Doc comments are the contract text. `task generate:index` extracts them into each module's
     `INDEX.md`, and `task generate:index:check` is the gate that keeps the index honest.
+  - A member's `metadata.description` is the first sentence of its doc comment. The generated
+    site reference (`task generate:reference`) leads each member's page with it, and
+    `task generate:reference:check` fails when a page no longer matches the catalogs.
   - There is no `openspec/specs/` directory and no delta specs. Every change's `.openspec.yaml`
     carries `skip_specs: true`; the `openspec-new-change` and `openspec-propose` skills write
     it at creation time. Never create a `specs/` directory inside a change.
