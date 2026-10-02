@@ -84,6 +84,17 @@ tasks:
         set -e
         for m in {{.MODULES}}; do bash .tasks/listing.sh "$m"; done
 
+  vet:descriptions:
+    desc: >
+      Refuse a catalog member without a description: every member of a
+      module's #resources, #traits, #blueprints and #transformers maps carries
+      a non-blank metadata.description, its one-line summary in the generated
+      site reference.
+    cmds:
+      - |
+        set -e
+        for m in {{.MODULES}}; do bash .tasks/description-check.sh "$m"; done
+
   vet:fixtures:
     desc: >
       Check every rendered-output transformer fixture: a fixture is the
@@ -132,6 +143,31 @@ tasks:
           fi
         done
         exit $rc
+
+  ## Site reference
+  #
+  # tools/refgen (a Go module of its own) loads both catalogs the way `cue
+  # vet` does and writes the catalog reference under docs/site/reference/:
+  # one page per opm blueprint, resource and trait, and the k8s table.
+  # Regenerate after any member or transformer change; release.yml
+  # regenerates on the release PR, because every page carries the module's
+  # identity.Version.
+
+  generate:reference:
+    desc: Regenerate the catalog reference pages under docs/site/reference/ from both catalogs (tools/refgen)
+    cmds:
+      - go run -C tools/refgen . -repo "$(pwd)"
+
+  generate:reference:check:
+    desc: Verify the catalog reference matches both catalogs (exits non-zero if a page is stale or orphaned)
+    cmds:
+      - go run -C tools/refgen . -repo "$(pwd)" -check
+
+  test:refgen:
+    desc: Vet and unit-test the reference generator
+    cmds:
+      - go vet -C tools/refgen ./...
+      - go test -C tools/refgen ./...
 
   ## Doc comment length
 
@@ -191,12 +227,15 @@ tasks:
   ## Aggregate
 
   check:
-    desc: Format check, vet, layering, listing, rendered-output fixtures, INDEX freshness, and doc-comment report across every module
+    desc: Format check, vet, layering, listing, descriptions, rendered-output fixtures, INDEX freshness, the generated site reference, and doc-comment report across every module
     cmds:
       - task: fmt:check
       - task: vet
       - task: vet:layering
       - task: vet:listing
+      - task: vet:descriptions
       - task: vet:fixtures
       - task: generate:index:check
+      - task: test:refgen
+      - task: generate:reference:check
       - task: docs:check

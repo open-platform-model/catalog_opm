@@ -9,12 +9,12 @@ import (
 //// ValidatingAdmissionPolicies Resource
 /////////////////////////////////////////////////////////////////
 
-// CEL-based admission validation, the in-process alternative to a validating
-// webhook: no serving certificate, no CA bundle, no availability coupling to a
-// pod. Istio uses one to enforce its stable-channel API subset.
+// CEL ValidatingAdmissionPolicies with their bindings, rendered with exact
+// names. They are the in-process alternative to a validating webhook: no
+// serving certificate, no CA bundle, no availability coupling to a pod.
 //
-// Each entry emits BOTH the policy and its binding — they are useless apart and
-// keeping them in one entry means their names and references cannot drift.
+// Each entry emits BOTH the policy and its binding — they are useless apart
+// and keeping them in one entry means their names and references cannot drift.
 #ValidatingAdmissionPoliciesResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1alpha1"
@@ -22,7 +22,7 @@ import (
 		apiVersion:     "v1alpha1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/validating-admission-policies@v1alpha1"
-		description:    "ValidatingAdmissionPolicies emitted with exact names, each with its binding"
+		description:    "CEL ValidatingAdmissionPolicies with their bindings, rendered with exact names"
 		labels: {
 			"resource.opmodel.dev/category": "admission"
 		}

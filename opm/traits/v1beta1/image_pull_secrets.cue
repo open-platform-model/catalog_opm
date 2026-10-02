@@ -6,9 +6,9 @@ import (
 	res "opmodel.dev/catalogs/opm/resources/v1beta1"
 )
 
-// References pre-existing K8s Secrets (type kubernetes.io/dockerconfigjson)
-// that the kubelet uses to authenticate to private container registries when
-// pulling images for any container in the pod.
+// Existing Secrets the kubelet uses to pull images from private registries.
+// Each names a pre-existing Secret of type kubernetes.io/dockerconfigjson,
+// used for every container in the pod.
 #ImagePullSecretsTrait: c.#Trait & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.traits)/v1beta1"
@@ -16,7 +16,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.traits)/image-pull-secrets@v1beta1"
-		description:    "Reference K8s Secrets used to authenticate to private container registries"
+		description:    "Existing Secrets the kubelet uses to pull images from private registries"
 		labels: {
 			"trait.opmodel.dev/category": "security"
 		}

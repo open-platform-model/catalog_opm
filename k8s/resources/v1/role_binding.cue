@@ -10,8 +10,8 @@ import (
 //// RoleBinding Resource Definition
 /////////////////////////////////////////////////////////////////
 
-// #RoleBindingResource defines a native Kubernetes RoleBinding as an OPM resource.
-// Use this to bind a Role or ClusterRole to subjects within a namespace.
+// A native Kubernetes RoleBinding that binds a Role or ClusterRole to subjects
+// in a namespace.
 #RoleBindingResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1"
@@ -19,7 +19,7 @@ import (
 		apiVersion:     "v1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/rolebinding@v1"
-		description:    "A native Kubernetes RoleBinding resource"
+		description:    "A native Kubernetes RoleBinding that binds a Role or ClusterRole to subjects in a namespace"
 		labels: {
 			"resource.opmodel.dev/category": "rbac"
 		}

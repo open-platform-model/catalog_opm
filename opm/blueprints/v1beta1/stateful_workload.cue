@@ -17,6 +17,8 @@ import (
 	initContainers?: [...tr.#InitContainersSchema]
 }
 
+// A workload whose pods keep a stable identity and their own storage
+// (StatefulSet).
 #StatefulWorkloadBlueprint: c.#Blueprint & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.blueprints)/v1beta1"
@@ -24,7 +26,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.blueprints)/stateful-workload@v1beta1"
-		description:    "A stateful workload with stable identity and persistent storage requirements"
+		description:    "A workload whose pods keep a stable identity and their own storage (StatefulSet)"
 	}
 
 	// Answers the container resource's required matching key (0010 D36):

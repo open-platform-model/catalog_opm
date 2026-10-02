@@ -10,6 +10,8 @@ import (
 //// Secrets Resource
 /////////////////////////////////////////////////////////////////
 
+// Secrets of sensitive key-value data, keyed by name. Each entry renders one
+// Secret.
 #SecretsResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1beta1"
@@ -17,7 +19,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/secrets@v1beta1"
-		description:    "A Secret definition for sensitive configuration"
+		description:    "Secrets of sensitive key-value data, keyed by name"
 		labels: {
 			"resource.opmodel.dev/category": "config"
 		}

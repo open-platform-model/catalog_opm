@@ -15,6 +15,7 @@ import (
 	initContainers?: [...tr.#InitContainersSchema]
 }
 
+// A task workload that runs on a cron schedule (CronJob).
 #ScheduledTaskWorkloadBlueprint: c.#Blueprint & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.blueprints)/v1beta1"
@@ -22,7 +23,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.blueprints)/scheduled-task-workload@v1beta1"
-		description:    "A scheduled task workload that runs on a cron schedule (CronJob)"
+		description:    "A task workload that runs on a cron schedule (CronJob)"
 	}
 
 	// Answers the container resource's required matching key (0010 D36):

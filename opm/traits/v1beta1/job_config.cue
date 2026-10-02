@@ -6,6 +6,7 @@ import (
 	res "opmodel.dev/catalogs/opm/resources/v1beta1"
 )
 
+// Job settings for a task: completions, parallelism, retries and deadlines.
 #JobConfigTrait: c.#Trait & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.traits)/v1beta1"
@@ -13,7 +14,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.traits)/job-config@v1beta1"
-		description:    "A trait to configure Job-specific settings for task workloads"
+		description:    "Job settings for a task: completions, parallelism, retries and deadlines"
 		labels: {
 			"trait.opmodel.dev/category": "workload"
 		}

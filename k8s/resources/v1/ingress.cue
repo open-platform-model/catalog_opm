@@ -10,8 +10,8 @@ import (
 //// Ingress Resource Definition
 /////////////////////////////////////////////////////////////////
 
-// #IngressResource defines a native Kubernetes Ingress as an OPM resource.
-// Use this to route external HTTP/HTTPS traffic to in-cluster services.
+// A native Kubernetes Ingress that routes external HTTP and HTTPS traffic to
+// services.
 #IngressResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1"
@@ -19,7 +19,7 @@ import (
 		apiVersion:     "v1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/ingress@v1"
-		description:    "A native Kubernetes Ingress resource"
+		description:    "A native Kubernetes Ingress that routes external HTTP and HTTPS traffic to services"
 		labels: {
 			"resource.opmodel.dev/category": "network"
 		}

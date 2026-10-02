@@ -6,9 +6,9 @@ import (
 	res "opmodel.dev/catalogs/opm/resources/v1beta1"
 )
 
-// Enables hostNetwork: true on the pod spec, sharing the node's network
-// namespace. Required for workloads that must bind to host interfaces
-// directly (e.g. MetalLB speaker for ARP/NDP).
+// Shares the node's network namespace with the workload's pods (hostNetwork).
+// Required for workloads that must bind to host interfaces directly (e.g.
+// MetalLB speaker for ARP/NDP).
 #HostNetworkTrait: c.#Trait & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.traits)/v1beta1"
@@ -16,7 +16,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.traits)/host-network@v1beta1"
-		description:    "Share the node's network namespace (hostNetwork: true)"
+		description:    "Shares the node's network namespace with the workload's pods (hostNetwork)"
 		labels: {
 			"trait.opmodel.dev/category": "network"
 		}

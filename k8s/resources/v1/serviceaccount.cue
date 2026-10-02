@@ -10,8 +10,7 @@ import (
 //// ServiceAccount Resource Definition
 /////////////////////////////////////////////////////////////////
 
-// #ServiceAccountResource defines a native Kubernetes ServiceAccount as an OPM resource.
-// Use this to provide an identity for processes running in pods.
+// A native Kubernetes ServiceAccount that gives pods an identity.
 #ServiceAccountResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1"
@@ -19,7 +18,7 @@ import (
 		apiVersion:     "v1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/serviceaccount@v1"
-		description:    "A native Kubernetes ServiceAccount resource"
+		description:    "A native Kubernetes ServiceAccount that gives pods an identity"
 		labels: {
 			"resource.opmodel.dev/category": "rbac"
 		}

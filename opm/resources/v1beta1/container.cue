@@ -11,6 +11,10 @@ import (
 //// Container Resource
 /////////////////////////////////////////////////////////////////
 
+// The main container of a workload: image, ports, environment, probes and
+// resources. A component that declares it must answer the
+// core.opmodel.dev/workload-type match label, usually through a workload
+// blueprint.
 #ContainerResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1beta1"
@@ -18,7 +22,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/container@v1beta1"
-		description:    "A container definition for workloads"
+		description:    "The main container of a workload: image, ports, environment, probes and resources"
 		labels: {
 			"resource.opmodel.dev/category": "workload"
 		}
@@ -179,10 +183,12 @@ import (
 		memory?: number | string & =~"^[0-9]+[MG]i$"
 	}
 
-	// A single GPU claim. Kept exactly as-is: modules published against earlier
-	// catalog versions set it (jellyfin v2.4.0), and a module's resource FQNs
-	// embed the catalog version under exact-FQN transformer matching, so this
-	// field cannot be renamed or folded into `gpus` without stranding them.
+	// WHY: Kept exactly as-is: modules published against earlier catalog
+	// versions set it (jellyfin v2.4.0), and a module's resource FQNs embed the
+	// catalog version under exact-FQN transformer matching, so this field
+	// cannot be renamed or folded into `gpus` without stranding them.
+
+	// A single GPU claim.
 	gpu?: #GpuResourceSchema
 
 	// WHY: Needed whenever one container must hold devices from two different device

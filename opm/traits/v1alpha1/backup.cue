@@ -26,7 +26,7 @@ import (
 		apiVersion:     "v1alpha1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.traits)/backup@v1alpha1"
-		description:    "Scheduled backup policy for the component's persistent state"
+		description:    "Scheduled backup policy for a component's persistent state"
 		labels: {
 			"trait.opmodel.dev/category": "storage"
 		}

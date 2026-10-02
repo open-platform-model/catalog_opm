@@ -10,8 +10,7 @@ import (
 //// CronJob Resource Definition
 /////////////////////////////////////////////////////////////////
 
-// #CronJobResource defines a native Kubernetes CronJob as an OPM resource.
-// Use this for scheduled recurring tasks expressed as cron expressions.
+// A native Kubernetes CronJob that runs a job on a cron schedule.
 #CronJobResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1"
@@ -19,7 +18,7 @@ import (
 		apiVersion:     "v1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/cronjob@v1"
-		description:    "A native Kubernetes CronJob resource"
+		description:    "A native Kubernetes CronJob that runs a job on a cron schedule"
 		labels: {
 			"resource.opmodel.dev/category": "workload"
 		}

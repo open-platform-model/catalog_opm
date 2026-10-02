@@ -24,10 +24,10 @@ import (
 // workload rather than override anything. See
 // https://github.com/open-platform-model/enhancements/issues/12.
 
-// Selects the container runtime that executes the pod, by setting
-// `runtimeClassName` on the pod spec. The named RuntimeClass object is NOT
-// created by this trait — it is cluster-level configuration that must already
-// exist, and its `handler` must name a runtime the node's containerd knows.
+// Selects the container runtime that runs the workload's pods
+// (runtimeClassName). The named RuntimeClass object is NOT created by this
+// trait — it is cluster-level configuration that must already exist, and its
+// `handler` must name a runtime the node's containerd knows.
 #RuntimeClassTrait: c.#Trait & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.traits)/v1beta1"
@@ -35,7 +35,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.traits)/runtime-class@v1beta1"
-		description:    "Select the container runtime for the pod (runtimeClassName)"
+		description:    "Selects the container runtime that runs the workload's pods (runtimeClassName)"
 		labels: {
 			"trait.opmodel.dev/category": "runtime"
 		}

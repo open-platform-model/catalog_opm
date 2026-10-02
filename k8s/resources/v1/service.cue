@@ -10,8 +10,8 @@ import (
 //// Service Resource Definition
 /////////////////////////////////////////////////////////////////
 
-// #ServiceResource defines a native Kubernetes Service as an OPM resource.
-// Use this to expose workloads within or outside the cluster.
+// A native Kubernetes Service that exposes workloads inside or outside the
+// cluster.
 #ServiceResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1"
@@ -19,7 +19,7 @@ import (
 		apiVersion:     "v1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/service@v1"
-		description:    "A native Kubernetes Service resource"
+		description:    "A native Kubernetes Service that exposes workloads inside or outside the cluster"
 		labels: {
 			"resource.opmodel.dev/category": "network"
 		}

@@ -9,6 +9,9 @@ import (
 //// Role Resource
 /////////////////////////////////////////////////////////////////
 
+// An RBAC role with its rules and the subjects it binds, at namespace or
+// cluster scope. Renders a Role and a RoleBinding, or a ClusterRole and a
+// ClusterRoleBinding.
 #RoleResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1beta1"
@@ -16,7 +19,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/role@v1beta1"
-		description:    "An RBAC Role definition with rules and CUE-referenced subjects"
+		description:    "An RBAC role with its rules and the subjects it binds, at namespace or cluster scope"
 		labels: {
 			"resource.opmodel.dev/category": "security"
 		}
@@ -54,7 +57,8 @@ import (
 	// For `signers`, the apiserver special-cases "<domain>/*" wildcards
 	// (e.g. "issuers.cert-manager.io/*") — passed through verbatim.
 	resourceNames?: [...string]
-	// Present -> not this form (see the WHY block on #PolicyRuleSchema).
+	// Belongs to the other form: setting it rules this form out, so a rule
+	// matches exactly one arm of #PolicyRuleSchema.
 	nonResourceURLs?: _|_
 }
 
@@ -62,7 +66,8 @@ import (
 #NonResourcePolicyRuleSchema: {
 	nonResourceURLs!: [_, ...] & [...string]
 	verbs!: [...string]
-	// Present -> not this form (see the WHY block on #PolicyRuleSchema).
+	// Belongs to the other form: setting it rules this form out, so a rule
+	// matches exactly one arm of #PolicyRuleSchema.
 	apiGroups?:     _|_
 	resources?:     _|_
 	resourceNames?: _|_

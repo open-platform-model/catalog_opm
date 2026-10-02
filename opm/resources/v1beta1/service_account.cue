@@ -9,6 +9,7 @@ import (
 //// ServiceAccount Resource
 /////////////////////////////////////////////////////////////////
 
+// A ServiceAccount rendered on its own, apart from any workload.
 #ServiceAccountResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1beta1"
@@ -16,7 +17,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/service-account@v1beta1"
-		description:    "A standalone ServiceAccount definition for identity"
+		description:    "A ServiceAccount rendered on its own, apart from any workload"
 		labels: {
 			"resource.opmodel.dev/category": "security"
 		}

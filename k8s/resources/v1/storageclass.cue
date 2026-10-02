@@ -10,8 +10,7 @@ import (
 //// StorageClass Resource Definition
 /////////////////////////////////////////////////////////////////
 
-// #StorageClassResource defines a native Kubernetes StorageClass as an OPM resource.
-// Use this to define cluster-wide storage provisioner configurations.
+// A native Kubernetes StorageClass that configures a storage provisioner.
 #StorageClassResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1"
@@ -19,7 +18,7 @@ import (
 		apiVersion:     "v1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/storageclass@v1"
-		description:    "A native Kubernetes StorageClass resource"
+		description:    "A native Kubernetes StorageClass that configures a storage provisioner"
 		labels: {
 			"resource.opmodel.dev/category": "storage"
 		}

@@ -15,6 +15,8 @@ import (
 	initContainers?: [...tr.#InitContainersSchema]
 }
 
+// A workload that runs one pod on every node, or on selected nodes
+// (DaemonSet).
 #DaemonWorkloadBlueprint: c.#Blueprint & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.blueprints)/v1beta1"
@@ -22,7 +24,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.blueprints)/daemon-workload@v1beta1"
-		description:    "A daemon workload that runs on all (or selected) nodes in a cluster"
+		description:    "A workload that runs one pod on every node, or on selected nodes (DaemonSet)"
 	}
 
 	// Answers the container resource's required matching key (0010 D36):

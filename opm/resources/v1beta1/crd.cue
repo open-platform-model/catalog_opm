@@ -9,6 +9,8 @@ import (
 //// CRDs Resource
 /////////////////////////////////////////////////////////////////
 
+// CustomResourceDefinitions to install in the cluster, keyed by name. Each
+// entry renders one CustomResourceDefinition.
 #CRDsResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1beta1"
@@ -16,7 +18,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/crds@v1beta1"
-		description:    "One or more CustomResourceDefinitions to deploy to the cluster"
+		description:    "CustomResourceDefinitions to install in the cluster, keyed by name"
 		labels: {
 			"resource.opmodel.dev/category": "extension"
 		}

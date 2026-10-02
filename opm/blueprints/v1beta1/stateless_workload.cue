@@ -19,6 +19,7 @@ import (
 	hostIpc?:         bool
 }
 
+// A workload of interchangeable pods with no stable identity (Deployment).
 #StatelessWorkloadBlueprint: c.#Blueprint & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.blueprints)/v1beta1"
@@ -26,7 +27,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.blueprints)/stateless-workload@v1beta1"
-		description:    "A stateless workload with no requirement for stable identity or storage"
+		description:    "A workload of interchangeable pods with no stable identity (Deployment)"
 	}
 
 	// Answers the container resource's required matching key (0010 D36):

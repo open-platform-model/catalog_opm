@@ -10,8 +10,8 @@ import (
 //// ClusterRole Resource Definition
 /////////////////////////////////////////////////////////////////
 
-// #ClusterRoleResource defines a native Kubernetes ClusterRole as an OPM resource.
-// Use this to grant cluster-scoped permissions or namespace permissions across all namespaces.
+// A native Kubernetes ClusterRole, granting permissions cluster-wide or in
+// every namespace.
 #ClusterRoleResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1"
@@ -19,7 +19,7 @@ import (
 		apiVersion:     "v1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/clusterrole@v1"
-		description:    "A native Kubernetes ClusterRole resource"
+		description:    "A native Kubernetes ClusterRole, granting permissions cluster-wide or in every namespace"
 		labels: {
 			"resource.opmodel.dev/category": "rbac"
 		}

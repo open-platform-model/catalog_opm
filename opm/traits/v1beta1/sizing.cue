@@ -6,6 +6,7 @@ import (
 	res "opmodel.dev/catalogs/opm/resources/v1beta1"
 )
 
+// Vertical sizing for a workload: resource requests and limits.
 #SizingTrait: c.#Trait & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.traits)/v1beta1"
@@ -13,7 +14,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.traits)/sizing@v1beta1"
-		description:    "A trait to specify vertical sizing behavior for a workload"
+		description:    "Vertical sizing for a workload: resource requests and limits"
 		labels: {
 			"trait.opmodel.dev/category": "workload"
 		}
@@ -37,5 +38,5 @@ import (
 	autoScaling?: #VerticalScalingSchema
 }
 
-// Placeholder for future VPA support.
+// An empty struct: it admits no fields, and no transformer reads it.
 #VerticalScalingSchema: {}

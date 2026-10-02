@@ -10,8 +10,7 @@ import (
 //// Role Resource Definition
 /////////////////////////////////////////////////////////////////
 
-// #RoleResource defines a native Kubernetes Role as an OPM resource.
-// Use this to grant namespace-scoped permissions to subjects.
+// A native Kubernetes Role that grants permissions within a namespace.
 #RoleResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1"
@@ -19,7 +18,7 @@ import (
 		apiVersion:     "v1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/role@v1"
-		description:    "A native Kubernetes Role resource"
+		description:    "A native Kubernetes Role that grants permissions within a namespace"
 		labels: {
 			"resource.opmodel.dev/category": "rbac"
 		}

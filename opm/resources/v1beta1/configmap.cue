@@ -14,6 +14,8 @@ import (
 //// ConfigMaps Resource
 /////////////////////////////////////////////////////////////////
 
+// ConfigMaps of non-sensitive key-value configuration, keyed by name. Each
+// entry renders one ConfigMap.
 #ConfigMapsResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1beta1"
@@ -21,7 +23,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/config-maps@v1beta1"
-		description:    "A ConfigMap definition for external configuration"
+		description:    "ConfigMaps of non-sensitive key-value configuration, keyed by name"
 		labels: {
 			"resource.opmodel.dev/category": "config"
 		}

@@ -6,6 +6,7 @@ import (
 	res "opmodel.dev/catalogs/opm/resources/v1beta1"
 )
 
+// Declares whether a workload requires encryption at rest and in transit.
 #EncryptionConfigTrait: c.#Trait & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.traits)/v1beta1"
@@ -13,7 +14,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.traits)/encryption@v1beta1"
-		description:    "Enforces encryption requirements"
+		description:    "Declares whether a workload requires encryption at rest and in transit"
 		labels: {
 			"trait.opmodel.dev/category": "security"
 		}

@@ -9,6 +9,7 @@ import (
 //// ValidatingWebhooks Resource
 /////////////////////////////////////////////////////////////////
 
+// ValidatingWebhookConfigurations rendered with exact names.
 #ValidatingWebhooksResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1alpha1"
@@ -16,7 +17,7 @@ import (
 		apiVersion:     "v1alpha1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/validating-webhooks@v1alpha1"
-		description:    "ValidatingWebhookConfigurations emitted with exact names"
+		description:    "ValidatingWebhookConfigurations rendered with exact names"
 		labels: {
 			"resource.opmodel.dev/category": "admission"
 		}
@@ -35,6 +36,7 @@ import (
 //// MutatingWebhooks Resource
 /////////////////////////////////////////////////////////////////
 
+// MutatingWebhookConfigurations rendered with exact names.
 #MutatingWebhooksResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1alpha1"
@@ -42,7 +44,7 @@ import (
 		apiVersion:     "v1alpha1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/mutating-webhooks@v1alpha1"
-		description:    "MutatingWebhookConfigurations emitted with exact names"
+		description:    "MutatingWebhookConfigurations rendered with exact names"
 		labels: {
 			"resource.opmodel.dev/category": "admission"
 		}

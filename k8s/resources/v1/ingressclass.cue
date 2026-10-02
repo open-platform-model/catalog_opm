@@ -10,8 +10,8 @@ import (
 //// IngressClass Resource Definition
 /////////////////////////////////////////////////////////////////
 
-// #IngressClassResource defines a native Kubernetes IngressClass as an OPM resource.
-// Use this to configure cluster-scoped ingress controller implementations.
+// A native Kubernetes IngressClass that configures an ingress controller
+// implementation.
 #IngressClassResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1"
@@ -19,7 +19,7 @@ import (
 		apiVersion:     "v1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/ingressclass@v1"
-		description:    "A native Kubernetes IngressClass resource"
+		description:    "A native Kubernetes IngressClass that configures an ingress controller implementation"
 		labels: {
 			"resource.opmodel.dev/category": "network"
 		}

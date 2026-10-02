@@ -6,6 +6,8 @@ import (
 	res "opmodel.dev/catalogs/opm/resources/v1beta1"
 )
 
+// Gateway API gRPC routing rules for a workload. Renders a GRPCRoute when the
+// component also attaches the expose trait.
 #GrpcRouteTrait: c.#Trait & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.traits)/v1beta1"
@@ -13,7 +15,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.traits)/grpc-route@v1beta1"
-		description:    "gRPC routing rules for a workload"
+		description:    "Gateway API gRPC routing rules for a workload"
 		labels: {
 			"trait.opmodel.dev/category": "network"
 		}

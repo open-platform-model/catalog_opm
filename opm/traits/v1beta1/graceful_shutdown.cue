@@ -6,6 +6,7 @@ import (
 	res "opmodel.dev/catalogs/opm/resources/v1beta1"
 )
 
+// The termination grace period a workload's pods get to shut down.
 #GracefulShutdownTrait: c.#Trait & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.traits)/v1beta1"
@@ -13,7 +14,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.traits)/graceful-shutdown@v1beta1"
-		description:    "Termination grace period and pre-stop lifecycle hooks"
+		description:    "The termination grace period a workload's pods get to shut down"
 		labels: {
 			"trait.opmodel.dev/category": "workload"
 		}

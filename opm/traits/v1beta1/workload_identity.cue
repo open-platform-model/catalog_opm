@@ -6,6 +6,7 @@ import (
 	res "opmodel.dev/catalogs/opm/resources/v1beta1"
 )
 
+// The ServiceAccount identity a workload's pods run as.
 #WorkloadIdentityTrait: c.#Trait & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.traits)/v1beta1"
@@ -13,7 +14,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.traits)/workload-identity@v1beta1"
-		description:    "A workload identity definition for service identity"
+		description:    "The ServiceAccount identity a workload's pods run as"
 		labels: {
 			"trait.opmodel.dev/category": "security"
 		}

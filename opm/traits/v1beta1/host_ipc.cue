@@ -6,9 +6,8 @@ import (
 	res "opmodel.dev/catalogs/opm/resources/v1beta1"
 )
 
-// Enables hostIPC: true on the pod spec, sharing the node's IPC namespace.
-// Required for workloads that use shared memory or IPC mechanisms with host
-// processes.
+// Shares the node's IPC namespace with the workload's pods (hostIPC). Required
+// for workloads that use shared memory or IPC mechanisms with host processes.
 #HostIPCTrait: c.#Trait & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.traits)/v1beta1"
@@ -16,7 +15,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.traits)/host-ipc@v1beta1"
-		description:    "Share the node's IPC namespace (hostIPC: true)"
+		description:    "Shares the node's IPC namespace with the workload's pods (hostIPC)"
 		labels: {
 			"trait.opmodel.dev/category": "security"
 		}

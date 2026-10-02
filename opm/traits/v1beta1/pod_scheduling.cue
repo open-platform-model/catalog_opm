@@ -6,6 +6,7 @@ import (
 	res "opmodel.dev/catalogs/opm/resources/v1beta1"
 )
 
+// Node selection, tolerations and priority class for a workload's pods.
 #PodSchedulingTrait: c.#Trait & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.traits)/v1beta1"
@@ -13,7 +14,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.traits)/pod-scheduling@v1beta1"
-		description:    "Where a workload's pods are allowed and preferred to run"
+		description:    "Node selection, tolerations and priority class for a workload's pods"
 		labels: {
 			"trait.opmodel.dev/category": "workload"
 		}

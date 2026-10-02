@@ -6,8 +6,8 @@ import (
 	res "opmodel.dev/catalogs/opm/resources/v1beta1"
 )
 
-// Enables hostPID: true on the pod spec, sharing the node's PID namespace.
-// Required for workloads that must observe or signal host processes.
+// Shares the node's PID namespace with the workload's pods (hostPID). Required
+// for workloads that must observe or signal host processes.
 #HostPIDTrait: c.#Trait & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.traits)/v1beta1"
@@ -15,7 +15,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.traits)/host-pid@v1beta1"
-		description:    "Share the node's PID namespace (hostPID: true)"
+		description:    "Shares the node's PID namespace with the workload's pods (hostPID)"
 		labels: {
 			"trait.opmodel.dev/category": "security"
 		}
