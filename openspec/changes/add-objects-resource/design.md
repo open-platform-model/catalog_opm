@@ -1,0 +1,137 @@
+## Context
+
+`opm` already depends on `cue.dev/x/k8s.io` v0.12.0 (`opm/cue.mod/module.cue`) and re-exports parts of it under `opm/schemas/kubernetes/`. Every top-level kind definition in that module carries concrete `"apiVersion"` and `"kind"` fields and is closed, because it is a CUE definition. The module ships no index from `apiVersion` + `kind` to definition, and it records no resource scope (namespaced or cluster).
+
+Files this change adds, all in the `opm` module:
+
+| File | Package | What |
+| --- | --- | --- |
+| `opm/resources/v1alpha1/objects.cue` | `v1alpha1` | `#ObjectsResource`, `#Objects`, `#ObjectSchema` |
+| `opm/schemas/kinds/table.cue` | `kinds` | generated `#Table` |
+| `opm/schemas/kinds/check.cue` | `kinds` | hand-written self-consistency assertion |
+| `opm/transformers/objects_transformer.cue` | `transformers` | `#ObjectsTransformer` and its fixtures |
+| `opm/catalog.cue` | `opm` | two listing entries |
+| `tools/kindgen/` | Go module | the table generator |
+
+No existing member changes, so no closedness, default or required-field set moves.
+
+## Goals / Non-Goals
+
+**Goals:**
+- One resource that renders a map of Kubernetes objects one-to-one, as written.
+- Validation of every built-in kind against its upstream definition, with no work from the module author.
+- Custom resources pass through, with the author stating only their scope.
+
+**Non-Goals:**
+- Validating custom resources. An author MAY unify an entry with a schema they import themselves (`cue.dev/x/crd/cert-manager.io`); the catalog ships none.
+- Validating values beyond structure and type. x/k8s.io carries no enums (`imagePullPolicy: "Sometimes"` passes) and types a quantity as `number | string`.
+- A per-object opt-out of validation, and any Kubernetes newer than 1.34 (owner decision, 2026-10-02).
+- Platform control over which kinds a module may render. `#Platform` does not decide what may be deployed (owner decision, 2026-10-02).
+
+## Decisions
+
+### D1. One resource; each map value is the bare object
+
+```cue
+spec: objects: [Key=string]: #ObjectSchema & {metadata: name: string | *Key}
+```
+
+The value is the Kubernetes object itself, not a `{scope, object}` wrapper as in the k8s catalog's `#ObjectsResource`. The one OPM-only input, scope, is a definition field on the object (D3), which export never writes out. The `Key` alias MUST NOT be `name` (it would shadow the inner field; see `opm/resources/v1alpha1/namespace.cue`).
+
+### D2. Dispatch on `apiVersion` + `kind`
+
+```cue
+#ObjectSchema: X={
+	apiVersion!: string
+	kind!:       string
+	metadata: name: string
+	#scope: "Namespaced" | "Cluster"
+	...
+	[
+		if kinds.#Table[X.apiVersion][X.kind] != _|_ {
+			let E = kinds.#Table[X.apiVersion][X.kind]
+			[if E.schema != _|_ {E.schema}, {}][0]
+			if E.scope != _|_ {#scope: E.scope}
+		},
+		if _builtinGroups[_group(X.apiVersion)] != _|_ {
+			// refused: unknown kind in a built-in API group
+		},
+		{},
+	][0]
+}
+```
+
+- A kind in the table with a schema is closed by that definition. An unknown field fails as `field not allowed`, naming its path.
+- A kind in the table without a schema (in the OpenAPI spec but not in x/k8s.io: four kinds today, among them `CertificateSigningRequest`) is open, with its scope known.
+- A kind absent from the table whose group is a built-in group (any group the table names, `""` for `v1`) is refused. Without this, `apps/v2` would fall through to the open arm and skip validation silently.
+- Anything else is open.
+
+The refusal's spelling is settled in section 3 (Risks, "error() in a schema"). The list-index form (`[...][0]`) is the catalog's idiom for picking a concrete arm without a default (`docs/name-constraints.md`).
+
+### D3. Scope: the table for built-in kinds, `#scope` for the rest
+
+The generator reads scope from the Kubernetes v1.34.0 OpenAPI spec: a kind served under a `/namespaces/{namespace}/` path is `Namespaced`, otherwise `Cluster` (90 kinds, 49 cluster-scoped). For a table kind, `#scope` is unified with the table's value, so a wrong `#scope` conflicts. For any other kind, `#scope` is required.
+
+`#scope` is a definition field, not a hidden one (`_scope`), because hidden fields are package-scoped: the transformer, in another package, could not read a module's `_scope`.
+
+### D4. Name, namespace, labels, annotations
+
+| Field | Rendered |
+| --- | --- |
+| `metadata.name` | as written; defaults to the map key; never prefixed |
+| `metadata.namespace` | as written when set; otherwise the instance namespace for a `Namespaced` object; refused for a `Cluster` object |
+| `metadata.labels` | the render context's labels, then the object's (the object wins on a conflict) |
+| `metadata.annotations` and every other field | as written |
+
+Names are as written so references inside raw objects hold. The cost is that two instances of one module in one namespace collide unless the author puts the instance name into each name; the kernel's duplicate-identity refusal names the clash. This is the same carve-out `#NamespacesResource` makes for externally referenced names (AGENTS.md, Naming), and `#nameConstraint` stays top: the rendered names are the map entries, not the component's `resourceName`.
+
+### D5. Transformer
+
+`#ObjectsTransformer` requires only `objects@v1alpha1`, emits a list (one object per entry, ListKind), and copies every field except `metadata` by comprehension, so `#scope` (a definition) is never emitted. It declares no `producesKinds`: the kinds are the author's.
+
+The resource MAY be attached to a component beside other resources (a `#Container` workload plus a ServiceMonitor). Its transformer matches on the resource alone and renders independently of the others.
+
+### D6. Placement: `v1alpha1`
+
+The member starts at `v1alpha1` (0010 D34): an x/k8s.io bump can add kinds to the table and so tighten validation of objects that passed open before. Alpha promises nothing, which is the honest promise for a member whose validation follows upstream.
+
+### D7. The table is generated, and checked in CUE
+
+`tools/kindgen` (Go, `cuelang.org/go` v0.17.1, its own `go.mod` like `tools/refgen`) loads every package of the pinned `cue.dev/x/k8s.io`, keeps each definition whose `apiVersion` and `kind` are concrete and whose kind does not end in `List`, joins the scope from the OpenAPI spec of the Kubernetes tag the x/k8s.io version tracks, and writes `opm/schemas/kinds/table.cue` sorted. It is a maintainer tool run on an x/k8s.io bump (`task generate:kinds`); CI does not run it, so CI needs no network beyond the registry and no Go for it.
+
+What CI does check, through `cue vet`, is `check.cue`: for every table entry with a schema, the schema's `apiVersion` and `kind` equal the entry's keys. A hand edit that files a definition under the wrong key fails vet.
+
+## Research & Decisions
+
+### Does x/k8s.io validate, and at what cost?
+**Context**: The design rests on x/k8s.io definitions being closed, dispatchable and cheap.
+**Explored**: Scratch module, cue v0.17.1, x/k8s.io v0.12.0. A map of 83 kinds and 120 objects (60 Deployments, 60 Services) vetted in 0.08 s and 45 MB. `replica`, `imagePullPolicyy` refused as `field not allowed`; `port: "eighty"` refused as a type conflict; `imagePullPolicy: "Sometimes"` accepted.
+**Decision**: Dispatch to the upstream definitions (D2).
+**Rationale**: Closed, concrete-keyed and cheap; values beyond type are out of reach and out of scope.
+
+### Does it hold inside `core`'s `#Resource` and `#Component`?
+**Context**: The catalog's definitions are closed and the transformer reads the component across packages.
+**Explored**: A scratch copy of `opm/` with the resource, a 100-kind table (with scope) and the transformer (2026-10-02). `cue vet ./...` on the whole module: green, 0.4 s. A fixture rendered a Deployment (instance namespace, from the table), a ClusterRole (no namespace) and a ClusterIssuer (`#scope: "Cluster"`, no namespace), all named by their keys, `#scope` absent from the output. Refused: `spec.replica` (`field not allowed`), `apps/v2` Deployment (built-in group), an Issuer without `#scope` (`unresolved disjunction`), `#scope: "Cluster"` on a Deployment (conflict). Accepted, wrongly: a ClusterRole with `metadata.namespace` (D4 adds the refusal).
+**Decision**: Keep the shape; fix the two messages and the missing refusal in section 3.
+**Rationale**: Every behaviour D1 to D5 needs was measured; only the refusal wording is open.
+
+### Scope source
+**Context**: x/k8s.io records no scope.
+**Explored**: `api/openapi-spec/swagger.json` at Kubernetes `v1.34.0`: 90 kinds with a GroupVersionKind on a create, get or replace operation; 49 cluster-scoped. Four of them are missing from x/k8s.io v0.12.0 (`CertificateSigningRequest`, `PodCertificateRequest`, `VolumeAttributesClass` at `v1alpha1`, `StorageVersionMigration`); 14 x/k8s.io kinds (alpha APIs) are missing from the spec.
+**Decision**: Table = union of both. A kind with no scope in the spec requires `#scope` from the author.
+**Rationale**: The served paths are the authority on scope; the union keeps a valid built-in kind from tripping the built-in-group refusal.
+
+## Risks / Trade-offs
+
+- [The kernel does not carry the definition field `#scope` through to the transformer] → Section 1 renders a fixture module through `opm module build` against a local replacement of this catalog before any member lands. If `#scope` is lost, the fallback is a regular field the transformer strips, decided before section 2.
+- [`error()` in a schema fires at platform build] → `docs/transformer-authoring.md` §3 forbids `error()` in a transformer, because a transformer is evaluated with no component. The refusal here sits in a pattern constraint that applies only to a concrete entry; section 1 also builds a platform carrying the catalog with no objects component and asserts it stays green. If it does not, the refusal becomes a unification on a named field.
+- [An x/k8s.io bump tightens validation] → Accepted at `v1alpha1` (D6). The bump's PR names the kinds the regenerated table adds.
+- [x/k8s.io is experimental (`cue.dev/x/`)] → The catalog already depends on it; a breaking upstream change shows up as a vet failure on the bump PR, not in a module.
+- [Refusal messages are hard to read] → An Issuer without `#scope` reads `unresolved disjunction "Namespaced" | "Cluster"`. Section 3 measures alternatives and pins the clearest in a fixture.
+- [Name collisions between instances] → The author's responsibility (D4); the doc comment and the authoring page say so.
+
+## Durable decisions
+
+- Names as written, the carve-out from `#component.#names.resourceName` for this resource: lands in `docs/name-constraints.md` beside the `#NamespacesResource` row, and in the AGENTS.md Naming bullet's list of carve-outs.
+- Regenerating the kind table on an x/k8s.io bump (`task generate:kinds`, which Kubernetes tag, what the PR must name): lands in AGENTS.md under Dependencies.
+- A definition field (`#scope`), not a hidden one, for OPM-only input a transformer in another package must read: lands in `docs/transformer-authoring.md` as a new section.
