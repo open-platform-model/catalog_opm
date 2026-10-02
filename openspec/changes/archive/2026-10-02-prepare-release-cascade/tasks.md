@@ -30,5 +30,5 @@
 
 ## 5. Archive
 
-- [ ] 5.1 Archive the change on this branch (openspec archive), so the archive rides the implementing PR; never push to main (owner decision 2026-10-01, RELEASING.md, Owner settings)
-- [ ] 5.2 `openspec validate --all --strict` green, then commit `chore(openspec): archive prepare-release-cascade`
+- [x] 5.1 Archive the change on this branch (openspec archive), so the archive rides the implementing PR; never push to main (owner decision 2026-10-01, RELEASING.md, Owner settings)
+- [x] 5.2 `openspec validate --all --strict` green, then commit `chore(openspec): archive prepare-release-cascade`
