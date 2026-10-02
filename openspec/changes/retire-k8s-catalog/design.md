@@ -38,9 +38,15 @@ and `.release-please-manifest.json` becomes `{"src": "<current opm version>"}`. 
 
 Alternative rejected: a root package (`"."`). It would count every commit in the repository (CI, docs, OpenSpec) as a change to the module, and the module root would no longer be the package root.
 
-### D2. Workflows read `src--*` outputs
+### D2. Workflows: one module, no loops, path and component kept apart
 
-Manifest mode keys per-package outputs by path even for a single package, so `release.yml` reads `steps.release.outputs['src--tag_name']` and `['src--version']`, renamed in its job outputs to `catalog_tag_name` and `catalog_version`. The publish steps run `opm catalog publish ./src`. The `k8s_*` outputs and jobs go.
+Manifest mode keys per-package outputs by path even for a single package, so `release.yml` reads `steps.release.outputs['src--tag_name']` and `['src--version']`. Today `$m` / `matrix.module` is used as four keys at once: the directory, the release-please package key, the component and the tag prefix. After the move the first two are `src` and the last two stay `opm`, so no single variable can carry them:
+
+- `release.yml`: the publish matrix built from `paths_released` (which now yields `src`) and its `format('{0}_tag_name', matrix.module)` lookups are replaced by one publish job gated on `src` being released, reading `src--tag_name` / `src--version`. The identity-advance loop (branch `release-please--branches--main--components--opm`, manifest key `.src`, `opm catalog version set ./src`, `git add src/identity/identity.cue`) is written out once.
+- `branch-publish.yml`: directory `src`, tag prefix `opm-`, no loop.
+- `ci.yml`: `opm catalog publish ./src --dry-run`.
+
+The `k8s_*` outputs and every `k8s` loop entry go in section 1.
 
 ### D3. Taskfile: one directory variable, no loops
 
@@ -50,7 +56,9 @@ vars:
   MODULE_DIR: src
 ```
 
-Each task runs once against `{{.MODULE_DIR}}`. The `.tasks/*.sh` scripts keep taking the module directory as an argument. `branch-tag` passes `opm-` as the tag prefix literally; it was derived from the directory name, which no longer matches the component. `vet:layering` is deleted: with one module there is nothing to layer.
+Each task runs once against `{{.MODULE_DIR}}`. The `.tasks/*.sh` scripts keep taking the module directory as an argument.
+
+`.tasks/generate-index.sh` titles `INDEX.md` with `basename` of the directory (`# opm — Definition Index`). `INDEX.md` ships inside the module, so a `src` title would change the published tree. The script takes the label from the module path instead (the last element before the major, `opm`), and `INDEX.md` stays byte-identical; `task generate:index:check` proves it. `branch-tag` passes `opm-` as the tag prefix literally; it was derived from the directory name, which no longer matches the component. `vet:layering` is deleted: with one module there is nothing to layer.
 
 ### D4. Changelogs
 
@@ -71,6 +79,7 @@ Each task runs once against `{{.MODULE_DIR}}`. The `.tasks/*.sh` scripts keep ta
 ## Risks / Trade-offs
 
 - [release-please does not find the previous `opm` release after the path rename, and proposes `1.0.0` or a full changelog] → The manifest carries the version under the new key and the component is unchanged, which is how release-please resolves the last tag. Before merge, run `release-please release-pr --dry-run` against the PR branch and confirm it proposes nothing (every commit is hidden). If it misbehaves, a one-shot `Release-As:` cannot fix a lookup, so the fix is `bootstrap-sha` set to this PR's merge base.
+- [The published tree changes after all (an INDEX title, a generated path)] → Before merge, `opm catalog publish ./src --dry-run` on the branch and the same on `main`'s `opm/` must report the same tree digest; a difference is a bug in this change, not a release.
 - [A CI run on the PR still loops over `opm` because a workflow line was missed] → The workflows fail loudly on a missing directory; the PR's own CI is the check.
 - [Docs in other repositories link to `kubernetes-resources.md` on the site] → The downstream sweep removes those links; until then the site build reports a broken reference and does not publish a dead link.
 - [A downstream test reads `../catalog_opm/opm` and skips when it is missing] → cli `TestRealTree_CatalogOpm` does exactly that. The cli change moves it to `src`; this change's PR body names it so the reviewer checks it landed.

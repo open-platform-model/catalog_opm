@@ -11,12 +11,14 @@
 
 - [ ] 2.1 `git mv opm src`; `git mv CHANGELOG-opm.md CHANGELOG.md`
 - [ ] 2.2 `release-please-config.json` and `.release-please-manifest.json` per design D1 (package key `src`, component `opm`, `changelog-path: "/CHANGELOG.md"`, no `prerelease-type`)
-- [ ] 2.3 Workflows per design D2: `src--tag_name` and `src--version` outputs, `opm catalog publish ./src`, every path filter and `working-directory` on `src`
+- [ ] 2.3 Workflows per design D2: `src--tag_name` and `src--version` outputs, the `paths_released` matrix replaced by one publish job, the identity-advance loop written out once (component `opm`, directory `src`), `opm catalog publish ./src`, every path filter and `working-directory` on `src`
 - [ ] 2.4 `Taskfile.yml` per design D3: `MODULE_DIR: src`, loops removed, `branch-tag` passes `opm-` literally
-- [ ] 2.5 `.tasks/generate-index.sh`, `.tasks/fixtures.sh`, `.tasks/branch-tag.sh`, `.tasks/listing.sh`, `.tasks/description-check.sh`, `.tasks/doc-check.sh`: every usage example and comment names `src`
-- [ ] 2.6 `tools/refgen`: load `src/`; its tests pass
-- [ ] 2.7 `openspec/changes/publish-docs-bundle/`: `./opm` becomes `./src` in proposal, design and tasks; its G3 notes this change; its design's backfill note states the old path for tags before this change
-- [ ] 2.8 `task check` green, then commit `refactor: move the opm module to src/`
+- [ ] 2.5 `.tasks/generate-index.sh`: take the INDEX title from the module path, not the directory name (design D3); `task generate:index:check` shows `src/INDEX.md` unchanged
+- [ ] 2.6 `.tasks/generate-index.sh`, `.tasks/fixtures.sh`, `.tasks/branch-tag.sh`, `.tasks/listing.sh`, `.tasks/description-check.sh`, `.tasks/doc-check.sh`: every usage example and comment names `src`
+- [ ] 2.7 `tools/refgen`: load `src/`; its tests pass; `task generate:reference` (each member page's Definition row now names `src/`)
+- [ ] 2.8 `openspec/changes/publish-docs-bundle/`: `./opm` becomes `./src` in proposal, design and tasks; its G3 notes this change; its design's backfill note states the old path for tags before this change
+- [ ] 2.9 `opm catalog publish ./src --dry-run` reports the same tree digest as `opm catalog publish ./opm --dry-run` on `main` (design, Risks)
+- [ ] 2.10 `task check` green, then commit `refactor: move the opm module to src/`
 
 ## 3. One catalog in every description
 
@@ -24,7 +26,7 @@
 - [ ] 3.2 `README.md`: one module at `src/`, the retirement note for `k8s@v1` (last build `1.0.0-beta.2`, still resolvable)
 - [ ] 3.3 `openspec/config.yaml`: the constitution's opening paragraph, Principle I (drop the `k8s` beta-line bullet and the D48 sentence), Principle III (drop the layering bullet), Principle IV (one module at `src/`), the proposal and tasks rules that name `k8s`
 - [ ] 3.4 `openspec/schemas/catalog-change/schema.yaml` and `templates/proposal.md`, `templates/tasks.md`: drop `k8s`, name `src/`
-- [ ] 3.5 `docs/site/authoring/*.md`, `docs/site/extending/*.md`: every "Check against" path from `catalog_opm/opm/` to `catalog_opm/src/`; drop every mention of the raw catalog, `k8s/`, `k8s@v1` or two catalogs (`write-a-resource.md`, and `use-a-raw-kubernetes-resource.md` if `add-objects-resource` left one)
-- [ ] 3.6 `docs/name-constraints.md` and any other `docs/*.md`: same
+- [ ] 3.5 `docs/site/authoring/*.md`, `docs/site/extending/*.md`: every "Check against" path from `catalog_opm/opm/` to `catalog_opm/src/`; drop every mention of the raw catalog, `k8s/`, `k8s@v1` or two catalogs (`write-a-resource.md:8` drops the raw-catalog filing sentence; `write-a-resource.md`, `write-a-trait.md` and `write-a-blueprint.md` name `src/INDEX.md` only)
+- [ ] 3.6 `docs/name-constraints.md`: delete the section "`k8s/`: exact-name kinds and the override"; every `opm/` path in `docs/*.md` (`cue-guard-closedness-workaround.md`, `name-constraints.md`, `struct-disjunctions.md`) to `src/`
 - [ ] 3.7 Closing grep over the tree, excluding `openspec/changes/archive/`, `CHANGELOG.md` and this change: `grep -rIn -E 'catalogs/k8s|k8s catalog|raw (kubernetes )?catalog|two (first-party )?catalogs|both catalogs|catalog_opm/opm/|\./opm\b|CHANGELOG-(opm|k8s)'` returns nothing
 - [ ] 3.8 `task check` green, then commit `docs: describe catalog_opm as one catalog`
