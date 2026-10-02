@@ -57,7 +57,7 @@ It sits outside both module roots, so `cue` run from `opm/` never loads it and `
 `docs/catalogs/` holds pages that ship only in a bundle; `docs/site/` keeps holding pages opmodel.dev reads through git for a site version. The landing is `docs/site/reference/catalog-contract.md` with:
 
 - front matter `title: The Catalog Contract` and the same `description`; no `type` (an `_index.md` declares none, docs-kit C11) and no `weight`;
-- the body unchanged, with no hand-written members section: the renderer appends the generated "Catalog members" block after the authored body (docs-kit C6), so the landing links the kind indexes with the build's own segment and counts;
+- the body unchanged, with no hand-written members section: the renderer appends the generated `## Catalog members` block after the authored body (docs-kit C6, C8, "Page renderer"), so the landing links the kind indexes with the build's own segment and counts. The build refuses an authored landing that already holds a `## Catalog members` heading;
 - the two "See also" links (`/docs/reference/registry-namespaces/`, `/docs/reference/cli/`) unchanged: a `/docs/` link from a tab page resolves in the site's default version (docs-kit C8).
 
 `docs/site/reference/catalog-contract.md` stays until section 3, because the site's Reference shows it until the Catalogs tab is live. Section 1 marks it with an HTML comment on the line after its front matter ("Moved to `docs/catalogs/opm/_index.md`; edit there. This copy is deleted when publish-docs-bundle section 3 lands.") and moves the four "Check against" pointers in `docs/site/extending/` to the new path. Section 3 moves the two pointers to `catalog-members/` in `docs/site/authoring/` to `catalog_opm/opm/INDEX.md`, the generated index that stays in git.
@@ -128,14 +128,15 @@ publish-docs:
 
 ### A pinned `opm-docs` binary, never `go run`
 
-docs-kit's contract now fixes this for callers: the local tool is the checksum-verified release binary named by `.opm-docs-version`, never `go run`.
+docs-kit C12 fixes this for callers: the local tool is the checksum-verified release binary named by a repo-root `.opm-docs-version`, installed into a gitignored repo-local directory, never `go run` or `go install`.
 
-`.opm-docs-version` holds one line, the docs-kit release tag (`v0.1.0`), beside `.opm-cli-version`. `.tasks/opm-docs.sh` installs that release's `opm-docs_<version>_<os>_<arch>.tar.gz` to `.bin/opm-docs` (gitignored) after checking it against the release's `checksums.txt`, and reuses an installed binary whose `opm-docs version` matches. The tasks:
+`.opm-docs-version` holds one line, the docs-kit release tag (`v0.1.0`), beside `.opm-cli-version`. `task tools:opm-docs` (its script in `.tasks/opm-docs.sh`) downloads that release's `opm-docs_<version>_<os>_<arch>.tar.gz` and `checksums.txt`, checks the archive with `grep ' <archive>$' checksums.txt | sha256sum -c -` (refusing an archive with no line), extracts only `opm-docs` to `.bin/opm-docs` (gitignored), and reuses an installed binary whose `opm-docs version` matches. A failed check stops the task; nothing builds from source (docs-kit C12). The tasks:
 
 | Task | Runs |
 | --- | --- |
-| `docs:bundle` | `opm-docs build --project catalog-opm --out out` (a local preview; `out/` is gitignored; opmodel.dev reads it with `--local catalog-opm=<this repo>/out/catalog-opm`, docs-kit C7) |
-| `docs:bundle:check` | the pin check, then `opm-docs check --project catalog-opm` |
+| `tools:opm-docs` | install or reuse `.bin/opm-docs` as above |
+| `docs:bundle` | depends on `tools:opm-docs`; `opm-docs build --project catalog-opm --out out` (a local preview; `out/` is gitignored; opmodel.dev reads it with `--local catalog-opm=<this repo>/out/catalog-opm`, docs-kit C7) |
+| `docs:bundle:check` | depends on `tools:opm-docs`; the pin check, then `opm-docs check --project catalog-opm` |
 
 The pin check refuses unless every `open-platform-model/docs-kit/.github/workflows/publish.yml@` reference under `.github/workflows/` names the version in `.opm-docs-version`: a workflow `uses:` ref cannot be read from a file, so two pins exist and the check keeps them equal. It reads the version from the ref (`@v0.1.0`) or, if docs-kit's review settles on SHA pinning (docs-kit C5, "Known conflict"), from the comment after the SHA (`@<40 hex> # v0.1.0`); every `uses:` snippet in this design then takes that form and nothing else here changes. `task check` runs `docs:bundle:check`, so a section gate catches a member the bundle build refuses (a doc comment that does not open with its description, a page that fails the dialect) before the PR's `Docs / check` does. `ci.yml` does not run it; `Docs / check` is the PR gate.
 
@@ -167,7 +168,7 @@ docs-kit plans revisions as its own change, released as `v0.2.0`. Its `orchestra
 ### How `task check` gets `opm-docs`
 **Context**: docs-kit's `orchestration.md` sketches `go run github.com/open-platform-model/docs-kit/cmd/opm-docs@v0.1.0`.
 **Explored**: `go run` needs a Go toolchain at docs-kit's `go` directive (1.26) on every machine and in `branch-publish.yml` (which runs `task check`) forever, and builds the tool from source instead of running the binary `publish.yml` runs. A checksum-verified release download is how this repository already installs `opm`.
-**Decision**: `.opm-docs-version` plus `.tasks/opm-docs.sh`, as above; raised with docs-kit and adopted there as the contract for callers (supervisor, 2026-10-02).
+**Decision**: `.opm-docs-version` plus `task tools:opm-docs`, as above; raised with docs-kit and adopted there as contract C12 (supervisor, 2026-10-02).
 **Rationale**: The local check runs the bytes CI runs, and section 3 can drop Go entirely.
 
 ### Moving the contract page before the generator goes
