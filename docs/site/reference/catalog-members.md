@@ -5,7 +5,7 @@ type: reference
 weight: 3
 ---
 
-<!-- One sentence saying what the page lists: the blueprints, resources and traits of the abstraction family, one generated entry each, blueprints first (0018:D6). The generator writes the entries (0018:D1); every entry has the same parts, in this order: summary, at a glance, spec, example, notes, served by, enforcement. -->
+<!-- One sentence saying what the page lists: the blueprints, resources and traits of the abstraction family, one generated entry each, blueprints first. The generator writes the entries; every entry has the same parts, in this order: summary, at a glance, spec, example, notes, served by, enforcement. -->
 
 ## See also
 
