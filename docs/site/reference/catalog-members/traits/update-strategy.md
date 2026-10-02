@@ -15,7 +15,7 @@ type: reference
 | Module path | `opmodel.dev/catalogs/opm/traits/v1beta1` |
 | Definition | `#UpdateStrategyTrait` in `opm/traits/v1beta1/update_strategy.cue` |
 | Component wrapper | `#UpdateStrategy` |
-| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.4.4` |
+| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.4.5` |
 | Category | `workload` |
 | Fulfilment | `catalog`: the declaring catalog implements it |
 | Optional posture | advisory: `optional` defaults to `true`, so an unhandled trait warns and the render continues; a module may override it where it attaches the trait |
@@ -42,7 +42,7 @@ spec: updateStrategy: #UpdateStrategySchema
 
 ## Served by
 
-These transformers in `opmodel.dev/catalogs/opm@v4` version `4.4.4` require this trait or read it when present.
+These transformers in `opmodel.dev/catalogs/opm@v4` version `4.4.5` require this trait or read it when present.
 
 | Transformer | Demand | What it does |
 | --- | --- | --- |

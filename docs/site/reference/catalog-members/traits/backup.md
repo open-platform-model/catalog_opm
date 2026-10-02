@@ -20,7 +20,7 @@ type: reference
 | Module path | `opmodel.dev/catalogs/opm/traits/v1alpha1` |
 | Definition | `#BackupTrait` in `opm/traits/v1alpha1/backup.cue` |
 | Component wrapper | `#Backup` |
-| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.4.4` |
+| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.4.5` |
 | Category | `storage` |
 | Fulfilment | `provider`: a catalog on the platform implements it, never this one |
 | Optional posture | load-bearing: `optional` defaults to `false`, so an unhandled trait fails the render; a module may override it where it attaches the trait |

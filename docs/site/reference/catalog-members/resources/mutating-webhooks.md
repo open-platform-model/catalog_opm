@@ -15,7 +15,7 @@ type: reference
 | Module path | `opmodel.dev/catalogs/opm/resources/v1alpha1` |
 | Definition | `#MutatingWebhooksResource` in `opm/resources/v1alpha1/webhook.cue` |
 | Component wrapper | `#MutatingWebhooks` |
-| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.4.4` |
+| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.4.5` |
 | Category | `admission` |
 | Fulfilment | `catalog`: the declaring catalog implements it |
 
@@ -84,7 +84,7 @@ spec: mutatingWebhooks: [KeyName=string]: #MutatingWebhookConfigurationSchema & 
 
 ## Served by
 
-These transformers in `opmodel.dev/catalogs/opm@v4` version `4.4.4` require this resource or read it when present.
+These transformers in `opmodel.dev/catalogs/opm@v4` version `4.4.5` require this resource or read it when present.
 
 | Transformer | Demand | What it does |
 | --- | --- | --- |
