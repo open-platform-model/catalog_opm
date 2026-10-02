@@ -78,7 +78,7 @@ jobs:
           grep ' opm-linux-amd64.tar.gz$' checksums.txt | sha256sum -c -
           tar -xzf opm-linux-amd64.tar.gz -C "${tmp}" opm
           sudo install -m 0755 "${tmp}/opm" /usr/local/bin/opm
-          rm -rf "${tmp}" opm-linux-amd64.tar.gz checksums.txt LICENSE
+          rm -rf "${tmp}" opm-linux-amd64.tar.gz checksums.txt
 
       # task generate:reference below loads both catalogs, which resolves
       # opmodel.dev/core@v2 from GHCR: the same read login ci.yml uses.
@@ -191,7 +191,7 @@ jobs:
           grep ' opm-linux-amd64.tar.gz$' checksums.txt | sha256sum -c -
           tar -xzf opm-linux-amd64.tar.gz -C "${tmp}" opm
           sudo install -m 0755 "${tmp}/opm" /usr/local/bin/opm
-          rm -rf "${tmp}" opm-linux-amd64.tar.gz checksums.txt LICENSE
+          rm -rf "${tmp}" opm-linux-amd64.tar.gz checksums.txt
 
       # opm's push path reads the docker credential chain — docker login is the
       # CI credential entry (opm registry login is interactive-only by design).
