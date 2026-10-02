@@ -121,6 +121,12 @@ What CI does check, through `cue vet`, is `check.cue`: for every table entry wit
 **Decision**: Table = union of both. A kind with no scope in the spec requires `#scope` from the author.
 **Rationale**: The served paths are the authority on scope; the union keeps a valid built-in kind from tripping the built-in-group refusal.
 
+### Does the kernel carry `#scope`, and does a platform build stay green? (section 1 spike)
+**Context**: Two Risks below: the render might drop the definition field `#scope` before the transformer reads it, and the built-in-group refusal (an `error()` in the schema) might fire when a platform is built with no objects component.
+**Explored**: 2026-10-02, the cli at `db4f9fd` (CUE v0.17.1) built from source; a scratch copy of `opm/` at `e446980` with the resource, the transformer and a two-kind table (Deployment, ClusterRole), served to a scratch module through `cue.mod/local-module.cue`. `opm module build -n apps` (no `--platform`, so against the generated module-deps platform) rendered the scratch module's `#Objects` component beside a `#StatelessWorkload`: the Deployment (scope from the table) and an Issuer with `#scope: "Namespaced"` carried `namespace: apps`; a ClusterIssuer with `#scope: "Cluster"` carried none; no output carried `scope`. Refusals through the same build: `spec.replica` as `field not allowed` naming `values.#components.extras.spec.objects.web.spec.replica`; `apps/v2` Deployment as the `error()` message; an Issuer without `#scope` only at transform time, as `output is not concrete: ... unresolved disjunction "Namespaced" | "Cluster"`. With the objects component removed, the same build rendered the workload alone, and `opm platform check` on the generated platform directory exited 0, listing `objects@v1alpha1` as implemented by `objects-transformer`.
+**Decision**: Keep D2 and D3 as designed; neither fallback is needed.
+**Rationale**: The kernel hands the transformer the component's definition fields, and the `error()` sits in a pattern constraint that is never instantiated without a concrete entry. The missing-`#scope` message is the one section 3 must improve.
+
 ## Risks / Trade-offs
 
 - [The kernel does not carry the definition field `#scope` through to the transformer] → Section 1 renders a fixture module through `opm module build` against a local replacement of this catalog before any member lands. If `#scope` is lost, the fallback is a regular field the transformer strips, decided before section 2.

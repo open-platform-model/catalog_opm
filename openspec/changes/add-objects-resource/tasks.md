@@ -1,10 +1,10 @@
 ## 1. Spike: the kernel carries `#scope`, and a platform build stays green
 
-- [ ] 1.1 In a scratch copy of `opm/` (outside the repo), add the design's `#ObjectsResource`, `#ObjectSchema`, a hand-trimmed `#Table` (Deployment, ClusterRole) and `#ObjectsTransformer`, listed in `catalog.cue`
-- [ ] 1.2 Build a scratch module with one `#Objects` component holding a Deployment and a ClusterIssuer with `#scope: "Cluster"`; render it with `opm module build` against a local replacement of the scratch catalog. Assert: the Deployment has the instance namespace, the ClusterIssuer has none, neither output carries `#scope`
-- [ ] 1.3 Build a platform carrying the scratch catalog with no objects component (`opm platform check` on a generated platform directory) and assert it is green with the built-in-group refusal in place
-- [ ] 1.4 Record both results in design.md (Research & Decisions); if either fails, rewrite D2 or D3 to the fallback named under Risks before section 2
-- [ ] 1.5 Commit `docs(openspec): record the objects kernel spike`
+- [x] 1.1 In a scratch copy of `opm/` (outside the repo), add the design's `#ObjectsResource`, `#ObjectSchema`, a hand-trimmed `#Table` (Deployment, ClusterRole) and `#ObjectsTransformer`, listed in `catalog.cue`
+- [x] 1.2 Build a scratch module with one `#Objects` component holding a Deployment and a ClusterIssuer with `#scope: "Cluster"`; render it with `opm module build` against a local replacement of the scratch catalog. Assert: the Deployment has the instance namespace, the ClusterIssuer has none, neither output carries `#scope`
+- [x] 1.3 Build a platform carrying the scratch catalog with no objects component (`opm platform check` on a generated platform directory) and assert it is green with the built-in-group refusal in place
+- [x] 1.4 Record both results in design.md (Research & Decisions); if either fails, rewrite D2 or D3 to the fallback named under Risks before section 2
+- [x] 1.5 Commit `docs(openspec): record the objects kernel spike`
 
 ## 2. `tools/kindgen/` and `opm/schemas/kinds/`
 
