@@ -22,11 +22,11 @@
 
 ## 3. One catalog in every description
 
-- [ ] 3.1 `AGENTS.md`: Purpose (one catalog, the raw catalog retired, `objects@v1alpha1` as the escape hatch), Repository Rules (drop the `k8s` beta-line rule and `k8s-v*` from the tag list except as historical tags), Version-segment filing, Repository Layout, Dependencies, Version & Identity, Commit conventions (drop the `k8s` beta line), every `opm/` path
-- [ ] 3.2 `README.md`: one module at `src/`, the retirement note for `k8s@v1` (last build `1.0.0-beta.2`, still resolvable)
-- [ ] 3.3 `openspec/config.yaml`: the constitution's opening paragraph, Principle I (drop the `k8s` beta-line bullet and the D48 sentence), Principle III (drop the layering bullet), Principle IV (one module at `src/`), the proposal and tasks rules that name `k8s`
-- [ ] 3.4 `openspec/schemas/catalog-change/schema.yaml` and `templates/proposal.md`, `templates/tasks.md`: drop `k8s`, name `src/`
-- [ ] 3.5 `docs/site/authoring/*.md`, `docs/site/extending/*.md`: every "Check against" path from `catalog_opm/opm/` to `catalog_opm/src/`; drop every mention of the raw catalog, `k8s/`, `k8s@v1` or two catalogs (`write-a-resource.md:8` drops the raw-catalog filing sentence; `write-a-resource.md`, `write-a-trait.md` and `write-a-blueprint.md` name `src/INDEX.md` only)
-- [ ] 3.6 `docs/name-constraints.md`: delete the section "`k8s/`: exact-name kinds and the override"; every `opm/` path in `docs/*.md` (`cue-guard-closedness-workaround.md`, `name-constraints.md`, `struct-disjunctions.md`) to `src/`
-- [ ] 3.7 Closing grep over the tree, excluding `openspec/changes/archive/`, `CHANGELOG.md` and this change: `grep -rIn -E 'catalogs/k8s|k8s catalog|raw (kubernetes )?catalog|two (first-party )?catalogs|both catalogs|catalog_opm/opm/|\./opm\b|CHANGELOG-(opm|k8s)'` returns nothing
-- [ ] 3.8 `task check` green, then commit `docs: describe catalog_opm as one catalog`
+- [x] 3.1 `AGENTS.md`: Purpose (one catalog, the raw catalog retired, `objects@v1alpha1` as the escape hatch), Repository Rules (drop the `k8s` beta-line rule and `k8s-v*` from the tag list except as historical tags), Version-segment filing, Repository Layout, Dependencies, Version & Identity, Commit conventions (drop the `k8s` beta line), every `opm/` path
+- [x] 3.2 `README.md`: one module at `src/`, the retirement note for `k8s@v1` (last build `1.0.0-beta.2`, still resolvable)
+- [x] 3.3 `openspec/config.yaml`: the constitution's opening paragraph, Principle I (drop the `k8s` beta-line bullet and the D48 sentence), Principle III (drop the layering bullet), Principle IV (one module at `src/`), the proposal and tasks rules that name `k8s`
+- [x] 3.4 `openspec/schemas/catalog-change/schema.yaml` and `templates/proposal.md`, `templates/tasks.md`: drop `k8s`, name `src/`
+- [x] 3.5 `docs/site/authoring/*.md`, `docs/site/extending/*.md`: every "Check against" path from `catalog_opm/opm/` to `catalog_opm/src/`; drop every mention of the raw catalog, `k8s/`, `k8s@v1` or two catalogs (`write-a-resource.md:8` drops the raw-catalog filing sentence; `write-a-resource.md`, `write-a-trait.md` and `write-a-blueprint.md` name `src/INDEX.md` only)
+- [x] 3.6 `docs/name-constraints.md`: delete the section "`k8s/`: exact-name kinds and the override"; every `opm/` path in `docs/*.md` (`cue-guard-closedness-workaround.md`, `name-constraints.md`, `struct-disjunctions.md`) to `src/`
+- [x] 3.7 Closing grep over the tree, excluding `openspec/changes/archive/`, `CHANGELOG.md` and this change: `grep -rIn -E 'catalogs/k8s|k8s catalog|raw (kubernetes )?catalog|two (first-party )?catalogs|both catalogs|catalog_opm/opm/|\./opm\b|CHANGELOG-(opm|k8s)'` returns nothing
+- [x] 3.8 `task check` green, then commit `docs: describe catalog_opm as one catalog`

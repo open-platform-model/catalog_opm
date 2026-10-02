@@ -3,34 +3,28 @@ schema: catalog-change
 context: |
   # OPM Catalog Development Constitution
 
-  ## Core Principles (First-Party Catalogs)
+  ## Core Principles (First-Party Catalog)
 
-  This repo defines and publishes the two first-party OPM catalogs, each its own CUE module
-  sharing one repo and one CI: `opm/` (`opmodel.dev/catalogs/opm@v4`, the abstraction catalog)
-  and `k8s/` (`opmodel.dev/catalogs/k8s@v1`, the raw Kubernetes passthrough catalog). Both are
-  typed entirely against `opmodel.dev/core@v2` and instantiate its constructs (`#Resource`,
-  `#Trait`, `#Blueprint`, `#ComponentTransformer`); neither defines new core constructs. Platforms
-  subscribe to them and modules demand contracts from them, always as published dependencies,
-  never by filesystem path. The catalogs are pure CUE. The only Go code is `tools/refgen/`, which
-  generates the site reference under `docs/site/reference/`, and `tools/kindgen/`, which generates
-  `opm/schemas/kinds/table.cue`; both ship in neither module.
+  This repo defines and publishes the first-party OPM catalog, one CUE module rooted at `src/`
+  (`opmodel.dev/catalogs/opm@v4`, the abstraction catalog). It is typed entirely against
+  `opmodel.dev/core@v2` and instantiates its constructs (`#Resource`, `#Trait`, `#Blueprint`,
+  `#ComponentTransformer`); it defines no new core constructs. Platforms subscribe to it and
+  modules demand contracts from it, always as a published dependency, never by filesystem path.
+  The catalog is pure CUE. The only Go code is `tools/refgen/`, which generates the site
+  reference under `docs/site/reference/`, and `tools/kindgen/`, which generates
+  `src/schemas/kinds/table.cue`; neither ships in the module.
 
   ### I. The Catalog Is a Published Contract
-  Platforms and modules pin these modules; a member they already unify against cannot be taken
+  Platforms and modules pin this module; a member they already unify against cannot be taken
   away from them.
   - Prefer additive evolution. Adding an optional field to a member's schema is cheap; tightening
     a published constraint or changing a transformer's output is not.
   - The break unit is the member's `apiVersion` (enhancement 0010 D4): a member whose shape breaks
-    moves to a new version segment directory; it does not mutate in place. In `k8s`, `apiVersion`
-    mirrors the upstream Kubernetes API version at adoption (D48); graduation is upstream's act.
+    moves to a new version segment directory; it does not mutate in place.
   - `opm` is a stable line: a `feat!:` on `opm` bumps the major and with it the module path
     (`@vN`). A major crossing is the sanctioned way to correct a `v1betaN` member in place
     when a `v1beta(N+1)` cascade would keep the broken shape published; a proposal MUST name
     it. A core beta break that would force an `opm` major needs owner sign-off.
-  - `k8s` is a beta line on the path to GA: a break is allowed only as a `feat!:` whose
-    `BREAKING CHANGE:` footer is the migration note the changelog shows; it advances
-    `-beta.N` and never moves the module path (`@v1`). During beta the publish compat gate
-    is prerelease-exempt, so review must catch an unannounced break.
   - A change that cannot be additive MUST state its downstream migration cost explicitly, naming
     the consumers it breaks (the `modules` fleet, subscribing platforms, `cli` fixtures).
   - Never publish by hand. CI publishes through `opm catalog publish` on release; the only
@@ -39,11 +33,11 @@ context: |
   ### II. The Definition Is the Spec
   A catalog member's contract is its CUE definition and its doc comments. There is no second
   normative document, and this OpenSpec workspace deliberately has no specs artifact.
-  - Doc comments are the contract text. `task generate:index` extracts them into each module's
+  - Doc comments are the contract text. `task generate:index` extracts them into the module's
     `INDEX.md`, and `task generate:index:check` is the gate that keeps the index honest.
   - A member's `metadata.description` is the first sentence of its doc comment. The generated
     site reference (`task generate:reference`) leads each member's page with it, and
-    `task generate:reference:check` fails when a page no longer matches the catalogs.
+    `task generate:reference:check` fails when a page no longer matches the catalog.
   - There is no `openspec/specs/` directory and no delta specs. Every change's `.openspec.yaml`
     carries `skip_specs: true`; the `openspec-new-change` and `openspec-propose` skills write
     it at creation time. Never create a `specs/` directory inside a change.
@@ -60,21 +54,22 @@ context: |
     author must remember.
   - Prefer a closed definition with an explicit escape over an open one that accepts anything.
   - Derived values SHOULD be computed in the transformer rather than authored.
-  - **Layering:** the abstraction catalog and the raw catalog never import each other. The module
-    boundary makes it structural; `task vet:layering` keeps an import from reintroducing it.
   - **Closedness pitfall:** never place an `if spec.<nested>.<field> != _|_` guard inside a
     component's `spec` block when `<field>` is struct- or list-valued; hoist it to component
     level. See `docs/cue-guard-closedness-workaround.md`.
 
-  ### IV. Two Modules, Version-Segment Filing
-  - `opm/` and `k8s/` are separate CUE module roots, each with its own `cue.mod/`, `identity/`
-    and `catalog.cue`. They share this repo's CI and nothing else.
-  - Contract members file under `<module>/<kind>/<apiVersion>/` with the package clause equal to
+  ### IV. One Module at `src/`, Version-Segment Filing
+  - `src/` is the one CUE module root, with its `cue.mod/`, `identity/` and `catalog.cue`. The
+    directory is `src`; the module path, the release-please component and the tag prefix are
+    `opm` (release-please package path `src`, component `opm`, tags `opm-vX.Y.Z`). Never add a
+    second module beside it; a Kubernetes object no abstraction models goes through
+    `objects@v1alpha1`.
+  - Contract members file under `src/<kind>/<apiVersion>/` with the package clause equal to
     the version segment (enhancement 0010 D49). Transformers file flat under
-    `<module>/transformers/`. The segment never enters the fqn; each catalog's key space is flat.
-  - Identity (`identity/identity.cue`) is written only by `opm catalog version set` on the release
-    PR (enhancement 0011 D15). Never hand-edit the version.
-  - Pin `language: version: "v0.17.0"` in each `cue.mod/module.cue`. That is a consumer floor, not
+    `src/transformers/`. The segment never enters the fqn; the catalog's key space is flat.
+  - Identity (`src/identity/identity.cue`) is written only by `opm catalog version set` on the
+    release PR (enhancement 0011 D15). Never hand-edit the version.
+  - Pin `language: version: "v0.17.0"` in `src/cue.mod/module.cue`. That is a consumer floor, not
     a toolchain pin.
 
   ### V. Simplicity & YAGNI
@@ -126,10 +121,8 @@ rules:
       subscribing to the catalog, `cli` fixtures under `testing.opmodel.dev`) and what each of
       them has to do about it.
     - State the release class (`feat:` / `fix:` / `feat!:`) of each section's commit per
-      Principle I, whether any member
-      moves to a new `apiVersion` segment, and, for each module touched, which release line it
-      is on (`opm` stable, where a break is a new major; `k8s` beta, where a break is a
-      `feat!:` with a `BREAKING CHANGE:` migration note that advances `-beta.N`).
+      Principle I and whether any member moves to a new `apiVersion` segment. `opm` is a
+      stable line, so a break is a new major and moves the module path.
     - Breaking changes MUST be called out explicitly with downstream migration cost — a tightened
       constraint or a changed transformer output counts as breaking even when nothing is removed.
     - The Before / After section MUST show the member's CUE shape, not a prose description
@@ -168,8 +161,7 @@ rules:
       **Decision**: [Chosen option]
       **Rationale**: [Why this option was selected]
     - Show the CUE, not a description of the CUE — the member's shape is the design.
-    - Name every member file and `apiVersion` segment the change touches, in both modules if
-      both are reached.
+    - Name every member file and `apiVersion` segment the change touches.
     - Call out any change to a definition's closedness, defaults, or required-field set — these
       break consumers in ways an added optional field does not.
     - MUST include a "Durable decisions" section listing every decision a future catalog author
@@ -189,7 +181,7 @@ rules:
       own, split into a new OpenSpec change. Section 1 is a spike whenever design.md carries an
       unverified assumption; its commit task lands what the spike produced (a test, a fixture,
       or the finding written into design.md)."
-    - Group tasks by module (`opm/`, `k8s/`) then by member file.
+    - Group tasks by kind directory (`src/resources/`, `src/traits/`, …) then by member file.
     - Include `task generate:index` as a task whenever definitions are added, removed or renamed.
     - Include one task per durable decision in design.md that lands it in `docs/` or `AGENTS.md`.
     - Include the validation gates (`task check`, or the four individually) in every section's commit task, not as a

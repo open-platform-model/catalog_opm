@@ -26,9 +26,8 @@
 ## Impact
 
 <!-- Downstream consumers reached (modules fleet, subscribing platforms, cli fixtures) and what
-     each has to do. Release class (feat: / fix: / feat!:) and, for each module touched, which
-     release line it is on (opm stable, where a break is a new major; k8s beta, where a break is
-     a feat! with a BREAKING CHANGE: migration note that advances -beta.N). -->
+     each has to do. Release class (feat: / fix: / feat!:); opm is a stable line, where a break
+     is a new major. -->
 
 ## Enhancement
 

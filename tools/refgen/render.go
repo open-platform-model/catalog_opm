@@ -18,7 +18,7 @@ const (
 	contractURL    = "/docs/reference/catalog-contract/"
 )
 
-// kinds lists the abstraction family's member kinds in page order:
+// kinds lists the catalog's member kinds in page order:
 // blueprints first.
 var kinds = []struct {
 	dir, title, singular string

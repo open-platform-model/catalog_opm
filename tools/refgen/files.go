@@ -24,7 +24,7 @@ func generatedDirs() []string {
 // outside the generated directories, so the orphan walk would not see one
 // that came back.
 var retiredPages = []string{
-	// The raw Kubernetes catalog's table; that catalog is retired.
+	// The table of the retired k8s module.
 	referenceDir + "/kubernetes-resources.md",
 }
 
