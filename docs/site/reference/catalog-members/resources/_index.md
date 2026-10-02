@@ -1,6 +1,6 @@
 ---
 title: "Resources"
-description: "The 12 resources of the abstraction catalog, one generated page each."
+description: "The 13 resources of the abstraction catalog, one generated page each."
 weight: 2
 ---
 

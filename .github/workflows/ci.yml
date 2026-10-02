@@ -43,7 +43,8 @@ jobs:
           version: 3.x
 
       # tools/refgen, the generator of the site reference, is a Go module of
-      # its own; task check runs its tests and its staleness check.
+      # its own; task check runs its tests and its staleness check. It also
+      # runs the tests of tools/kindgen, which pins the same Go version.
       - name: Setup Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
@@ -81,6 +82,9 @@ jobs:
 
       - name: Test the reference generator
         run: task test:refgen
+
+      - name: Test the kind table generator
+        run: task test:kindgen
 
       - name: Verify the generated site reference is up to date
         run: task generate:reference:check
