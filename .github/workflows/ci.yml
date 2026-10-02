@@ -98,7 +98,7 @@ jobs:
           grep ' opm-linux-amd64.tar.gz$' checksums.txt | sha256sum -c -
           tar -xzf opm-linux-amd64.tar.gz -C "${tmp}" opm
           sudo install -m 0755 "${tmp}/opm" /usr/local/bin/opm
-          rm -rf "${tmp}" opm-linux-amd64.tar.gz checksums.txt LICENSE
+          rm -rf "${tmp}" opm-linux-amd64.tar.gz checksums.txt
 
       # Every publish gate runs, nothing is pushed. On a PR or a push to main
       # the committed version is usually live already, so already-published as
