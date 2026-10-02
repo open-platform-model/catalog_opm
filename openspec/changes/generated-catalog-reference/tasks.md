@@ -9,13 +9,13 @@
 
 ## 2. The reference generator and its pages (tools/refgen/, docs/site/reference/)
 
-- [ ] 2.1 `tools/refgen/`: Go module on `cuelang.org/go` v0.17.1; load both catalog modules, evaluate the four maps, read doc comments and spec schemas from the source AST
-- [ ] 2.2 Member pages under `docs/site/reference/catalog-members/{blueprints,resources,traits}/`, each in the fixed order summary, at a glance, spec, example (omitted, see design.md), notes, served by, enforcement; marks and enforcement rows derived only as design.md states
-- [ ] 2.3 Replace `catalog-members.md` with the section `catalog-members/_index.md` (title, description and weight kept; See also kept) and generate the three subsection pages
-- [ ] 2.4 Generate the table in `kubernetes-resources.md` between markers; rewrite its authored intro and description
-- [ ] 2.5 `task generate:reference` and `task generate:reference:check` (also refuses orphan pages), in `task check`; update the three planning-comment paths in `docs/site/authoring/`
-- [ ] 2.6 Verify on the real site build: `task build` and `task lint:sources` in `opmodel.dev` with `OPM_SRC_CATALOG_OPM` set to this worktree
-- [ ] 2.7 `task check` green, then commit `docs(site): generate the catalog reference from both catalogs`
+- [x] 2.1 `tools/refgen/`: Go module on `cuelang.org/go` v0.17.1; load both catalog modules, evaluate the four maps, read doc comments and spec schemas from the source AST
+- [x] 2.2 Member pages under `docs/site/reference/catalog-members/{blueprints,resources,traits}/`, each in the fixed order summary, at a glance, spec, example (omitted, see design.md), notes, served by, enforcement; marks and enforcement rows derived only as design.md states
+- [x] 2.3 Replace `catalog-members.md` with the section `catalog-members/_index.md` (title, description and weight kept; See also kept) and generate the three subsection pages
+- [x] 2.4 Generate the table in `kubernetes-resources.md` between markers; rewrite its authored intro and description
+- [x] 2.5 `task generate:reference` and `task generate:reference:check` (also refuses orphan pages), in `task check`; update the two planning-comment paths in `docs/site/authoring/`
+- [x] 2.6 Verify on the real site build: `task build` and `task lint:sources` in `opmodel.dev` with `OPM_SRC_CATALOG_OPM` set to this worktree
+- [x] 2.7 `task check` green, then commit `docs(site): generate the catalog reference from both catalogs`
 
 ## 3. CI, release and repository rules (.github/, AGENTS.md, openspec/config.yaml)
 

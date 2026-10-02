@@ -57,7 +57,7 @@ No member's shape changes. The published change is metadata text and doc comment
 
 - **Consumers.** No module, platform or `cli` fixture has to do anything. `metadata.description` is on the compatibility gate's provenance denylist (0010:D30), so a changed description is not a contract change, and no matcher reads it.
 - **Release class.** Section 1 is `fix(catalog):`: it changes published text in both modules, so `opm` (stable) cuts a patch and `k8s` (beta) advances `-beta.N`. Sections 2 and 3 touch nothing under `opm/` or `k8s/` and release nothing. No member moves to a new `apiVersion` segment, and nothing is breaking.
-- **Site.** `/docs/reference/catalog-members/` keeps its URL as a section page. Three HTML planning comments in this repo's authoring guides point at the old file path and are updated; the same pointers in `opm` (`your-first-module.md`, `glossary.md`) are outside this repository and stay as they are until opm edits them.
+- **Site.** `/docs/reference/catalog-members/` keeps its URL as a section page. Two HTML planning comments in this repo's authoring guides point at the old file path and are updated; the same pointers in `opm` (`your-first-module.md`, `glossary.md`) are outside this repository and stay as they are until opm edits them. The stub's "each entry pointing at the abstraction that covers it" on `kubernetes-resources.md` is dropped (design.md, No covering-abstraction column).
 - **Toolchain.** `task check` now needs Go to run the staleness check. CI installs it from `tools/refgen/go.mod`.
 - **Release workflow.** The identity-advance step also installs Go and Task and regenerates the reference; a release PR whose pages were not regenerated would fail its own CI.
 

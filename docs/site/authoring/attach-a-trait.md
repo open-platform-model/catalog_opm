@@ -57,4 +57,4 @@ Check against: cli/internal/workflow/render/output_internal.go, cli/internal/wor
 ## Related
 
 <!-- By title: the reference entry "Catalog members" (each trait's generated page, with the transformers that serve it) and the concept page "Resources and traits".
-Check against: catalog_opm/docs/site/reference/catalog-members.md, core/docs/site/concepts/resources-and-traits.md -->
+Check against: catalog_opm/docs/site/reference/catalog-members/, core/docs/site/concepts/resources-and-traits.md -->

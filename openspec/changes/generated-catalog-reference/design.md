@@ -12,7 +12,7 @@ Section 1 touches every member file under `opm/resources/v1beta1/`, `opm/resourc
 - The pages are deterministic, pass the site's dialect lint and build, and fail a check when stale.
 
 **Non-Goals:**
-- Pages for transformers (they have no page; served-by lists them by name and FQN).
+- Pages for transformers (they have no page; Served by lists them by name and description, under the catalog path and version that make up their FQN).
 - Examples pulled from transformer fixtures (see Decisions).
 - A column mapping a raw `k8s` resource to the abstraction that covers it (see Decisions).
 - Editing `opmodel.dev` or `opm`; their pointers to the old `catalog-members.md` path are theirs to update.
