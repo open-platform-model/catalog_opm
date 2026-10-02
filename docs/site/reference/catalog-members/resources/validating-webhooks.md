@@ -15,7 +15,7 @@ type: reference
 | Module path | `opmodel.dev/catalogs/opm/resources/v1alpha1` |
 | Definition | `#ValidatingWebhooksResource` in `opm/resources/v1alpha1/webhook.cue` |
 | Component wrapper | `#ValidatingWebhooks` |
-| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.4.5` |
+| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
 | Category | `admission` |
 | Fulfilment | `catalog`: the declaring catalog implements it |
 
@@ -81,7 +81,7 @@ spec: validatingWebhooks: [KeyName=string]: #ValidatingWebhookConfigurationSchem
 
 ## Served by
 
-These transformers in `opmodel.dev/catalogs/opm@v4` version `4.4.5` require this resource or read it when present.
+These transformers in `opmodel.dev/catalogs/opm@v4` version `4.5.0` require this resource or read it when present.
 
 | Transformer | Demand | What it does |
 | --- | --- | --- |

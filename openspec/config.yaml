@@ -12,7 +12,8 @@ context: |
   `#Trait`, `#Blueprint`, `#ComponentTransformer`); neither defines new core constructs. Platforms
   subscribe to them and modules demand contracts from them, always as published dependencies,
   never by filesystem path. The catalogs are pure CUE. The only Go code is `tools/refgen/`, which
-  generates the site reference under `docs/site/reference/` and ships in neither module.
+  generates the site reference under `docs/site/reference/`, and `tools/kindgen/`, which generates
+  `opm/schemas/kinds/table.cue`; both ship in neither module.
 
   ### I. The Catalog Is a Published Contract
   Platforms and modules pin these modules; a member they already unify against cannot be taken

@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.5.0](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.4.5...opm-v4.5.0) (2026-10-02)
+
+
+### Features
+
+* **resources:** add the objects resource ([#118](https://github.com/open-platform-model/catalog_opm/issues/118)) ([819293e](https://github.com/open-platform-model/catalog_opm/commit/819293e3142f7390b072115e16ce11e974a3911c))
+
 ## [4.4.5](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.4.4...opm-v4.4.5) (2026-10-02)
 
 

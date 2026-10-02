@@ -9,6 +9,10 @@ vars:
   #   opm — opmodel.dev/catalogs/opm@v4, the abstraction catalog
   #   k8s — opmodel.dev/catalogs/k8s@v1, the raw Kubernetes passthrough catalog
   MODULES: opm k8s
+  # The Kubernetes release the cue.dev/x/k8s.io pin in opm/cue.mod/module.cue
+  # is generated from (v0.12.0: v1.36.0). tools/kindgen reads each kind's
+  # scope from this tag's OpenAPI spec; move it with every x/k8s.io bump.
+  KUBERNETES_VERSION: v1.36.0
 
 tasks:
   default:
@@ -169,6 +173,25 @@ tasks:
       - go vet -C tools/refgen ./...
       - go test -C tools/refgen ./...
 
+  ## Kubernetes kind table
+  #
+  # tools/kindgen (a Go module of its own) writes opm/schemas/kinds/table.cue,
+  # the table the objects resource dispatches on, from the pinned
+  # cue.dev/x/k8s.io and the Kubernetes OpenAPI spec of KUBERNETES_VERSION,
+  # which it downloads. A maintainer runs it on an x/k8s.io bump; CI does not,
+  # and `cue vet` checks the committed table's keys against its schemas.
+
+  generate:kinds:
+    desc: Regenerate opm/schemas/kinds/table.cue from the pinned cue.dev/x/k8s.io and the Kubernetes OpenAPI spec (tools/kindgen; needs network)
+    cmds:
+      - go run -C tools/kindgen . -repo "$(pwd)" -kubernetes {{.KUBERNETES_VERSION}}
+
+  test:kindgen:
+    desc: Vet and unit-test the kind table generator
+    cmds:
+      - go vet -C tools/kindgen ./...
+      - go test -C tools/kindgen ./...
+
   ## Doc comment length
 
   docs:check:
@@ -227,7 +250,7 @@ tasks:
   ## Aggregate
 
   check:
-    desc: Format check, vet, layering, listing, descriptions, rendered-output fixtures, INDEX freshness, the generated site reference, and doc-comment report across every module
+    desc: Format check, vet, layering, listing, descriptions, rendered-output fixtures, INDEX freshness, the generator tests, the generated site reference, and doc-comment report across every module
     cmds:
       - task: fmt:check
       - task: vet
@@ -237,5 +260,6 @@ tasks:
       - task: vet:fixtures
       - task: generate:index:check
       - task: test:refgen
+      - task: test:kindgen
       - task: generate:reference:check
       - task: docs:check

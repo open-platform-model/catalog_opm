@@ -84,3 +84,44 @@ characters it contains. An engine that wraps it in its own shell invocation (k8u
 `sh -c '...'`) must escape the line or use an exec form. The contract deliberately carries
 no quote ban: banning one character in the contract only moves the breakage to the next one
 and makes every module pay for one engine's wrapper.
+
+## 6. OPM-only input on a passthrough object is a definition field, never a hidden one
+
+Some members carry objects the transformer renders as written, yet the transformer needs one
+fact the object does not hold: `objects@v1alpha1` needs each custom resource's scope
+(`Namespaced` or `Cluster`) to decide whether the instance namespace applies. That fact is
+OPM's input, and it must never reach the cluster.
+
+Put it in a **definition field** on the object (`#scope`), not a regular field and not a
+hidden one:
+
+```cue
+// the author writes it beside the object
+selfsigned: {
+	#scope:     "Cluster"
+	apiVersion: "cert-manager.io/v1"
+	kind:       "ClusterIssuer"
+	spec: selfSigned: {}
+}
+
+// the transformer copies regular fields only, so #scope is never emitted
+for k, v in o if k != "metadata" {(k): v}
+if o.#scope == "Namespaced" if o.metadata.namespace == _|_ {
+	namespace: #context.#moduleInstanceMetadata.namespace
+}
+```
+
+- **Hidden fields are package-scoped.** A module's `_scope` and the transformer's `o._scope`
+  name two different fields, because the transformer lives in the catalog's package; the read
+  never sees the module's value.
+- **A definition field crosses packages, and the kernel carries it.** Measured 2026-10-02
+  (CUE `v0.17.1`, cli at `db4f9fd`, change `add-objects-resource`): `opm module build` handed
+  `#transform` the component's `#scope`, and the rendered objects carried no trace of it.
+  `cue export` never writes a definition, and a field comprehension (`for k, v in o`) never
+  iterates one, so nothing has to strip it.
+- **A regular field would have to be stripped by hand** in every transformer that copies the
+  object, and one that forgets ships an unknown field to the API server.
+
+A refusal that depends on such a field sits in the member's schema, behind guards that hold
+only for a concrete entry, never in the transformer (rule 3). See
+`opm/resources/v1alpha1/objects.cue` for the schema side.
