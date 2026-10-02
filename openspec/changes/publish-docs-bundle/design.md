@@ -8,8 +8,8 @@ Contracts this change consumes, from docs-kit's change `build-opm-docs-phase-1` 
 
 - **docs-kit C1**: the bundle lives at `ghcr.io/open-platform-model/docs/catalog-opm`, placement tab, root `/catalogs/opm/`, release tag prefix `opm-v`.
 - **docs-kit C4**: full tags `<version>.<revision>` are immutable; `4.4.5`, `4.4`, `4` and `edge` move; edge builds carry no full tag.
-- **docs-kit C5**: callers pin `publish.yml` by tag (`@v0.1.0`), declare no secrets, and grant per mode: `check` needs `contents: read`, `packages: read`; `edge` and `release` need `contents: read`, `packages: write`, `id-token: write`. Every mode but `check` refuses unless `github.ref` is `refs/heads/main`. `release` runs from the job that runs release-please, gated on that package's release, or by `workflow_dispatch` for a release with no bundle yet. A release cut before the repository had `docs-kit.cue` builds with `main`'s.
-- **docs-kit C6**: `docs-kit.cue` at the repository root, `bundles` keyed by project; a root `_index.md` from a `markdown` source replaces the generated landing.
+- **docs-kit C5**: callers pin `publish.yml` by tag (`@v0.1.0`), declare no secrets, and grant per mode: `check` needs `contents: read`, `packages: read`; `edge` and `release` need `contents: read`, `packages: write`, `id-token: write`. Every mode but `check` refuses unless `github.ref` is `refs/heads/main`. `release` runs from the job that runs release-please, gated on that package's release, or by `workflow_dispatch` for a release with no bundle yet. A release cut before the repository had `docs-kit.cue` builds with `main`'s, and its sources resolve against the release tree: a `markdown` directory that tree lacks yields no pages. Edge and release publishes run in separate concurrency groups (`docs-edge-<project>`, `docs-release-<project>-<version>`). `publish.yml` installs the checksum-verified `opm-docs` release binary named by its version literal, and logs in to GHCR read-only itself for the extractors' CUE dependencies, so a caller adds no login step.
+- **docs-kit C6**: `docs-kit.cue` at the repository root, `bundles` keyed by project; a root `_index.md` from a `markdown` source replaces the generated landing's text, and the renderer appends its generated "Catalog members" block (module path, version or edge commit, each kind index with its count) after the authored body.
 - **docs-kit C8, C11**: page paths and link forms. An authored bundle page links into its own catalog through the major alias (`/catalogs/opm/4/<path>/`), which the `markdown` source rewrites to the build's own segment; `/docs/<section>/<page>/` links from a tab page resolve in the site's default version; an `_index.md` declares no `type`.
 - **docs-kit C9**: the signature's Source Repository Ref must be `refs/heads/main`, so no bundle is published from a release branch or a tag ref (docs-kit DESIGN decision 9).
 
@@ -57,7 +57,7 @@ It sits outside both module roots, so `cue` run from `opm/` never loads it and `
 `docs/catalogs/` holds pages that ship only in a bundle; `docs/site/` keeps holding pages opmodel.dev reads through git for a site version. The landing is `docs/site/reference/catalog-contract.md` with:
 
 - front matter `title: The Catalog Contract` and the same `description`; no `type` (an `_index.md` declares none, docs-kit C11) and no `weight`;
-- the body unchanged, except a new `## Catalog members` section before "See also" that names the module (`opmodel.dev/catalogs/opm@v4`) and links the three kind indexes as `/catalogs/opm/4/blueprints/`, `/catalogs/opm/4/resources/` and `/catalogs/opm/4/traits/`. The authored landing replaces the generated one (docs-kit C6), and without this section the landing would link none of the pages under it. The `markdown` source rewrites those links to the build's own segment (`/catalogs/opm/4.4/...`, `/catalogs/opm/edge/...`, docs-kit C8);
+- the body unchanged, with no hand-written members section: the renderer appends the generated "Catalog members" block after the authored body (docs-kit C6), so the landing links the kind indexes with the build's own segment and counts;
 - the two "See also" links (`/docs/reference/registry-namespaces/`, `/docs/reference/cli/`) unchanged: a `/docs/` link from a tab page resolves in the site's default version (docs-kit C8).
 
 `docs/site/reference/catalog-contract.md` stays until section 3, because the site's Reference shows it until the Catalogs tab is live. Section 1 marks it with an HTML comment on the line after its front matter ("Moved to `docs/catalogs/opm/_index.md`; edit there. This copy is deleted when publish-docs-bundle section 3 lands.") and moves the four "Check against" pointers in `docs/site/extending/` to the new path. Section 3 moves the two pointers to `catalog-members/` in `docs/site/authoring/` to `catalog_opm/opm/INDEX.md`, the generated index that stays in git.
@@ -128,6 +128,8 @@ publish-docs:
 
 ### A pinned `opm-docs` binary, never `go run`
 
+docs-kit's contract now fixes this for callers: the local tool is the checksum-verified release binary named by `.opm-docs-version`, never `go run`.
+
 `.opm-docs-version` holds one line, the docs-kit release tag (`v0.1.0`), beside `.opm-cli-version`. `.tasks/opm-docs.sh` installs that release's `opm-docs_<version>_<os>_<arch>.tar.gz` to `.bin/opm-docs` (gitignored) after checking it against the release's `checksums.txt`, and reuses an installed binary whose `opm-docs version` matches. The tasks:
 
 | Task | Runs |
@@ -165,7 +167,7 @@ docs-kit plans revisions as its own change, released as `v0.2.0`. Its `orchestra
 ### How `task check` gets `opm-docs`
 **Context**: docs-kit's `orchestration.md` sketches `go run github.com/open-platform-model/docs-kit/cmd/opm-docs@v0.1.0`.
 **Explored**: `go run` needs a Go toolchain at docs-kit's `go` directive (1.26) on every machine and in `branch-publish.yml` (which runs `task check`) forever, and builds the tool from source instead of running the binary `publish.yml` runs. A checksum-verified release download is how this repository already installs `opm`.
-**Decision**: `.opm-docs-version` plus `.tasks/opm-docs.sh`, as above.
+**Decision**: `.opm-docs-version` plus `.tasks/opm-docs.sh`, as above; raised with docs-kit and adopted there as the contract for callers (supervisor, 2026-10-02).
 **Rationale**: The local check runs the bytes CI runs, and section 3 can drop Go entirely.
 
 ### Moving the contract page before the generator goes
@@ -176,8 +178,8 @@ docs-kit plans revisions as its own change, released as `v0.2.0`. Its `orchestra
 
 ## Risks / Trade-offs
 
-- [The backfill of `opm-v4.4.5` builds a tree cut before `docs/catalogs/opm/` existed, and docs-kit C5 says only that `main`'s `docs-kit.cue` is used, not where a `markdown` source's `dir` resolves] -> This plan expects docs-kit to resolve sources against the release tree and to treat a directory that tree lacks as no pages, so `4.4.5.0` carries the generated landing and the contract landing reaches 4.4 with the next opm release. Section 2 records what the backfill produced. If docs-kit refuses instead, 4.4 first appears with the next opm release, and docs-kit DESIGN decision 8 waits for it.
-- [docs-kit C5 serializes one project's publishes in one concurrency group with `cancel-in-progress: false`, but GitHub keeps at most one pending run per group and cancels the older pending one when a third arrives; a release-PR merge queues `Docs / edge` and `Release / publish-docs` in the same group] -> A cancelled release publish is recovered by the `docs.yml` dispatch; `AGENTS.md` says so. Raised with docs-kit as a contract gap.
+- [The backfill of `opm-v4.4.5` builds a tree cut before `docs/catalogs/opm/` existed] -> Per docs-kit C5, sources resolve against the release tree and the missing `markdown` directory yields no pages, so `4.4.5.0` carries the generated landing; the contract landing reaches 4.4 with the next opm release (or a docs revision once `add-docs-revisions` ships). Section 2 records the result.
+- [`Release / publish-docs` does not run or fails (a failed `publish-cue` leg, a registry outage)] -> The `docs.yml` dispatch publishes the release that has no bundle; `AGENTS.md` says so.
 - [The contract text exists twice between sections 1 and 3] -> The old copy carries a "moved" comment, and gate G3 keeps the window to the opmodel.dev and cli merges.
 - [Two docs-kit pins (`.opm-docs-version` and the `publish.yml@` refs)] -> `docs:bundle:check` refuses a mismatch; a bump changes both in one PR, which needs the Workflows permission the release cascade bot lacks.
 - [`task check` downloads a binary on first run] -> cached in `.bin/`; every gate here already needs the network for the CUE registry.
