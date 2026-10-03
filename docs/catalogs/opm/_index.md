@@ -1,10 +1,7 @@
 ---
 title: The Catalog Contract
 description: "What a catalog author promises, at which contract levels the promise binds, and where OPM enforces it."
-type: reference
-weight: 5
 ---
-<!-- Moved to `docs/catalogs/opm/_index.md`; edit there. This copy is deleted when publish-docs-bundle section 3 lands. -->
 
 A catalog is a set of published promises. Every resource, trait, and blueprint it ships is a **contract**: modules are compiled against it, match on its key, and keep running against future builds. This page states what a catalog author promises, at which contract levels the promise binds, and exactly where OPM enforces it, including where it does not.
 

@@ -206,3 +206,27 @@ jobs:
           PATH_DECLARED=$(grep -E '^module:' src/cue.mod/module.cue \
             | sed -E 's/module:[[:space:]]*"(.*)@v[0-9]+"/\1/')
           opm catalog registry check "${PATH_DECLARED}@v${VERSION}" --compat
+
+  # The opm docs bundle of the release (docs-kit.cue, catalog-opm), built from
+  # the released tag and published as <version>.0 by docs-kit's publish.yml
+  # (docs-kit docs/contracts.md C5). It runs here, in the run the release-PR
+  # merge starts, because publish.yml publishes only from refs/heads/main: a
+  # `release: published` trigger would run on the tag ref and be refused.
+  # needs publish-cue, so the reference never describes a version GHCR does
+  # not serve; when this job does not run, docs.yml's dispatch publishes the
+  # release instead. No version is passed: opm-docs reads it from the tag.
+  # The workflow-level permissions carry no id-token; this job grants what
+  # publish.yml's release mode needs and nothing more.
+  publish-docs:
+    name: Publish the opm docs bundle
+    needs: [release-please, publish-cue]
+    if: needs.release-please.outputs.opm_tag_name != ''
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.1.0
+    with:
+      project: catalog-opm
+      mode: release
+      tag: ${{ needs.release-please.outputs.opm_tag_name }}

@@ -1,0 +1,74 @@
+name: Docs
+
+# The catalog-opm docs bundle (docs-kit.cue): the generated catalog reference
+# plus the authored pages under docs/catalogs/opm/, built, signed and
+# published by docs-kit's reusable publish.yml (docs-kit docs/contracts.md
+# C5). opmodel.dev's Catalogs tab pulls it from
+# ghcr.io/open-platform-model/docs/catalog-opm.
+#
+#   pull_request       check: build and lint, publish nothing
+#   push to main       edge: publish the commit as the edge build
+#   workflow_dispatch  release: publish an opm release that has no bundle yet
+#                      (the backfill, and the recovery when release.yml's
+#                      publish-docs job did not run). Dispatch it on main;
+#                      publish.yml refuses any other ref:
+#                      gh workflow run docs.yml --ref main -f mode=release -f tag=opm-vX.Y.Z
+#
+# publish.yml is pinned by docs-kit release tag, never a SHA: the signing
+# certificate names it at that ref, and the site trusts only docs-kit's v*
+# tags (C5, C9). It runs the opm-docs release named in .opm-docs-version; the
+# two pins move together in one PR (task docs:bundle:check refuses a
+# mismatch). publish.yml declares no permissions, so each job grants exactly
+# what its mode needs.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: release only, until docs-kit add-docs-revisions adds revision
+        type: choice
+        options: [release]
+        required: true
+      tag:
+        description: An opm release tag with no docs bundle yet (opm-v4.4.5)
+        type: string
+        required: true
+
+permissions: {}
+
+jobs:
+  check:
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      packages: read
+    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.1.0
+    with:
+      project: catalog-opm
+      mode: check
+
+  edge:
+    if: github.event_name == 'push'
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.1.0
+    with:
+      project: catalog-opm
+      mode: edge
+
+  dispatch:
+    if: github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.1.0
+    with:
+      project: catalog-opm
+      mode: ${{ inputs.mode }}
+      tag: ${{ inputs.tag }}
