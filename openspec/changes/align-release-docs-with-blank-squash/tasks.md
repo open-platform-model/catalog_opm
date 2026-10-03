@@ -1,11 +1,11 @@
 ## 1. AGENTS.md
 
-- [ ] 1.1 In the "Commit conventions and release impact" table (`AGENTS.md:254`), replace the row `` `feat!:` / `BREAKING CHANGE:` `` with `` `feat!:` (a `!` in the PR title) ``, keeping the other three cells as they are. Under the table, add the sentence that the PR title is the squash commit's type and the only text release-please reads under `BLANK` (design.md D1).
-- [ ] 1.2 After the "Rule of thumb" line, add the three bullets from design.md D2: the squash message, the forced version, and that a release cascade PR never carries `!`. Cite workspace `RELEASING.md`, "Owner settings" and "Bump rule" by name. Every `@` is glued to a path (`opmodel.dev/catalogs/opm@v5`).
-- [ ] 1.3 In the stable-line bullet (`AGENTS.md:126`), change "a `feat!:` on `opm` bumps the major" to "a `feat!:` PR title on `opm` bumps the major" (design.md D3).
-- [ ] 1.4 In "Release & publishing" (`AGENTS.md:223`), change the release-PR merge command to `gh pr merge <N> --squash --body '' --match-head-commit <sha>` (design.md D2).
-- [ ] 1.5 Run `grep -n -E 'BREAKING CHANGE|Release-As|release-as' AGENTS.md`. The only hits should be the new D2 bullets and the `RELEASE` stamp bullet, which is left unchanged on purpose (design.md, Non-Goals).
-- [ ] 1.6 `task check` is green. Then commit `docs(agents): describe breaking and forced releases under the blank squash message`.
+- [x] 1.1 In the "Commit conventions and release impact" table (`AGENTS.md:254`), replace the row `` `feat!:` / `BREAKING CHANGE:` `` with `` `feat!:` (a `!` in the PR title) ``, keeping the other three cells as they are. Under the table, add the sentence that the PR title is the squash commit's type and the only text release-please reads under `BLANK` (design.md D1).
+- [x] 1.2 After the "Rule of thumb" line, add the three bullets from design.md D2: the squash message, the forced version, and that a release cascade PR never carries `!`. Cite workspace `RELEASING.md`, "Owner settings" and "Bump rule" by name. Every `@` is glued to a path (`opmodel.dev/catalogs/opm@v5`).
+- [x] 1.3 In the stable-line bullet (`AGENTS.md:126`), change "a `feat!:` on `opm` bumps the major" to "a `feat!:` PR title on `opm` bumps the major" (design.md D3).
+- [x] 1.4 In "Release & publishing" (`AGENTS.md:223`), change the release-PR merge command to `gh pr merge <N> --squash --body '' --match-head-commit <sha>` (design.md D2).
+- [x] 1.5 Run `grep -n -E 'BREAKING CHANGE|Release-As|release-as' AGENTS.md`. The only hits should be the new D2 bullets and the `RELEASE` stamp bullet, which is left unchanged on purpose (design.md, Non-Goals).
+- [x] 1.6 `task check` is green. Then commit `docs(agents): describe breaking and forced releases under the blank squash message`.
 
 ## 2. openspec/config.yaml
 
