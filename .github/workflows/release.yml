@@ -170,6 +170,23 @@ jobs:
       - name: Login to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
+      # The release PR passed Validate catalog, but branch protection is not
+      # strict and admins can bypass it, so the released tag is checked here
+      # too: a rendered-output fixture that does not evaluate stops the
+      # publish before anything is pushed.
+      - name: Setup CUE
+        uses: cue-lang/setup-cue@a93fa358375740cd8b0078f76355512b9208acb1 # v1.0.1
+        with:
+          version: v0.17.1
+
+      - name: Install Task
+        uses: go-task/setup-task@3be4020d41929789a01026e0e427a4321ce0ad44 # v2.0.0
+        with:
+          version: 3.x
+
+      - name: Check every rendered-output fixture evaluates
+        run: task vet:fixtures
+
       # The tagged tree already declares this version (the release PR carried
       # the identity write), so --version is an assertion, not a write: a
       # mismatch is a refusal, never an overwrite. The pipeline publishes the
