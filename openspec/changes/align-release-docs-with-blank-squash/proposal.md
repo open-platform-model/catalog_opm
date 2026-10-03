@@ -10,9 +10,10 @@ Text only. No CUE, workflow or config value changes.
 
 - `AGENTS.md:254`, "Commit conventions and release impact": the row `` `feat!:` / `BREAKING CHANGE:` `` becomes `` `feat!:` `` (a `!` in the PR title), with a note that the PR title is all the squash commit carries.
 - `AGENTS.md`, same section: add three rules.
-  - The squash message is `BLANK`. Until the owner applies that setting (today the repo still squashes with `COMMIT_MESSAGES`, `COMMIT_OR_PR_TITLE`), merge with an explicit empty body.
-  - A forced version is a `release-as` key on the `src` package in `release-please-config.json`, landed by a normal PR and removed by the next PR once that release is cut. `release-as` alone does not release: it needs a user-facing commit (measured with #122 to #125, opm 4.5.1).
+  - The squash message is `BLANK`. Until the owner applies that setting (today the repo still squashes with `COMMIT_MESSAGES`, `COMMIT_OR_PR_TITLE`), merge with an explicit empty body, release PRs included, and keep a one-commit PR's commit subject identical to the PR title (or pass `--subject`), since `PR_TITLE` is not applied either.
+  - A forced version is a `release-as` key on the `src` package in `release-please-config.json`, landed by a normal PR and removed by the next PR once that release is cut. `release-as` alone does not release: it needs a user-facing commit (`feat`/`fix`/`perf`/`revert`) that touches `src/` (measured with #122 to #125, opm 4.5.1).
   - A release cascade PR here never carries `!`, even under `deps-cascade:breaking` (`RELEASING.md`, "Bump rule"). `opm` is a stable 4.x line, so `!` would make release-please propose 5.0.0 while the module path stays `opmodel.dev/catalogs/opm@v4`. A breaking adoption is a hand-made crossing to `@v5`.
+- `AGENTS.md:223`, the release-PR merge command: add `--body ''` so the release PR's commit list does not reach `main` under `COMMIT_MESSAGES`.
 - `AGENTS.md:126`, the stable-line bullet: say the `!` goes in the PR title.
 - `openspec/config.yaml:25-28`, Principle I: the same title clarification.
 - `openspec/config.yaml:204-208`, the apply guidance: the reason given for the `word(` rule ("the squash body reaches release-please") holds only until `BLANK` is applied. Restate it so that it stays true either way. The rule itself stays.
@@ -28,7 +29,7 @@ No catalog member changes. The review surface is the commit-conventions row:
 
 ```
 Before: | `feat!:` / `BREAKING CHANGE:` | major (bumps the module path too) | yes | ... |
-After:  | `feat!:` (`!` in the PR title) | major (bumps the module path too) | yes | ... |
+After:  | `feat!:` (a `!` in the PR title) | major (bumps the module path too) | yes | ... |
 ```
 
 ## Impact
