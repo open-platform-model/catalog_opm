@@ -10,9 +10,10 @@ context: |
   `opmodel.dev/core@v2` and instantiates its constructs (`#Resource`, `#Trait`, `#Blueprint`,
   `#ComponentTransformer`); it defines no new core constructs. Platforms subscribe to it and
   modules demand contracts from it, always as a published dependency, never by filesystem path.
-  The catalog is pure CUE. The only Go code is `tools/refgen/`, which generates the site
-  reference under `docs/site/reference/`, and `tools/kindgen/`, which generates
-  `src/schemas/kinds/table.cue`; neither ships in the module.
+  The catalog is pure CUE. The only Go code is `tools/kindgen/`, which generates
+  `src/schemas/kinds/table.cue` and does not ship in the module. The catalog reference is
+  the `catalog-opm` docs bundle, which docs-kit's `opm-docs` builds from the module; no
+  reference page is committed here.
 
   ### I. The Catalog Is a Published Contract
   Platforms and modules pin this module; a member they already unify against cannot be taken
@@ -35,9 +36,10 @@ context: |
   normative document, and this OpenSpec workspace deliberately has no specs artifact.
   - Doc comments are the contract text. `task generate:index` extracts them into the module's
     `INDEX.md`, and `task generate:index:check` is the gate that keeps the index honest.
-  - A member's `metadata.description` is the first sentence of its doc comment. The generated
-    site reference (`task generate:reference`) leads each member's page with it, and
-    `task generate:reference:check` fails when a page no longer matches the catalog.
+  - A member's `metadata.description` is the first sentence of its doc comment. The published
+    catalog reference (the `catalog-opm` docs bundle) leads each member's page with it, and
+    `opm-docs build` (in `task docs:bundle:check`) refuses a member whose doc comment does not
+    open with it.
   - There is no `openspec/specs/` directory and no delta specs. Every change's `.openspec.yaml`
     carries `skip_specs: true`; the `openspec-new-change` and `openspec-propose` skills write
     it at creation time. Never create a `specs/` directory inside a change.

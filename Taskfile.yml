@@ -53,8 +53,8 @@ tasks:
     desc: >
       Refuse a catalog member without a description: every member of the
       #resources, #traits, #blueprints and #transformers maps carries a
-      non-blank metadata.description, its one-line summary in the generated
-      site reference.
+      non-blank metadata.description, its one-line summary in the published
+      catalog reference (the catalog-opm docs bundle).
     cmds:
       - bash .tasks/description-check.sh "{{.MODULE_DIR}}"
 
@@ -96,37 +96,13 @@ tasks:
         fi
         echo "OK: $m/INDEX.md is up to date."
 
-  ## Site reference
-  #
-  # tools/refgen (a Go module of its own) loads the catalog the way `cue vet`
-  # does and writes the catalog reference under docs/site/reference/: one
-  # page per blueprint, resource and trait.
-  # Regenerate after any member or transformer change; release.yml
-  # regenerates on the release PR, because every page carries the module's
-  # identity.Version.
-
-  generate:reference:
-    desc: Regenerate the catalog reference pages under docs/site/reference/ from the catalog (tools/refgen)
-    cmds:
-      - go run -C tools/refgen . -repo "$(pwd)"
-
-  generate:reference:check:
-    desc: Verify the catalog reference matches the catalog (exits non-zero if a page is stale or orphaned)
-    cmds:
-      - go run -C tools/refgen . -repo "$(pwd)" -check
-
-  test:refgen:
-    desc: Vet and unit-test the reference generator
-    cmds:
-      - go vet -C tools/refgen ./...
-      - go test -C tools/refgen ./...
-
   ## Docs bundle
   #
-  # docs-kit.cue declares one docs bundle, catalog-opm: the generated catalog
-  # reference plus the authored pages under docs/catalogs/opm/. CI builds,
-  # signs and publishes it through docs-kit's publish.yml (docs.yml,
-  # release.yml); these tasks run the same opm-docs release locally. The
+  # docs-kit.cue declares one docs bundle, catalog-opm: the catalog reference
+  # opm-docs generates from the module, plus the authored pages under
+  # docs/catalogs/opm/. CI builds, signs and publishes it through docs-kit's
+  # publish.yml (docs.yml, release.yml); nothing here commits reference
+  # pages. These tasks run the same opm-docs release locally. The
   # release is pinned in .opm-docs-version and in every publish.yml ref, and
   # docs:bundle:check refuses the two disagreeing.
 
@@ -147,12 +123,10 @@ tasks:
       - bash .tasks/opm-docs.sh pin-check
 
   docs:bundle:check:
-    desc: Check the docs-kit pins agree and the two Catalog Contract copies match, then build and lint the catalog-opm docs bundle into a temporary directory
+    desc: Check the docs-kit pins agree, then build and lint the catalog-opm docs bundle into a temporary directory
     deps: [tools:opm-docs]
     cmds:
       - task: docs:pins:check
-      # Until publish-docs-bundle section 3 deletes docs/site/reference/catalog-contract.md.
-      - bash .tasks/opm-docs.sh contract-sync
       - .bin/opm-docs check --project catalog-opm
 
   ## Kubernetes kind table
@@ -226,7 +200,7 @@ tasks:
   ## Aggregate
 
   check:
-    desc: Format check, vet, listing, descriptions, rendered-output fixtures, INDEX freshness, the generator tests, the generated site reference, the docs bundle check, and doc-comment report
+    desc: Format check, vet, listing, descriptions, rendered-output fixtures, INDEX freshness, the kind table generator tests, the docs bundle check, and doc-comment report
     cmds:
       - task: fmt:check
       - task: vet
@@ -234,8 +208,6 @@ tasks:
       - task: vet:descriptions
       - task: vet:fixtures
       - task: generate:index:check
-      - task: test:refgen
       - task: test:kindgen
-      - task: generate:reference:check
       - task: docs:bundle:check
       - task: docs:check

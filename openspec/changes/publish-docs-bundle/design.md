@@ -23,12 +23,12 @@ No member file, `apiVersion` segment, definition, default, closedness or require
 - Every push to `main` publishes a signed `edge` bundle of the opm catalog; every opm release publishes `<version>.0` in the same workflow run that publishes the CUE module.
 - Every pull request runs `opm-docs check`; `task check` runs the same check locally with the same tool version CI uses.
 - The authored contract page is the bundle's landing.
-- After section 3, nothing under this repository generates or commits reference pages, and the repository has no Go code and no Go toolchain step.
+- After section 3, nothing under this repository generates or commits reference pages, and no workflow installs Go for the reference. (Amended at section 3: `tools/kindgen`, added by `feat(resources): add the objects resource` (#118) after this plan was written, is Go and its tests run in `task check`, so `ci.yml` and `branch-publish.yml` keep `Setup Go`, now read from `tools/kindgen/go.mod`; only `release.yml` drops Go.)
 
 **Non-Goals:**
 
 - A `catalog-k8s` bundle. The `k8s` catalog was removed from this repository by another change (`retire-k8s-catalog`, 3f9d6fd).
-- Docs revisions. Their dispatch belongs to docs-kit's change `add-docs-revisions` (Decisions, "Docs revisions are left to add-docs-revisions").
+- Docs revisions. Their dispatch belongs to docs-kit's change `add-docs-revisions` (Decisions, "Docs revisions are left to add-docs-revisions"). It landed outside this change, as planned there: `ci(docs): adopt docs-kit v0.2.0` (#126) moved both pins to `v0.2.0` and gave the dispatch the `revision` mode and the `fix` input.
 - Any edit to opmodel.dev, cli, docs-kit or the workspace repository.
 - Redirects from the old Reference URLs. There are none (decided): the opmodel.dev build that gains the tab stops mounting the old pages and maps links to them onto the tab's alias forms.
 
@@ -153,9 +153,10 @@ docs-kit plans revisions as its own change, released as `v0.2.0`. Its `orchestra
 | `tools/refgen/` | the whole Go module |
 | `docs/site/reference/catalog-members/`, `docs/site/reference/catalog-contract.md` | the committed pages and the moved contract copy |
 | `Taskfile.yml` | `generate:reference`, `generate:reference:check`, `test:refgen`, their `check` entries, the `## Site reference` comment block; `check`'s `desc` reworded |
-| `ci.yml` | `Setup Go`, "Test the reference generator", "Verify the generated site reference is up to date" |
-| `branch-publish.yml` | `Setup Go` (its `task check` needs no Go: `opm-docs` is a binary) |
-| `release.yml`, job `release-please` | `Setup Go`, `Install Task`, `task generate:reference`, `docs/site/reference` in `git add`, and the `git status --porcelain -- docs/site/reference` test, so the step reads `if git diff --quiet; then`. The GHCR login goes too unless `opm catalog version set` needs a registry: the implementer runs it on a scratch checkout with no credentials and records the result in the section's commit body |
+| `ci.yml` | "Test the reference generator", "Verify the generated site reference is up to date"; `Setup Go` stays for `test:kindgen`, read from `tools/kindgen/go.mod` (amended at section 3) |
+| `branch-publish.yml` | nothing removed: its `task check` runs `test:kindgen`, so `Setup Go` stays, read from `tools/kindgen/go.mod` (amended at section 3) |
+| `release.yml`, job `release-please` | `Setup Go`, `Install Task`, `task generate:reference`, `docs/site/reference` in `git add`, and the `git status --porcelain -- docs/site/reference` test, so the step reads `if git diff --quiet; then`. The GHCR login goes too unless `opm catalog version set` needs a registry: the implementer runs it on a scratch checkout with no credentials and records the result in the section's commit body. Result (2026-10-03, opm `v1.0.0-beta.4`, the `.opm-cli-version` pin): with an empty `HOME` and `DOCKER_CONFIG` and `OPM_REGISTRY`/`CUE_REGISTRY` at an unreachable `localhost:1`, it rewrote `Version` and exited 0, so the login goes |
+| `.tasks/opm-docs.sh`, `docs:bundle:check` | the `contract-sync` mode and its call: one contract copy remains |
 
 `vet:descriptions` stays: the summary rule now feeds the bundle. Its `desc` and `.tasks/description-check.sh`'s header stop saying "generated site reference" and say the published catalog reference. `docs/site/reference/kubernetes-resources.md` belongs to the `k8s` removal (gate G3); section 3 deletes it only if that change left it.
 
@@ -194,7 +195,7 @@ docs-kit plans revisions as its own change, released as `v0.2.0`. Its `orchestra
 ## Durable decisions
 
 - `docs/catalogs/opm/` holds pages that ship only in the docs bundle; `docs/site/` holds pages opmodel.dev reads for a site version: `AGENTS.md`, Repository Layout and a new "Docs bundles" subsection under Release & publishing (section 1).
-- What publishes when (`edge` on every push to `main`, `<version>.0` from `release.yml` after `publish-cue`, the `docs.yml` dispatch as recovery only), how to preview (`task docs:bundle`, then opmodel.dev's `--local catalog-opm@edge=<this repo>/out/catalog-opm`), and that `.opm-docs-version` and the `publish.yml@` refs move together: `AGENTS.md`, "Docs bundles" (section 1).
+- What publishes when (`edge` on every push to `main`, `<version>.0` from `release.yml` after `publish-cue`, the `docs.yml` dispatch for release recovery, never a backfill, and, since docs-kit `v0.2.0` (#126), for docs revisions of a published release), how to preview (`task docs:bundle`, then opmodel.dev's `--local catalog-opm@edge=<this repo>/out/catalog-opm`), and that `.opm-docs-version` and the `publish.yml@` refs move together: `AGENTS.md`, "Docs bundles" (section 1).
 - The catalog reference is published by docs-kit and never committed; the doc-comment rules that shape it (description first, `// WHY` blocks and banners dropped, citations stripped, marks and enforcement derived) are enforced by `opm-docs build` and documented in docs-kit: `AGENTS.md` (Purpose, Repository Layout, Dependencies, the commands table, Release & publishing, Working Style) and `openspec/config.yaml` (context and Principle II) (section 3).
 - The digests and tags of the first published bundles (the first `edge` and the first release): stays with the change (section 2).
 

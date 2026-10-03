@@ -9,10 +9,10 @@ export LC_ALL=C
 #
 # Every member listed in one of the module's catalog maps (#resources,
 # #traits, #blueprints and #transformers) MUST carry a non-blank
-# `metadata.description`. It is the member's one-line summary: the generated
-# site reference leads every entry with it (workspace STYLE.md, "Site Pages"),
-# and it agrees with the first sentence of the member's doc comment
-# (AGENTS.md, Working Style, Descriptions).
+# `metadata.description`. It is the member's one-line summary: the published
+# catalog reference (the catalog-opm docs bundle) leads every entry with it
+# (workspace STYLE.md, "Site Pages"), and it agrees with the first sentence
+# of the member's doc comment (AGENTS.md, Working Style, Descriptions).
 #
 # WHY a gate and not a schema constraint: core declares the field optional on
 # primitives (`description?: string`), and a member is a definition, so a

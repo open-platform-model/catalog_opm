@@ -12,7 +12,6 @@ set -euo pipefail
 # Usage (run from the repo root):
 #   bash .tasks/opm-docs.sh install     # install or reuse .bin/opm-docs
 #   bash .tasks/opm-docs.sh pin-check   # refuse a publish.yml ref that names another release
-#   bash .tasks/opm-docs.sh contract-sync  # refuse the two Catalog Contract copies drifting apart
 #
 # install downloads opm-docs_<version>_<os>_<arch>.tar.gz and checksums.txt from
 # the docs-kit release, checks the archive with sha256sum (refusing an archive
@@ -27,17 +26,10 @@ set -euo pipefail
 # .github/workflows/ names the tag in .opm-docs-version. A workflow `uses:` ref
 # cannot be read from a file, so the release is pinned twice; a bump moves both
 # in one PR.
-#
-# contract-sync refuses unless docs/catalogs/opm/_index.md (the bundle landing)
-# and docs/site/reference/catalog-contract.md (the copy the site's Reference
-# still shows) have the same body, front matter and the "moved" comment
-# ignored. It goes with that copy in publish-docs-bundle section 3.
 
 PIN_FILE=.opm-docs-version
 BIN_DIR=.bin
 WORKFLOW_REF=open-platform-model/docs-kit/.github/workflows/publish.yml@
-CONTRACT_LANDING=docs/catalogs/opm/_index.md
-CONTRACT_COPY=docs/site/reference/catalog-contract.md
 
 read_pin() {
 	if [ ! -f "$PIN_FILE" ]; then
@@ -116,19 +108,6 @@ sha256_check() {
 	fi
 }
 
-# body FILE: the page without its front matter and without the "moved" comment.
-body() {
-	awk 'NR == 1 && $0 == "---" { fm = 1; next } fm && $0 == "---" { fm = 0; next } fm { next } /^<!-- Moved to `docs\/catalogs\/opm\/_index.md`/ { next } { print }' "$1"
-}
-
-contract_sync() {
-	if ! diff -u <(body "$CONTRACT_COPY") <(body "$CONTRACT_LANDING") >&2; then
-		echo "opm-docs: $CONTRACT_LANDING and $CONTRACT_COPY differ outside their front matter; edit $CONTRACT_LANDING and copy the change to $CONTRACT_COPY until publish-docs-bundle section 3 deletes it" >&2
-		exit 1
-	fi
-	echo "OK: $CONTRACT_LANDING and $CONTRACT_COPY have the same body."
-}
-
 pin_check() {
 	local tag refs bad
 	tag=$(read_pin)
@@ -149,9 +128,8 @@ pin_check() {
 case "${1:-}" in
 install) install_opm_docs ;;
 pin-check) pin_check ;;
-contract-sync) contract_sync ;;
 *)
-	echo "Usage: bash .tasks/opm-docs.sh install|pin-check|contract-sync" >&2
+	echo "Usage: bash .tasks/opm-docs.sh install|pin-check" >&2
 	exit 1
 	;;
 esac
