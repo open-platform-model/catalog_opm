@@ -9,13 +9,13 @@
 
 ## 2. Pin report, class map, stub and the title and body tasks
 
-- [ ] 2.1 `.tasks/cascade/classes`: contract §5.3's catalog_opm map verbatim, with a header comment naming the contract section (design D2)
-- [ ] 2.2 `.tasks/cascade/pins.sh` (mode 0755, `set -euo pipefail`): `WORKTREE` or a git ref; prints the two TSV rows of design D2 in that order; omits a row whose file is missing at the ref or whose `src/cue.mod/module.cue` has no core key (`grep -qF` first, so `set -euo pipefail` never fails on a missing key); exit 1 on a core key with an unparsable `v:` and on a malformed `.opm-cli-version`
-- [ ] 2.3 `.tasks/cascade/testdata/stub-resolve.sh` (mode 0755): the contract §7 stub byte for byte; `sha256sum` prints `970130f7d55c07f5b86d4f5b6f392330427ff923eb34f93553656bcd4b893d9c`
-- [ ] 2.4 `Taskfile.yml`: add the `## Release cascade` group after `deps:release-check` with the shared resolver anchor and the tasks `deps:cascade:title` and `deps:cascade:body` (design D1)
-- [ ] 2.5 `.tasks/cascade/pins.sh WORKTREE` and `.tasks/cascade/pins.sh HEAD` print the same two rows on the clean tree; `shellcheck .tasks/cascade/pins.sh` is clean; `CASCADE_RESOLVER=/nonexistent/cascade-resolve.sh task -x deps:cascade:title` fails on the precondition message, and `CASCADE_RESOLVER=relative/path task -x deps:cascade:title` fails with "CASCADE_RESOLVER must be absolute" (both independent of whether a sibling `.github` checkout has the resolver)
-- [ ] 2.6 `AGENTS.md`: the § Repository Layout `.tasks/` line (`:164`) names `cascade/` and says `testdata/stub-resolve.sh` is the contract stub, never edited in place; § Build And Dev Commands gains rows for `deps:cascade:title` and `deps:cascade:body` (design, Durable decisions)
-- [ ] 2.7 `task check` green, then commit `ci(cascade): add the cascade pin report, class map and title and body tasks`
+- [x] 2.1 `.tasks/cascade/classes`: contract §5.3's catalog_opm map verbatim, with a header comment naming the contract section (design D2)
+- [x] 2.2 `.tasks/cascade/pins.sh` (mode 0755, `set -euo pipefail`): `WORKTREE` or a git ref; prints the two TSV rows of design D2 in that order; omits a row whose file is missing at the ref or whose `src/cue.mod/module.cue` has no core key (`grep -qF` first, so `set -euo pipefail` never fails on a missing key); exit 1 on a core key with an unparsable `v:` and on a malformed `.opm-cli-version`
+- [x] 2.3 `.tasks/cascade/testdata/stub-resolve.sh` (mode 0755): the contract §7 stub byte for byte; `sha256sum` prints `970130f7d55c07f5b86d4f5b6f392330427ff923eb34f93553656bcd4b893d9c`
+- [x] 2.4 `Taskfile.yml`: add the `## Release cascade` group after `deps:release-check` with the shared resolver anchor and the tasks `deps:cascade:title` and `deps:cascade:body` (design D1)
+- [x] 2.5 `.tasks/cascade/pins.sh WORKTREE` and `.tasks/cascade/pins.sh HEAD` print the same two rows on the clean tree; `shellcheck .tasks/cascade/pins.sh` is clean; `CASCADE_RESOLVER=/nonexistent/cascade-resolve.sh task -x deps:cascade:title` fails on the precondition message, and `CASCADE_RESOLVER=relative/path task -x deps:cascade:title` fails with "CASCADE_RESOLVER must be absolute" (both independent of whether a sibling `.github` checkout has the resolver)
+- [x] 2.6 `AGENTS.md`: the § Repository Layout `.tasks/` line (`:164`) names `cascade/` and says `testdata/stub-resolve.sh` is the contract stub, never edited in place; § Build And Dev Commands gains rows for `deps:cascade:title` and `deps:cascade:body` (design, Durable decisions)
+- [x] 2.7 `task check` green, then commit `ci(cascade): add the cascade pin report, class map and title and body tasks`
 
 ## 3. `task deps:cascade`
 
