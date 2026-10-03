@@ -235,7 +235,7 @@ jobs:
       contents: read
       packages: write
       id-token: write
-    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.1.0
+    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.2.0
     with:
       project: catalog-opm
       mode: release
