@@ -21,16 +21,17 @@ tasks:
   ## CUE catalogs
 
   fmt:
-    desc: Format all CUE files in the module
-    dir: "{{.MODULE_DIR}}"
-    cmds:
-      - cue fmt ./...
-
-  fmt:check:
-    desc: Verify CUE files are formatted (fails if any file would change)
+    desc: Format all CUE files in the module, and docs-kit.cue
     cmds:
       - (cd "{{.MODULE_DIR}}" && cue fmt ./...)
-      - git diff --exit-code -- '{{.MODULE_DIR}}/**/*.cue' '{{.MODULE_DIR}}/*.cue'
+      - cue fmt docs-kit.cue
+
+  fmt:check:
+    desc: Verify CUE files are formatted, docs-kit.cue included (fails if any file would change)
+    cmds:
+      - (cd "{{.MODULE_DIR}}" && cue fmt ./...)
+      - cue fmt docs-kit.cue
+      - git diff --exit-code -- '{{.MODULE_DIR}}/**/*.cue' '{{.MODULE_DIR}}/*.cue' docs-kit.cue
 
   vet:
     desc: Validate every catalog package
@@ -120,6 +121,40 @@ tasks:
       - go vet -C tools/refgen ./...
       - go test -C tools/refgen ./...
 
+  ## Docs bundle
+  #
+  # docs-kit.cue declares one docs bundle, catalog-opm: the generated catalog
+  # reference plus the authored pages under docs/catalogs/opm/. CI builds,
+  # signs and publishes it through docs-kit's publish.yml (docs.yml,
+  # release.yml); these tasks run the same opm-docs release locally. The
+  # release is pinned in .opm-docs-version and in every publish.yml ref, and
+  # docs:bundle:check refuses the two disagreeing.
+
+  tools:opm-docs:
+    desc: Install or reuse .bin/opm-docs, the checksum-verified docs-kit release named by .opm-docs-version
+    cmds:
+      - bash .tasks/opm-docs.sh install
+
+  docs:bundle:
+    desc: Build the catalog-opm docs bundle of the work tree into out/catalog-opm/ (a local preview of edge)
+    deps: [tools:opm-docs]
+    cmds:
+      - .bin/opm-docs build --project catalog-opm --out out
+
+  docs:pins:check:
+    desc: Refuse a docs-kit publish.yml ref under .github/workflows/ that names another release than .opm-docs-version (offline)
+    cmds:
+      - bash .tasks/opm-docs.sh pin-check
+
+  docs:bundle:check:
+    desc: Check the docs-kit pins agree and the two Catalog Contract copies match, then build and lint the catalog-opm docs bundle into a temporary directory
+    deps: [tools:opm-docs]
+    cmds:
+      - task: docs:pins:check
+      # Until publish-docs-bundle section 3 deletes docs/site/reference/catalog-contract.md.
+      - bash .tasks/opm-docs.sh contract-sync
+      - .bin/opm-docs check --project catalog-opm
+
   ## Kubernetes kind table
   #
   # tools/kindgen (a Go module of its own) writes src/schemas/kinds/table.cue,
@@ -191,7 +226,7 @@ tasks:
   ## Aggregate
 
   check:
-    desc: Format check, vet, listing, descriptions, rendered-output fixtures, INDEX freshness, the generator tests, the generated site reference, and doc-comment report
+    desc: Format check, vet, listing, descriptions, rendered-output fixtures, INDEX freshness, the generator tests, the generated site reference, the docs bundle check, and doc-comment report
     cmds:
       - task: fmt:check
       - task: vet
@@ -202,4 +237,5 @@ tasks:
       - task: test:refgen
       - task: test:kindgen
       - task: generate:reference:check
+      - task: docs:bundle:check
       - task: docs:check
