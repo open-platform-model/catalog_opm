@@ -61,13 +61,13 @@ jobs:
         with:
           version: 3.x
 
-      # tools/refgen, the generator of the site reference, is a Go module of
-      # its own; task check runs its tests and its staleness check.
+      # tools/kindgen, the generator of the Kubernetes kind table, is a Go
+      # module of its own; task check runs its offline unit tests.
       - name: Setup Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version-file: tools/refgen/go.mod
-          cache-dependency-path: tools/refgen/go.sum
+          go-version-file: tools/kindgen/go.mod
+          cache-dependency-path: tools/kindgen/go.sum
 
       - name: Install opm
         run: |

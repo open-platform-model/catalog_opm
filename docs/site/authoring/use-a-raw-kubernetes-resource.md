@@ -76,4 +76,4 @@ Check against: cli/internal/workflow/render/log_output.go, catalog_opm/src/trans
 ## Related
 
 <!-- By title: the reference page "Objects" (the generated member page, which lists every built-in kind and its scope) and the concept page "Platforms and catalogs".
-Check against: catalog_opm/docs/site/reference/catalog-members/resources/objects.md, core/docs/site/concepts/platforms-and-catalogs.md -->
+Check against: catalog_opm/src/resources/v1alpha1/objects.cue, core/docs/site/concepts/platforms-and-catalogs.md -->

@@ -77,30 +77,13 @@ jobs:
           sudo install -m 0755 "${tmp}/opm" /usr/local/bin/opm
           rm -rf "${tmp}" opm-linux-amd64.tar.gz checksums.txt
 
-      # task generate:reference below loads the catalog, which resolves
-      # opmodel.dev/core@v2 from GHCR: the same read login ci.yml uses.
-      - name: Login to GHCR (read deps)
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-      # The site reference under docs/site/reference/ stamps every page with
-      # identity.Version, so the identity advance below regenerates it in the
-      # same commit; without it the release PR fails its own staleness check.
-      - name: Setup Go
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with:
-          go-version-file: tools/refgen/go.mod
-          cache-dependency-path: tools/refgen/go.sum
-
-      - name: Install Task
-        uses: go-task/setup-task@3be4020d41929789a01026e0e427a4321ce0ad44 # v2.0.0
-        with:
-          version: 3.x
-
       # Release-please decides the version; the identity file is written only by
       # opm's own writer (enhancement 0011 D3/D15 — no x-release-please-version
       # annotation, which would be a second writer and reintroduce drift). The
       # write is surgical and idempotent, so release-please force-updating its
       # branch just makes this step converge again on the next main push.
+      # The write is a source edit and resolves nothing, so the step needs no
+      # registry login (checked against an unreachable registry, 2026-10-03).
       #
       # The module directory and release-please package path is src; the
       # component, which names the release branch and the tag, is opm.
@@ -117,12 +100,11 @@ jobs:
           git checkout -B "$BRANCH" FETCH_HEAD
           VERSION=$(jq -r '.src' .release-please-manifest.json)
           opm catalog version set "$VERSION" ./src
-          task generate:reference
-          if git diff --quiet && [ -z "$(git status --porcelain -- docs/site/reference)" ]; then
+          if git diff --quiet; then
             echo "identity.Version already declares ${VERSION}"
             exit 0
           fi
-          git add src/identity/identity.cue docs/site/reference
+          git add src/identity/identity.cue
           git commit -m "chore: advance opm identity.Version to ${VERSION}"
           git push origin "$BRANCH"
 

@@ -57,4 +57,4 @@ Check against: cli/internal/workflow/render/log_output.go, cli/internal/output/s
 ## Related
 
 <!-- By title: the reference entry "Catalog members" (each blueprint's generated page) and the concept page "Components and blueprints". Also "How matching works" for why the label decides the kind.
-Check against: catalog_opm/docs/site/reference/catalog-members/, core/docs/site/concepts/components-and-blueprints.md, core/docs/site/concepts/how-matching-works.md -->
+Check against: catalog_opm/src/INDEX.md, core/docs/site/concepts/components-and-blueprints.md, core/docs/site/concepts/how-matching-works.md -->
