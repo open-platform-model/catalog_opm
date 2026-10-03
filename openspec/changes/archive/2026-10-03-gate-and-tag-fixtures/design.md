@@ -41,8 +41,8 @@ changes the checks around it.
 - Running blueprint fixtures through an export gate. `vet:fixtures` keeps its selector; the
   blueprint fixtures stay covered by `cue vet -t fixtures` as today by `cue vet`.
 - Correcting the wider prose about what `cue vet` checks in hidden fields (see Risks).
-- Any change to `branch-publish.yml`, and any `release.yml` change beyond the one `release-please`
-  step group (D2).
+- Any change to `branch-publish.yml`, and any `release.yml` change beyond the `release-please`
+  step group and the `publish-cue` backstop (D2).
 
 ## Decisions
 
