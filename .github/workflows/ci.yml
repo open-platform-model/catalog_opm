@@ -58,6 +58,10 @@ jobs:
         if: startsWith(github.head_ref || github.ref_name, 'release-please--')
         run: task deps:release-check
 
+      # Offline and text-only, so it runs before anything touches the registry.
+      - name: Verify every fixture is behind the fixtures tag
+        run: task vet:fixtures:tagged
+
       - name: Login to GHCR (read deps)
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 

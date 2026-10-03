@@ -38,7 +38,7 @@ weight: 18
 11. If a workload blueprint should carry the trait, compose it there.
     <!-- Add it to the blueprint's composedTraits list, to its schema and to its wrapper, following "Write a blueprint". At beta or GA, publish's compatibility gate compares composedTraits with the published build; Verify: whether appending to composedTraits of a published v1beta1 blueprint is refused. Any propagation guard (if spec.<x>.<field> != _|_) sits at component level, outside the spec block: the in-spec form fails with "field not allowed" on cue v0.17.1. Check against: catalog_opm/src/blueprints/v1beta1/stateless_workload.cue, catalog_opm/docs/cue-guard-closedness-workaround.md, cli/internal/compat/compat.go (walkList) -->
 12. In catalog_opm, regenerate the index and run the checks.
-    <!-- task generate:index regenerates src/INDEX.md; task check runs format, vet, listing, fixtures, index freshness and the doc-comment limit. task fmt:check diffs the git index, so stage the edits first. Check against: catalog_opm/Taskfile.yml, catalog_opm/AGENTS.md (Build And Dev Commands) -->
+    <!-- task generate:index regenerates src/INDEX.md; task check runs format, vet, listing, fixtures, fixture tags, index freshness and the doc-comment limit. task fmt:check diffs the git index, so stage the edits first. Check against: catalog_opm/Taskfile.yml, catalog_opm/AGENTS.md (Build And Dev Commands) -->
 
 ## Check that it worked
 

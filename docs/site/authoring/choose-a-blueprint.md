@@ -26,7 +26,7 @@ Check against: opm/docs/site/authoring/your-first-module.md, catalog_opm/src/res
    - If it runs on a schedule, use `#ScheduledTaskWorkload` (`scheduled-task`, renders a CronJob). `cronJobConfig.scheduleCron` is required.
    - If the component runs no container (only ConfigMaps, a Role, CRDs, namespaces or webhooks), use no blueprint: embed the resource wrapper instead (`res.#ConfigMaps`, `res.#Role`, `res.#CRDs` from resources/v1beta1; `#Namespaces`, `#ValidatingWebhooks`, `#MutatingWebhooks` from resources/v1alpha1).
    - If nothing in this catalog models the object, see "Use a raw Kubernetes resource".
-   `network_policy_attachment.cue` in the blueprints directory is a test file, not a blueprint.
+   `network_policy_attachment_fixtures.cue` in the blueprints directory is a test file, not a blueprint.
    Check against: catalog_opm/src/blueprints/v1beta1/*.cue, catalog_opm/src/resources/v1beta1/container.cue (the required workload-type key), catalog_opm/src/resources/v1alpha1/ -->
 
 2. Import the blueprints package.

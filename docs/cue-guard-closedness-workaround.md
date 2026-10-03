@@ -189,6 +189,6 @@ cue eval /tmp/closed.cue   # must report both fields as not allowed
 ```
 
 The standing guard in this repo is `task vet:fixtures`: the five
-`_testPreBound*Output` fixtures in `src/transformers/transformer_registration_transformer.cue`
+`_testPreBound*Output` fixtures in `src/transformers/transformer_registration_transformer_fixtures.cue`
 stop evaluating the moment `#PreBoundRegistration` stops embedding
 `#TransformerRegistration`.
