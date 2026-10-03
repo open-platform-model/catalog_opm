@@ -26,7 +26,7 @@ c.#Catalog
 metadata: {
 	modulePath:  id.ModulePath
 	version:     id.Version
-	description: "OPM core catalog — Kubernetes resources, traits, blueprints, and transformers"
+	description: "OPM core catalog: its resources, traits and blueprints, and the transformers that render them to Kubernetes"
 }
 
 #resources: {
