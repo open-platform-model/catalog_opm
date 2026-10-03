@@ -39,7 +39,7 @@ Check against: opm/docs/site/authoring/your-first-module.md, catalog_opm/docs/si
    <!-- A new entry in `#components` that embeds `resa.#Objects` and writes each object under `spec: objects: <name>:` exactly as the API server takes it: `apiVersion`, `kind`, `metadata`, `spec` and any other top-level field. One component may hold many objects; each renders as one object.
    The objects resource may also sit beside a workload's resources in the same component (a ServiceMonitor next to the workload it scrapes); its transformer renders the entries independently of the rest. A trait attached to a component holding only objects matches no transformer and is reported as unhandled.
    Show one example with two entries: a ClusterRole (built-in, cluster-scoped) and a cert-manager ClusterIssuer with `#scope: "Cluster"` (custom).
-   Check against: catalog_opm/src/resources/v1alpha1/objects.cue (#Objects, #ObjectSchema), catalog_opm/src/transformers/objects_transformer.cue (fixtures, including the embedded form) -->
+   Check against: catalog_opm/src/resources/v1alpha1/objects.cue (#Objects, #ObjectSchema), catalog_opm/src/transformers/objects_transformer_fixtures.cue (fixtures, including the embedded form) -->
 
 4. Name each object as it must appear in the cluster.
 
@@ -65,7 +65,7 @@ Check against: opm/docs/site/authoring/your-first-module.md, catalog_opm/docs/si
    - `<apiVersion> <kind> is cluster-scoped: remove metadata.namespace`.
    - `#scope: conflicting values "Namespaced" and "Cluster"`: a `#scope` that disagrees with a built-in kind's scope; remove it.
    A custom resource is not validated. An author may unify an entry with a schema they import themselves (for example from `cue.dev/x/crd/...`); the catalog ships none.
-   Check against: catalog_opm/src/resources/v1alpha1/objects.cue, catalog_opm/src/transformers/objects_transformer.cue (_testObjectsRefused), catalog_opm/openspec/changes/archive/*-add-objects-resource/design.md (Research & Decisions) -->
+   Check against: catalog_opm/src/resources/v1alpha1/objects.cue, catalog_opm/src/transformers/objects_transformer_fixtures.cue (_testObjectsRefused), catalog_opm/openspec/changes/archive/*-add-objects-resource/design.md (Research & Decisions) -->
 
 ## Check that it worked
 

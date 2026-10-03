@@ -30,6 +30,11 @@ export LC_ALL=C
 # `#transform` form a fixture must already use to render anything, not on a
 # naming convention, so renaming a fixture keeps it covered.
 #
+# WHY -t fixtures: fixtures live in `<name>_fixtures.cue` files that open with
+# the file attribute `@if(fixtures)`, so a plain build (a consumer, an editor,
+# `cue vet ./...`) never loads them. Without the tag every field here is
+# "not found". See .tasks/fixture-tags.sh and AGENTS.md, Working Style.
+#
 # Usage (run from the repo root):
 #   bash .tasks/fixtures.sh <module_dir>      # src
 #
@@ -65,7 +70,7 @@ failed=0
 while IFS=$'\t' read -r file field; do
     [[ -n "$field" ]] || continue
     total=$((total + 1))
-    if err="$(cd "$MODULE" && cue export -e "$field" ./transformers 2>&1 >/dev/null)"; then
+    if err="$(cd "$MODULE" && cue export -t fixtures -e "$field" ./transformers 2>&1 >/dev/null)"; then
         continue
     fi
     failed=$((failed + 1))

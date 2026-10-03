@@ -1,0 +1,280 @@
+@if(fixtures)
+
+package transformers
+
+import (
+	res "opmodel.dev/catalogs/opm/resources/v1beta1"
+	tr "opmodel.dev/catalogs/opm/traits/v1beta1"
+)
+
+/////////////////////////////////////////////////////////////////
+//// Test Data
+////
+//// Guard idioms, and why they are not plain goldens:
+////   - wrong VALUE  -> force resolution with string interpolation or
+////     arithmetic. `"\(x)" & "want"` is non-invertible, so it cannot repair
+////     the value it is checking. A bare golden `name: "want"` WOULD repair a
+////     regression to `x | *y` and pass against broken code.
+////   - ABSENT field -> empty comprehension against a one-element list. An
+////     unset optional is merely incomplete, which plain `cue vet` accepts;
+////     a list-length conflict fails at every vet level.
+////   - LEAKED field -> empty comprehension against an empty list.
+/////////////////////////////////////////////////////////////////
+
+// Shared stub inputs. Core projects BOTH #moduleInstanceMetadata and
+// #componentMetadata at the #transform site (alpha.7, 0019 D12), so a fixture
+// supplies #moduleInstance and #component and never the projections; filling
+// them leaves #moduleInstance at `_` and the output never becomes concrete.
+// componentLabels therefore resolves to three entries:
+// app.kubernetes.io/name=istiod (from #component.metadata.name),
+// module-instance.opmodel.dev/name=istio and the container wrapper's required
+// core.opmodel.dev/workload-type label.
+_testDeployModuleInstance: {
+	metadata: {
+		name:      "istio"
+		namespace: "istio-system"
+		fqn:       "opmodel.dev/modules/istio@0.1.0"
+		uuid:      "00000000-0000-0000-0000-000000000000"
+	}
+	#moduleMetadata: version: "0.1.0"
+}
+
+_testDeployContext: #runtimeName: "opm-test"
+
+_testDeployContainer: {
+	name: "discovery"
+	image: {
+		repository: "docker.io/istio/pilot"
+		tag:        "1.30.3-distroless"
+		digest:     ""
+	}
+}
+
+// ---- Default naming: no metadata.resourceName -> instance-scoped -------------
+_testDeployDefaultNameComponent: {
+	#instance: {name: "istio", namespace: "istio-system", uuid: "00000000-0000-0000-0000-000000000000"}
+
+	res.#Container
+
+	metadata: {
+		name: "istiod"
+		labels: "core.opmodel.dev/workload-type": "stateless"
+	}
+
+	spec: container: _testDeployContainer
+}
+
+_testDeployDefaultNameTransformer: (#DeploymentTransformer.#transform & {
+	#moduleInstance: _testDeployModuleInstance
+	#component:      _testDeployDefaultNameComponent
+	#context:        _testDeployContext
+}).output
+
+_testDeployDefaultNameResolves: "\(_testDeployDefaultNameTransformer.metadata.name)" & "istio-istiod"
+
+// A component with none of the three new traits must not grow any of their
+// output. These are the guards that catch an unguarded passthrough.
+_testDeployNoPodAnnotations: [
+	if _testDeployDefaultNameTransformer.spec.template.metadata.annotations != _|_ {"leaked"},
+] & []
+
+_testDeployNoNodeSelector: [
+	if _testDeployDefaultNameTransformer.spec.template.spec.nodeSelector != _|_ {"leaked"},
+] & []
+
+_testDeployNoTolerations: [
+	if _testDeployDefaultNameTransformer.spec.template.spec.tolerations != _|_ {"leaked"},
+] & []
+
+_testDeployNoPriorityClass: [
+	if _testDeployDefaultNameTransformer.spec.template.spec.priorityClassName != _|_ {"leaked"},
+] & []
+
+// ---- Exact name + pod metadata + scheduling ---------------------------------
+// Mirrors the live istiod Deployment on an ambient mesh: the workload renders
+// unprefixed, `istio.io/dataplane-mode: none` is a POD label (it must never
+// reach the immutable selector), and the prometheus annotations are pod-only.
+_testDeployExactComponent: {
+	#instance: {name: "istio", namespace: "istio-system", uuid: "00000000-0000-0000-0000-000000000000"}
+
+	res.#Container
+	tr.#PodMetadata
+	tr.#PodScheduling
+
+	metadata: {
+		name:         "istiod"
+		resourceName: "istiod"
+		labels: "core.opmodel.dev/workload-type": "stateless"
+	}
+
+	spec: {
+		container: _testDeployContainer
+		podMetadata: {
+			labels: {
+				"sidecar.istio.io/inject": "false"
+				"istio.io/dataplane-mode": "none"
+			}
+			annotations: {
+				"prometheus.io/scrape": "true"
+				"prometheus.io/port":   "15014"
+			}
+		}
+		podScheduling: {
+			nodeSelector: "kubernetes.io/os": "linux"
+			tolerations: [{key: "cni.istio.io/not-ready", operator: "Exists"}]
+			priorityClassName: "system-node-critical"
+		}
+	}
+}
+
+_testDeployExactTransformer: (#DeploymentTransformer.#transform & {
+	#moduleInstance: _testDeployModuleInstance
+	#component:      _testDeployExactComponent
+	#context:        _testDeployContext
+}).output
+
+_testDeployExactNameResolves: "\(_testDeployExactTransformer.metadata.name)" & "istiod"
+
+// The whole point of #PodMetadata: pod labels grow, the SELECTOR does not.
+// Arithmetic on the lengths is non-invertible, so a leak into the selector
+// cannot be repaired by the assertion.
+_testDeploySelectorStaysThree: (len(_testDeployExactTransformer.spec.selector.matchLabels) + 0) & 3
+_testDeployPodLabelsAreFive:   (len(_testDeployExactTransformer.spec.template.metadata.labels) + 0) & 5
+
+_testDeployPodLabelPresent: [
+	if _testDeployExactTransformer.spec.template.metadata.labels["istio.io/dataplane-mode"] != _|_ {
+		_testDeployExactTransformer.spec.template.metadata.labels["istio.io/dataplane-mode"]
+	},
+] & ["none"]
+
+// ...and that label must NOT have reached the selector.
+_testDeploySelectorUnpolluted: [
+	if _testDeployExactTransformer.spec.selector.matchLabels["istio.io/dataplane-mode"] != _|_ {"leaked"},
+] & []
+
+_testDeployPodAnnotationPresent: [
+	if _testDeployExactTransformer.spec.template.metadata.annotations["prometheus.io/port"] != _|_ {
+		_testDeployExactTransformer.spec.template.metadata.annotations["prometheus.io/port"]
+	},
+] & ["15014"]
+
+_testDeployNodeSelectorPresent: [
+	if _testDeployExactTransformer.spec.template.spec.nodeSelector["kubernetes.io/os"] != _|_ {
+		_testDeployExactTransformer.spec.template.spec.nodeSelector["kubernetes.io/os"]
+	},
+] & ["linux"]
+
+_testDeployTolerationPresent: [
+	if _testDeployExactTransformer.spec.template.spec.tolerations != _|_ {
+		_testDeployExactTransformer.spec.template.spec.tolerations[0].key
+	},
+] & ["cni.istio.io/not-ready"]
+
+_testDeployPriorityClassPresent: [
+	if _testDeployExactTransformer.spec.template.spec.priorityClassName != _|_ {
+		_testDeployExactTransformer.spec.template.spec.priorityClassName
+	},
+] & ["system-node-critical"]
+
+// ---- Update strategy: declared value must reach spec.strategy ---------------
+//
+// Regression guard for a bug that shipped silently through alpha.8: the
+// extraction was spelled `_updateStrategy: *null | { if ... }`, whose marked
+// default always won, so `strategy` was omitted from EVERY Deployment. No test
+// caught it because every module in the fleet declared RollingUpdate, which is
+// also the Kubernetes default — the omission was invisible until a module asked
+// for Recreate and silently got a rolling update instead.
+//
+// Recreate rather than RollingUpdate on purpose: it is the value that differs
+// from the Kubernetes default, so this fails if the field is dropped again.
+_testDeployRecreateComponent: {
+	#instance: {name: "istio", namespace: "istio-system", uuid: "00000000-0000-0000-0000-000000000000"}
+
+	res.#Container
+	tr.#UpdateStrategy
+
+	metadata: {
+		name: "istiod"
+		labels: "core.opmodel.dev/workload-type": "stateless"
+	}
+
+	spec: {
+		container: _testDeployContainer
+		updateStrategy: type: "Recreate"
+	}
+}
+
+_testDeployRecreateTransformer: (#DeploymentTransformer.#transform & {
+	#moduleInstance: _testDeployModuleInstance
+	#component:      _testDeployRecreateComponent
+	#context:        _testDeployContext
+}).output
+
+// ABSENT-field guard, NOT the interpolation idiom. The failure mode being
+// guarded is an omitted `strategy`, and `"\(...spec.strategy.type)" & "Recreate"`
+// does NOT catch that: with the field absent the interpolation is merely
+// incomplete, which plain `cue vet` accepts — verified by reintroducing the bug
+// and watching vet still exit 0. The one-element-list form conflicts on length
+// instead, which fails at every vet level (see the idiom notes above).
+//
+// This doubles as the wrong-value guard: a strategy that renders with the wrong
+// type produces ["RollingUpdate"], which also conflicts.
+_testDeployRecreatePresent: [
+	if _testDeployRecreateTransformer.spec.strategy != _|_ {
+		_testDeployRecreateTransformer.spec.strategy.type
+	},
+] & ["Recreate"]
+
+// ABSENT-field guard: Recreate must not carry a rollingUpdate block.
+_testDeployRecreateHasNoRollingUpdate: [
+	if _testDeployRecreateTransformer.spec.strategy.rollingUpdate != _|_ {"leaked"},
+] & []
+
+// ...and a component that declares no strategy must not grow one.
+_testDeployNoStrategyLeak: [
+	if _testDeployDefaultNameTransformer.spec.strategy != _|_ {"leaked"},
+] & []
+
+// ---- Update strategy: omitted rollingUpdate params must not fail ------------
+//
+// Regression guard for the sibling of the alpha.8 bug above: the extraction
+// dereferenced `spec.updateStrategy.rollingUpdate` unguarded whenever type was
+// RollingUpdate, but #UpdateStrategySchema leaves the substruct optional — so
+// a schema-legal `updateStrategy: type: "RollingUpdate"` with no parameters
+// failed the whole transform with an empty disjunction (first hit by the
+// library's web_app flow fixture during the core-v2 retarget).
+_testDeployRollingDefaultsComponent: {
+	#instance: {name: "istio", namespace: "istio-system", uuid: "00000000-0000-0000-0000-000000000000"}
+
+	res.#Container
+	tr.#UpdateStrategy
+
+	metadata: {
+		name: "istiod"
+		labels: "core.opmodel.dev/workload-type": "stateless"
+	}
+
+	spec: {
+		container: _testDeployContainer
+		updateStrategy: type: "RollingUpdate"
+	}
+}
+
+_testDeployRollingDefaultsTransformer: (#DeploymentTransformer.#transform & {
+	#moduleInstance: _testDeployModuleInstance
+	#component:      _testDeployRollingDefaultsComponent
+	#context:        _testDeployContext
+}).output
+
+// The strategy is emitted with its type...
+_testDeployRollingDefaultsPresent: [
+	if _testDeployRollingDefaultsTransformer.spec.strategy != _|_ {
+		_testDeployRollingDefaultsTransformer.spec.strategy.type
+	},
+] & ["RollingUpdate"]
+
+// ...and no rollingUpdate block is invented for the omitted substruct —
+// Kubernetes applies its own maxSurge/maxUnavailable defaults.
+_testDeployRollingDefaultsNoParams: [
+	if _testDeployRollingDefaultsTransformer.spec.strategy.rollingUpdate != _|_ {"leaked"},
+] & []

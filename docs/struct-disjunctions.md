@@ -78,12 +78,12 @@ checked with `cue eval -c`, because plain `cue vet` accepts an incomplete
 value:
 
 ```bash
-cd opm && cue eval -c -e '_testEmbeddedRoleTransformer' ./transformers
+cd src && cue eval -c -t fixtures -e '_testEmbeddedRoleTransformer' ./transformers
 ```
 
 See `_testEmbeddedRoleComponent` / `_testEmbeddedRoleTransformer` and the
 negative fixture `_testMixedRuleRefused` in
-`src/transformers/role_transformer.cue` for the reference shapes.
+`src/transformers/role_transformer_fixtures.cue` for the reference shapes.
 
 ## References
 

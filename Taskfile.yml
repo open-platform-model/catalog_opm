@@ -34,10 +34,13 @@ tasks:
       - git diff --exit-code -- '{{.MODULE_DIR}}/**/*.cue' '{{.MODULE_DIR}}/*.cue' docs-kit.cue
 
   vet:
-    desc: Validate every catalog package
+    desc: >
+      Validate every catalog package twice: as a consumer loads it (fixture
+      files left out) and with -t fixtures (every fixture file loaded).
     dir: "{{.MODULE_DIR}}"
     cmds:
       - cue vet ./...
+      - cue vet -t fixtures ./...
 
   vet:listing:
     desc: >
@@ -63,9 +66,19 @@ tasks:
       Check every rendered-output transformer fixture: a fixture is the
       `.output` of a `#transform`, and its golden literal only compares
       something when the field evaluates concretely. `cue vet` (including
-      `-c`) does not check hidden fields, so this exports each one.
+      `-c`) does not check hidden fields, so this exports each one, with
+      -t fixtures because fixtures live in @if(fixtures) files.
     cmds:
       - bash .tasks/fixtures.sh "{{.MODULE_DIR}}"
+
+  vet:fixtures:tagged:
+    desc: >
+      Refuse a fixture outside a tagged file: every .cue file in the module
+      that declares a top-level _test* field carries @if(fixtures) above its
+      package clause, so a plain cue vet (and every consumer) never loads it.
+      Text only, offline.
+    cmds:
+      - bash .tasks/fixture-tags.sh "{{.MODULE_DIR}}"
 
   tidy:
     desc: Tidy the CUE module manifest
@@ -200,13 +213,14 @@ tasks:
   ## Aggregate
 
   check:
-    desc: Format check, vet, listing, descriptions, rendered-output fixtures, INDEX freshness, the kind table generator tests, the docs bundle check, and doc-comment report
+    desc: Format check, vet, listing, descriptions, rendered-output fixtures, fixture tags, INDEX freshness, the kind table generator tests, the docs bundle check, and doc-comment report
     cmds:
       - task: fmt:check
       - task: vet
       - task: vet:listing
       - task: vet:descriptions
       - task: vet:fixtures
+      - task: vet:fixtures:tagged
       - task: generate:index:check
       - task: test:kindgen
       - task: docs:bundle:check

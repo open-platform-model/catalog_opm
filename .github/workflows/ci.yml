@@ -58,6 +58,10 @@ jobs:
         if: startsWith(github.head_ref || github.ref_name, 'release-please--')
         run: task deps:release-check
 
+      # Offline and text-only, so it runs before anything touches the registry.
+      - name: Verify every fixture is behind the fixtures tag
+        run: task vet:fixtures:tagged
+
       - name: Login to GHCR (read deps)
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
@@ -72,6 +76,12 @@ jobs:
 
       - name: Verify every member has a description
         run: task vet:descriptions
+
+      # cue vet passes a fixture whose output never becomes concrete, so this
+      # exports every rendered-output fixture; it resolves core from the
+      # registry, hence after the GHCR login.
+      - name: Check every rendered-output fixture evaluates
+        run: task vet:fixtures
 
       - name: Verify INDEX.md is up to date
         run: task generate:index:check
