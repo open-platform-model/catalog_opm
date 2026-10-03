@@ -34,7 +34,7 @@ weight: 21
 
 ## Check that it worked
 
-<!-- One command, from the catalog module directory: cue export -t fixtures -e _test<Name>Transformer --out yaml ./transformers. Without -t fixtures the tagged fixture file is not loaded and the field is reported not found. Success is the rendered object printed in full. Say that cue vet passing proves nothing here: vet, including cue vet -c, never looks inside hidden fields, so a fixture that does not evaluate passes it. In catalog_opm, task vet:fixtures exports every fixture the same way. Check against: catalog_opm/AGENTS.md (Transformer fixtures), catalog_opm/Taskfile.yml (vet:fixtures), catalog_opm/.tasks/fixtures.sh -->
+<!-- One command, from the catalog module directory: cue export -t fixtures -e _test<Name>Transformer --out yaml ./transformers. Without -t fixtures the tagged fixture file is not loaded and the field is reported not found. Success is the rendered object printed in full. Say that cue vet passing proves little here: cue vet -t fixtures catches a golden that conflicts, but passes a fixture that never becomes concrete, so only export proves it renders. In catalog_opm, task vet:fixtures exports every fixture the same way. Check against: catalog_opm/AGENTS.md (Transformer fixtures), catalog_opm/Taskfile.yml (vet:fixtures), catalog_opm/.tasks/fixtures.sh -->
 
 ## Related
 

@@ -41,7 +41,7 @@ changes the checks around it.
 - Running blueprint fixtures through an export gate. `vet:fixtures` keeps its selector; the
   blueprint fixtures stay covered by `cue vet -t fixtures` as today by `cue vet`.
 - Correcting the wider prose about what `cue vet` checks in hidden fields (see Risks).
-- Any change to `branch-publish.yml`, and any `release.yml` change beyond the one `publish-cue`
+- Any change to `branch-publish.yml`, and any `release.yml` change beyond the one `release-please`
   step group (D2).
 
 ## Decisions
@@ -71,28 +71,37 @@ A tag never reaches a consumer: the loader treats every tag as unset for files o
 module (cue v0.17.1, `cue/load/loader_common.go:400-408`), so no consumer can switch the
 fixtures on, even by passing `-t fixtures`.
 
-### D2. `vet:fixtures` joins the required job and the release publish job
+### D2. `vet:fixtures` joins the required job and the release-please job
 
 ```yaml
 # ci.yml, job ci, after "Verify every member has a description":
       - name: Check every rendered-output fixture evaluates
         run: task vet:fixtures
 
-# release.yml, job publish-cue, after "Login to GHCR", before "Publish CUE catalog":
+# release.yml, job release-please, after "Clone the code" (moved up), Setup CUE, Install Task
+# and "Login to GHCR (read deps)", before "Run release-please":
       - name: Check every rendered-output fixture evaluates
         run: task vet:fixtures
 ```
 
 The owner asked for the gate on the release path too "if it publishes without it". It does:
-`publish-cue` checks out the released tag and runs `opm catalog publish` with no vet step of any
-kind. The release PR is gated by the required check, which only narrows the gap: branch
+nothing between the merge and `opm catalog publish` runs a vet step of any kind. The release PR is gated by the required check, which only narrows the gap: branch
 protection on `main` requires the context `Validate catalog` with `strict: false` (the tested
 head need not be up to date with `main`) and `enforce_admins: false` (an admin can merge past
 it), and the only thing standing between those two and an unchecked publish is the `AGENTS.md`
 rule (Release & publishing) to merge the release PR only after the dispatched CI run on its head
-passed and never with `--admin`. A rule is not a gate, so `publish-cue` gains Setup CUE,
-Install Task and a `task vet:fixtures` step before `Publish CUE catalog`; a failure there stops
-the publish before anything is pushed. The cost is about 30 s per release. This reads the
+passed and never with `--admin`. A rule is not a gate, so the release path gains the step.
+
+It goes in the `release-please` job, before the release-please action, not in `publish-cue`.
+`publish-cue` runs only after the action has pushed the `opm-vX.Y.Z` tag and created the GitHub
+Release, and it checks out that fixed tag: a failure there would leave a tag and a Release with
+no GHCR artifact and no docs bundle, a burned version that a re-run cannot repair. Before the
+action, a failure stops the job with no tag and no Release, and the fix landing on `main`
+re-runs the job, which then tags the fixed tree. The job checks out the pushed `main` commit
+first (`Clone the code` moves up, still with the App token the identity advance needs), then
+Setup CUE, Install Task and a GHCR login, because the exports resolve core from the registry.
+The cost is about 30 s on every push to `main`, and a broken `main` also stops the release PR
+from being updated until it is fixed, which is the point. This reads the
 owner's condition literally; the plan's first draft read it as satisfied by the required check,
 and the plan review asked for the owner's word on that reading, so the stricter reading wins.
 `branch-publish.yml` already runs `task check`, which picks up the new lint by itself.
@@ -119,7 +128,7 @@ line to `cue export -t fixtures -e "$field" ./transformers`, and its header comm
 
 `.tasks/fixture-tags.sh <module_dir>` fails, naming each file, when a `.cue` file under the
 module (outside `cue.mod/`) has a line matching `^_test[A-Za-z0-9_]*[!?]?:` and no line
-matching `^@if\(fixtures\)[[:space:]]*$` before its `package` clause. The anchors are
+matching `^@if\(fixtures\)[[:space:]]*(//.*)?$` before its `package` clause (a trailing comment is allowed). The anchors are
 deliberate: a commented-out `// @if(fixtures)` or a compound `@if(fixtures && x)` does not count,
 because the file would then be built differently from what the lint assumes. It reads text only, needs no registry and runs in
 milliseconds. It runs in `task check` and as its own step in `ci.yml`, before the registry

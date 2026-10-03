@@ -20,7 +20,7 @@ export LC_ALL=C
 #
 # WHY the attribute line is anchored: `// @if(fixtures)` is a comment and a
 # compound such as `@if(fixtures && x)` builds the file under other
-# conditions; neither counts as tagged.
+# conditions; neither counts as tagged. A trailing `// comment` is allowed.
 #
 # Usage (run from the repo root):
 #   bash .tasks/fixture-tags.sh <module_dir>      # src
@@ -41,7 +41,7 @@ while IFS= read -r file; do
     # The attribute must come before the package clause to be a file attribute.
     if ! awk '
         /^package[[:space:]]/ { exit }
-        /^@if\(fixtures\)[[:space:]]*$/ { found = 1; exit }
+        /^@if\(fixtures\)[[:space:]]*(\/\/.*)?$/ { found = 1; exit }
         END { exit !found }
     ' "$file"; then
         bad=$((bad + 1))

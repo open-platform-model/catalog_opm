@@ -24,8 +24,9 @@ Owner decision, 2026-10-03 (kernel plan beta1, task j2): "run vet:fixtures in PR
 - **Section 1: `vet:fixtures` in the required check.** `ci.yml`'s `Validate catalog` job gains a
   `task vet:fixtures` step. The release PR's CI arrives as the `workflow_dispatch` run of the same
   job (`release.yml`, "Trigger required CI on the release PR"), so the release commit is gated
-  too. `release.yml`'s `publish-cue` job, which publishes the released tag with no vet of its
-  own, gains the same `task vet:fixtures` step before it publishes (design D2).
+  too. `release.yml`'s `release-please` job, which tags whatever `main` holds with no vet of its
+  own, gains the same `task vet:fixtures` step before the release-please action runs, so a
+  broken `main` never tags (design D2).
 - **Section 2: fixtures move behind a build tag.** Each of the 29 files moves its `_test*` tail
   (the fixtures plus the comment banner above them) into a sibling `<name>_fixtures.cue` whose
   first line is the file attribute `@if(fixtures)`, above the package clause. 28 transformer
@@ -105,7 +106,7 @@ After:  task vet = cue vet ./... && cue vet -t fixtures ./...
         task vet:fixtures = cue export -t fixtures -e <field> ./transformers, per fixture
         task vet:fixtures:tagged = no top-level _test* field outside an @if(fixtures) file
         ci.yml  : vet, vet:fixtures and vet:fixtures:tagged all in Validate catalog
-        release.yml publish-cue: vet:fixtures before it publishes
+        release.yml release-please: vet:fixtures before it can tag
 ```
 
 ## Impact
@@ -126,7 +127,7 @@ After:  task vet = cue vet ./... && cue vet -t fixtures ./...
   The tag is valid only for a package that holds a fixture file, or over `./...`; elsewhere cue
   refuses it with `tag "fixtures" not used in any file`.
 - **CI time:** `vet:fixtures` takes about 30 s (56 exports), in `Validate catalog` and once
-  more per release in `publish-cue`; `task vet` gains one extra pass of
+  more on every push to `main` in `release.yml`'s `release-please` job; `task vet` gains one extra pass of
   about 0.3 s.
 
 ## Enhancement

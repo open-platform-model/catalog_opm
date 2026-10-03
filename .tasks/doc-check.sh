@@ -23,7 +23,7 @@ export LC_ALL=C
 #
 # Exempt:
 #   - files matching *_pins.cue (hidden-field fixture matrices)
-#   - hidden fields whose label starts with _test (inline fixtures)
+#   - hidden fields whose label starts with _test (fixtures, in @if(fixtures) files)
 #   - package clauses, imports, let and comprehension clauses: not field
 #     hover targets
 #
