@@ -303,18 +303,25 @@ no longer depend on the environment or on uncommitted files; the `generate-index
 read-only predicate, before any edit) is kept and left for the supervisor to rule on once for all
 four repos, as the review suggests.
 
-### Spike: assumptions to confirm before the task is written
+### Spike findings (section 1)
 
-**Context**: four claims in this design are read from files or the contract, not run.
-**Explored**: pending, section 1 of tasks.md.
-**Decision**: confirm, in a contract §8 sandbox copy:
-(a) `cue mod get opmodel.dev/core@<exact>` plus `cue mod tidy` in `src/` rewrites only the core `v:`
-and leaves the k8s entry and the file layout byte-identical; (b) `task generate:index:check` passes
-on the moved tree (D4); (c) the installed go-task and the CI `setup-task` `3.x` both pass an
-`exit 3` through with `-x`, and a YAML anchor on `vars:` with an `sh:` var works per task (D1);
-(d) `git commit` in a fresh `git init` needs the identity flags of D6.
+**Context**: four claims in this design were read from files or the contract, not run.
+**Explored**: a contract §8 sandbox copy of the tree (cue v0.17.1, `CUE_REGISTRY` as D3), go-task
+3.52.0 (local) and 3.54.0 (the newest 3.x, what `setup-task` `version: 3.x` installs today).
+**Decision**: all four hold; D1, D4 and D6 stand unchanged.
+- (a) With core text-edited to `v2.0.0-alpha.13`, `cue mod get opmodel.dev/core@v2.0.0-beta.1`
+  then `cue mod tidy` in `src/` gives a file byte-identical to the original; moving on to
+  `v2.0.0-beta.2` changes only line 14 (the core `v:`). The k8s entry and the layout stay.
+- (b) `task generate:index:check` passes on the tree moved to `v2.0.0-beta.2`, so D4 holds.
+- (c) On both go-task versions, `task -x` returns 3 from a cmd that exits 3 and plain `task`
+  returns 201. A YAML anchor shared by task-level `vars:` (with an `sh:` var), `env:` and
+  `preconditions:` resolves per task, and `CASCADE_RESOLVER` from the environment wins. A relative
+  `CASCADE_RESOLVER` fails the `sh:` var (exit 1 with the message); a missing resolver fails the
+  precondition with exit 201 even under `-x`, which callers read as "other".
+- (d) In a fresh `git init` with an empty `HOME`, `git commit` fails (exit 128, "Author identity
+  unknown") without the identity flags and succeeds with them.
 **Rationale**: Mergeable Sections makes section 1 a spike whenever design.md carries an unverified
-assumption. The findings replace this entry.
+assumption; these findings replace the plan's spike entry.
 
 ## Risks / Trade-offs
 

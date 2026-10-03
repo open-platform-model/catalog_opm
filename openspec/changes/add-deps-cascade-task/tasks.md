@@ -1,11 +1,11 @@
 ## 1. Spike: confirm the design's unverified assumptions
 
-- [ ] 1.1 Build a contract §8 sandbox copy of the tree in a scratch directory (never a `git worktree`, never the real checkout). Text-edit the core `v:` in `src/cue.mod/module.cue` to `v2.0.0-alpha.13`, commit it, then in `src/` with `CUE_REGISTRY='opmodel.dev=ghcr.io/open-platform-model,registry.cue.works'` run `cue mod get opmodel.dev/core@<the tree's core>` and `cue mod tidy`. Confirm `src/cue.mod/module.cue` equals the original byte for byte (k8s entry and layout untouched) (design, spike (a))
-- [ ] 1.2 In the same copy, confirm `task generate:index:check` passes after a core move to the newest published core (design D4, spike (b))
-- [ ] 1.3 Confirm with the installed go-task (3.52.0, confirmed by the plan review), and with the newest 3.x release that `setup-task` `version: 3.x` installs, that `task -x` returns 3 from a `bash` cmd that exits 3, and that a YAML anchor on a task-level `vars:` map with an `sh:` var resolves per task (design D1, spike (c)); if the anchor does not work, record that D1 repeats the block per task
-- [ ] 1.4 Confirm a fresh `git init` copy commits with `git -c user.name=cascade-test -c user.email=cascade-test@localhost` and an empty `HOME` (design D6, spike (d))
-- [ ] 1.5 Replace the design's "Spike" Research entry with the findings and adjust D1, D4 or D6 if a finding differs
-- [ ] 1.6 `openspec validate add-deps-cascade-task --strict` and `task check` green, then commit `chore(openspec): record the add-deps-cascade-task spike findings`
+- [x] 1.1 Build a contract §8 sandbox copy of the tree in a scratch directory (never a `git worktree`, never the real checkout). Text-edit the core `v:` in `src/cue.mod/module.cue` to `v2.0.0-alpha.13`, commit it, then in `src/` with `CUE_REGISTRY='opmodel.dev=ghcr.io/open-platform-model,registry.cue.works'` run `cue mod get opmodel.dev/core@<the tree's core>` and `cue mod tidy`. Confirm `src/cue.mod/module.cue` equals the original byte for byte (k8s entry and layout untouched) (design, spike (a))
+- [x] 1.2 In the same copy, confirm `task generate:index:check` passes after a core move to the newest published core (design D4, spike (b))
+- [x] 1.3 Confirm with the installed go-task (3.52.0, confirmed by the plan review), and with the newest 3.x release that `setup-task` `version: 3.x` installs, that `task -x` returns 3 from a `bash` cmd that exits 3, and that a YAML anchor on a task-level `vars:` map with an `sh:` var resolves per task (design D1, spike (c)); if the anchor does not work, record that D1 repeats the block per task
+- [x] 1.4 Confirm a fresh `git init` copy commits with `git -c user.name=cascade-test -c user.email=cascade-test@localhost` and an empty `HOME` (design D6, spike (d))
+- [x] 1.5 Replace the design's "Spike" Research entry with the findings and adjust D1, D4 or D6 if a finding differs
+- [x] 1.6 `openspec validate add-deps-cascade-task --strict` and `task check` green, then commit `chore(openspec): record the add-deps-cascade-task spike findings`
 
 ## 2. Pin report, class map, stub and the title and body tasks
 
