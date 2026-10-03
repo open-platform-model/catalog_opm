@@ -218,8 +218,8 @@ tasks:
   # the shared resolver itself (contract §3): $CASCADE_RESOLVER when set (an
   # absolute path), else the .github checkout beside this repo's main checkout.
 
-  deps:cascade:title:
-    desc: Print the cascade PR title computed from the diff against the base (exit 3 when there is no diff)
+  deps:cascade:
+    desc: Move core in src/ and .opm-cli-version to the newest published versions (working tree only; exit 0 moved, 3 nothing to do)
     vars: &cascade_resolver
       CASCADE_RESOLVER_PATH:
         sh: |
@@ -234,6 +234,14 @@ tasks:
     preconditions: &cascade_pre
       - sh: test -x '{{.CASCADE_RESOLVER_PATH}}'
         msg: "cascade resolver not found: check out open-platform-model/.github beside this repo, or set CASCADE_RESOLVER"
+    cmds:
+      - bash .tasks/cascade/cascade.sh
+
+  deps:cascade:title:
+    desc: Print the cascade PR title computed from the diff against the base (exit 3 when there is no diff)
+    vars: *cascade_resolver
+    env: *cascade_env
+    preconditions: *cascade_pre
     cmds:
       - '"$CASCADE_RESOLVER" title --classes .tasks/cascade/classes --pins .tasks/cascade/pins.sh'
 
