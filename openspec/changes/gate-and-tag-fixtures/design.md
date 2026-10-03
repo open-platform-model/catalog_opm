@@ -41,7 +41,8 @@ changes the checks around it.
 - Running blueprint fixtures through an export gate. `vet:fixtures` keeps its selector; the
   blueprint fixtures stay covered by `cue vet -t fixtures` as today by `cue vet`.
 - Correcting the wider prose about what `cue vet` checks in hidden fields (see Risks).
-- Any change to `release.yml` or `branch-publish.yml` (D2).
+- Any change to `branch-publish.yml`, and any `release.yml` change beyond the one `publish-cue`
+  step group (D2).
 
 ## Decisions
 
@@ -70,20 +71,30 @@ A tag never reaches a consumer: the loader treats every tag as unset for files o
 module (cue v0.17.1, `cue/load/loader_common.go:400-408`), so no consumer can switch the
 fixtures on, even by passing `-t fixtures`.
 
-### D2. `vet:fixtures` joins the required job; the release path needs no extra step
+### D2. `vet:fixtures` joins the required job and the release publish job
 
 ```yaml
 # ci.yml, job ci, after "Verify every member has a description":
       - name: Check every rendered-output fixture evaluates
         run: task vet:fixtures
+
+# release.yml, job publish-cue, after "Login to GHCR", before "Publish CUE catalog":
+      - name: Check every rendered-output fixture evaluates
+        run: task vet:fixtures
 ```
 
-The owner asked for the gate on the release path too "if it publishes without it". The release
-commit is gated: `release.yml` dispatches `ci.yml` onto the release-please branch, and that run
-is the required `Validate catalog` check the release PR must pass before it merges. The
-`publish-cue` job then publishes that merged tag and runs no vet step of any kind, the same
-position `task vet` is in today. Adding `vet:fixtures` to `publish-cue` would re-check a commit
-that already passed, at 30 s per release plus a Task install, so this change adds none.
+The owner asked for the gate on the release path too "if it publishes without it". It does:
+`publish-cue` checks out the released tag and runs `opm catalog publish` with no vet step of any
+kind. The release PR is gated by the required check, which only narrows the gap: branch
+protection on `main` requires the context `Validate catalog` with `strict: false` (the tested
+head need not be up to date with `main`) and `enforce_admins: false` (an admin can merge past
+it), and the only thing standing between those two and an unchecked publish is the `AGENTS.md`
+rule (Release & publishing) to merge the release PR only after the dispatched CI run on its head
+passed and never with `--admin`. A rule is not a gate, so `publish-cue` gains Setup CUE,
+Install Task and a `task vet:fixtures` step before `Publish CUE catalog`; a failure there stops
+the publish before anything is pushed. The cost is about 30 s per release. This reads the
+owner's condition literally; the plan's first draft read it as satisfied by the required check,
+and the plan review asked for the owner's word on that reading, so the stricter reading wins.
 `branch-publish.yml` already runs `task check`, which picks up the new lint by itself.
 
 ### D3. `task vet` runs both views
@@ -108,7 +119,9 @@ line to `cue export -t fixtures -e "$field" ./transformers`, and its header comm
 
 `.tasks/fixture-tags.sh <module_dir>` fails, naming each file, when a `.cue` file under the
 module (outside `cue.mod/`) has a line matching `^_test[A-Za-z0-9_]*[!?]?:` and no line
-`@if(fixtures)` before its `package` clause. It reads text only, needs no registry and runs in
+matching `^@if\(fixtures\)[[:space:]]*$` before its `package` clause. The anchors are
+deliberate: a commented-out `// @if(fixtures)` or a compound `@if(fixtures && x)` does not count,
+because the file would then be built differently from what the lint assumes. It reads text only, needs no registry and runs in
 milliseconds. It runs in `task check` and as its own step in `ci.yml`, before the registry
 login, so a misplaced fixture fails fast. It checks only what the owner asked for: the
 placement of top-level `_test*` fields. It does not require the `_fixtures.cue` name; the name is
@@ -154,6 +167,11 @@ fixture files would escape the format gate.
 
 - **A raw command without `-t fixtures` reports the fixture "not found".** That is loud, and every
   documented command gains the tag in this change.
+- **`-t fixtures` aimed at a package with no fixture file fails** with `tag "fixtures" not used in
+  any file` (checked on a copy of the prototype: `cue vet -t fixtures ./identity` exits 1). The
+  tag is valid only for a package that contains a fixture file, or over `./...`. An author running
+  a documented blueprint command against a new apiVersion package with no fixture file yet hits
+  this; `AGENTS.md`'s fixtures bullet says so.
 - **The fixture bytes still ship**, and the loader still parses excluded files (about 1.2 MB
   retained per runtime). Accepted; see Non-Goals.
 - **Existing prose overstates what `cue vet` skips.** `fixtures.sh`'s header and `AGENTS.md` say
