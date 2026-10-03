@@ -9,10 +9,10 @@
 
 ## 2. openspec/config.yaml
 
-- [ ] 2.1 In Principle I (`openspec/config.yaml:25`), change "a `feat!:` on `opm` bumps the major" to "a `feat!:` PR title on `opm` bumps the major" (design.md D3).
-- [ ] 2.2 In the apply guidance (`openspec/config.yaml:208`), replace "because the squash body reaches release-please" with the D4 wording. Keep the entry a single plain string.
-- [ ] 2.3 Run `openspec validate align-release-docs-with-blank-squash --strict` and confirm it passes. Run `openspec instructions apply --change align-release-docs-with-blank-squash --json` and confirm the new guidance text comes through; a malformed rules entry is dropped silently (`openspec/config.yaml` design-rules comment).
-- [ ] 2.4 `task check` is green. Then commit `docs(openspec): restate the release rules for the blank squash message`.
+- [x] 2.1 In Principle I (`openspec/config.yaml:25`), change "a `feat!:` on `opm` bumps the major" to "a `feat!:` PR title on `opm` bumps the major" (design.md D3).
+- [x] 2.2 In the apply guidance (`openspec/config.yaml:208`), replace "because the squash body reaches release-please" with the D4 wording. Keep the entry a single plain string.
+- [x] 2.3 Run `openspec validate align-release-docs-with-blank-squash --strict` and confirm it passes. Run `openspec instructions apply --change align-release-docs-with-blank-squash --json` and confirm the new guidance text comes through; a malformed rules entry is dropped silently (`openspec/config.yaml` design-rules comment).
+- [x] 2.4 `task check` is green. Then commit `docs(openspec): restate the release rules for the blank squash message`.
 
 ## 3. Archive
 

@@ -22,8 +22,8 @@ context: |
     a published constraint or changing a transformer's output is not.
   - The break unit is the member's `apiVersion` (enhancement 0010 D4): a member whose shape breaks
     moves to a new version segment directory; it does not mutate in place.
-  - `opm` is a stable line: a `feat!:` on `opm` bumps the major and with it the module path
-    (`@vN`). A major crossing is the sanctioned way to correct a `v1betaN` member in place
+  - `opm` is a stable line: a `feat!:` PR title on `opm` bumps the major and with it the module
+    path (`@vN`). A major crossing is the sanctioned way to correct a `v1betaN` member in place
     when a `v1beta(N+1)` cascade would keep the broken shape published; a proposal MUST name
     it. A core beta break that would force an `opm` major needs owner sign-off.
   - A change that cannot be additive MUST state its downstream migration cost explicitly, naming
@@ -205,7 +205,7 @@ operations:
         checking that box, run the section's gates (`task check`) on the whole tree and make
         exactly the named Conventional Commit (types and scopes per AGENTS.md § Commit conventions and release impact; optional plain Co-Authored-By: Claude
         <noreply@anthropic.com> trailer only, never a session link, never a bare @name, and
-        no body line starting with word( because the squash body reaches release-please). Do not start the next section with uncommitted work in the tree."
+        no body line starting with word( because release-please drops a commit whose body has one, and a squash body reaches `main` whenever a PR is merged without an empty body before `BLANK` is applied). Do not start the next section with uncommitted work in the tree."
       - "The commit task is the only delivery operation apply performs: no push, no PR, no tag,
         no release. Commit on the working branch the run started on. If the run started on
         main, create the working branch before the first commit task; never commit to main."
