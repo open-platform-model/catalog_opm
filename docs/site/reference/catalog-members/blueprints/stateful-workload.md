@@ -15,7 +15,7 @@ type: reference
 | Module path | `opmodel.dev/catalogs/opm/blueprints/v1beta1` |
 | Definition | `#StatefulWorkloadBlueprint` in `src/blueprints/v1beta1/stateful_workload.cue` |
 | Component wrapper | `#StatefulWorkload` |
-| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
+| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.1` |
 | Composed resources | [Container](/docs/reference/catalog-members/resources/container/), [Volumes](/docs/reference/catalog-members/resources/volumes/) |
 | Composed traits | [Scaling](/docs/reference/catalog-members/traits/scaling/), [RestartPolicy](/docs/reference/catalog-members/traits/restart-policy/), [UpdateStrategy](/docs/reference/catalog-members/traits/update-strategy/), [SidecarContainers](/docs/reference/catalog-members/traits/sidecar-containers/), [InitContainers](/docs/reference/catalog-members/traits/init-containers/) |
 | Match label | `"core.opmodel.dev/workload-type": "stateful"` |

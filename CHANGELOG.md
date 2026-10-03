@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.5.1](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.5.0...opm-v4.5.1) (2026-10-03)
+
+
+### Bug Fixes
+
+* **catalog:** describe the catalog as OPM's abstractions, not Kubernetes resources ([#123](https://github.com/open-platform-model/catalog_opm/issues/123)) ([fbe9bf7](https://github.com/open-platform-model/catalog_opm/commit/fbe9bf7da966cc995c6075dceaf14e60e0f2fc7b))
+
 ## [4.5.0](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.4.5...opm-v4.5.0) (2026-10-02)
 
 

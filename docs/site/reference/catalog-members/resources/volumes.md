@@ -15,7 +15,7 @@ type: reference
 | Module path | `opmodel.dev/catalogs/opm/resources/v1beta1` |
 | Definition | `#VolumesResource` in `src/resources/v1beta1/volume.cue` |
 | Component wrapper | `#Volumes` |
-| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
+| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.1` |
 | Category | `storage` |
 | Fulfilment | `catalog`: the declaring catalog implements it |
 
@@ -165,7 +165,7 @@ A persistentClaim entry also renders a PersistentVolumeClaim.
 
 ## Served by
 
-These transformers in `opmodel.dev/catalogs/opm@v4` version `4.5.0` require this resource or read it when present.
+These transformers in `opmodel.dev/catalogs/opm@v4` version `4.5.1` require this resource or read it when present.
 
 | Transformer | Demand | What it does |
 | --- | --- | --- |

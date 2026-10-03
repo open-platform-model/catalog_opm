@@ -15,7 +15,7 @@ type: reference
 | Module path | `opmodel.dev/catalogs/opm/blueprints/v1beta1` |
 | Definition | `#TaskWorkloadBlueprint` in `src/blueprints/v1beta1/task_workload.cue` |
 | Component wrapper | `#TaskWorkload` |
-| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
+| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.1` |
 | Composed resources | [Container](/docs/reference/catalog-members/resources/container/) |
 | Composed traits | [JobConfig](/docs/reference/catalog-members/traits/job-config/), [RestartPolicy](/docs/reference/catalog-members/traits/restart-policy/), [SidecarContainers](/docs/reference/catalog-members/traits/sidecar-containers/), [InitContainers](/docs/reference/catalog-members/traits/init-containers/) |
 | Match label | `"core.opmodel.dev/workload-type": "task"` |
