@@ -20,7 +20,7 @@ type: reference
 | Module path | `opmodel.dev/catalogs/opm/traits/v1beta1` |
 | Definition | `#SizingTrait` in `src/traits/v1beta1/sizing.cue` |
 | Component wrapper | `#Sizing` |
-| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
+| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.1` |
 | Category | `workload` |
 | Fulfilment | `catalog`: the declaring catalog implements it |
 | Optional posture | advisory: `optional` defaults to `true`, so an unhandled trait warns and the render continues; a module may override it where it attaches the trait |

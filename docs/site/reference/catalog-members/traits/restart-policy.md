@@ -15,7 +15,7 @@ type: reference
 | Module path | `opmodel.dev/catalogs/opm/traits/v1beta1` |
 | Definition | `#RestartPolicyTrait` in `src/traits/v1beta1/restart_policy.cue` |
 | Component wrapper | `#RestartPolicy` |
-| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
+| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.1` |
 | Category | `workload` |
 | Fulfilment | `catalog`: the declaring catalog implements it |
 | Optional posture | advisory: `optional` defaults to `true`, so an unhandled trait warns and the render continues; a module may override it where it attaches the trait |
@@ -33,7 +33,7 @@ spec: restartPolicy: #RestartPolicySchema
 
 ## Served by
 
-These transformers in `opmodel.dev/catalogs/opm@v4` version `4.5.0` require this trait or read it when present.
+These transformers in `opmodel.dev/catalogs/opm@v4` version `4.5.1` require this trait or read it when present.
 
 | Transformer | Demand | What it does |
 | --- | --- | --- |

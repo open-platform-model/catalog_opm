@@ -15,7 +15,7 @@ type: reference
 | Module path | `opmodel.dev/catalogs/opm/resources/v1alpha1` |
 | Definition | `#TransformerRegistrationResource` in `src/resources/v1alpha1/transformer_registration.cue` |
 | Component wrapper | `#TransformerRegistration` |
-| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
+| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.1` |
 | Category | `cluster` |
 | Fulfilment | `catalog`: the declaring catalog implements it |
 
@@ -56,7 +56,7 @@ Renders one cluster-scoped TransformerRegistration per component carrying it. Al
 
 ## Served by
 
-These transformers in `opmodel.dev/catalogs/opm@v4` version `4.5.0` require this resource or read it when present.
+These transformers in `opmodel.dev/catalogs/opm@v4` version `4.5.1` require this resource or read it when present.
 
 | Transformer | Demand | What it does |
 | --- | --- | --- |

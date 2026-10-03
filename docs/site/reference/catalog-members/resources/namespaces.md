@@ -15,7 +15,7 @@ type: reference
 | Module path | `opmodel.dev/catalogs/opm/resources/v1alpha1` |
 | Definition | `#NamespacesResource` in `src/resources/v1alpha1/namespace.cue` |
 | Component wrapper | `#Namespaces` |
-| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.0` |
+| Catalog | `opmodel.dev/catalogs/opm@v4` version `4.5.1` |
 | Category | `cluster` |
 | Fulfilment | `catalog`: the declaring catalog implements it |
 
@@ -45,7 +45,7 @@ spec: namespaces: [KeyName=string]: #NamespaceSchema & {name: string | *KeyName}
 
 ## Served by
 
-These transformers in `opmodel.dev/catalogs/opm@v4` version `4.5.0` require this resource or read it when present.
+These transformers in `opmodel.dev/catalogs/opm@v4` version `4.5.1` require this resource or read it when present.
 
 | Transformer | Demand | What it does |
 | --- | --- | --- |
