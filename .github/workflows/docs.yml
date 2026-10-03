@@ -8,10 +8,11 @@ name: Docs
 #
 #   pull_request       check: build and lint, publish nothing
 #   push to main       edge: publish the commit as the edge build
-#   workflow_dispatch  release: publish an opm release that has no bundle yet
-#                      (the backfill, and the recovery when release.yml's
-#                      publish-docs job did not run). Dispatch it on main;
-#                      publish.yml refuses any other ref:
+#   workflow_dispatch  release: the recovery when release.yml's publish-docs
+#                      job did not run for an opm release. Only for releases
+#                      cut after this repository gained docs-kit.cue: earlier
+#                      tags have the module at opm/ and are never backfilled.
+#                      Dispatch it on main; publish.yml refuses any other ref:
 #                      gh workflow run docs.yml --ref main -f mode=release -f tag=opm-vX.Y.Z
 #
 # publish.yml is pinned by docs-kit release tag, never a SHA: the signing
@@ -33,7 +34,7 @@ on:
         options: [release]
         required: true
       tag:
-        description: An opm release tag with no docs bundle yet (opm-v4.4.5)
+        description: An opm release tag whose publish-docs job did not run (opm-vX.Y.Z)
         type: string
         required: true
 

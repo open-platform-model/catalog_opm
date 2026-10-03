@@ -2,7 +2,7 @@
 
 - **G1, before section 1**: docs-kit `v0.1.0` is released (the tag exists and its GitHub Release carries the `opm-docs_0.1.0_<os>_<arch>.tar.gz` archives and `checksums.txt`), and docs-kit's contracts (`docs/contracts.md` at `v0.1.0`, C1 to C12) still read as design.md "Context" quotes them.
 - **G2, before section 2**: section 1 is merged, its PR's `Docs / check` run was green, and the first `Docs / edge` run on `main` is green.
-- **G3, before section 3**: section 2 is done; opmodel.dev `add-catalogs-tab` is merged and `https://open-platform-model.github.io/opmodel.dev/catalogs/opm/4/` serves the Catalogs tab (the site has then stopped mounting this repository's catalog member and contract pages); the change that removes the `k8s` catalog from this repository (`retire-k8s-catalog`, which also moved the opm module to `src/`) is merged on `main` (no `k8s/` module).
+- **G3, before section 3**: section 2 is done; opmodel.dev `add-catalogs-tab` is merged and `https://open-platform-model.github.io/opmodel.dev/catalogs/opm/4/` serves the Catalogs tab at the first released minor (the site has then stopped mounting this repository's catalog member and contract pages); the change that removes the `k8s` catalog from this repository (`retire-k8s-catalog`, which also moved the opm module to `src/`) is merged on `main` (no `k8s/` module).
 
 ## 1. Publish the opm docs bundle (gate G1; docs-kit.cue, docs/catalogs/, .github/, Taskfile.yml)
 
@@ -14,16 +14,17 @@
 - [x] 1.6 `task docs:bundle`, then inspect `out/catalog-opm/`: `manifest.json` lists `_index.md` with `generated: false` and `source: docs/catalogs/opm/_index.md`, 46 member pages (5 blueprints, 13 resources, 28 traits; `objects@v1alpha1` is the thirteenth resource) and the three kind indexes; the landing is the contract text followed by the generated "Catalog members" block, whose links read `/catalogs/opm/edge/...`; prove the pin check refuses a scratch edit of one `publish.yml@` ref
 - [x] 1.7 Add `.github/workflows/docs.yml` as design.md shows (jobs `check`, `edge` and `dispatch`, the last with `mode: release` only; `permissions: {}` at the top and per job as docs-kit C5 asks)
 - [x] 1.8 `release.yml`: add the `publish-docs` job as design.md shows (`needs: [release-please, publish-cue]`, `if: needs.release-please.outputs.opm_tag_name != ''`, `tag: opm_tag_name`, job-level `contents: read`, `packages: write`, `id-token: write`)
-- [x] 1.9 `AGENTS.md`: Repository Layout gains `docs/catalogs/`, `docs-kit.cue`, `.opm-docs-version`; the commands table gains `docs:bundle` and `docs:bundle:check` and the `task check` row names the bundle check; a "Docs bundles" subsection under Release & publishing lands the first two durable decisions (design.md), including the preview loop (`task docs:bundle`, then opmodel.dev's `--local catalog-opm@edge=<this repo>/out/catalog-opm`) and the backfill dispatch command
+- [x] 1.9 `AGENTS.md`: Repository Layout gains `docs/catalogs/`, `docs-kit.cue`, `.opm-docs-version`; the commands table gains `docs:bundle` and `docs:bundle:check` and the `task check` row names the bundle check; a "Docs bundles" subsection under Release & publishing lands the first two durable decisions (design.md), including the preview loop (`task docs:bundle`, then opmodel.dev's `--local catalog-opm@edge=<this repo>/out/catalog-opm`) and the recovery dispatch command
 - [x] 1.10 `task check` green, then commit `ci(docs): publish the opm catalog docs bundle with docs-kit`
 
 ## 2. Go live (owner; gate G2)
 
 - [ ] 2.1 **OWNER**: verify `ghcr.io/open-platform-model/docs/catalog-opm` is public (an anonymous pull of `edge` succeeds; make it public under Package settings, Danger zone, only if it is not) and confirm the package is linked to `open-platform-model/catalog_opm`
-- [ ] 2.2 **OWNER**: dispatch the backfill, `gh workflow run docs.yml -R open-platform-model/catalog_opm --ref main -f mode=release -f tag=opm-v4.4.5` (or the newest `opm-v4.4.*` tag by then), and wait for it to finish green
-- [ ] 2.3 Verify anonymously, with no registry credentials: `cosign verify` with the docs-kit C9 flags passes for the digests of `edge` and `4.4`; tags `4.4.5.0`, `4.4.5`, `4.4`, `4` and `edge` exist; `opm-docs pull` with a scratch `bundles.cue` holding only the `catalog-opm` tab (`from: "4.4"`) resolves `4.4` and `edge`, verifies both and writes a lock
-- [ ] 2.4 Record in design.md, under a new "Rollout record" heading: each tag's digest, the commit each bundle was built from, and that the 4.4.5.0 landing is the generated one (docs-kit C5: the release tree has no `docs/catalogs/opm/`)
-- [ ] 2.5 `task check` green, then commit `docs(openspec): record the first published opm docs bundles`
+- [ ] 2.2 Verify the first `edge` anonymously, with no registry credentials: `cosign verify` with the docs-kit C9 flags passes for its digest; `opm-docs pull` with a scratch `bundles.cue` holding only the `catalog-opm` tab and `edge` resolves it, verifies it and writes a lock
+- [ ] 2.3 Wait for the first opm release after section 1 merged (no backfill of earlier releases: owner decision, 2026-10-03); its `Release / publish-docs` job is green. If that job did not run, recover with `gh workflow run docs.yml -R open-platform-model/catalog_opm --ref main -f mode=release -f tag=<its opm-v tag>`
+- [ ] 2.4 Verify that release anonymously: tags `<version>.0`, `<version>`, `<MAJOR>.<MINOR>` and `<MAJOR>` exist and name the same digest; `cosign verify` passes for it; `opm-docs pull` with the tab's `from` set to that minor resolves the minor and `edge`, verifies both and writes a lock; its landing is the contract page (`generated: false`)
+- [ ] 2.5 Record in design.md, under a new "Rollout record" heading: each tag's digest and the commit each bundle was built from
+- [ ] 2.6 `task check` green, then commit `docs(openspec): record the first published opm docs bundles`
 
 ## 3. Retire tools/refgen (gate G3; tools/, docs/site/, .github/, Taskfile.yml, rules)
 

@@ -7,7 +7,7 @@ The authored contract page is `docs/site/reference/catalog-contract.md` (title "
 Contracts this change consumes, from docs-kit's change `build-opm-docs-phase-1` (`design.md`):
 
 - **docs-kit C1**: the bundle lives at `ghcr.io/open-platform-model/docs/catalog-opm`, placement tab, root `/catalogs/opm/`, release tag prefix `opm-v`.
-- **docs-kit C4**: full tags `<version>.<revision>` are immutable; `4.4.5`, `4.4`, `4` and `edge` move; edge builds carry no full tag.
+- **docs-kit C4**: full tags `<version>.<revision>` are immutable; the release, minor and major tags (`<version>`, `<MAJOR>.<MINOR>`, `<MAJOR>`) and `edge` move; edge builds carry no full tag.
 - **docs-kit C5**: callers pin `publish.yml` by tag (`@v0.1.0`), declare no secrets, and grant per mode: `check` needs `contents: read`, `packages: read`; `edge` and `release` need `contents: read`, `packages: write`, `id-token: write`. Every mode but `check` refuses unless `github.ref` is `refs/heads/main`. `release` runs from the job that runs release-please, gated on that package's release, or by `workflow_dispatch` for a release with no bundle yet. A release cut before the repository had `docs-kit.cue` builds with `main`'s, and its sources resolve against the release tree: a `markdown` directory that tree lacks yields no pages. `publish.yml` declares no `permissions` of its own: the caller's job grants them, and one `docs` job runs every mode. Edge and release publishes run in separate concurrency groups (`docs-edge-<project>`, `docs-release-<project>-<tag>`). `publish.yml` has no version input: it reads the caller's repo-root `.opm-docs-version` (one line, `v0.1.0`) from the checked-out caller tree (`main`'s in release mode), installs that checksum-verified `opm-docs` release, and logs in to GHCR itself for the extractors' CUE dependencies, so a caller adds no login step.
 - **docs-kit C6**: `docs-kit.cue` at the repository root, `bundles` keyed by project; a root `_index.md` from a `markdown` source replaces the generated landing's text, and the renderer appends its generated "Catalog members" block (module path, version or edge commit, each kind index with its count) after the authored body.
 - **docs-kit C8, C11**: page paths and link forms. An authored bundle page links into its own catalog through the major alias (`/catalogs/opm/4/<path>/`), which the `markdown` source rewrites to the build's own segment; `/docs/<section>/<page>/` links from a tab page resolve in the site's default version; an `_index.md` declares no `type`.
@@ -63,7 +63,7 @@ It sits outside the module root, so `cue` run from `src/` never loads it and `op
 
 `docs/site/reference/catalog-contract.md` stays until section 3, because the site's Reference shows it until the Catalogs tab is live. Section 1 marks it with an HTML comment on the line after its front matter ("Moved to `docs/catalogs/opm/_index.md`; edit there. This copy is deleted when publish-docs-bundle section 3 lands.") and moves the four "Check against" pointers in `docs/site/extending/` to the new path. Section 3 moves the two pointers to `catalog-members/` in `docs/site/authoring/` to `catalog_opm/src/INDEX.md`, the generated index that stays in git.
 
-### `docs.yml`: check, edge and the release backfill
+### `docs.yml`: check, edge and the release recovery dispatch
 
 A new workflow, so the existing `CI` and `Release` workflows keep their names, triggers and required checks:
 
@@ -81,7 +81,7 @@ on:
         options: [release]
         required: true
       tag:
-        description: An opm release tag with no docs bundle yet (opm-v4.4.5)
+        description: An opm release tag whose publish-docs job did not run (opm-vX.Y.Z)
         type: string
         required: true
 permissions: {}
@@ -103,7 +103,7 @@ jobs:
     with: {project: catalog-opm, mode: "${{ inputs.mode }}", tag: "${{ inputs.tag }}"}
 ```
 
-One project, so no matrix. The dispatch's `mode` offers `release` only: it is the backfill and the recovery path for a release whose `publish-docs` job did not run, and the `revision` choice is added later without renaming anything (docs-kit `orchestration.md`, "Follow-up: docs-kit add-docs-revisions"). It MUST be dispatched on `main` (`gh workflow run docs.yml --ref main -f mode=release -f tag=opm-v4.4.5`); `publish.yml` refuses any other ref. `cue-registry` keeps its default (`opmodel.dev=ghcr.io/open-platform-model,registry.cue.works`), the value `ci.yml` uses.
+One project, so no matrix. The dispatch's `mode` offers `release` only: it is the recovery path for a release whose `publish-docs` job did not run, never a backfill (owner decision, 2026-10-03: the tab starts at the first opm release after section 1 merges), and the `revision` choice is added later without renaming anything (docs-kit `orchestration.md`, "Follow-up: docs-kit add-docs-revisions"). It MUST be dispatched on `main` (`gh workflow run docs.yml --ref main -f mode=release -f tag=opm-vX.Y.Z`); `publish.yml` refuses any other ref. `cue-registry` keeps its default (`opmodel.dev=ghcr.io/open-platform-model,registry.cue.works`), the value `ci.yml` uses.
 
 ### `release.yml`: `publish-docs` after `publish-cue`, only for an opm release
 
@@ -180,8 +180,8 @@ docs-kit plans revisions as its own change, released as `v0.2.0`. Its `orchestra
 
 ## Risks / Trade-offs
 
-- [The backfill of `opm-v4.4.5` builds a tree cut before `docs/catalogs/opm/` existed] -> Per docs-kit C5, sources resolve against the release tree and the missing `markdown` directory yields no pages, so `4.4.5.0` carries the generated landing; the contract landing reaches 4.4 with the next opm release (or a docs revision once `add-docs-revisions` ships). Section 2 records the result.
-- [A backfilled tag predates `retire-k8s-catalog`] -> Every tag up to and including `opm-v4.5.0` has the module directory at `opm/`, not `src/`, so the `cue-catalog` source `./src` resolves to nothing in that release tree. The backfill MUST take the extractor path per tag (the `opm/` directory before `retire-k8s-catalog`, `src/` after) or be limited to tags cut after that change.
+- [The Catalogs tab has no released minor until the first opm release after section 1 merges] -> Owner decision (2026-10-03): no backfill. Every existing tag, up to and including `opm-v4.5.0`, has the module at `opm/`, not `src/`, and none has a `docs-kit.cue`, so a release build of it would take `main`'s config and find no `./src` in the release tree. Until that release the tab shows only `edge`; section 2 waits for it and verifies it.
+- [The recovery dispatch is given a tag cut before section 1] -> It fails for the same reason; the dispatch is for releases cut after section 1 only, which `AGENTS.md` says.
 - [`Release / publish-docs` does not run or fails (a failed `publish-cue` leg, a registry outage)] -> The `docs.yml` dispatch publishes the release that has no bundle; `AGENTS.md` says so.
 - [The contract text exists twice in git between sections 1 and 3] -> The site shows only one of them at any time (the Reference copy until opmodel.dev's merge, the bundle landing after it); the old copy carries a "moved" comment, and gate G3 ends the window.
 - [Two docs-kit pins (`.opm-docs-version` and the `publish.yml@` refs)] -> `docs:bundle:check` refuses a mismatch; a bump changes both in one PR, which needs the Workflows permission the release cascade bot lacks.
@@ -193,6 +193,6 @@ docs-kit plans revisions as its own change, released as `v0.2.0`. Its `orchestra
 ## Durable decisions
 
 - `docs/catalogs/opm/` holds pages that ship only in the docs bundle; `docs/site/` holds pages opmodel.dev reads for a site version: `AGENTS.md`, Repository Layout and a new "Docs bundles" subsection under Release & publishing (section 1).
-- What publishes when (`edge` on every push to `main`, `<version>.0` from `release.yml` after `publish-cue`, the `docs.yml` dispatch as backfill and recovery), how to preview (`task docs:bundle`, then opmodel.dev's `--local catalog-opm@edge=<this repo>/out/catalog-opm`), and that `.opm-docs-version` and the `publish.yml@` refs move together: `AGENTS.md`, "Docs bundles" (section 1).
+- What publishes when (`edge` on every push to `main`, `<version>.0` from `release.yml` after `publish-cue`, the `docs.yml` dispatch as recovery only), how to preview (`task docs:bundle`, then opmodel.dev's `--local catalog-opm@edge=<this repo>/out/catalog-opm`), and that `.opm-docs-version` and the `publish.yml@` refs move together: `AGENTS.md`, "Docs bundles" (section 1).
 - The catalog reference is published by docs-kit and never committed; the doc-comment rules that shape it (description first, `// WHY` blocks and banners dropped, citations stripped, marks and enforcement derived) are enforced by `opm-docs build` and documented in docs-kit: `AGENTS.md` (Purpose, Repository Layout, Dependencies, the commands table, Release & publishing, Working Style) and `openspec/config.yaml` (context and Principle II) (section 3).
-- The digests and tags of the first published bundles, and what the 4.4.5 backfill's landing was: stays with the change (section 2).
+- The digests and tags of the first published bundles (the first `edge` and the first release): stays with the change (section 2).
