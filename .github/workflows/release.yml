@@ -147,6 +147,10 @@ jobs:
     needs: release-please
     if: needs.release-please.outputs.opm_release_created == 'true'
     runs-on: ubuntu-latest
+    # published is set right after the push, before the non-gating
+    # verification step, so publish-docs runs whenever the module reached GHCR.
+    outputs:
+      published: ${{ steps.publish.outputs.published }}
     steps:
       # Publishing runs here, in the same workflow run that the release-PR
       # merge triggers — NOT from a push:tags trigger. A tag pushed by
@@ -189,12 +193,14 @@ jobs:
       # mismatch is a refusal, never an overwrite. The pipeline publishes the
       # committed tree exactly — no build dir, no version override.
       - name: Publish CUE catalog
+        id: publish
         env:
           VERSION: ${{ needs.release-please.outputs.opm_version }}
         run: |
           set -euo pipefail
           echo "Publishing ./src at v${VERSION}"
           opm catalog publish ./src --version "${VERSION}"
+          echo "published=true" >> "$GITHUB_OUTPUT"
 
       # Out-of-band verification of the build just pushed — an aid, not a gate
       # (0011 D7): a finding fails the job for visibility, the artifact stays.
@@ -206,3 +212,31 @@ jobs:
           PATH_DECLARED=$(grep -E '^module:' src/cue.mod/module.cue \
             | sed -E 's/module:[[:space:]]*"(.*)@v[0-9]+"/\1/')
           opm catalog registry check "${PATH_DECLARED}@v${VERSION}" --compat
+
+  # The opm docs bundle of the release (docs-kit.cue, catalog-opm), built from
+  # the released tag and published as <version>.0 by docs-kit's publish.yml
+  # (docs-kit docs/contracts.md C5). It runs here, in the run the release-PR
+  # merge starts, because publish.yml publishes only from refs/heads/main: a
+  # `release: published` trigger would run on the tag ref and be refused.
+  # It runs only when publish-cue pushed the module (its published output, set
+  # right after the push), so the reference never describes a version GHCR
+  # does not serve; always() keeps a failure of publish-cue's later,
+  # non-gating verification step from skipping it, and published is only
+  # ever true when release-please released opm. When this job does not run,
+  # docs.yml's dispatch publishes the release instead. No version is passed:
+  # opm-docs reads it from the tag.
+  # The workflow-level permissions carry no id-token; this job grants what
+  # publish.yml's release mode needs and nothing more.
+  publish-docs:
+    name: Publish the opm docs bundle
+    needs: [release-please, publish-cue]
+    if: always() && needs.publish-cue.outputs.published == 'true'
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.1.0
+    with:
+      project: catalog-opm
+      mode: release
+      tag: ${{ needs.release-please.outputs.opm_tag_name }}

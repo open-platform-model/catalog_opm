@@ -2,16 +2,17 @@
 
 Today `tools/refgen` (own `go.mod`, `cuelang.org/go` v0.17.1) loads both catalog modules and writes `docs/site/reference/catalog-members/` (one page per `opm` blueprint, resource and trait), the generated block of `catalog-members/_index.md`, and the table in `docs/site/reference/kubernetes-resources.md`. `task generate:reference:check` and `task test:refgen` run in `task check` and in `ci.yml`; `release.yml`'s identity advance runs `task generate:reference` on every release PR, because every page carries `identity.Version`. Three workflows install Go only for refgen (`ci.yml`, `branch-publish.yml`, `release.yml`). opmodel.dev's v1.0 version reads this repository's `docs/site/` from `main` while `main` still releases opm 4.x (opmodel.dev `site/versions.conf`), so a file deleted on `main` leaves the site at its next build.
 
-The authored contract page is `docs/site/reference/catalog-contract.md` (title "The Catalog Contract", `type: reference`, `weight: 5`). No page links the contract page; it is named only by maintainer "Check against" pointers inside HTML comments in `docs/site/extending/` (four). The member pages are linked by `docs/site/reference/kubernetes-resources.md` (lines 8 and 51, to `/docs/reference/catalog-members/`), which the `k8s` removal takes with it, and named by two "Check against" pointers in `docs/site/authoring/`; `catalog-members/_index.md` links `kubernetes-resources.md` and goes in section 3. Outside this repository only cli's `docs/site/reference/registry-namespaces.md` links `/docs/reference/catalog-contract/`.
+The authored contract page is `docs/site/reference/catalog-contract.md` (title "The Catalog Contract", `type: reference`, `weight: 5`). No page links the contract page; it is named only by maintainer "Check against" pointers inside HTML comments in `docs/site/extending/` (four). The member pages are linked by `docs/site/reference/kubernetes-resources.md` (lines 8 and 51, to `/docs/reference/catalog-members/`), which the `k8s` removal deleted (3f9d6fd), and named by two "Check against" pointers in `docs/site/authoring/`; `catalog-members/_index.md` links `kubernetes-resources.md` and goes in section 3. Outside this repository only cli's `docs/site/reference/registry-namespaces.md` links `/docs/reference/catalog-contract/`.
 
 Contracts this change consumes, from docs-kit's change `build-opm-docs-phase-1` (`design.md`):
 
 - **docs-kit C1**: the bundle lives at `ghcr.io/open-platform-model/docs/catalog-opm`, placement tab, root `/catalogs/opm/`, release tag prefix `opm-v`.
-- **docs-kit C4**: full tags `<version>.<revision>` are immutable; `4.4.5`, `4.4`, `4` and `edge` move; edge builds carry no full tag.
-- **docs-kit C5**: callers pin `publish.yml` by tag (`@v0.1.0`), declare no secrets, and grant per mode: `check` needs `contents: read`, `packages: read`; `edge` and `release` need `contents: read`, `packages: write`, `id-token: write`. Every mode but `check` refuses unless `github.ref` is `refs/heads/main`. `release` runs from the job that runs release-please, gated on that package's release, or by `workflow_dispatch` for a release with no bundle yet. A release cut before the repository had `docs-kit.cue` builds with `main`'s, and its sources resolve against the release tree: a `markdown` directory that tree lacks yields no pages. Edge and release publishes run in separate concurrency groups (`docs-edge-<project>`, `docs-release-<project>-<version>`). `publish.yml` installs the checksum-verified `opm-docs` release binary named by its version literal, and logs in to GHCR read-only itself for the extractors' CUE dependencies, so a caller adds no login step.
+- **docs-kit C4**: full tags `<version>.<revision>` are immutable; the release, minor and major tags (`<version>`, `<MAJOR>.<MINOR>`, `<MAJOR>`) and `edge` move; edge builds carry no full tag.
+- **docs-kit C5**: callers pin `publish.yml` by tag (`@v0.1.0`), declare no secrets, and grant per mode: `check` needs `contents: read`, `packages: read`; `edge` and `release` need `contents: read`, `packages: write`, `id-token: write`. Every mode but `check` refuses unless `github.ref` is `refs/heads/main`. `release` runs from the job that runs release-please, gated on that package's release, or by `workflow_dispatch` for a release with no bundle yet. A release cut before the repository had `docs-kit.cue` builds with `main`'s, and its sources resolve against the release tree: a `markdown` directory that tree lacks yields no pages. `publish.yml` declares no `permissions` of its own: the caller's job grants them, and one `docs` job runs every mode. Edge and release publishes run in separate concurrency groups (`docs-edge-<project>`, `docs-release-<project>-<tag>`). `publish.yml` has no version input: it reads the caller's repo-root `.opm-docs-version` (one line, `v0.1.0`) from the checked-out caller tree (`main`'s in release mode), installs that checksum-verified `opm-docs` release, and logs in to GHCR itself for the extractors' CUE dependencies, so a caller adds no login step.
 - **docs-kit C6**: `docs-kit.cue` at the repository root, `bundles` keyed by project; a root `_index.md` from a `markdown` source replaces the generated landing's text, and the renderer appends its generated "Catalog members" block (module path, version or edge commit, each kind index with its count) after the authored body.
 - **docs-kit C8, C11**: page paths and link forms. An authored bundle page links into its own catalog through the major alias (`/catalogs/opm/4/<path>/`), which the `markdown` source rewrites to the build's own segment; `/docs/<section>/<page>/` links from a tab page resolve in the site's default version; an `_index.md` declares no `type`.
-- **docs-kit C9**: the signature's Source Repository Ref must be `refs/heads/main`, so no bundle is published from a release branch or a tag ref (docs-kit DESIGN decision 9).
+- **docs-kit C9**: the signature's Source Repository Ref must be `refs/heads/main`, so no bundle is published from a release branch or a tag ref (docs-kit DESIGN decision 9); the signer is `publish.yml` at a ref matching `refs/tags/v[0-9]*`, which is why callers pin it by docs-kit release tag.
+- **Re-read 2026-10-03 against docs-kit `main` (5f3eab4), before `v0.1.0` was tagged.** Three amendments since this plan was written are folded in above: `publish.yml` reads `.opm-docs-version` (no version literal of its own), declares no permissions, and keys the release concurrency group on the tag. A fourth changes section 2: the GHCR spike created its new package **public** (it took the visibility of the public repository it is linked to, docs-kit C2), so go-live verifies the visibility rather than setting it. docs-kit C1 and C6 still show the module at `./opm`; this repository moved it to `src/` (`retire-k8s-catalog`), so `docs-kit.cue` names `./src`. Nothing else differs; `v0.1.0` (4f3f72a) was tagged later the same day with these contracts unchanged.
 
 No member file, `apiVersion` segment, definition, default, closedness or required-field set is touched. The only files under a module root that any section reads are the ones `opm-docs` evaluates.
 
@@ -26,7 +27,7 @@ No member file, `apiVersion` segment, definition, default, closedness or require
 
 **Non-Goals:**
 
-- A `catalog-k8s` bundle. The `k8s` catalog is being removed from this repository by another change; section 3 waits for it (gate G3).
+- A `catalog-k8s` bundle. The `k8s` catalog was removed from this repository by another change (`retire-k8s-catalog`, 3f9d6fd).
 - Docs revisions. Their dispatch belongs to docs-kit's change `add-docs-revisions` (Decisions, "Docs revisions are left to add-docs-revisions").
 - Any edit to opmodel.dev, cli, docs-kit or the workspace repository.
 - Redirects from the old Reference URLs. There are none (decided): the opmodel.dev build that gains the tab stops mounting the old pages and maps links to them onto the tab's alias forms.
@@ -60,9 +61,9 @@ It sits outside the module root, so `cue` run from `src/` never loads it and `op
 - the body unchanged, with no hand-written members section: the renderer appends the generated `## Catalog members` block after the authored body (docs-kit C6, C8, "Page renderer"), so the landing links the kind indexes with the build's own segment and counts. The build refuses an authored landing that already holds a `## Catalog members` heading;
 - the two "See also" links (`/docs/reference/registry-namespaces/`, `/docs/reference/cli/`) unchanged: a `/docs/` link from a tab page resolves in the site's default version (docs-kit C8).
 
-`docs/site/reference/catalog-contract.md` stays until section 3, because the site's Reference shows it until the Catalogs tab is live. Section 1 marks it with an HTML comment on the line after its front matter ("Moved to `docs/catalogs/opm/_index.md`; edit there. This copy is deleted when publish-docs-bundle section 3 lands.") and moves the four "Check against" pointers in `docs/site/extending/` to the new path. Section 3 moves the two pointers to `catalog-members/` in `docs/site/authoring/` to `catalog_opm/src/INDEX.md`, the generated index that stays in git.
+`docs/site/reference/catalog-contract.md` stays until section 3, because the site's Reference shows it until the Catalogs tab is live. Until then `docs:bundle:check` (`.tasks/opm-docs.sh contract-sync`) refuses the two copies' bodies differing, front matter and the "moved" comment ignored, naming both files. Section 1 marks it with an HTML comment on the line after its front matter ("Moved to `docs/catalogs/opm/_index.md`; edit there. This copy is deleted when publish-docs-bundle section 3 lands.") and moves the four "Check against" pointers in `docs/site/extending/` to the new path. Section 3 moves the two pointers to `catalog-members/` in `docs/site/authoring/` to `catalog_opm/src/INDEX.md`, the generated index that stays in git.
 
-### `docs.yml`: check, edge and the release backfill
+### `docs.yml`: check, edge and the release recovery dispatch
 
 A new workflow, so the existing `CI` and `Release` workflows keep their names, triggers and required checks:
 
@@ -80,7 +81,7 @@ on:
         options: [release]
         required: true
       tag:
-        description: An opm release tag with no docs bundle yet (opm-v4.4.5)
+        description: An opm release tag whose publish-docs job did not run (opm-vX.Y.Z)
         type: string
         required: true
 permissions: {}
@@ -102,17 +103,17 @@ jobs:
     with: {project: catalog-opm, mode: "${{ inputs.mode }}", tag: "${{ inputs.tag }}"}
 ```
 
-One project, so no matrix. The dispatch's `mode` offers `release` only: it is the backfill and the recovery path for a release whose `publish-docs` job did not run, and the `revision` choice is added later without renaming anything (docs-kit `orchestration.md`, "Follow-up: docs-kit add-docs-revisions"). It MUST be dispatched on `main` (`gh workflow run docs.yml --ref main -f mode=release -f tag=opm-v4.4.5`); `publish.yml` refuses any other ref. `cue-registry` keeps its default (`opmodel.dev=ghcr.io/open-platform-model,registry.cue.works`), the value `ci.yml` uses.
+One project, so no matrix. The dispatch's `mode` offers `release` only: it is the recovery path for a release whose `publish-docs` job did not run, never a backfill (owner decision, 2026-10-03: the tab starts at the first opm release after section 1 merges), and the `revision` choice is added later without renaming anything (docs-kit `orchestration.md`, "Follow-up: docs-kit add-docs-revisions"). It MUST be dispatched on `main` (`gh workflow run docs.yml --ref main -f mode=release -f tag=opm-vX.Y.Z`); `publish.yml` refuses any other ref. `cue-registry` keeps its default (`opmodel.dev=ghcr.io/open-platform-model,registry.cue.works`), the value `ci.yml` uses.
 
 ### `release.yml`: `publish-docs` after `publish-cue`, only for an opm release
 
-release-please sets `src--tag_name` (the job's `opm_tag_name` output; the package path is `src`, the component `opm`) only when it released `opm` in this run, so the job's condition is that output being non-empty.
+`publish-cue` runs only when release-please released `opm` in this run, and sets an output `published=true` right after "Publish CUE catalog", before its non-gating "Verify the published build" step. The job's condition is that output, under `always()`, so a failed verification (an aid, not a gate, 0011 D7) does not skip the docs while a failed or skipped publish does. The tag comes from release-please's `src--tag_name` (the job's `opm_tag_name` output; the package path is `src`, the component `opm`).
 
 ```yaml
 publish-docs:
   name: Publish the opm docs bundle
   needs: [release-please, publish-cue]
-  if: needs.release-please.outputs.opm_tag_name != ''
+  if: always() && needs.publish-cue.outputs.published == 'true'
   permissions: {contents: read, packages: write, id-token: write}
   uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.1.0
   with:
@@ -122,7 +123,7 @@ publish-docs:
 ```
 
 - It runs in the run the release-PR merge starts, on `refs/heads/main`, which docs-kit C5 and C9 require. A `release: published` trigger would run on the tag ref and be refused, and is not used.
-- `needs: publish-cue` without `always()` means a bundle is published only when every released module published: the reference never describes a version GHCR does not serve. While the `k8s` catalog still exists, a failed `k8s` leg skips this job; the recovery is the `docs.yml` dispatch with `opm_tag_name`.
+- Gating on `published` means a bundle is published only when the module reached GHCR: the reference never describes a version GHCR does not serve. The `k8s` catalog, whose failed leg could once have skipped this job, was retired in 3f9d6fd (`retire-k8s-catalog`), so `publish-cue` publishes the one module. When this job does not run, the recovery is the `docs.yml` dispatch with `opm_tag_name`.
 - No version is passed: docs-kit C5 has no version input, and `opm-docs` reads the version from the tag through the `opm-v` prefix.
 - `release.yml`'s workflow-level permissions do not include `id-token`; the job-level block grants what docs-kit C5 asks and nothing more.
 
@@ -130,15 +131,16 @@ publish-docs:
 
 docs-kit C12 fixes this for callers: the local tool is the checksum-verified release binary named by a repo-root `.opm-docs-version`, installed into a gitignored repo-local directory, never `go run` or `go install`.
 
-`.opm-docs-version` holds one line, the docs-kit release tag (`v0.1.0`), beside `.opm-cli-version`. `task tools:opm-docs` (its script in `.tasks/opm-docs.sh`) downloads that release's `opm-docs_<version>_<os>_<arch>.tar.gz` and `checksums.txt`, checks the archive with `grep ' <archive>$' checksums.txt | sha256sum -c -` (refusing an archive with no line), extracts only `opm-docs` to `.bin/opm-docs` (gitignored), and reuses an installed binary whose `opm-docs version` matches. A failed check stops the task; nothing builds from source (docs-kit C12). The tasks:
+`.opm-docs-version` holds one line, the docs-kit release tag (`v0.1.0`), beside `.opm-cli-version`; `publish.yml` reads the same file in CI (docs-kit C5), so the local tool and CI run the same release. `task tools:opm-docs` (its script in `.tasks/opm-docs.sh`) downloads that release's `opm-docs_<version>_<os>_<arch>.tar.gz` and `checksums.txt`, checks the archive with `grep ' <archive>$' checksums.txt | sha256sum -c -` (refusing an archive with no line), extracts only `opm-docs` to `.bin/opm-docs` (gitignored), and reuses an installed binary whose `opm-docs version` matches. A failed check stops the task; nothing builds from source (docs-kit C12). The tasks:
 
 | Task | Runs |
 | --- | --- |
 | `tools:opm-docs` | install or reuse `.bin/opm-docs` as above |
 | `docs:bundle` | depends on `tools:opm-docs`; `opm-docs build --project catalog-opm --out out` (a local preview of `main` as the edge segment; `out/` is gitignored; opmodel.dev reads it with `--local catalog-opm@edge=<this repo>/out/catalog-opm`, docs-kit C7's `<project>@<segment>=<dir>`) |
-| `docs:bundle:check` | depends on `tools:opm-docs`; the pin check, then `opm-docs check --project catalog-opm` |
+| `docs:pins:check` | the pin check, offline; `ci.yml`'s `Validate catalog` runs it too |
+| `docs:bundle:check` | depends on `tools:opm-docs`; `docs:pins:check`, the contract-copy body comparison (until section 3), then `opm-docs check --project catalog-opm` |
 
-The pin check refuses unless every `open-platform-model/docs-kit/.github/workflows/publish.yml@` reference under `.github/workflows/` names the version in `.opm-docs-version`: a workflow `uses:` ref cannot be read from a file, so two pins exist and the check keeps them equal. Callers pin `publish.yml` by tag (owner decision, docs-kit C5), so the check reads the version from the ref (`@v0.1.0`). `task check` runs `docs:bundle:check`, so a section gate catches a member the bundle build refuses (a doc comment that does not open with its description, a page that fails the dialect) before the PR's `Docs / check` does. `ci.yml` does not run it; `Docs / check` is the PR gate.
+The pin check refuses unless every `open-platform-model/docs-kit/.github/workflows/publish.yml@` reference under `.github/workflows/` names the version in `.opm-docs-version`: a workflow `uses:` ref cannot be read from a file, so two pins exist and the check keeps them equal. Callers pin `publish.yml` by tag (owner decision, docs-kit C5), so the check reads the version from the ref (`@v0.1.0`). `task check` runs `docs:bundle:check`, so a section gate catches a member the bundle build refuses (a doc comment that does not open with its description, a page that fails the dialect) before the PR's `Docs / check` does. `ci.yml` runs only the offline `docs:pins:check` from it; `Docs / check` is the PR gate for the bundle build.
 
 ### Docs revisions are left to `add-docs-revisions`
 
@@ -179,19 +181,19 @@ docs-kit plans revisions as its own change, released as `v0.2.0`. Its `orchestra
 
 ## Risks / Trade-offs
 
-- [The backfill of `opm-v4.4.5` builds a tree cut before `docs/catalogs/opm/` existed] -> Per docs-kit C5, sources resolve against the release tree and the missing `markdown` directory yields no pages, so `4.4.5.0` carries the generated landing; the contract landing reaches 4.4 with the next opm release (or a docs revision once `add-docs-revisions` ships). Section 2 records the result.
-- [A backfilled tag predates `retire-k8s-catalog`] -> Every tag up to and including `opm-v4.5.0` has the module directory at `opm/`, not `src/`, so the `cue-catalog` source `./src` resolves to nothing in that release tree. The backfill MUST take the extractor path per tag (the `opm/` directory before `retire-k8s-catalog`, `src/` after) or be limited to tags cut after that change.
+- [The Catalogs tab has no released minor until the first opm release after section 1 merges] -> Owner decision (2026-10-03): no backfill. Every existing tag, up to and including `opm-v4.5.0`, has the module at `opm/`, not `src/`, and none has a `docs-kit.cue`, so a release build of it would take `main`'s config and find no `./src` in the release tree. Until that release the tab shows only `edge`; section 2 waits for it and verifies it.
+- [The recovery dispatch is given a tag cut before section 1] -> It fails for the same reason; the dispatch is for releases cut after section 1 only, which `AGENTS.md` says.
 - [`Release / publish-docs` does not run or fails (a failed `publish-cue` leg, a registry outage)] -> The `docs.yml` dispatch publishes the release that has no bundle; `AGENTS.md` says so.
 - [The contract text exists twice in git between sections 1 and 3] -> The site shows only one of them at any time (the Reference copy until opmodel.dev's merge, the bundle landing after it); the old copy carries a "moved" comment, and gate G3 ends the window.
 - [Two docs-kit pins (`.opm-docs-version` and the `publish.yml@` refs)] -> `docs:bundle:check` refuses a mismatch; a bump changes both in one PR, which needs the Workflows permission the release cascade bot lacks.
 - [`task check` downloads a binary on first run] -> cached in `.bin/`; every gate here already needs the network for the CUE registry.
 - [This PR's `Docs / check` is the first real run of `publish.yml`] -> A failure there is a docs-kit defect: report it to docs-kit, never work around it in this repository.
 - [After section 3, a doc-comment fix reaches a released minor only through a docs revision, which does not exist until `add-docs-revisions`; a doc comment change is a `docs:` commit and releases nothing] -> `edge` shows the fix at once. Until revisions ship, a released minor's page keeps its text until the next opm release.
-- [The package is private after the first push, and every site pull fails until the owner makes it public] -> Section 2 is the owner's step, and opmodel.dev `add-catalogs-tab` merges only after it.
+- [The package is private after the first push, and every site pull fails until the owner makes it public] -> docs-kit's GHCR spike saw a new package created public, inheriting the linked public repository's visibility (docs-kit C2), so this is not expected; section 2 verifies the visibility anonymously and the owner flips it only if it came out private. opmodel.dev `add-catalogs-tab` merges only after section 2.
 
 ## Durable decisions
 
 - `docs/catalogs/opm/` holds pages that ship only in the docs bundle; `docs/site/` holds pages opmodel.dev reads for a site version: `AGENTS.md`, Repository Layout and a new "Docs bundles" subsection under Release & publishing (section 1).
-- What publishes when (`edge` on every push to `main`, `<version>.0` from `release.yml` after `publish-cue`, the `docs.yml` dispatch as backfill and recovery), how to preview (`task docs:bundle`, then opmodel.dev's `--local catalog-opm@edge=<this repo>/out/catalog-opm`), and that `.opm-docs-version` and the `publish.yml@` refs move together: `AGENTS.md`, "Docs bundles" (section 1).
+- What publishes when (`edge` on every push to `main`, `<version>.0` from `release.yml` after `publish-cue`, the `docs.yml` dispatch as recovery only), how to preview (`task docs:bundle`, then opmodel.dev's `--local catalog-opm@edge=<this repo>/out/catalog-opm`), and that `.opm-docs-version` and the `publish.yml@` refs move together: `AGENTS.md`, "Docs bundles" (section 1).
 - The catalog reference is published by docs-kit and never committed; the doc-comment rules that shape it (description first, `// WHY` blocks and banners dropped, citations stripped, marks and enforcement derived) are enforced by `opm-docs build` and documented in docs-kit: `AGENTS.md` (Purpose, Repository Layout, Dependencies, the commands table, Release & publishing, Working Style) and `openspec/config.yaml` (context and Principle II) (section 3).
-- The digests and tags of the first published bundles, and what the 4.4.5 backfill's landing was: stays with the change (section 2).
+- The digests and tags of the first published bundles (the first `edge` and the first release): stays with the change (section 2).
