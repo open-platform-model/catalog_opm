@@ -12,10 +12,12 @@ set -euo pipefail
 # Usage (run from the repo root):
 #   bash .tasks/opm-docs.sh install     # install or reuse .bin/opm-docs
 #   bash .tasks/opm-docs.sh pin-check   # refuse a publish.yml ref that names another release
+#   bash .tasks/opm-docs.sh contract-sync  # refuse the two Catalog Contract copies drifting apart
 #
 # install downloads opm-docs_<version>_<os>_<arch>.tar.gz and checksums.txt from
 # the docs-kit release, checks the archive with sha256sum (refusing an archive
-# checksums.txt has no line for), and extracts only opm-docs into .bin/
+# checksums.txt has no line for; shasum -a 256 where sha256sum is missing, as
+# on macOS), and extracts only opm-docs into .bin/
 # (gitignored). An installed binary whose `opm-docs version` already names the
 # pinned version is reused. A failed check stops here; nothing falls back to
 # `go run` or `go install`.
@@ -25,10 +27,17 @@ set -euo pipefail
 # .github/workflows/ names the tag in .opm-docs-version. A workflow `uses:` ref
 # cannot be read from a file, so the release is pinned twice; a bump moves both
 # in one PR.
+#
+# contract-sync refuses unless docs/catalogs/opm/_index.md (the bundle landing)
+# and docs/site/reference/catalog-contract.md (the copy the site's Reference
+# still shows) have the same body, front matter and the "moved" comment
+# ignored. It goes with that copy in publish-docs-bundle section 3.
 
 PIN_FILE=.opm-docs-version
 BIN_DIR=.bin
 WORKFLOW_REF=open-platform-model/docs-kit/.github/workflows/publish.yml@
+CONTRACT_LANDING=docs/catalogs/opm/_index.md
+CONTRACT_COPY=docs/site/reference/catalog-contract.md
 
 read_pin() {
 	if [ ! -f "$PIN_FILE" ]; then
@@ -77,16 +86,47 @@ install_opm_docs() {
 	trap 'rm -rf "$tmp"' EXIT
 
 	echo "opm-docs: installing $tag ($os/$arch) into $BIN_DIR/"
-	curl -fsSL --retry 3 -o "$tmp/$archive" "$base/$archive"
-	curl -fsSL --retry 3 -o "$tmp/checksums.txt" "$base/checksums.txt"
+	download "$base/$archive" "$tmp/$archive" "$tag"
+	download "$base/checksums.txt" "$tmp/checksums.txt" "$tag"
 	if ! grep -q " ${archive}\$" "$tmp/checksums.txt"; then
 		echo "opm-docs: checksums.txt of $tag has no line for $archive" >&2
 		exit 1
 	fi
-	(cd "$tmp" && grep " ${archive}\$" checksums.txt | sha256sum -c -)
+	(cd "$tmp" && grep " ${archive}\$" checksums.txt | sha256_check)
 	tar -xzf "$tmp/$archive" -C "$tmp" opm-docs
 	mkdir -p "$BIN_DIR"
 	install -m 0755 "$tmp/opm-docs" "$BIN_DIR/opm-docs"
+}
+
+# download URL FILE TAG: fetch one release asset, naming the pin on failure.
+download() {
+	if ! curl -fsSL --retry 3 -o "$2" "$1"; then
+		echo "opm-docs: could not download $1 for $3, the release $PIN_FILE pins: check that the docs-kit release exists and carries this asset" >&2
+		exit 1
+	fi
+}
+
+# sha256_check: `sha256sum -c -`, or `shasum -a 256 -c -` where sha256sum is
+# missing (macOS).
+sha256_check() {
+	if command -v sha256sum >/dev/null 2>&1; then
+		sha256sum -c -
+	else
+		shasum -a 256 -c -
+	fi
+}
+
+# body FILE: the page without its front matter and without the "moved" comment.
+body() {
+	awk 'NR == 1 && $0 == "---" { fm = 1; next } fm && $0 == "---" { fm = 0; next } fm { next } /^<!-- Moved to `docs\/catalogs\/opm\/_index.md`/ { next } { print }' "$1"
+}
+
+contract_sync() {
+	if ! diff -u <(body "$CONTRACT_COPY") <(body "$CONTRACT_LANDING") >&2; then
+		echo "opm-docs: $CONTRACT_LANDING and $CONTRACT_COPY differ outside their front matter; edit $CONTRACT_LANDING and copy the change to $CONTRACT_COPY until publish-docs-bundle section 3 deletes it" >&2
+		exit 1
+	fi
+	echo "OK: $CONTRACT_LANDING and $CONTRACT_COPY have the same body."
 }
 
 pin_check() {
@@ -109,8 +149,9 @@ pin_check() {
 case "${1:-}" in
 install) install_opm_docs ;;
 pin-check) pin_check ;;
+contract-sync) contract_sync ;;
 *)
-	echo "Usage: bash .tasks/opm-docs.sh install|pin-check" >&2
+	echo "Usage: bash .tasks/opm-docs.sh install|pin-check|contract-sync" >&2
 	exit 1
 	;;
 esac

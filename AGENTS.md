@@ -207,7 +207,8 @@ Never hand-edit `apiVersion`/`catalogVersion`/`fqn` to chase a release — only 
 | `task generate:reference:check` | Fail when a generated reference page is stale or orphaned |
 | `task test:refgen`            | Vet and unit-test `tools/refgen` |
 | `task docs:bundle`            | Build the `catalog-opm` docs bundle of the work tree into `out/catalog-opm/` (gitignored), a local preview of `edge`, with the pinned `opm-docs` (`task tools:opm-docs` installs it into `.bin/`) |
-| `task docs:bundle:check`      | Refuse a `publish.yml@` ref that names another docs-kit release than `.opm-docs-version`, then `opm-docs check` the bundle (build and lint into a temporary directory) |
+| `task docs:pins:check`        | Refuse a `publish.yml@` ref that names another docs-kit release than `.opm-docs-version` (offline; CI runs it in `Validate catalog`) |
+| `task docs:bundle:check`      | `docs:pins:check`, then refuse the two Catalog Contract copies (`docs/catalogs/opm/_index.md`, `docs/site/reference/catalog-contract.md`) differing in body, then `opm-docs check` the bundle (build and lint into a temporary directory) |
 | `task test:kindgen`           | Vet and unit-test `tools/kindgen` (offline) |
 | `task generate:kinds`         | Regenerate `src/schemas/kinds/table.cue` from the pinned `cue.dev/x/k8s.io` and the Kubernetes OpenAPI spec of `KUBERNETES_VERSION` (`tools/kindgen`; downloads the spec; never run by CI) |
 | `task check`                  | fmt check + vet + listing + descriptions + rendered-output fixtures + INDEX freshness + refgen and kindgen tests + reference freshness + docs bundle check + doc-comment limit |

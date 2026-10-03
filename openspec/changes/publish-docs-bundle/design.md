@@ -2,7 +2,7 @@
 
 Today `tools/refgen` (own `go.mod`, `cuelang.org/go` v0.17.1) loads both catalog modules and writes `docs/site/reference/catalog-members/` (one page per `opm` blueprint, resource and trait), the generated block of `catalog-members/_index.md`, and the table in `docs/site/reference/kubernetes-resources.md`. `task generate:reference:check` and `task test:refgen` run in `task check` and in `ci.yml`; `release.yml`'s identity advance runs `task generate:reference` on every release PR, because every page carries `identity.Version`. Three workflows install Go only for refgen (`ci.yml`, `branch-publish.yml`, `release.yml`). opmodel.dev's v1.0 version reads this repository's `docs/site/` from `main` while `main` still releases opm 4.x (opmodel.dev `site/versions.conf`), so a file deleted on `main` leaves the site at its next build.
 
-The authored contract page is `docs/site/reference/catalog-contract.md` (title "The Catalog Contract", `type: reference`, `weight: 5`). No page links the contract page; it is named only by maintainer "Check against" pointers inside HTML comments in `docs/site/extending/` (four). The member pages are linked by `docs/site/reference/kubernetes-resources.md` (lines 8 and 51, to `/docs/reference/catalog-members/`), which the `k8s` removal takes with it, and named by two "Check against" pointers in `docs/site/authoring/`; `catalog-members/_index.md` links `kubernetes-resources.md` and goes in section 3. Outside this repository only cli's `docs/site/reference/registry-namespaces.md` links `/docs/reference/catalog-contract/`.
+The authored contract page is `docs/site/reference/catalog-contract.md` (title "The Catalog Contract", `type: reference`, `weight: 5`). No page links the contract page; it is named only by maintainer "Check against" pointers inside HTML comments in `docs/site/extending/` (four). The member pages are linked by `docs/site/reference/kubernetes-resources.md` (lines 8 and 51, to `/docs/reference/catalog-members/`), which the `k8s` removal deleted (3f9d6fd), and named by two "Check against" pointers in `docs/site/authoring/`; `catalog-members/_index.md` links `kubernetes-resources.md` and goes in section 3. Outside this repository only cli's `docs/site/reference/registry-namespaces.md` links `/docs/reference/catalog-contract/`.
 
 Contracts this change consumes, from docs-kit's change `build-opm-docs-phase-1` (`design.md`):
 
@@ -27,7 +27,7 @@ No member file, `apiVersion` segment, definition, default, closedness or require
 
 **Non-Goals:**
 
-- A `catalog-k8s` bundle. The `k8s` catalog is being removed from this repository by another change; section 3 waits for it (gate G3).
+- A `catalog-k8s` bundle. The `k8s` catalog was removed from this repository by another change (`retire-k8s-catalog`, 3f9d6fd).
 - Docs revisions. Their dispatch belongs to docs-kit's change `add-docs-revisions` (Decisions, "Docs revisions are left to add-docs-revisions").
 - Any edit to opmodel.dev, cli, docs-kit or the workspace repository.
 - Redirects from the old Reference URLs. There are none (decided): the opmodel.dev build that gains the tab stops mounting the old pages and maps links to them onto the tab's alias forms.
@@ -61,7 +61,7 @@ It sits outside the module root, so `cue` run from `src/` never loads it and `op
 - the body unchanged, with no hand-written members section: the renderer appends the generated `## Catalog members` block after the authored body (docs-kit C6, C8, "Page renderer"), so the landing links the kind indexes with the build's own segment and counts. The build refuses an authored landing that already holds a `## Catalog members` heading;
 - the two "See also" links (`/docs/reference/registry-namespaces/`, `/docs/reference/cli/`) unchanged: a `/docs/` link from a tab page resolves in the site's default version (docs-kit C8).
 
-`docs/site/reference/catalog-contract.md` stays until section 3, because the site's Reference shows it until the Catalogs tab is live. Section 1 marks it with an HTML comment on the line after its front matter ("Moved to `docs/catalogs/opm/_index.md`; edit there. This copy is deleted when publish-docs-bundle section 3 lands.") and moves the four "Check against" pointers in `docs/site/extending/` to the new path. Section 3 moves the two pointers to `catalog-members/` in `docs/site/authoring/` to `catalog_opm/src/INDEX.md`, the generated index that stays in git.
+`docs/site/reference/catalog-contract.md` stays until section 3, because the site's Reference shows it until the Catalogs tab is live. Until then `docs:bundle:check` (`.tasks/opm-docs.sh contract-sync`) refuses the two copies' bodies differing, front matter and the "moved" comment ignored, naming both files. Section 1 marks it with an HTML comment on the line after its front matter ("Moved to `docs/catalogs/opm/_index.md`; edit there. This copy is deleted when publish-docs-bundle section 3 lands.") and moves the four "Check against" pointers in `docs/site/extending/` to the new path. Section 3 moves the two pointers to `catalog-members/` in `docs/site/authoring/` to `catalog_opm/src/INDEX.md`, the generated index that stays in git.
 
 ### `docs.yml`: check, edge and the release recovery dispatch
 
@@ -107,13 +107,13 @@ One project, so no matrix. The dispatch's `mode` offers `release` only: it is th
 
 ### `release.yml`: `publish-docs` after `publish-cue`, only for an opm release
 
-release-please sets `src--tag_name` (the job's `opm_tag_name` output; the package path is `src`, the component `opm`) only when it released `opm` in this run, so the job's condition is that output being non-empty.
+`publish-cue` runs only when release-please released `opm` in this run, and sets an output `published=true` right after "Publish CUE catalog", before its non-gating "Verify the published build" step. The job's condition is that output, under `always()`, so a failed verification (an aid, not a gate, 0011 D7) does not skip the docs while a failed or skipped publish does. The tag comes from release-please's `src--tag_name` (the job's `opm_tag_name` output; the package path is `src`, the component `opm`).
 
 ```yaml
 publish-docs:
   name: Publish the opm docs bundle
   needs: [release-please, publish-cue]
-  if: needs.release-please.outputs.opm_tag_name != ''
+  if: always() && needs.publish-cue.outputs.published == 'true'
   permissions: {contents: read, packages: write, id-token: write}
   uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.1.0
   with:
@@ -123,7 +123,7 @@ publish-docs:
 ```
 
 - It runs in the run the release-PR merge starts, on `refs/heads/main`, which docs-kit C5 and C9 require. A `release: published` trigger would run on the tag ref and be refused, and is not used.
-- `needs: publish-cue` without `always()` means a bundle is published only when every released module published: the reference never describes a version GHCR does not serve. While the `k8s` catalog still exists, a failed `k8s` leg skips this job; the recovery is the `docs.yml` dispatch with `opm_tag_name`.
+- Gating on `published` means a bundle is published only when the module reached GHCR: the reference never describes a version GHCR does not serve. The `k8s` catalog, whose failed leg could once have skipped this job, was retired in 3f9d6fd (`retire-k8s-catalog`), so `publish-cue` publishes the one module. When this job does not run, the recovery is the `docs.yml` dispatch with `opm_tag_name`.
 - No version is passed: docs-kit C5 has no version input, and `opm-docs` reads the version from the tag through the `opm-v` prefix.
 - `release.yml`'s workflow-level permissions do not include `id-token`; the job-level block grants what docs-kit C5 asks and nothing more.
 
@@ -137,9 +137,10 @@ docs-kit C12 fixes this for callers: the local tool is the checksum-verified rel
 | --- | --- |
 | `tools:opm-docs` | install or reuse `.bin/opm-docs` as above |
 | `docs:bundle` | depends on `tools:opm-docs`; `opm-docs build --project catalog-opm --out out` (a local preview of `main` as the edge segment; `out/` is gitignored; opmodel.dev reads it with `--local catalog-opm@edge=<this repo>/out/catalog-opm`, docs-kit C7's `<project>@<segment>=<dir>`) |
-| `docs:bundle:check` | depends on `tools:opm-docs`; the pin check, then `opm-docs check --project catalog-opm` |
+| `docs:pins:check` | the pin check, offline; `ci.yml`'s `Validate catalog` runs it too |
+| `docs:bundle:check` | depends on `tools:opm-docs`; `docs:pins:check`, the contract-copy body comparison (until section 3), then `opm-docs check --project catalog-opm` |
 
-The pin check refuses unless every `open-platform-model/docs-kit/.github/workflows/publish.yml@` reference under `.github/workflows/` names the version in `.opm-docs-version`: a workflow `uses:` ref cannot be read from a file, so two pins exist and the check keeps them equal. Callers pin `publish.yml` by tag (owner decision, docs-kit C5), so the check reads the version from the ref (`@v0.1.0`). `task check` runs `docs:bundle:check`, so a section gate catches a member the bundle build refuses (a doc comment that does not open with its description, a page that fails the dialect) before the PR's `Docs / check` does. `ci.yml` does not run it; `Docs / check` is the PR gate.
+The pin check refuses unless every `open-platform-model/docs-kit/.github/workflows/publish.yml@` reference under `.github/workflows/` names the version in `.opm-docs-version`: a workflow `uses:` ref cannot be read from a file, so two pins exist and the check keeps them equal. Callers pin `publish.yml` by tag (owner decision, docs-kit C5), so the check reads the version from the ref (`@v0.1.0`). `task check` runs `docs:bundle:check`, so a section gate catches a member the bundle build refuses (a doc comment that does not open with its description, a page that fails the dialect) before the PR's `Docs / check` does. `ci.yml` runs only the offline `docs:pins:check` from it; `Docs / check` is the PR gate for the bundle build.
 
 ### Docs revisions are left to `add-docs-revisions`
 

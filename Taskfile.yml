@@ -141,11 +141,18 @@ tasks:
     cmds:
       - .bin/opm-docs build --project catalog-opm --out out
 
-  docs:bundle:check:
-    desc: Check the docs-kit pins agree, then build and lint the catalog-opm docs bundle into a temporary directory
-    deps: [tools:opm-docs]
+  docs:pins:check:
+    desc: Refuse a docs-kit publish.yml ref under .github/workflows/ that names another release than .opm-docs-version (offline)
     cmds:
       - bash .tasks/opm-docs.sh pin-check
+
+  docs:bundle:check:
+    desc: Check the docs-kit pins agree and the two Catalog Contract copies match, then build and lint the catalog-opm docs bundle into a temporary directory
+    deps: [tools:opm-docs]
+    cmds:
+      - task: docs:pins:check
+      # Until publish-docs-bundle section 3 deletes docs/site/reference/catalog-contract.md.
+      - bash .tasks/opm-docs.sh contract-sync
       - .bin/opm-docs check --project catalog-opm
 
   ## Kubernetes kind table
