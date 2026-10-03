@@ -12,8 +12,14 @@ name: Docs
 #                      job did not run for an opm release. Only for releases
 #                      cut after this repository gained docs-kit.cue: earlier
 #                      tags have the module at opm/ and are never backfilled.
-#                      Dispatch it on main; publish.yml refuses any other ref:
+#                      revision: a docs revision of a published release. It
+#                      applies fix, a single-parent commit on main that changes
+#                      only Markdown or only comments, to the release tree and
+#                      publishes <version>.<next> (docs-kit README, "Fixing a
+#                      release's docs"; docs/contracts.md, "Docs revisions").
+#                      Dispatch either on main; publish.yml refuses any other ref:
 #                      gh workflow run docs.yml --ref main -f mode=release -f tag=opm-vX.Y.Z
+#                      gh workflow run docs.yml --ref main -f mode=revision -f tag=opm-vX.Y.Z -f fix=<40-hex sha>
 #
 # publish.yml is pinned by docs-kit release tag, never a SHA: the signing
 # certificate names it at that ref, and the site trusts only docs-kit's v*
@@ -29,14 +35,22 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: release only, until docs-kit add-docs-revisions adds revision
+        description: release (recover a release with no bundle) or revision (fix a published release's docs)
         type: choice
-        options: [release]
+        options: [release, revision]
+        default: release
         required: true
       tag:
-        description: An opm release tag whose publish-docs job did not run (opm-vX.Y.Z)
+        description: The opm release tag (opm-vX.Y.Z)
         type: string
         required: true
+      # Required by publish.yml in revision mode, which refuses anything but
+      # a full 40-hex hash; release mode ignores it, so it cannot be a
+      # required input of the dispatch.
+      fix:
+        description: "revision only: the full 40-hex commit on main to apply"
+        type: string
+        default: ""
 
 permissions: {}
 
@@ -46,7 +60,7 @@ jobs:
     permissions:
       contents: read
       packages: read
-    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.1.0
+    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.2.0
     with:
       project: catalog-opm
       mode: check
@@ -57,7 +71,7 @@ jobs:
       contents: read
       packages: write
       id-token: write
-    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.1.0
+    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.2.0
     with:
       project: catalog-opm
       mode: edge
@@ -68,8 +82,9 @@ jobs:
       contents: read
       packages: write
       id-token: write
-    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.1.0
+    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.2.0
     with:
       project: catalog-opm
       mode: ${{ inputs.mode }}
       tag: ${{ inputs.tag }}
+      fix: ${{ inputs.fix }}
