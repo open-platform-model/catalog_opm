@@ -27,5 +27,5 @@
 
 ## 3. Archive
 
-- [ ] 3.1 Archive the change on this branch with `--skip-specs`, after checking that every Durable decision in design.md is landed in `AGENTS.md` or `docs/`, so the archive rides the implementing PR; never push to main
-- [ ] 3.2 `openspec validate --all --strict` green, then commit `chore(openspec): archive gate-and-tag-fixtures`
+- [x] 3.1 Archive the change on this branch with `--skip-specs`, after checking that every Durable decision in design.md is landed in `AGENTS.md` or `docs/`, so the archive rides the implementing PR; never push to main
+- [x] 3.2 `openspec validate --all --strict` green, then commit `chore(openspec): archive gate-and-tag-fixtures`
