@@ -12,9 +12,10 @@ against one shared resolver in `.github`. This change is catalog_opm's part.
 
 ## What Changes
 
-The binding interface is the Phase 2 cascade contract
-(`/var/home/emil/.cache/claude-tmp/claude-1000/-var-home-emil-dev-open-platform-model/2ee0ca8e-268c-4b20-8bd9-b5e4f0d96717/scratchpad/p2-cascade-contract.md`,
-cited below as "contract §N"). Where it and workspace `RELEASING.md` disagree, `RELEASING.md` wins.
+The binding interface is the Phase 2 cascade contract (version 1, kept durably in `open-platform-model/.github` as
+`openspec/changes/add-cascade-resolver/contract.md`, which moves under `openspec/changes/archive/`
+when that change is archived; cited below as
+"contract §N"). Where it and workspace `RELEASING.md` disagree, `RELEASING.md` wins.
 
 - **Four new Taskfile tasks** (contract §5.1): `deps:cascade`, `deps:cascade:title`,
   `deps:cascade:body` and `deps:cascade:test`. They find the resolver through the env
@@ -92,8 +93,12 @@ deps: {
   `RELEASING.md`, section "Bump rule": a catalog major crossing is hand-made).
 - **modules fleet, subscribing platforms, cli fixtures under `testing.opmodel.dev`:** nothing to do.
   They see a catalog release only when a later cascade PR moves core and a human merges it.
-- **Workspace `task deps:pins:opm-cli`** keeps writing `.opm-cli-version` until the Phase 5 rewire;
-  both writers produce the same one-line file, so they do not conflict.
+- **Workspace root tasks** keep writing these pins until the Phase 5 rewire, and they do not
+  follow the cascade's rules: `task deps:pins:opm-cli` (`.tasks/deps/opm-cli.sh`) writes whatever
+  `latest-tag.sh` returns and never reads `.cascade-hold` or `.cascade-frozen`, and
+  `task deps:update` (`deps:update:modules`, workspace `Taskfile.yml:63-116`) also moves core and
+  `cue.dev/x/k8s.io@v0` in `src/`, with errors swallowed by `|| true`. `AGENTS.md` says so (task
+  3.4); a human running them bypasses holds and frozen entries.
 - **CI:** `Validate catalog` gains one offline step (seconds, no registry). The new network job is
   not a required check, so a GHCR blip never blocks an unrelated PR.
 

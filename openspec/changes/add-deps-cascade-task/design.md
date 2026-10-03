@@ -4,8 +4,9 @@ This change touches no catalog member, no file under `src/` and no `apiVersion` 
 tooling under `.tasks/cascade/`, four Taskfile tasks, one CI step, one new workflow and
 `AGENTS.md` rows. Sources: workspace `RELEASING.md` (sections "The cascade", "What each repo's
 task moves", "Gates", "Cascade files", "Rollout and changes") and the Phase 2 cascade contract
-(`/var/home/emil/.cache/claude-tmp/claude-1000/-var-home-emil-dev-open-platform-model/2ee0ca8e-268c-4b20-8bd9-b5e4f0d96717/scratchpad/p2-cascade-contract.md`,
-"contract §N" below).
+(version 1, kept durably in `open-platform-model/.github` as
+`openspec/changes/add-cascade-resolver/contract.md`, which moves under `openspec/changes/archive/`
+when that change is archived; "contract §N" below).
 
 State on `main` (2232713) that the design relies on:
 
@@ -20,7 +21,7 @@ State on `main` (2232713) that the design relies on:
 - `Taskfile.yml`: `MODULE_DIR: src` (`:9`); `tidy` (`:83-87`); `generate:index:check` (`:96-110`);
   `deps:release-check` (G1, `:192-211`) under `## Release`; `check` (`:215-227`). No task reads
   a global `sh:` var.
-- `.tasks/generate-index.sh` reads only the `module:` line of `cue.mod/module.cue` (`:29-35`) and
+- `.tasks/generate-index.sh` reads only the `module:` line of `cue.mod/module.cue` (`:32-37`) and
   the CUE sources; the dependency block never reaches `src/INDEX.md`.
 - `ci.yml`: the required job `ci`, name `Validate catalog` (`:20-21`), installs Task (`:40-43`)
   and runs the offline `vet:fixtures:tagged` (`:61-63`) before the GHCR login (`:65-66`).
@@ -106,15 +107,21 @@ global `vars:` entry is added, so no other task runs `git rev-parse`.
 
   deps:cascade:test:
     desc: Test deps:cascade in sandbox copies against the contract stub (CASCADE_TEST_SET=offline|all)
+    vars: *cascade_resolver
+    env: *cascade_env
+    preconditions: *cascade_pre
     cmds:
       - bash .tasks/cascade/test.sh
 ```
 
-`deps:cascade:test` takes neither the resolver var nor the precondition: each scenario exports
-`CASCADE_RESOLVER` as the stub itself, and only S5 needs the real resolver (through
-`CASCADE_RESOLVER_REAL`), so the offline set runs where no `.github` checkout exists. Whether a
-YAML anchor on `vars:` survives go-task's own templating is checked in the spike (section 1); if
-it does not, the block is repeated per task.
+`deps:cascade:test` takes the same var, env and precondition as the other three, as contract §3
+requires of all four cascade tasks. Inside each scenario `test.sh` still exports
+`CASCADE_RESOLVER` as the stub, and S5 uses `CASCADE_RESOLVER_REAL`. Where no `.github` checkout
+sits beside the repo (CI), the caller sets `CASCADE_RESOLVER` to the repo's own stub,
+`$GITHUB_WORKSPACE/.tasks/cascade/testdata/stub-resolve.sh` (D7), as the library and cli plans
+do. The spike confirmed that a YAML anchor shared across task-level `vars:` (with an `sh:` var),
+`env:` and `preconditions:` resolves per task, and that `CASCADE_RESOLVER` from the environment
+wins.
 
 ### D2. `pins.sh` reports two pins; `classes` is the contract map verbatim
 
@@ -129,7 +136,9 @@ github.com/open-platform-model/cli	opm CLI	release-tool	<v>
   with the workspace idiom `grep -FA5 '"opmodel.dev/core@v2"' | grep -oP 'v:\s*"\K[^"]+' | head -n1`.
 - the opm CLI is the single line of `.opm-cli-version`; a value that fails the CI shape regex is
   exit 1.
-- A file missing at that ref omits its row (contract §4.1). No row carries a label:
+- A file missing at that ref, or a `src/cue.mod/module.cue` with no `"opmodel.dev/core@v2"` key
+  (tested first with `grep -qF`), omits its row (contract §4.1: "A pin missing at that ref is
+  omitted"). A key that is present but whose `v:` cannot be parsed is exit 1. No row carries a label:
   `need-human-review` is library only.
 
 `.tasks/cascade/classes` is contract §5.3, verbatim:
@@ -167,28 +176,39 @@ There is no `test` row: the `@if(fixtures)` files live under `src/` and ship, so
      (rule 10, D5). Newer upstream: a warning. Exit 3: no warning. Unreadable `CUE_VERSION`:
      a warning with key `-`.
 
+   - when core will move: `is-frozen src/cue.mod/module.cue <key>` for every other key in the
+     file's `deps:` block (today only `cue.dev/x/k8s.io@v0`), for the check after `tidy` below.
+
    The hold is applied inside the resolver's `newest` (contract §2.8), so the task never calls
    `hold` itself. The `is-frozen` calls sit in phase A because they decide what phase C edits
    and only read; an error there leaves the tree untouched, like any phase A error.
 6. **Phase B, tools:** none. catalog_opm has no version-advance module (no fixture module of its
    own, and `src/identity/identity.cue` belongs to `release.yml`), so no opm binary is prepared.
 7. **Phase C, edit** (rule 12: shipped first, `.opm-cli-version` last):
-   - core: record the `v:` of `cue.dev/x/k8s.io@v0`; in `src/`, `cue mod get
-     opmodel.dev/core@<target>` then `cue mod tidy`, once; re-read the k8s `v:` and warn
-     (`cue.dev/x/k8s.io@v0`: "tidy raised ...") if it changed, never reverting (rule 6). The
-     only path named is `src/cue.mod/module.cue`.
+   - core: record the `v:` of every other key in the `deps:` block; in `src/`, `cue mod get
+     opmodel.dev/core@<target>` then `cue mod tidy`, once; re-read those `v:` values. A key that
+     phase A found frozen and that changed is exit 1 (rule 8, below); any other key that changed
+     is a warning keyed by that key ("tidy raised ..."), never a revert (rule 6). The only path
+     named is `src/cue.mod/module.cue`.
    - opm CLI: `printf '%s\n' "<target>" > .opm-cli-version`.
 8. **Result** (rule 13): exit 0 when `git status --porcelain --untracked-files=all` is non-empty
    (or the snapshot differs under `CASCADE_ALLOW_DIRTY=1`), else exit 3.
 
 `set -euo pipefail` throughout; no `|| true`, no `2>/dev/null ||` fallback and no `set +e` around
-a resolver or `cue` call. Frozen re-check after `tidy` (rule 8) is trivial here: the only OPM key in
-the module is the one being moved, and a frozen core never reaches phase C.
+a resolver or `cue` call.
+
+**Frozen keys after `tidy`** (contract §5.2 rule 8). A frozen core never reaches phase C, but a
+`.cascade-frozen` entry may freeze `src/cue.mod/module.cue` for another key, such as
+`cue.dev/x/k8s.io@v0`, which `cue mod get` of core can raise by MVS. So, when core will move,
+phase A also calls `is-frozen src/cue.mod/module.cue <key>` for every other key in the file's
+`deps:` block and records each frozen key's `v:`. After `tidy`, a frozen key whose `v:` changed is
+exit 1, naming the file and the key ("freeze the whole module, or hold the upstream"); an
+unfrozen third-party key that changed is the warning above, never a revert.
 
 ### D4. No `INDEX.md` regeneration
 
 Contract §6.1 says to regenerate `src/INDEX.md` if `generate:index:check` would fail after a core
-move. `.tasks/generate-index.sh:29-35` reads only the `module:` line of `cue.mod/module.cue`, so a
+move. `.tasks/generate-index.sh:32-37` reads only the `module:` line of `cue.mod/module.cue`, so a
 dependency move cannot stale the index. The task therefore never runs `generate:index`. The spike
 confirms it with `task generate:index:check` on a moved tree; if that ever fails, the cascade PR's
 `Validate catalog` run shows it.
@@ -226,7 +246,8 @@ edits it.
 
 - **Offline set** (required): a step `Test the cascade task (offline)` in `Validate catalog`, right
   after `Verify every fixture is behind the fixtures tag` (`ci.yml:61-63`) and before the GHCR
-  login, running `task -x deps:cascade:test` with `CASCADE_TEST_SET: offline`. It needs `git`,
+  login, running `task -x deps:cascade:test` with `CASCADE_TEST_SET: offline` and
+  `CASCADE_RESOLVER: ${{ github.workspace }}/.tasks/cascade/testdata/stub-resolve.sh` (D1). It needs `git`,
   `bash` and `yq` (ubuntu-latest ships mikefarah yq v4); no registry.
 - **Network set** (not required): new `.github/workflows/cascade-task.yml`, job
   `Cascade task (network)`, `timeout-minutes: 20`, `permissions: contents: read`; triggers
@@ -235,6 +256,7 @@ edits it.
   checkout of `open-platform-model/.github` at `ref: main`, `path: org-github`,
   `persist-credentials: false`; setup-cue `v0.17.1` and setup-task (the SHAs `ci.yml:36,41` pin);
   then `task -x deps:cascade:test` with
+  `CASCADE_RESOLVER: ${{ github.workspace }}/.tasks/cascade/testdata/stub-resolve.sh` (D1) and
   `CASCADE_RESOLVER_REAL: ${{ github.workspace }}/org-github/.github/scripts/cascade/cascade-resolve.sh`.
   catalog_opm has no `.tasks/*.yaml`, so that contract path is left out.
 
@@ -266,6 +288,21 @@ catalog's pin; catalog_opm is core's direct consumer) and §9.11 (a core hold ho
 **Rationale**: catalog_opm is core's direct consumer with no consistent set and no fixture modules
 of its own (contract §6.1).
 
+### Plan review
+
+**Context**: the plan review found two major and six minor findings, plus two nits.
+**Explored**: each finding against the worktree, the contract and the workspace root `.tasks/`.
+**Decision**: all ten applied, none rejected: the 3.3 gate runs in a sandbox copy (or under
+`CASCADE_ALLOW_DIRTY=1`); `deps:cascade:test` takes the contract §3 anchors and CI sets
+`CASCADE_RESOLVER` to the stub (D1, D7); the frozen check after `tidy` covers every other dep key
+(D3); `pins.sh` omits a missing core key (D2); the two-writers risk is restated and lands in
+`AGENTS.md` (task 3.4); the contract is cited by name and its durable home; the 2.5 and 4.6 checks
+no longer depend on the environment or on uncommitted files; the `generate-index.sh` range is
+`:32-37`; `.claude/worktrees/` goes into `.gitignore` (task 3.5).
+**Rationale**: each finding was confirmed against the files. Calling `is-frozen` in phase A (a
+read-only predicate, before any edit) is kept and left for the supervisor to rule on once for all
+four repos, as the review suggests.
+
 ### Spike: assumptions to confirm before the task is written
 
 **Context**: four claims in this design are read from files or the contract, not run.
@@ -290,9 +327,12 @@ assumption. The findings replace this entry.
 - [`cue mod tidy` raises `cue.dev/x/k8s.io@v0` because a newer core requires it] -> A warning in the
   body, never a revert. The reviewer then also runs `task generate:kinds` and moves
   `KUBERNETES_VERSION` (AGENTS.md § Dependencies), by hand.
-- [Two writers of `.opm-cli-version` until Phase 5 (this task and workspace
-  `task deps:pins:opm-cli`)] -> Both write the same one-line file from the same "newest release whose
-  assets download" rule, so their results agree.
+- [Two writers of `.opm-cli-version` and the core pin until Phase 5 (this task and the workspace
+  root `task deps:pins:opm-cli` and `task deps:update`)] -> The root tasks ignore `.cascade-hold`
+  and `.cascade-frozen` (nothing under the root `.tasks/` or `Taskfile.yml` reads them), and root
+  `deps:update:modules` (workspace `Taskfile.yml:63-116`) also moves `cue.dev/x/k8s.io@v0` in `src/`
+  with errors swallowed by `|| true`. Until the Phase 5 rewire, `AGENTS.md` § Release & publishing
+  says so (task 3.4), so a human who runs them knows they bypass holds and frozen entries.
 - [The network set depends on GHCR, registry.cue.works and GitHub downloads] -> It is not a required
   check; the offline set in the required job needs no network.
 - [The resolver is not merged when this change is implemented] -> Sections 1 to 3 and the offline
