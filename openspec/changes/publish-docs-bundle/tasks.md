@@ -19,12 +19,12 @@
 
 ## 2. Go live (owner; gate G2)
 
-- [ ] 2.1 **OWNER**: verify `ghcr.io/open-platform-model/docs/catalog-opm` is public (an anonymous pull of `edge` succeeds; make it public under Package settings, Danger zone, only if it is not) and confirm the package is linked to `open-platform-model/catalog_opm`
-- [ ] 2.2 Verify the first `edge` anonymously, with no registry credentials: `cosign verify` with the docs-kit C9 flags passes for its digest; `opm-docs pull` with a scratch `bundles.cue` holding only the `catalog-opm` tab and `edge` resolves it, verifies it and writes a lock
-- [ ] 2.3 Wait for the first opm release after section 1 merged (no backfill of earlier releases: owner decision, 2026-10-03); its `Release / publish-docs` job is green. If that job did not run, recover with `gh workflow run docs.yml -R open-platform-model/catalog_opm --ref main -f mode=release -f tag=<its opm-v tag>`
-- [ ] 2.4 Verify that release anonymously: tags `<version>.0`, `<version>`, `<MAJOR>.<MINOR>` and `<MAJOR>` exist and name the same digest; `cosign verify` passes for it; `opm-docs pull` with the tab's `from` set to that minor resolves the minor and `edge`, verifies both and writes a lock; its landing is the contract page (`generated: false`)
-- [ ] 2.5 Record in design.md, under a new "Rollout record" heading: each tag's digest and the commit each bundle was built from
-- [ ] 2.6 `task check` green, then commit `docs(openspec): record the first published opm docs bundles`
+- [x] 2.1 **OWNER**: verify `ghcr.io/open-platform-model/docs/catalog-opm` is public (an anonymous pull of `edge` succeeds; make it public under Package settings, Danger zone, only if it is not) and confirm the package is linked to `open-platform-model/catalog_opm`. Done 2026-10-03: the first push created it public and linked to `open-platform-model/catalog_opm` (the GitHub packages API reads `public`, repository `open-platform-model/catalog_opm`); no owner action was needed
+- [x] 2.2 Verify the first `edge` anonymously, with no registry credentials: `cosign verify` with the docs-kit C9 flags passes for its digest; `opm-docs pull` with a scratch `bundles.cue` holding only the `catalog-opm` tab and `edge` resolves it, verifies it and writes a lock. Done 2026-10-03 (design.md, Rollout record)
+- [x] 2.3 Wait for the first opm release after section 1 merged (no backfill of earlier releases: owner decision, 2026-10-03); its `Release / publish-docs` job is green. If that job did not run, recover with `gh workflow run docs.yml -R open-platform-model/catalog_opm --ref main -f mode=release -f tag=<its opm-v tag>`. Done 2026-10-03: opm 4.5.1, forced as a patch (owner decision; design.md, Rollout record); Release run 37104462834's `Publish the opm docs bundle` job succeeded, so no recovery dispatch ran
+- [x] 2.4 Verify that release anonymously: tags `<version>.0`, `<version>`, `<MAJOR>.<MINOR>` and `<MAJOR>` exist and name the same digest; `cosign verify` passes for it; `opm-docs pull` with the tab's `from` set to that minor resolves the minor and `edge`, verifies both and writes a lock; its landing is the contract page (`generated: false`). Done 2026-10-03 (design.md, Rollout record)
+- [x] 2.5 Record in design.md, under a new "Rollout record" heading: each tag's digest and the commit each bundle was built from
+- [x] 2.6 `task check` green, then commit `docs(openspec): record the first published opm docs bundles`
 
 ## 3. Retire tools/refgen (gate G3; tools/, docs/site/, .github/, Taskfile.yml, rules)
 
