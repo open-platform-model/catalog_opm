@@ -82,6 +82,11 @@ fixtures on, even by passing `-t fixtures`.
 # and "Login to GHCR (read deps)", before "Run release-please":
       - name: Check every rendered-output fixture evaluates
         run: task vet:fixtures
+
+# release.yml, job publish-cue, after Setup CUE, Install Task and "Login to GHCR", before
+# "Publish CUE catalog" (backstop):
+      - name: Check every rendered-output fixture evaluates on the tag
+        run: task vet:fixtures
 ```
 
 The owner asked for the gate on the release path too "if it publishes without it". It does:
@@ -96,8 +101,13 @@ It goes in the `release-please` job, before the release-please action, not in `p
 `publish-cue` runs only after the action has pushed the `opm-vX.Y.Z` tag and created the GitHub
 Release, and it checks out that fixed tag: a failure there would leave a tag and a Release with
 no GHCR artifact and no docs bundle, a burned version that a re-run cannot repair. Before the
-action, a failure stops the job with no tag and no Release, and the fix landing on `main`
-re-runs the job, which then tags the fixed tree. The job checks out the pushed `main` commit
+action, a failure stops the job with no tag and no Release. It does not by itself recover:
+release-please tags the merge commit of the merged release PR (found by its `autorelease:
+pending` label), not `HEAD`, so the run on the fix would tag the broken tree. The recovery is to
+remove that label from the merged release PR before the fix lands, which skips the version. As a
+backstop for a missed label, `publish-cue` also runs `task vet:fixtures` on the checked-out tag
+before publishing (Setup CUE and Install Task added there): on the normal path it cannot fail,
+and in the missed-label case it burns the version instead of publishing the refused tree. The job checks out the pushed `main` commit
 first (`Clone the code` moves up, still with the App token the identity advance needs), then
 Setup CUE, Install Task and a GHCR login, because the exports resolve core from the registry.
 The cost is about 30 s on every push to `main`, and a broken `main` also stops the release PR

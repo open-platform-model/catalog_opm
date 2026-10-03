@@ -54,8 +54,12 @@ jobs:
       # PR has merged. The release PR passed Validate catalog, but branch
       # protection is not strict and an admin can merge past the check, so the
       # merged tree is checked here too. A failure stops the job before any
-      # tag or GitHub Release exists, so no version is burned, and the next
-      # push to main (the fix) runs this job again and releases.
+      # tag or GitHub Release exists. The merged release PR keeps its
+      # `autorelease: pending` label, and release-please tags that PR's merge
+      # commit, not HEAD: when the fix lands, the next run would tag the broken
+      # tree. Remove the label from the merged release PR before the fix lands,
+      # so that version is skipped. publish-cue re-runs this check on the tag
+      # as a backstop for when that is missed.
       - name: Setup CUE
         uses: cue-lang/setup-cue@a93fa358375740cd8b0078f76355512b9208acb1 # v1.0.1
         with:
@@ -193,6 +197,26 @@ jobs:
       # CI credential entry (opm registry login is interactive-only by design).
       - name: Login to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      # Backstop for the fixture gate in the release-please job. release-please
+      # tags the merge commit of the merged release PR, not HEAD, so a release
+      # PR merged onto a tree that failed the gate is tagged by the next run
+      # unless its `autorelease: pending` label was removed. Checking the tag
+      # here burns that version (tag and Release, no GHCR artifact) instead of
+      # publishing the tree the gate refused. On the normal path the gate
+      # already passed on this commit, so this cannot fail.
+      - name: Setup CUE
+        uses: cue-lang/setup-cue@a93fa358375740cd8b0078f76355512b9208acb1 # v1.0.1
+        with:
+          version: v0.17.1
+
+      - name: Install Task
+        uses: go-task/setup-task@3be4020d41929789a01026e0e427a4321ce0ad44 # v2.0.0
+        with:
+          version: 3.x
+
+      - name: Check every rendered-output fixture evaluates on the tag
+        run: task vet:fixtures
 
       # The tagged tree already declares this version (the release PR carried
       # the identity write), so --version is an assertion, not a write: a
