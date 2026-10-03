@@ -1,0 +1,62 @@
+name: Cascade task
+
+# The full test set of task deps:cascade (Phase 2 cascade contract §8): the offline
+# scenarios, S2 older pins and S4 frozen (they resolve core from GHCR), and S5, the
+# PR title and body through the shared resolver from open-platform-model/.github.
+# Not a required check: a GHCR or download blip must never block an unrelated PR.
+# The offline set is the required step in ci.yml (Validate catalog).
+
+on:
+  pull_request:
+    paths:
+      - '.tasks/cascade/**'
+      - 'Taskfile.yml'
+      - '.github/workflows/cascade-task.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '23 5 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  cascade-task:
+    name: Cascade task (network)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      # The repo and the resolver are checked out side by side, so the resolver
+      # never sits inside the tree the test copies into its sandboxes.
+      - name: Clone the code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          path: repo
+
+      - name: Clone the shared cascade resolver
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          repository: open-platform-model/.github
+          ref: main
+          path: org-github
+          persist-credentials: false
+
+      - name: Setup CUE
+        uses: cue-lang/setup-cue@a93fa358375740cd8b0078f76355512b9208acb1 # v1.0.1
+        with:
+          version: v0.17.1
+
+      - name: Install Task
+        uses: go-task/setup-task@3be4020d41929789a01026e0e427a4321ce0ad44 # v2.0.0
+        with:
+          version: 3.x
+
+      # core is public on GHCR, so the scenarios resolve it anonymously.
+      - name: Test the cascade task (all scenarios)
+        working-directory: repo
+        env:
+          CASCADE_TEST_SET: all
+          CASCADE_RESOLVER: ${{ github.workspace }}/repo/.tasks/cascade/testdata/stub-resolve.sh
+          CASCADE_RESOLVER_REAL: ${{ github.workspace }}/org-github/.github/scripts/cascade/cascade-resolve.sh
+        run: task -x deps:cascade:test

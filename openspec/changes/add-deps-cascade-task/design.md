@@ -252,13 +252,18 @@ edits it.
 - **Network set** (not required): new `.github/workflows/cascade-task.yml`, job
   `Cascade task (network)`, `timeout-minutes: 20`, `permissions: contents: read`; triggers
   `pull_request` with paths `.tasks/cascade/**`, `Taskfile.yml` and the workflow file,
-  `workflow_dispatch`, and a weekly `schedule`. Steps: checkout (the SHA `ci.yml:25` pins), a second
-  checkout of `open-platform-model/.github` at `ref: main`, `path: org-github`,
-  `persist-credentials: false`; setup-cue `v0.17.1` and setup-task (the SHAs `ci.yml:36,41` pin);
-  then `task -x deps:cascade:test` with
-  `CASCADE_RESOLVER: ${{ github.workspace }}/.tasks/cascade/testdata/stub-resolve.sh` (D1) and
+  `workflow_dispatch`, and a weekly `schedule`. Steps: checkout (the SHA `ci.yml:25` pins) at
+  `path: repo`, and a second checkout of `open-platform-model/.github` at `ref: main`,
+  `path: org-github`, `persist-credentials: false`, beside it rather than inside it (as contract §3
+  lays out the Phase 3 receiver), so the resolver never lands in the tree `test.sh` copies into its
+  sandboxes; setup-cue `v0.17.1` and setup-task (the SHAs `ci.yml:36,41` pin); then, in `repo`,
+  `task -x deps:cascade:test` with
+  `CASCADE_RESOLVER: ${{ github.workspace }}/repo/.tasks/cascade/testdata/stub-resolve.sh` (D1) and
   `CASCADE_RESOLVER_REAL: ${{ github.workspace }}/org-github/.github/scripts/cascade/cascade-resolve.sh`.
-  catalog_opm has no `.tasks/*.yaml`, so that contract path is left out.
+  No GHCR login: core is public and resolves anonymously (checked with an empty Docker and CUE
+  config). catalog_opm has no `.tasks/*.yaml`, so that contract path is left out. Until `.github`
+  `add-cascade-resolver` merges, its `main` has no resolver and S5 fails in this non-required job;
+  this PR merges after it (proposal, Depends on).
 
 ## Research & Decisions
 

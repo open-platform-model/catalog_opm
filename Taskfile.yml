@@ -253,6 +253,14 @@ tasks:
     cmds:
       - '"$CASCADE_RESOLVER" body --classes .tasks/cascade/classes --pins .tasks/cascade/pins.sh'
 
+  deps:cascade:test:
+    desc: Test deps:cascade in sandbox copies against the contract stub (CASCADE_TEST_SET=offline|all; S5 needs CASCADE_RESOLVER_REAL)
+    vars: *cascade_resolver
+    env: *cascade_env
+    preconditions: *cascade_pre
+    cmds:
+      - bash .tasks/cascade/test.sh
+
   ## Aggregate
 
   check:
