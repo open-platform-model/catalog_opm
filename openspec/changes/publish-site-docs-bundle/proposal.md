@@ -8,7 +8,7 @@ The pages cannot join the `catalog-opm` bundle: that bundle is a tab placed at `
 
 | Section | Gate |
 | --- | --- |
-| 1. Publish the catalog-opm-docs bundle | **G3.0** (docs-kit `orchestration.md`): `add-authored-docs` is released, so the release that carries it also carries `generalize-build-assembly` (docs placement, C15) and `pull-docs-placement` is at least merged. The contracts are re-read at that tag (task 1.1). |
+| 1. Publish the catalog-opm-docs bundle | **G3.0** (docs-kit `orchestration.md`): `add-authored-docs` is released, so the release that carries it also carries `generalize-build-assembly` (docs placement, C15) and `pull-docs-placement` is at least merged; and opmodel.dev's `OPM_DOCS_VERSION` is that release or newer (the site's pin is never older than a producer's `.opm-docs-version`: an older `pull` refuses a manifest with fields it does not know). The contracts are re-read at that tag (task 1.1). |
 | 2. Go live (owner) | Section 1 is merged and its first `Docs / edge` run for `catalog-opm-docs` is green. The release half waits for the first opm release after that merge (design.md, "The first release bundle needs the next opm release"). |
 
 Delivery: one PR per section (opmodel.dev needs the published catalog-opm-docs bundle after section 2)
@@ -63,9 +63,9 @@ bundles: {
 
 - **Release class.** Section 1 is `ci(docs):`, section 2 `docs(openspec):`. Neither touches `src/`, so neither cuts an opm release, and the published CUE module is byte-identical. No member moves to a new `apiVersion` segment; nothing is breaking.
 - **Modules fleet, subscribing platforms, cli fixtures.** Nothing to do: they consume the CUE module.
-- **opmodel.dev** (`serve-docs-from-bundles` section 1, gate G3.1): `bundles.cue` gains `docs."catalog-opm-docs"` (`repo: "open-platform-model/catalog_opm"`) and `versions."v1.0".tags."catalog-opm-docs": "4"`; this repository's `docs/site/` leaves the site's git mounts and `resolve-versions.sh`. The tag `4` exists only after the first release bundle (section 2), so G3.1 means a release bundle, not `edge`.
+- **opmodel.dev** (`serve-docs-from-bundles`, at gate G3.1): `bundles.cue` gains `docs."catalog-opm-docs"` (`repo: "open-platform-model/catalog_opm"`) and `versions."v1.0".tags."catalog-opm-docs": "4"`; this repository's `docs/site/` leaves the site's git mounts and `resolve-versions.sh`. The tag `4` exists only after the first release bundle, so G3.1 is "the first `catalog-opm-docs` release bundle, published with the next opm release", not `edge`.
 - **Registry.** A new package `ghcr.io/open-platform-model/docs/catalog-opm-docs`, created by the first `edge` publish. Same tag scheme as `catalog-opm` (docs-kit C4): full tags immutable, the others move by design.
-- **Authors.** A page under `docs/site/` now reaches `edge` on the next push to `main`, and a released minor only through a release or a docs revision (`-f project=catalog-opm-docs -f mode=revision`). "Edit this page" on the site links the file on `main` (docs-kit DESIGN decision 19, `pages[].edit`).
+- **Authors.** A page under `docs/site/` now reaches `edge` on the next push to `main`, and a released minor only through a release or a docs revision (`-f project=catalog-opm-docs -f mode=revision`). Docs revisions are dispatched by hand (owner decision, 2026-10-03); automating them is open-platform-model/catalog_opm#130, tracked by open-platform-model/docs-kit#16. "Edit this page" on the site links the file on `main` (docs-kit DESIGN decision 19, `pages[].edit`).
 
 ## Enhancement
 

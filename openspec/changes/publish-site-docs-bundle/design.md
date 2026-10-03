@@ -11,6 +11,8 @@ Contracts this change consumes, from docs-kit (`docs/contracts.md` once the chan
 - **C15**: a docs bundle has root `/docs/`, may declare `owns` (only paths its renderers generate must be owned; an authored-only bundle owns nothing), carries no `cue-catalog` source, and is linted in bundle mode: docs-mode link rules, `/catalogs/` links only through the bare root or a major.
 - **C3, C8 (`add-authored-docs` D1)**: `build` records `pages[].edit` for an authored page whose path exists on `main`; the site links "Edit this page" to `https://github.com/open-platform-model/catalog_opm/edit/main/<edit>` (DESIGN decision 19).
 
+This repository is on docs-kit `v0.2.1` (#128); opmodel.dev pins `0.2.2`.
+
 **Trial build, 2026-10-03, docs-kit `v0.2.1`.** With the After config of proposal.md in a scratch tree, `opm-docs check --project catalog-opm-docs` passed: 7 pages, no lint violation. `v0.2.1` predates `pages[].edit`, so task 1.6 re-checks the manifest at the gate's release.
 
 No member file, `apiVersion` segment, definition, default, closedness or required-field set is touched.
@@ -71,7 +73,7 @@ The existing job gains the same matrix and keeps its `needs`, its condition (`al
 
 ### The first release bundle needs the next opm release
 
-`opm-v4.5.1`, the newest release, already has a `docs-kit.cue` (one project, `catalog-opm`). In release mode `build --source src` reads the release tree's config when it has one (C5), so a `mode: release` dispatch of `catalog-opm-docs` for `opm-v4.5.1` fails with an unknown project. docs-kit `orchestration.md` (phase 3, step 1, section 2) assumes that dispatch works; it does not, and this change MUST NOT rely on it. The first release bundle is published by `release.yml` with the first opm release whose tag contains section 1's `docs-kit.cue`. Section 1 is a `ci` commit, so it cuts no release by itself; the bundle waits for the next `feat:` or `fix:` on opm, or for an owner-forced patch (as opm 4.5.1 was for `catalog-opm`).
+`opm-v4.5.1`, the newest release, already has a `docs-kit.cue` (one project, `catalog-opm`). In release mode `build --source src` reads the release tree's config when it has one (C5), so a `mode: release` dispatch of `catalog-opm-docs` for `opm-v4.5.1` fails with an unknown project. docs-kit `orchestration.md` first assumed that dispatch works; it does not, and this change MUST NOT rely on it. C5 stays as it is (supervisor decision, 2026-10-03): gate G3.1 is the first `catalog-opm-docs` release bundle, published with the next opm release. The first release bundle is published by `release.yml` with the first opm release whose tag contains section 1's `docs-kit.cue`. Section 1 is a `ci` commit, so it cuts no release by itself; the bundle waits for the next `feat:` or `fix:` on opm, or for an owner-forced patch (as opm 4.5.1 was for `catalog-opm`).
 
 ## Research & Decisions
 
@@ -99,6 +101,8 @@ The existing job gains the same matrix and keeps its `needs`, its condition (`al
 ## Risks / Trade-offs
 
 - [The site's G3.1 waits on an opm release that no docs work triggers] -> section 2 names the wait; the owner may force a patch, as for opm 4.5.1.
+- [`add-authored-docs` writes a field an older site `pull` refuses (closed manifest schema)] -> G3.0 requires opmodel.dev's `OPM_DOCS_VERSION` at the gate's release or newer before section 1 merges; task 1.6 confirms the `catalog-opm` tab manifest gains no `edit`.
+- [Docs revisions stay manual] -> owner decision, 2026-10-03; automation is open-platform-model/catalog_opm#130 (tracked by open-platform-model/docs-kit#16).
 - [A required check is added for `Docs / check` before section 1 merges] -> task 1.8 re-reads branch protection; today only `Validate catalog` is required.
 - [A page that passes the site's shell lint fails `opm-docs lint` in bundle mode] -> the trial build found none at `v0.2.1`; task 1.6 repeats it at the gate's release.
 
