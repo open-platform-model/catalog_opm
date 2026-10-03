@@ -6,7 +6,6 @@
     "src": {
       "release-type": "simple",
       "package-name": "catalog_opm",
-      "release-as": "4.5.1",
       "changelog-path": "/CHANGELOG.md",
       "versioning": "prerelease",
       "bump-minor-pre-major": false,
