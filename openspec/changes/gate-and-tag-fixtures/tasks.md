@@ -1,0 +1,26 @@
+## 1. Run `vet:fixtures` in the required check (`.github/workflows/ci.yml`)
+
+- [ ] 1.1 On a clean tree, `task vet:fixtures` reports all 56 rendered-output fixtures evaluating. If it does not, stop: section 1 cannot end green, and the failure goes to the supervisor
+- [ ] 1.2 `.github/workflows/ci.yml`, job `ci`: add the step `Check every rendered-output fixture evaluates` running `task vet:fixtures`, after `Verify every member has a description` and after the GHCR login (the exports resolve core from the registry) (design D2)
+- [ ] 1.3 `AGENTS.md` § Release & publishing (the `ci.yml` bullets): `Validate catalog` runs `task vet:fixtures`, so the release PR's dispatched run gates the release commit on it; `release.yml` runs no vet of its own (design D2)
+- [ ] 1.4 `go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.7 .github/workflows/*.yml` exits 0. `task check` green, then commit `ci: run the rendered-output fixture gate in Validate catalog`
+
+## 2. Move the fixtures behind the `fixtures` tag (`src/transformers/`, `src/blueprints/v1beta1/`, `Taskfile.yml`, `.tasks/`, docs)
+
+- [ ] 2.1 Record the baseline: 292 top-level `_test*` fields under `src/` (`grep -rcE '^_test[A-Za-z0-9_]*' src`), 56 rendered-output fixtures (`task vet:fixtures`), and the sorted list of `_test*` field names
+- [ ] 2.2 `src/transformers/`: for each of the 28 files that declares a `_test*` field, move its test tail (from the `//// Test Data` banner, or the comment block directly above the first top-level `_test*` field) verbatim into `<stem>_fixtures.cue`, which opens with `@if(fixtures)`, a blank line, `package transformers` and the imports the tail uses (design D5). `pod_helpers.cue` has no fixtures and is not touched
+- [ ] 2.3 `src/blueprints/v1beta1/`: `git mv network_policy_attachment.cue network_policy_attachment_fixtures.cue` and add `@if(fixtures)` above its package clause (design D5)
+- [ ] 2.4 `Taskfile.yml` `vet`: run `cue vet ./...` and then `cue vet -t fixtures ./...`, with the description from design D3. Prune every import either pass reports as unused, until both pass
+- [ ] 2.5 `.tasks/fixtures.sh`: export with `cue export -t fixtures -e "$field" ./transformers`, and add to its header why the tag is needed. `task vet:fixtures` still counts 56 fixtures, all evaluating
+- [ ] 2.6 Add `.tasks/fixture-tags.sh` (design D4) and the task `vet:fixtures:tagged` that runs it on `{{.MODULE_DIR}}`. Add it to `task check` after `vet:fixtures`, update the `check` description, and add a `ci.yml` step `Verify every fixture is behind the fixtures tag` running it before `Login to GHCR (read deps)`
+- [ ] 2.7 Verify the move: the 292 `_test*` field names match the 2.1 list and all sit in `*_fixtures.cue` files; no definition file declares one; `task generate:index:check` passes with `src/INDEX.md` unchanged
+- [ ] 2.8 Negative checks, local and uncommitted, each reverted: (a) change one golden literal in `configmap_transformer_fixtures.cue` to `"WRONG"`; plain `cue vet ./...` passes and `task vet` fails on the tagged pass. (b) add `_testStray: 1` to `configmap_transformer.cue`; `task vet:fixtures:tagged` fails naming that file. (c) delete the `@if(fixtures)` line from one fixture file; the lint fails naming it. (d) misindent one line in a fixture file; `task fmt:check` fails
+- [ ] 2.9 Docs: add `-t fixtures` to every raw command that names a fixture field, and move file references that now point at a fixture file. In `AGENTS.md` (Working Style, transformer fixtures bullets), `docs/name-constraints.md`, `docs/struct-disjunctions.md`, `docs/cue-guard-closedness-workaround.md`, `docs/site/extending/write-a-transformer.md` and `docs/site/extending/write-a-blueprint.md`, and in comments moved into `*_fixtures.cue` (for example `role_transformer_fixtures.cue`'s `cue eval -c -e '_testEmbeddedRoleTransformer' ./transformers`)
+- [ ] 2.10 `AGENTS.md` (design, Durable decisions): a Working Style bullet saying fixtures live in `<name>_fixtures.cue` beside the member's file with `@if(fixtures)` above the package clause, never in the definition file and never in a `_test.cue` file (the cue CLI silently drops those), and that raw fixture commands need `-t fixtures`; the `task vet` row (both views), the `task vet:fixtures` row, a new `task vet:fixtures:tagged` row, the `task check` row and the `Run task check` line; `fixture-tags` in the `.tasks/` layout line
+- [ ] 2.11 `opm catalog publish ./src --dry-run` with `OPM_REGISTRY='opmodel.dev=ghcr.io/open-platform-model,registry.cue.works'` (the CLI from `.opm-cli-version`) may refuse only with "already holds" and "1 refusal", as `ci.yml`'s tolerance allows. Dry-run only, never a publish
+- [ ] 2.12 `go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.7 .github/workflows/*.yml` exits 0. `task check` green, then commit `test: move the catalog fixtures into tagged fixture files`
+
+## 3. Archive
+
+- [ ] 3.1 Archive the change on this branch with `--skip-specs`, after checking that every Durable decision in design.md is landed in `AGENTS.md` or `docs/`, so the archive rides the implementing PR; never push to main
+- [ ] 3.2 `openspec validate --all --strict` green, then commit `chore(openspec): archive gate-and-tag-fixtures`
