@@ -9,9 +9,10 @@ import (
 //// Role Resource
 /////////////////////////////////////////////////////////////////
 
-// An RBAC role with its rules and the subjects it binds, at namespace or
-// cluster scope. Renders a Role and a RoleBinding, or a ClusterRole and a
-// ClusterRoleBinding.
+// An RBAC role with its rules and any subjects it binds, at namespace or
+// cluster scope. Renders a Role or a ClusterRole, plus a RoleBinding or a
+// ClusterRoleBinding when subjects are set. A role without subjects renders
+// no binding, for an administrator to bind later.
 #RoleResource: c.#Resource & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.resources)/v1beta1"
@@ -19,7 +20,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.resources)/role@v1beta1"
-		description:    "An RBAC role with its rules and the subjects it binds, at namespace or cluster scope"
+		description:    "An RBAC role with its rules and any subjects it binds, at namespace or cluster scope"
 		labels: {
 			"resource.opmodel.dev/category": "security"
 		}
@@ -82,5 +83,7 @@ import (
 	name!: string
 	scope: "namespace" | "cluster"
 	rules!: [...#PolicyRuleSchema] & [_, ...]
-	subjects!: [...#RoleSubjectSchema] & [_, ...]
+	// The identities the role is bound to. Omit the field to render the role
+	// with no binding; an empty list is refused.
+	subjects?: [...#RoleSubjectSchema] & [_, ...]
 }
