@@ -29,11 +29,11 @@
 
 ## 5. The wiring check, run in CI on every PR
 
-- [ ] 5.1 Add `.tasks/cascade/wiring-check.sh` with the wiring §10.1 item 6 script, `RECEIVER=true` and `PIN_COMMENT='.github main'`, plus the supervisor addendum: `release.yml`'s top-level `env` keys are an allow-list (`OPM_REGISTRY`, `CUE_REGISTRY`), and every key-holding job (`notify-downstream`, `publish`) has `runs-on: ubuntu-latest` (design D8)
-- [ ] 5.2 Add the task `cascade:wiring:check` to `Taskfile.yml` next to `docs:pins:check`, and `- task: cascade:wiring:check` to the aggregate `check` task's `cmds`
-- [ ] 5.3 Add the step `Verify the cascade wiring` (`run: task cascade:wiring:check`) to `ci.yml` job `ci` ("Validate catalog", the required check), directly after "Install Task"
-- [ ] 5.4 shellcheck v0.11.0 on the script is clean. The check passes on the branch and prints `cascade wiring: ok, .github 2376ffae4bfc665f327d51581350dea694c01504 (.github main)`. Mutations of the real workflows are each refused: the contract's 24 plus the addendum's (an extra `release.yml` env key, `runs-on` changed on either key-holding job). Record the run in design.md "Wiring check run"
-- [ ] 5.5 actionlint exits 0, `task check` green, then commit `ci(cascade): check the cascade wiring on every pull request`
+- [x] 5.1 Add `.tasks/cascade/wiring-check.sh` with the wiring §10.1 item 6 script, `RECEIVER=true` and `PIN_COMMENT='.github main'`, plus the supervisor addendum: `release.yml`'s top-level `env` keys are an allow-list (`OPM_REGISTRY`, `CUE_REGISTRY`), and every key-holding job (`notify-downstream`, `publish`) has `runs-on: ubuntu-latest` (design D8)
+- [x] 5.2 Add the task `cascade:wiring:check` to `Taskfile.yml` next to `docs:pins:check`, and `- task: cascade:wiring:check` to the aggregate `check` task's `cmds`
+- [x] 5.3 Add the step `Verify the cascade wiring` (`run: task cascade:wiring:check`) to `ci.yml` job `ci` ("Validate catalog", the required check), directly after "Install Task"
+- [x] 5.4 shellcheck v0.11.0 on the script is clean. The check passes on the branch and prints `cascade wiring: ok, .github 2376ffae4bfc665f327d51581350dea694c01504 (.github main)`. Mutations of the real workflows are each refused: the contract's 24 plus the addendum's (an extra `release.yml` env key, `runs-on` changed on either key-holding job). Record the run in design.md "Wiring check run"
+- [x] 5.5 actionlint exits 0, `task check` green, then commit `ci(cascade): check the cascade wiring on every pull request`
 
 ## 6. Docs and the re-grep
 

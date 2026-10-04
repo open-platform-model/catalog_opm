@@ -343,7 +343,31 @@ on `main`), read from the local `.github` clone after a fetch.
 
 ### Wiring check run
 
-Filled by task 5.4.
+Run on 2026-10-04 with mikefarah yq v4.53.3 and shellcheck v0.11.0 (clean).
+
+- **Delta from the contract script.** `diff` against wiring §10.1 item 6 shows only the addendum:
+  the header lines naming it, `ENV_ALLOW=(OPM_REGISTRY CUE_REGISTRY)`, one `runs-on` line in
+  `key_job`, and the env block, where the deny-list of `BASH_ENV`, `ENV` and `NODE_OPTIONS`
+  becomes the allow-list plus a check that `env` is a map (or absent), so a
+  `${{ fromJSON(...) }}` expression cannot hide keys. `RECEIVER=true` and
+  `PIN_COMMENT='.github main'` are the contract's defaults.
+- **On the branch:** `task cascade:wiring:check` prints
+  `cascade wiring: ok, .github 2376ffae4bfc665f327d51581350dea694c01504 (.github main)`.
+- **Mutations** (scratchpad harness: copy the branch's real `.github/workflows/` and the script,
+  apply one edit with yq or sed, run): 33 cases, all as expected. Refused: the contract's 13
+  version 3.1 mutations (a changed `publish` `if:`, an extra `publish` step, notify
+  `contents: write`, `secrets: inherit` on the receive call, the key read by a job in `ci.yml`, a
+  second SHA, `@main` on the gates call, `ref: main` on the resolver, a branch comment,
+  `environment` dropped from `publish`, `environment: cascade` on `publish-cue`, a literal
+  `dry-run: false`, a changed concurrency group); its 11 version 3.1.1 mutations (`env:
+  {BASH_ENV}` on `publish`, a workflow `env:` and a `defaults:` in `deps-cascade.yml`,
+  `container:` on notify, `services:` on `publish`, a step `env:` on the notify step, an `if:` on
+  the publish step, an extra `with:` key, and `BASH_ENV`, `ENV` or `NODE_OPTIONS` in
+  `release.yml`'s `env`); and the addendum's five (`CUE_VERSION` in `release.yml`'s `env`, which
+  the contract allowed and the catalog_opm list does not; `env` as an expression; notify on
+  `self-hosted`; `publish` on `[ubuntu-latest]` and on `ubuntu-24.04`). Passed: the unmutated
+  baseline, a second header comment line in `deps-cascade.yml`, `release.yml`'s `env` without
+  `CUE_REGISTRY` (the list allows, it does not require), and an edit to an unrelated job.
 
 ### Re-grep
 
