@@ -17,7 +17,7 @@ Nothing is **BREAKING**: both edits only accept values the published schema refu
 
 ## Requirements
 
-Each requirement is satisfied by the CUE in Before / After and the transformer edits above, and each is proven by a fixture that fails when it regresses (tasks.md).
+Each requirement is satisfied by the CUE in Before / After and the transformer edits above, and each is proven by a fixture that fails when it regresses (tasks.md), except R7's second scenario, which the publish compatibility gate itself proves.
 
 **R1. Pod-level seccomp profile.** A module author sets a seccomp profile on a workload through the `security-context` trait, and the pod rendered by every workload transformer (Deployment, StatefulSet, DaemonSet, Job, CronJob) carries it at `spec.template.spec.securityContext.seccompProfile` (for a CronJob, inside the job template's pod spec).
 
@@ -49,7 +49,7 @@ Each requirement is satisfied by the CUE in Before / After and the transformer e
 **R7. Existing components render unchanged and the change is additive.**
 
 - WHEN a component sets no `seccompProfile` at either level, THEN no `seccompProfile` key appears in the rendered pod or container, and every existing workload golden exports unchanged.
-- WHEN `opm catalog publish ./src --dry-run` runs the compatibility gate, THEN it reports no violation for `container@v1beta1`, `security-context@v1beta1`, `role@v1beta1` or `stateless-workload@v1beta1`.
+- WHEN `opm catalog publish ./src --dry-run` runs the compatibility gate of a cli that carries the upstream fix (Dependencies / gates), THEN it reports no violation for `container@v1beta1`, `security-context@v1beta1`, `role@v1beta1` or `stateless-workload@v1beta1`.
 
 ## Before / After
 
@@ -109,12 +109,12 @@ Each requirement is satisfied by the CUE in Before / After and the transformer e
 
 ## Dependencies / gates
 
-- **Upstream gate: none.** This change depends on nothing unreleased. Task 1.1 confirms the base before any edit.
+- **Upstream gate: a cli release whose compatibility gate does not report a list's implicit default.** With cli `v1.0.0-beta.7` (`.opm-cli-version`), `opm catalog publish ./src --dry-run` refuses `#RoleResource` against `opm@4.5.1` with `spec.role.subjects default changed ([{name!: string}] -> [{name!: string}])` (design.md, Compatibility gate). The two sides print the same; the "default" is the one CUE derives from `[...#RoleSubjectSchema] & [_, ...]`, which no `*` authored. `opm catalog publish` has no override and the release publish runs the same gate, so an owner exception cannot ship. The fix belongs in the cli: `checkDefaults` (`cli/internal/compat/compat.go`) ignores a default that no `*` marker authored. Once a cli release carries it, this branch bumps `.opm-cli-version` to it (task 2.6) and the change is archived. Sections 1 to 3 do not wait for it; only the archive and the merge do.
 - **Downstream gate:** the opm-operator change `add-operator-module` must not start until an `opm` catalog release carrying this change is published (release-please minor, `opm` 4.6.0 or later). That change pins the release; this change does not wait for it.
 
 ## Impact
 
-- **Members touched, all staying at `v1beta1`:** `container@v1beta1`, `security-context@v1beta1`, `role@v1beta1`, the `stateless-workload@v1beta1` blueprint (through the shared schema), and the five workload transformers plus the role transformer. Adding an optional field and relaxing a required field to optional are both additive under 0010:D27 and pass the publish compatibility gate (`cli/internal/compat/compat.go` flags only removed fields, added required fields, narrowed domains, changed defaults and optional-made-required).
+- **Members touched, all staying at `v1beta1`:** `container@v1beta1`, `security-context@v1beta1`, `role@v1beta1`, the `stateless-workload@v1beta1` blueprint (through the shared schema), and the five workload transformers plus the role transformer. Adding an optional field and relaxing a required field to optional are both additive under 0010:D27. The seccomp field passes the publish compatibility gate as it stands; the `subjects` relaxation is refused by it as a changed default it is not, and passes only with the cli fix named under Dependencies / gates (design.md, Compatibility gate).
 - **`modules` fleet, `opm-modules`:** nothing to do. Their components render the same objects by construction (both edits are additive and no existing value changes branch); this is not measured against the fleets, only against the catalog's own goldens (tasks 1.9, 2.4).
 - **Subscribing platforms:** nothing to do; they pick up the minor through the release cascade.
 - **`cli` fixtures under `testing.opmodel.dev`:** nothing to do.

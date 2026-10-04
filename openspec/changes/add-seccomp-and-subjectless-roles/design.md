@@ -10,7 +10,7 @@ Files and segments touched, all `v1beta1`, no segment moves:
 - `src/transformers/role_transformer.cue`: `_k8sSubjects` (line 60) and the two binding arms of `output` (lines 91, 121).
 - Fixtures: `container_helpers_fixtures.cue`, the five workload `*_transformer_fixtures.cue`, `role_transformer_fixtures.cue`.
 
-Closedness: unchanged everywhere. Defaults: none added or changed. Required-field set: `#RoleSchema` loses `subjects` (required to optional); `#SecurityContextSchema` gains one optional field. Neither breaks a consumer: every value that unified before still unifies and renders the same objects.
+Closedness: unchanged everywhere. Defaults: none authored, added or changed (the compatibility gate nevertheless reports one for `subjects`; Compatibility gate below). Required-field set: `#RoleSchema` loses `subjects` (required to optional); `#SecurityContextSchema` gains one optional field. Neither breaks a consumer: every value that unified before still unifies and renders the same objects.
 
 ## Goals / Non-Goals
 
@@ -97,7 +97,7 @@ The object bodies are untouched, so a role with subjects renders the same list (
 
 **D-E. The trait's description names what it renders.** `#SecurityContextTrait`'s doc comment and `metadata.description` become "Pod-level security settings for a workload: user, groups and seccomp profile". The current text claims "privilege and capabilities", which no workload transformer renders at pod level (they are container-only fields in Kubernetes); AGENTS.md § Descriptions forbids claiming behaviour no transformer has. `metadata.description` is on the compat gate's provenance denylist (0010:D30), so this is not a contract change.
 
-**D-F. Fixtures assert presence and absence with list guards, not interpolation alone.** Interpolating a missing optional field (`"\(x.seccompProfile.type)" & "RuntimeDefault"`) is incomplete, not an error, so `cue vet` passes it when the field is not rendered (measured, Research below). Presence is asserted with `[if x.f != _|_ {x.f.type}] & ["RuntimeDefault"]`, absence with `[if x.f != _|_ {"leaked"}] & []`, and the role output's object count with `(len(out) + 0) & 1`. Each new component is written in the embedded form (`{res.#X, ...}`). The new transform outputs are declared `_test<Name>: (#<T>.#transform & {...}).output` so `task vet:fixtures` exports them.
+**D-F. Fixtures assert presence and absence with list guards, not interpolation alone.** Interpolating a missing optional field (`"\(x.seccompProfile.type)" & "RuntimeDefault"`) is incomplete, not an error, so `cue vet` passes it when the field is not rendered (measured, Research below). Presence is asserted with `[if x.f != _|_ {x.f.type}] & ["RuntimeDefault"]`, absence with `[if x.f != _|_ {"leaked"}] & []`, and the role output's object count with `(len(out) + 0) & 1`. An optional schema field is pinned optional by exporting the spec that omits it through a `#transform`-form fixture (`.tasks/fixtures.sh` exports those, and a missing required field fails export); an output guarded on `!= _|_` stays concrete either way. Each new component is written in the embedded form (`{res.#X, ...}`). The new transform outputs are declared `_test<Name>: (#<T>.#transform & {...}).output` so `task vet:fixtures` exports them.
 
 ## Research & Decisions
 
@@ -123,10 +123,13 @@ That spike used the wider two-arm disjunction D-A now rejects; the narrowed `{ty
 
 ### Compatibility gate
 
-**Context**: `opm catalog publish` runs the 0010:D27 additive-only walk on beta members.
-**Explored**: `cli/internal/compat/compat.go` `walkStruct`: violations are field removed, field added without optional or default, field made required (optional to required only), domain narrowed, default changed or removed.
-**Decision**: no segment move; `role@v1beta1`, `container@v1beta1`, `security-context@v1beta1` and the blueprint stay where they are.
-**Rationale**: required to optional and a new optional field are none of those kinds. CI's `opm catalog publish ./src --dry-run` confirms it on the PR.
+**Context**: `opm catalog publish` runs the 0010:D27 additive-only walk on beta members; the release publish from main runs the same gate, and the command has no override.
+**Explored**: 2026-10-04, cli `v1.0.0-beta.7` (the `.opm-cli-version` pin), cue v0.17.1. `cli/internal/compat/compat.go` reports: field removed, field added without optional or default, field made required (optional to required only), domain narrowed, default changed or removed. Measured:
+- The PR's CI "Publish gates dry-run" and a local `opm catalog publish ./src --dry-run` both refuse `#RoleResource` against `opm@4.5.1`: `spec.role.subjects default changed ([{name!: string}] -> [{name!: string}])`. `container@v1beta1`, `security-context@v1beta1` and the blueprint report nothing.
+- Cause, by a Go probe on the CUE API: for `[...string] & [_, ...]`, `Default()` returns `[string]` with `hasDefault=true`, under `!` and under `?` alike, and `IsConcrete()` is true because the check is shallow. `checkDefaults` therefore compares two "defaults" no author wrote. Its subsumption fallback passes for `!` to `!` and `?` to `?`, but for `!` to `?` it fails in one direction ("value not an instance"). Making the concreteness check deep would not help: the fallback still fails.
+- No respelling of the field in the catalog passes. `subjects?: [#RoleSubjectSchema, ...#RoleSubjectSchema]` and `subjects?: [_, ...] & [...#RoleSubjectSchema]` are refused with the same "default changed". `subjects?: list.MinItems(1) & [...#RoleSubjectSchema]` is refused twice: "default removed" and "domain narrowed". Only the unchanged `subjects!` passes.
+**Decision**: no segment move; `role@v1beta1`, `container@v1beta1`, `security-context@v1beta1` and the blueprint stay where they are. The refusal is a false positive in the gate, fixed upstream: `checkDefaults` ignores a default that no `*` marker authored. This change waits for a cli release that carries the fix, then bumps `.opm-cli-version` (proposal Dependencies / gates, task 2.6).
+**Rationale**: required to optional and a new optional field are none of the violation kinds 0010:D27 names, and every value the published schema accepted still unifies and renders the same objects. Moving `role` to `v1beta2` to get past a gate bug would leave a duplicate member behind for a contract that did not change. An owner exception cannot ship: there is no override, and the release publish would refuse too.
 
 ## Risks / Trade-offs
 
