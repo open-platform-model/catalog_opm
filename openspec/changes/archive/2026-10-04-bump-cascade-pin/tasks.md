@@ -13,6 +13,6 @@
 
 ## 3. Verify and archive
 
-- [ ] 3.1 Run `openspec verify` for `bump-cascade-pin` (the `opsx:verify` skill); confirm the Durable decisions landed in `AGENTS.md`
-- [ ] 3.2 Archive the change on this branch with `--skip-specs`
-- [ ] 3.3 `openspec validate --all --strict` and `task check` green, then commit `chore(openspec): archive bump-cascade-pin`
+- [x] 3.1 Run `openspec verify` for `bump-cascade-pin` (the `opsx:verify` skill); confirm the Durable decisions landed in `AGENTS.md`
+- [x] 3.2 Archive the change on this branch with `--skip-specs`
+- [x] 3.3 `openspec validate --all --strict` and `task check` green, then commit `chore(openspec): archive bump-cascade-pin`
