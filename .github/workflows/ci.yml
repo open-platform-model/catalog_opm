@@ -51,8 +51,13 @@ jobs:
         with:
           version: 3.x
 
+      # The canonical .github check (a byte-identical copy at the cascade pin);
+      # --pin-on-main also asks the API that the pinned SHA is on .github main.
+      # task cascade:wiring:check runs the same check offline.
       - name: Verify the cascade wiring
-        run: task cascade:wiring:check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .tasks/cascade/wiring-check.sh --pin-on-main
 
       # tools/kindgen, the generator of the Kubernetes kind table, is a Go
       # module of its own; the step below runs its offline unit tests.
