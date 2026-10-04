@@ -33,14 +33,6 @@ jobs:
         with:
           persist-credentials: false
 
-      # The opm CLI pin lives in .opm-cli-version only, so a bump never edits a
-      # workflow file. The grep refuses a missing, empty or malformed file here,
-      # rather than letting Install opm fail later with an unclear 404.
-      - name: Read the pinned opm CLI version
-        run: |
-          grep -qxE 'v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?' .opm-cli-version
-          echo "OPM_CLI_VERSION=$(cat .opm-cli-version)" >> "$GITHUB_ENV"
-
       - name: Setup CUE
         uses: cue-lang/setup-cue@a93fa358375740cd8b0078f76355512b9208acb1 # v1.0.1
         with:
@@ -53,11 +45,21 @@ jobs:
 
       # The canonical .github check (a byte-identical copy at the cascade pin);
       # --pin-on-main also asks the API that the pinned SHA is on .github main.
-      # task cascade:wiring:check runs the same check offline.
+      # task cascade:wiring:check runs the same check offline. Only SHA-pinned
+      # actions may come before it: a run: step could write GITHUB_ENV or
+      # GITHUB_PATH and reach the check.
       - name: Verify the cascade wiring
         env:
           GH_TOKEN: ${{ github.token }}
         run: bash .tasks/cascade/wiring-check.sh --pin-on-main
+
+      # The opm CLI pin lives in .opm-cli-version only, so a bump never edits a
+      # workflow file. The grep refuses a missing, empty or malformed file here,
+      # rather than letting Install opm fail later with an unclear 404.
+      - name: Read the pinned opm CLI version
+        run: |
+          grep -qxE 'v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?' .opm-cli-version
+          echo "OPM_CLI_VERSION=$(cat .opm-cli-version)" >> "$GITHUB_ENV"
 
       # tools/kindgen, the generator of the Kubernetes kind table, is a Go
       # module of its own; the step below runs its offline unit tests.
