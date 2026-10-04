@@ -371,7 +371,23 @@ Run on 2026-10-04 with mikefarah yq v4.53.3 and shellcheck v0.11.0 (clean).
 
 ### Re-grep
 
-Filled by task 6.2.
+The wiring §10.1 item 11 grep over the branch's changed files and `cascade-task.yml`, run after
+the `AGENTS.md` edit, leaves only allowed hits:
+
+- `labels-managed` on the `cascade-publish` step (`deps-cascade.yml`), in the wiring check's
+  expected `with` keys, and in text describing the step or saying the input left the
+  `cascade-receive.yml` call (design, proposal, tasks);
+- `@main`, `ref: main` and `cascade-notify.yml` only in text that says the version 2 shape or
+  `main`'s `cascade-task.yml` was replaced (design Context and D7, proposal Why and Before,
+  task 2.1 and 4.1), or in the mutation list of "Wiring check run";
+- "no secret" and "holds no secret" only about `compute` and `gates` (design D4 and Risks,
+  proposal), and Risks quoting that phrase to say it does not address review finding 1;
+- "reusable notify" only where the text says there is none (`AGENTS.md`, design D3);
+- `holds no write grant` in the `verify-published` comment, about `GITHUB_TOKEN` grants, not the
+  cascade.
+
+No hit for `org-github-ref`, `not pass any secret`, `main yet`, `ships it on`, `resolver is on`,
+`no checkout and no`, `re-arm`, `sandbox step` or "shared workflow … mint/declare/publish".
 
 ## Risks / Trade-offs
 

@@ -37,9 +37,9 @@
 
 ## 6. Docs and the re-grep
 
-- [ ] 6.1 `AGENTS.md` § Release & publishing: the notify bullet describes the caller-owned `cascade` job and the pinned `cascade-notify` action; the receive bullet the reusable `cascade-receive.yml` (compute and gates, no secret) plus the caller-owned `publish` job; one `.github` `main` SHA on every cascade reference, the `cascade-task.yml` resolver `ref:` included, moved only by a `ci(deps): pin the cascade to .github <sha7>` PR; `task cascade:wiring:check` in `Validate catalog`; the gates-only run executes the release head's task read-only (review finding 2); the full enforce-mode statuses (review finding 6); a bad pin, not a missing workflow, as the failure mode (wiring §10.1 items 8 to 10)
-- [ ] 6.2 Run the wiring §10.1 item 11 re-grep. Every hit is fixed or allowed; record the remaining hits in design.md "Re-grep"
-- [ ] 6.3 `openspec validate join-release-cascade --strict` and `task check` green, then commit `docs(agents): describe the pinned cascade wiring`
+- [x] 6.1 `AGENTS.md` § Release & publishing: the notify bullet describes the caller-owned `cascade` job and the pinned `cascade-notify` action; the receive bullet the reusable `cascade-receive.yml` (compute and gates, no secret) plus the caller-owned `publish` job; one `.github` `main` SHA on every cascade reference, the `cascade-task.yml` resolver `ref:` included, moved only by a `ci(deps): pin the cascade to .github <sha7>` PR; `task cascade:wiring:check` in `Validate catalog`; the gates-only run executes the release head's task read-only (review finding 2); the full enforce-mode statuses (review finding 6); a bad pin, not a missing workflow, as the failure mode (wiring §10.1 items 8 to 10)
+- [x] 6.2 Run the wiring §10.1 item 11 re-grep. Every hit is fixed or allowed; record the remaining hits in design.md "Re-grep"
+- [x] 6.3 `openspec validate join-release-cascade --strict` and `task check` green, then commit `docs(agents): describe the pinned cascade wiring`
 
 ## 7. Verify and archive
 
