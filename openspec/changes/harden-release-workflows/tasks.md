@@ -1,8 +1,8 @@
 ## 1. Read-only CI workflows
 
-- [ ] 1.1 `ci.yml`: top-level `permissions: {}`, job `ci` gets `contents: read` and `packages: read`, checkout `persist-credentials: false` (design D2)
-- [ ] 1.2 `cascade-task.yml`: repo checkout `persist-credentials: false` (design D4)
-- [ ] 1.3 actionlint exits 0, `task check` green, then commit `ci: run the CI workflows with explicit read-only tokens`
+- [x] 1.1 `ci.yml`: top-level `permissions: {}`, job `ci` gets `contents: read` and `packages: read`, checkout `persist-credentials: false` (design D2)
+- [x] 1.2 `cascade-task.yml`: repo checkout `persist-credentials: false` (design D4)
+- [x] 1.3 actionlint exits 0, `task check` green, then commit `ci: run the CI workflows with explicit read-only tokens`
 
 ## 2. Publishing workflows
 
