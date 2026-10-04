@@ -22,5 +22,5 @@
 
 ## 4. Archive
 
-- [ ] 4.1 Archive the change on this branch with `openspec archive align-release-docs-with-blank-squash --skip-specs`, after checking that every Durable decision in design.md is landed, so the archive rides the implementing PR; never push to main
-- [ ] 4.2 `openspec validate --all --strict` green, then commit `chore(openspec): archive align-release-docs-with-blank-squash`
+- [x] 4.1 Archive the change on this branch with `openspec archive align-release-docs-with-blank-squash --skip-specs`, after checking that every Durable decision in design.md is landed, so the archive rides the implementing PR; never push to main
+- [x] 4.2 `openspec validate --all --strict` green, then commit `chore(openspec): archive align-release-docs-with-blank-squash`
