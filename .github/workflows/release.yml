@@ -5,11 +5,10 @@ on:
     branches:
       - main
 
-permissions:
-  contents: write
-  pull-requests: write
-  packages: write
-  actions: write
+# Each job grants exactly what its steps use (the repo default token is
+# read-only). Git and PR writes in release-please go through the release App
+# token, never GITHUB_TOKEN.
+permissions: {}
 
 env:
   # opm resolves the registry via --registry > OPM_REGISTRY > config file — it
@@ -23,6 +22,15 @@ jobs:
   release-please:
     name: Release Please
     runs-on: ubuntu-latest
+    # The only job that reads RELEASE_APP_PRIVATE_KEY. Environment release
+    # deploys from main only, so no branch workflow can read the key.
+    environment: release
+    # GITHUB_TOKEN only logs in to GHCR for the fixture gate (packages: read)
+    # and dispatches ci.yml onto the release branch (actions: write).
+    permissions:
+      contents: read
+      packages: read
+      actions: write
     # Manifest mode emits PER-PACKAGE outputs keyed by the package PATH, even
     # for a single package: the module lives at src/, so its outputs are
     # "src--release_created", "src--tag_name" and "src--version". The tag
@@ -157,6 +165,9 @@ jobs:
     needs: release-please
     if: needs.release-please.outputs.opm_release_created == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     # published is set right after the push, the job's last step, so
     # publish-docs, verify-published and notify-downstream key on it: each runs
     # whenever the module reached GHCR.
@@ -171,6 +182,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ needs.release-please.outputs.opm_tag_name }}
+          persist-credentials: false
 
       # Read from the released tag, so the CLI that publishes a release is the
       # one committed in it. The opm CLI pin lives in .opm-cli-version only, so
@@ -251,6 +263,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ needs.release-please.outputs.opm_tag_name }}
+          persist-credentials: false
 
       # Read from the released tag, so the CLI that verifies a release is the
       # one committed in it, the same CLI publish-cue published it with. The
