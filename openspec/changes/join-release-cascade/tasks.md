@@ -24,8 +24,8 @@
 
 ## 4. `.github/workflows/cascade-task.yml`: pin the resolver checkout
 
-- [ ] 4.1 In the step that checks out `repository: open-platform-model/.github`, change only `ref: main` to `ref: 2376ffae4bfc665f327d51581350dea694c01504 # .github main`; the `actions/checkout` pin `de0fac2e…` v6.0.2 stays. Rewrite the header comment so the resolver comes from the pinned `.github` commit, not `main`. `CASCADE_RESOLVER_REAL` is already set unconditionally, so there is no fallback to delete (wiring §10.1 item 3; design D7)
-- [ ] 4.2 actionlint exits 0, `task check` green, then commit `ci(cascade): pin the cascade task's resolver checkout`
+- [x] 4.1 In the step that checks out `repository: open-platform-model/.github`, change only `ref: main` to `ref: 2376ffae4bfc665f327d51581350dea694c01504 # .github main`; the `actions/checkout` pin `de0fac2e…` v6.0.2 stays. Rewrite the header comment so the resolver comes from the pinned `.github` commit, not `main`. `CASCADE_RESOLVER_REAL` is already set unconditionally, so there is no fallback to delete (wiring §10.1 item 3; design D7)
+- [x] 4.2 actionlint exits 0, `task check` green, then commit `ci(cascade): pin the cascade task's resolver checkout`
 
 ## 5. The wiring check, run in CI on every PR
 
