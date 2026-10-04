@@ -157,8 +157,9 @@ jobs:
     needs: release-please
     if: needs.release-please.outputs.opm_release_created == 'true'
     runs-on: ubuntu-latest
-    # published is set right after the push, before the non-gating
-    # verification step, so publish-docs runs whenever the module reached GHCR.
+    # published is set right after the push, the job's last step, so
+    # publish-docs, verify-published and notify-downstream key on it: each runs
+    # whenever the module reached GHCR.
     outputs:
       published: ${{ steps.publish.outputs.published }}
     steps:
@@ -232,8 +233,54 @@ jobs:
           opm catalog publish ./src --version "${VERSION}"
           echo "published=true" >> "$GITHUB_OUTPUT"
 
+  # Out-of-band verification of the build publish-cue just pushed, in its own
+  # job so that a finding never fails publish-cue: notify-downstream and
+  # publish-docs key on publish-cue's published output and never wait for this
+  # job. It reads the registry only, so it holds no write grant.
+  verify-published:
+    name: Verify the published build
+    needs: [release-please, publish-cue]
+    if: needs.publish-cue.outputs.published == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Clone the released tag
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ needs.release-please.outputs.opm_tag_name }}
+
+      # Read from the released tag, so the CLI that verifies a release is the
+      # one committed in it, the same CLI publish-cue published it with. The
+      # grep refuses a missing, empty or malformed file here, rather than
+      # letting Install opm fail later with an unclear 404.
+      - name: Read the pinned opm CLI version
+        run: |
+          grep -qxE 'v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?' .opm-cli-version
+          echo "OPM_CLI_VERSION=$(cat .opm-cli-version)" >> "$GITHUB_ENV"
+
+      - name: Install opm
+        run: |
+          set -euo pipefail
+          base="https://github.com/open-platform-model/cli/releases/download/${OPM_CLI_VERSION}"
+          tmp="$(mktemp -d)"
+          curl -fsSLO --retry 5 --retry-all-errors --retry-delay 2 "${base}/opm-linux-amd64.tar.gz"
+          curl -fsSLO --retry 5 --retry-all-errors --retry-delay 2 "${base}/checksums.txt"
+          grep ' opm-linux-amd64.tar.gz$' checksums.txt | sha256sum -c -
+          tar -xzf opm-linux-amd64.tar.gz -C "${tmp}" opm
+          sudo install -m 0755 "${tmp}/opm" /usr/local/bin/opm
+          rm -rf "${tmp}" opm-linux-amd64.tar.gz checksums.txt
+
+      # opm reads registry credentials from the docker credential chain, so
+      # docker login is the CI credential entry (opm registry login is
+      # interactive-only by design). The token carries packages: read only.
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
       # Out-of-band verification of the build just pushed — an aid, not a gate
-      # (0011 D7): a finding fails the job for visibility, the artifact stays.
+      # (0011:D7): a finding fails this job for visibility, the artifact stays.
       - name: Verify the published build
         env:
           VERSION: ${{ needs.release-please.outputs.opm_version }}
@@ -250,11 +297,12 @@ jobs:
   # `release: published` trigger would run on the tag ref and be refused.
   # It runs only when publish-cue pushed the module (its published output, set
   # right after the push), so the reference never describes a version GHCR
-  # does not serve; always() keeps a failure of publish-cue's later,
-  # non-gating verification step from skipping it, and published is only
-  # ever true when release-please released opm. When this job does not run,
-  # docs.yml's dispatch publishes the release instead. No version is passed:
-  # opm-docs reads it from the tag.
+  # does not serve; always() keeps a post-job step that fails publish-cue
+  # after the push (a checkout cleanup) from skipping it, and published is
+  # only ever true when release-please released opm. It never waits for
+  # verify-published. When this job does not run, docs.yml's dispatch
+  # publishes the release instead. No version is passed: opm-docs reads it
+  # from the tag.
   # The workflow-level permissions carry no id-token; this job grants what
   # publish.yml's release mode needs and nothing more.
   # Once per docs bundle of docs-kit.cue, both from the same release tag:
@@ -277,3 +325,27 @@ jobs:
       project: ${{ matrix.project }}
       mode: release
       tag: ${{ needs.release-please.outputs.opm_tag_name }}
+
+  # The release cascade (workspace RELEASING.md, "Notify after publish"): tell library,
+  # opm-operator and cli that opm-vX.Y.Z is on GHCR. It waits only for the push
+  # (published), never for verify-published or publish-docs. This job is
+  # caller-owned: it declares environment: cascade and passes the App key only
+  # as the private-key input of the SHA-pinned cascade-notify action, its one
+  # step; no checkout or run: of its own, no env:, container: or services:.
+  # task cascade:wiring:check holds that shape. CASCADE_NOTIFY=off stops it.
+  notify-downstream:
+    name: Notify downstream
+    needs: [release-please, publish-cue]
+    if: ${{ !cancelled() && needs.publish-cue.outputs.published == 'true' && vars.CASCADE_NOTIFY != 'off' }}
+    runs-on: ubuntu-latest
+    environment: cascade
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Notify downstream
+        uses: open-platform-model/.github/.github/actions/cascade-notify@2376ffae4bfc665f327d51581350dea694c01504 # .github main
+        with:
+          tag: ${{ needs.release-please.outputs.opm_tag_name }}
+          client-id: ${{ vars.CASCADE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.CASCADE_APP_PRIVATE_KEY }}

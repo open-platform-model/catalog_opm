@@ -54,6 +54,6 @@ This repository also published `k8s@v1`, a passthrough module of native Kubernet
 task fmt             # format the module's CUE files
 task vet             # validate the catalog packages
 task generate:index  # regenerate src/INDEX.md
-task check           # every gate: fmt check, vet, listing, descriptions, fixtures, fixture tags, INDEX and reference freshness
+task check           # every gate: fmt check, vet, listing, descriptions, fixtures, fixture tags, INDEX and reference freshness, cascade wiring
 opm catalog publish ./src --dry-run   # run every publish gate, push nothing (publishing itself is CI-only)
 ```

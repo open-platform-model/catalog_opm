@@ -2,7 +2,10 @@ name: Cascade task
 
 # The full test set of task deps:cascade (Phase 2 cascade contract §8): the offline
 # scenarios, S2 older pins and S4 frozen (they resolve core from GHCR), and S5, the
-# PR title and body through the shared resolver from open-platform-model/.github.
+# PR title and body through the shared resolver of open-platform-model/.github at
+# the repo's cascade pin: the one .github main SHA every cascade reference carries
+# (Phase 3 wiring contract version 3.1, section 2.4), so CI tests the resolver the
+# receiver runs. A ci(deps) pin PR moves it with the others.
 # Not a required check: a GHCR or download blip must never block an unrelated PR.
 # The offline set is the required step in ci.yml (Validate catalog).
 
@@ -38,7 +41,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           repository: open-platform-model/.github
-          ref: main
+          ref: 2376ffae4bfc665f327d51581350dea694c01504 # .github main
           path: org-github
           persist-credentials: false
 
