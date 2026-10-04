@@ -146,6 +146,14 @@ Each of the five sites gets that wording, kept to its local length:
 Section 2 re-measures both facts in a scratch copy before editing, so the new prose is checked
 against cue v0.17.1 on this tree, not only against the earlier reports.
 
+Re-measured 2026-10-04 (cue v0.17.1, core v2.0.0-beta.1), matching the claims above: the golden
+`data: mesh` of `_testConfigMapNamingTransformer` set to `"WRONG"` failed
+`cue vet -t fixtures ./...` (exit 1, conflicting values) while plain `cue vet ./...` exited 0 (the
+tagged file is left out); an added `_testZZIncomplete` (the configmap `#transform` without
+`#moduleInstance` and `#context`) passed `cue vet -t fixtures ./...` and
+`cue vet -c -t fixtures ./transformers` (exit 0) and failed
+`cue export -t fixtures -e _testZZIncomplete ./transformers` (exit 1, `#moduleInstance` incomplete).
+
 ## Research & Decisions
 
 ### Where the backstop wording lives after #146
