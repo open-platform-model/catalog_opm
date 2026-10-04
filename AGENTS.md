@@ -156,7 +156,7 @@ src/RELEASE              release-please version stamp (ships, inert)
 CHANGELOG.md             release notes, deliberately OUTSIDE the module root so they do not ship
 openspec/                OpenSpec workspace: config.yaml (constitution), schemas/catalog-change/, changes/
 docs/                    authoring notes that outlive a change (pitfalls, conventions)
-docs/site/               authored site pages (authoring/, extending/); ship in the catalog-opm-docs bundle, which opmodel.dev reads once gate G3.1 holds and its serve-docs-from-bundles switches (through git until then)
+docs/site/               authored site pages (authoring/, extending/); ship in the catalog-opm-docs bundle, which opmodel.dev reads (it reads no git for these pages)
 docs/catalogs/opm/       authored pages that ship only in the catalog-opm docs bundle (_index.md is its landing, the Catalog Contract)
 docs-kit.cue             the docs bundles config (catalog-opm, catalog-opm-docs), outside the module root so it never ships
 .opm-docs-version        the pinned docs-kit release (opm-docs and publish.yml), one line
@@ -239,7 +239,7 @@ There is no publish task. Publishing is CI-only via `opm catalog publish` (see R
 
 - `docs-kit.cue` declares two docs bundles, both versioned by the same `opm-v` release tags (docs-kit `docs/contracts.md`, C1, C15):
   - `catalog-opm`, the Catalogs tab: the `cue-catalog` extractor over `./src` (one page per blueprint, resource and trait, plus the kind indexes) and the authored pages under `docs/catalogs/opm/`, published to `ghcr.io/open-platform-model/docs/catalog-opm`.
-  - `catalog-opm-docs`, the authored pages under `docs/site/`, placed in a site version's `/docs/` tree and published to `ghcr.io/open-platform-model/docs/catalog-opm-docs`. It owns no path (nothing generates into it), and each page links "Edit this page" to its file on `main` (`pages[].edit`). opmodel.dev reads `docs/site/` through git until gate G3.1 holds and its `serve-docs-from-bundles` switches to this bundle.
+  - `catalog-opm-docs`, the authored pages under `docs/site/`, placed in a site version's `/docs/` tree and published to `ghcr.io/open-platform-model/docs/catalog-opm-docs`. It owns no path (nothing generates into it), and each page links "Edit this page" to its file on `main` (`pages[].edit`). opmodel.dev reads this bundle (`v1.0` takes tag `4`), not git.
 
   docs-kit's reusable `publish.yml` builds, lints, signs and publishes each one; every job in `docs.yml` and `release.yml` runs once per project (a matrix with `fail-fast: false`).
 - `docs/catalogs/opm/` holds pages that ship only in the tab bundle; `docs/site/` holds the pages of `catalog-opm-docs`. `docs/catalogs/opm/_index.md` is the bundle's landing (the Catalog Contract): front matter `title` and `description` only, and no `## Catalog members` heading, because `opm-docs` appends that generated block itself. A link from it into the catalog uses the major alias (`/catalogs/opm/4/<path>/`), which the build pins to its own segment.
