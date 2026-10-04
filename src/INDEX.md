@@ -112,6 +112,7 @@ CUE module: `opmodel.dev/catalogs/opm@v4`
 | `#ProbeSchema` | `resources/v1beta1/container.cue` | Probe specification used by liveness/readiness/startup probes |
 | `#ResourceFieldRefSchema` | `resources/v1beta1/container.cue` | Container resource field reference |
 | `#ResourceRequirementsSchema` | `resources/v1beta1/container.cue` |  |
+| `#SeccompProfileSchema` | `resources/v1beta1/container.cue` | A seccomp profile in the Kubernetes shape, accepting only type RuntimeDefault |
 | `#SecurityContextSchema` | `resources/v1beta1/container.cue` |  |
 | `#CRDSchema` | `resources/v1beta1/crd.cue` | Kubernetes CustomResourceDefinition |
 | `#CRDVersionSchema` | `resources/v1beta1/crd.cue` | A single version entry in a CRD |
@@ -628,7 +629,7 @@ CUE module: `opmodel.dev/catalogs/opm@v4`
 | `#ScalingSchema` | `traits/v1beta1/scaling.cue` |  |
 | `#ScalingTrait` | `traits/v1beta1/scaling.cue` | The replica count of a workload, with optional autoscaling |
 | `#SecurityContext` | `traits/v1beta1/security_context.cue` |  |
-| `#SecurityContextTrait` | `traits/v1beta1/security_context.cue` | Pod-level security settings for a workload: user, groups, privilege and capabilities |
+| `#SecurityContextTrait` | `traits/v1beta1/security_context.cue` | Pod-level security settings for a workload: user, groups and seccomp profile |
 | `#SidecarContainers` | `traits/v1beta1/sidecar_containers.cue` |  |
 | `#SidecarContainersSchema` | `traits/v1beta1/sidecar_containers.cue` | Sidecar container shape — alias of #ContainerSchema |
 | `#SidecarContainersTrait` | `traits/v1beta1/sidecar_containers.cue` | Additional containers that run beside a workload's main container |

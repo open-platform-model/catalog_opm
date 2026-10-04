@@ -156,6 +156,9 @@ import (
 						if _sc.capabilities.drop != _|_ {drop: _sc.capabilities.drop}
 					}
 				}
+				if _sc.seccompProfile != _|_ {
+					seccompProfile: _sc.seccompProfile
+				}
 			}
 		}
 

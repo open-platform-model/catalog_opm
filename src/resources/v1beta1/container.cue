@@ -259,4 +259,15 @@ import (
 		add?: [...string]
 		drop?: [...string] | ["ALL"]
 	}
+
+	// Seccomp profile, in the Kubernetes shape. Renders at pod level through
+	// the security-context trait and at container level on a container.
+	seccompProfile?: #SeccompProfileSchema
+}
+
+// A seccomp profile in the Kubernetes shape, accepting only type RuntimeDefault.
+// RuntimeDefault is the container runtime's default profile, the one Pod
+// Security `restricted` asks for; any other type or key is refused.
+#SeccompProfileSchema: {
+	type!: "RuntimeDefault"
 }

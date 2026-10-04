@@ -6,8 +6,8 @@ import (
 	res "opmodel.dev/catalogs/opm/resources/v1beta1"
 )
 
-// Pod-level security settings for a workload: user, groups, privilege and
-// capabilities.
+// Pod-level security settings for a workload: user, groups and seccomp
+// profile.
 #SecurityContextTrait: c.#Trait & {
 	metadata: {
 		modulePath:     "\(id.kindPrefix.traits)/v1beta1"
@@ -15,7 +15,7 @@ import (
 		apiVersion:     "v1beta1"
 		catalogVersion: id.Version
 		fqn:            "\(id.kindPrefix.traits)/security-context@v1beta1"
-		description:    "Pod-level security settings for a workload: user, groups, privilege and capabilities"
+		description:    "Pod-level security settings for a workload: user, groups and seccomp profile"
 		labels: {
 			"trait.opmodel.dev/category": "security"
 		}
