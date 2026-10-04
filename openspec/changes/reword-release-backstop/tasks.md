@@ -19,6 +19,6 @@ Do not cite design decision numbers (D1, D2, ...) in `AGENTS.md` or `release.yml
 
 ## 3. Verify and archive
 
-- [ ] 3.1 Run `openspec verify` for `reword-release-backstop` (the `opsx:verify` skill); confirm the Durable decisions landed in `AGENTS.md`
+- [x] 3.1 Run `openspec verify` for `reword-release-backstop` (the `opsx:verify` skill); confirm the Durable decisions landed in `AGENTS.md`
 - [ ] 3.2 At PR time (not in the implement stage): archive the change on this branch with `--skip-specs`
 - [ ] 3.3 At PR time: `openspec validate --all --strict` and `task check` green, then commit `chore(openspec): archive reword-release-backstop`
