@@ -8,6 +8,6 @@
 
 ## 2. Verify and archive
 
-- [ ] 2.1 Run `openspec verify` for `repin-cascade-6938f8e` (the `opsx:verify` skill); confirm the Durable decisions landed in `AGENTS.md`
-- [ ] 2.2 Archive the change on this branch with `--skip-specs`
-- [ ] 2.3 `openspec validate --all --strict` and `task check` green, then commit `chore(openspec): archive repin-cascade-6938f8e`
+- [x] 2.1 Run `openspec verify` for `repin-cascade-6938f8e` (the `opsx:verify` skill); confirm the Durable decisions landed in `AGENTS.md`
+- [x] 2.2 Archive the change on this branch with `--skip-specs`
+- [x] 2.3 `openspec validate --all --strict` and `task check` green, then commit `chore(openspec): archive repin-cascade-6938f8e`
