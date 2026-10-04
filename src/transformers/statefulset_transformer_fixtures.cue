@@ -250,3 +250,74 @@ _testSTSLegacyExposeServiceName: "\(_testSTSLegacyExposeTransformer.spec.service
 	#component:      _testSTSLegacyExposeComponent
 	#context:        _testSTSContext
 }).output.metadata.name)" & "shop-db"
+
+// ---- Pod-level seccomp profile alone ----------------------------------------
+// The trait sets ONLY a seccomp profile, no other pod-level field, so the
+// pod-level presence guard itself is under test: if it does not name
+// seccompProfile, no pod securityContext renders at all.
+_testSTSSeccompComponent: {
+	#instance: {name: "shop", namespace: "apps", uuid: "00000000-0000-0000-0000-000000000000"}
+
+	res.#Container
+	tr.#SecurityContext
+
+	metadata: {
+		name: "db"
+		labels: "core.opmodel.dev/workload-type": "stateful"
+	}
+
+	spec: {
+		container: _testSTSContainer
+		securityContext: seccompProfile: type: "RuntimeDefault"
+	}
+}
+
+_testSTSSeccompTransformer: (#StatefulsetTransformer.#transform & {
+	#moduleInstance: _testSTSModuleInstance
+	#component:      _testSTSSeccompComponent
+	#context:        _testSTSContext
+}).output
+
+_testSTSSeccompPodProfile: [
+	if _testSTSSeccompTransformer.spec.template.spec.securityContext.seccompProfile != _|_ {
+		_testSTSSeccompTransformer.spec.template.spec.securityContext.seccompProfile.type
+	},
+] & ["RuntimeDefault"]
+
+_testSTSSeccompPodNoLocalhostProfile: [
+	if _testSTSSeccompTransformer.spec.template.spec.securityContext.seccompProfile.localhostProfile != _|_ {"leaked"},
+] & []
+
+// ---- Pod-level security context without a seccomp profile ----------------
+// The pod securityContext renders (runAsNonRoot is set), so the absence check
+// below is not vacuous: a seccompProfile rendered unconditionally fails it.
+_testSTSNoSeccompComponent: {
+	#instance: {name: "shop", namespace: "apps", uuid: "00000000-0000-0000-0000-000000000000"}
+
+	res.#Container
+	tr.#SecurityContext
+
+	metadata: {
+		name: "db"
+		labels: "core.opmodel.dev/workload-type": "stateful"
+	}
+
+	spec: {
+		container: _testSTSContainer
+		securityContext: runAsNonRoot: true
+	}
+}
+
+_testSTSNoSeccompTransformer: (#StatefulsetTransformer.#transform & {
+	#moduleInstance: _testSTSModuleInstance
+	#component:      _testSTSNoSeccompComponent
+	#context:        _testSTSContext
+}).output
+
+_testSTSNoSeccompPodRunAsNonRoot: [
+	if _testSTSNoSeccompTransformer.spec.template.spec.securityContext.runAsNonRoot != _|_ {"rendered"},
+] & ["rendered"]
+
+_testSTSNoSeccompPodProfileAbsent: [
+	if _testSTSNoSeccompTransformer.spec.template.spec.securityContext.seccompProfile != _|_ {"leaked"},
+] & []

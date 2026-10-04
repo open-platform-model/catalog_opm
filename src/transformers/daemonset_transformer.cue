@@ -162,7 +162,7 @@ import (
 
 						if #component.spec.securityContext != _|_ {
 							let _sc = #component.spec.securityContext
-							if _sc.runAsNonRoot != _|_ || _sc.runAsUser != _|_ || _sc.runAsGroup != _|_ || _sc.fsGroup != _|_ || _sc.supplementalGroups != _|_ {
+							if _sc.runAsNonRoot != _|_ || _sc.runAsUser != _|_ || _sc.runAsGroup != _|_ || _sc.fsGroup != _|_ || _sc.supplementalGroups != _|_ || _sc.seccompProfile != _|_ {
 								securityContext: {
 									if _sc.runAsNonRoot != _|_ {
 										runAsNonRoot: _sc.runAsNonRoot
@@ -178,6 +178,9 @@ import (
 									}
 									if _sc.supplementalGroups != _|_ {
 										supplementalGroups: _sc.supplementalGroups
+									}
+									if _sc.seccompProfile != _|_ {
+										seccompProfile: _sc.seccompProfile
 									}
 								}
 							}
