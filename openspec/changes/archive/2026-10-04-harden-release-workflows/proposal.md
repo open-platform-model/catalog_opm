@@ -26,8 +26,9 @@ workflows lean on repository defaults that are about to change, and hold more th
   only job that reads `RELEASE_APP_PRIVATE_KEY`) and `contents: read`, `packages: read` (the GHCR
   login of the fixture gate) and `actions: write` (`gh workflow run ci.yml`); everything it writes
   to git or PRs goes through the App token. `publish-cue` gets `contents: read` and
-  `packages: write`. `publish-cue` and `verify-published` check out with
-  `persist-credentials: false`. `verify-published`, `publish-docs` and `notify-downstream` keep
+  `packages: write`. `release-please`, `publish-cue` and `verify-published` check out with
+  `persist-credentials: false`; the identity advance passes the App token to its own fetch and
+  push. `verify-published`, `publish-docs` and `notify-downstream` keep
   their grants.
 - **`ci.yml`**: top-level `permissions: {}`; the `Validate catalog` job gets `contents: read` and
   `packages: read`; its checkout uses `persist-credentials: false`.

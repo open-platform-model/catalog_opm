@@ -6,7 +6,7 @@
 
 ## 2. Publishing workflows
 
-- [x] 2.1 `release.yml`: top-level `permissions: {}`; `release-please` gets `environment: release` and `contents: read`, `packages: read`, `actions: write`; `publish-cue` gets `contents: read`, `packages: write`; `publish-cue` and `verify-published` checkouts `persist-credentials: false` (design D1)
+- [x] 2.1 `release.yml`: top-level `permissions: {}`; `release-please` gets `environment: release` and `contents: read`, `packages: read`, `actions: write`; `publish-cue` gets `contents: read`, `packages: write`; `release-please`, `publish-cue` and `verify-published` checkouts `persist-credentials: false`, the identity advance authenticating its own fetch and push (design D1)
 - [x] 2.2 `branch-publish.yml`: top-level `permissions: {}`, job grants `contents: read`, `packages: write`; `release-please--**` and `dependabot/**` in `branches-ignore`; setup-go `cache: false`; checkout `persist-credentials: false` (design D3)
 - [x] 2.3 Re-grep `.github/workflows/` for `RELEASE_APP_PRIVATE_KEY` (only `release-please`, with `environment: release`), for workflows without `permissions:`, and for `cache` in publishing jobs
 - [x] 2.4 actionlint exits 0, `task check` green, then commit `ci(release): grant each publishing job only what it uses`

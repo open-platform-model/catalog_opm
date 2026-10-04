@@ -52,9 +52,11 @@ State on `main` (3288406):
 | `publish-docs` | unchanged: `contents: read`, `packages: write`, `id-token: write` | docs-kit `publish.yml` release mode |
 | `notify-downstream` | unchanged: `contents: read`, `environment: cascade` | |
 
-The release-please checkout keeps its persisted App-token credentials, because "Advance
-identity.Version" pushes with them. `publish-cue` and `verify-published` push nothing, so their
-checkouts set `persist-credentials: false`.
+Every checkout sets `persist-credentials: false`. The release App is the strongest credential in
+the system (audit GOV-2), so its token does not sit in `.git/config` while `task vet:fixtures`,
+release-please and the downloaded opm run. "Advance identity.Version", the one step that pushes,
+gets the token through `env:`, hands it to its own `git fetch` and `git push` as a per-command
+`http.extraheader` (masked), and unsets it before `opm catalog version set` runs.
 
 ### D2. ci.yml: `permissions: {}`, the job gets `contents: read`, `packages: read`
 
