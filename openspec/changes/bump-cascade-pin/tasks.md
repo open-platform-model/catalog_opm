@@ -8,8 +8,8 @@
 
 ## 2. AGENTS.md
 
-- [ ] 2.1 `AGENTS.md` § Release & publishing and the command table: the canonical copy, its config, the `--pin-on-main` CI step and the gates-only switch (design Durable decisions)
-- [ ] 2.2 `task check` green, then commit `docs(agents): describe the canonical cascade wiring check`
+- [x] 2.1 `AGENTS.md` § Release & publishing and the command table: the canonical copy, its config, the `--pin-on-main` CI step and the gates-only switch (design Durable decisions)
+- [x] 2.2 `task check` green, then commit `docs(agents): describe the canonical cascade wiring check`
 
 ## 3. Verify and archive
 
