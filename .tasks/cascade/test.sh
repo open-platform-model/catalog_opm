@@ -2,7 +2,8 @@
 # task deps:cascade:test: run deps:cascade in sandbox copies of the tree against the contract
 # stub (Phase 2 cascade contract §8; design D6). Nothing touches the real checkout.
 #
-#   CASCADE_TEST_SET=offline   the checks, S1 no-op, S3 resolver error, S6 dirty tree (no network)
+#   CASCADE_TEST_SET=offline   the checks, S1 no-op, S3 resolver error, S6 dirty tree, and S7
+#                              the edit-phase guards with a fake cue (no network)
 #   CASCADE_TEST_SET=all       also S2 older pins, S4 frozen (GHCR or a warm CUE cache) and,
 #                              when CASCADE_RESOLVER_REAL names the real resolver, S5 title and body
 #
@@ -161,6 +162,76 @@ else
   pass "S6 dirty tree"
 fi
 
+# ---- S7 edit-phase guards (a fake cue first on PATH, so still offline) -------------------
+# Not a contract §8 scenario: it covers the paths only a real move reaches, the
+# language.version warning, CASCADE_EXPECT passed on as --expect, a tidy that raises a
+# frozen key (exit 1) or an unfrozen one (a warning), and a tidy that touches
+# language.version (exit 1).
+mkdir -p "$WORK/bin"
+cat >"$WORK/bin/cue" <<'FAKE'
+#!/usr/bin/env bash
+# Fake cue for S7, run in src/: get sets core's v:, tidy does what FAKE_CUE_TIDY says.
+set -euo pipefail
+f=cue.mod/module.cue
+case "$1 $2" in
+  "mod get") sed -i "/\"opmodel.dev\/core@v2\"/,/}/ s/v: \"[^\"]*\"/v: \"${3#*@}\"/" "$f" ;;
+  "mod tidy")
+    case "${FAKE_CUE_TIDY:-}" in
+      raise-k8s) sed -i '/"cue.dev\/x\/k8s.io@v0"/,/}/ s/v:\([[:space:]]*\)"[^"]*"/v:\1"v0.99.0"/' "$f" ;;
+      lang) sed -i '/^language:/,/^}/ s/version: "[^"]*"/version: "v0.99.0"/' "$f" ;;
+    esac ;;
+  *) echo "fake cue: unexpected call: $*" >&2; exit 2 ;;
+esac
+FAKE
+chmod +x "$WORK/bin/cue"
+K8S_KEY=cue.dev/x/k8s.io@v0
+S7_TABLE=$WORK/s7.tsv
+{ cat "$TABLE"; printf 'language-of\t%s\t%s\tv0.99.0\n' "$CORE_KEY" "$CUR_CORE"; } >"$S7_TABLE"
+
+# s7_run NAME TIDY FREEZE_K8S: an older tree, then deps:cascade with the fake cue.
+s7_run() {
+  local d setup
+  d=$(sandbox "$1")
+  set_older "$d"
+  if [ "$3" = 1 ]; then
+    printf 'frozen:\n  - path: %s\n    pins: [%s]\n    reason: deps:cascade:test S7\n' "$CORE_FILE" "$K8S_KEY" >"$d/.cascade-frozen"
+  fi
+  setup=$(commit_setup "$d")
+  PATH="$WORK/bin:$PATH" FAKE_CUE_TIDY="$2" CASCADE_EXPECT="$CORE_KEY=$CUR_CORE" \
+    run_cascade "$d" "$S7_TABLE" "$setup" "$1"
+  S7_DIR=$d
+}
+
+s7_run s7-warn raise-k8s 0
+w="$S7_DIR/.git/cascade/warnings"
+if [ "$RC" != 0 ]; then
+  fail "S7 warnings" "exit $RC, expected 0"; show s7-warn
+elif [ "$(pin_at "$S7_DIR" "$CORE_KEY")" != "$CUR_CORE" ] || [ "$(pin_at "$S7_DIR" "$CLI_KEY")" != "$CUR_CLI" ]; then
+  fail "S7 warnings" "the pins did not move to $CUR_CORE and $CUR_CLI"
+elif ! grep -q "^$CORE_KEY"$'\t'".*language.version \`v0.99.0\`" "$w"; then
+  fail "S7 warnings" "no language.version warning: $(cat "$w")"
+elif ! grep -q "^$K8S_KEY"$'\t'".*raised" "$w"; then
+  fail "S7 warnings" "no warning for the raised $K8S_KEY: $(cat "$w")"
+elif ! grep -q "^newest cue $CORE_KEY .*--expect $CUR_CORE" "$WORK/s7-warn.log"; then
+  fail "S7 warnings" "CASCADE_EXPECT did not reach newest as --expect: $(cat "$WORK/s7-warn.log")"
+else
+  pass "S7 language and tidy warnings, --expect"
+fi
+
+s7_run s7-frozen raise-k8s 1
+if [ "$RC" != 1 ] || ! grep -q "moved frozen $K8S_KEY" "$WORK/s7-frozen.out"; then
+  fail "S7 frozen raise" "exit $RC, expected 1 naming the frozen $K8S_KEY"; show s7-frozen
+else
+  pass "S7 tidy raising a frozen key stops the task"
+fi
+
+s7_run s7-lang lang 0
+if [ "$RC" != 1 ] || ! grep -q "changed language.version" "$WORK/s7-lang.out"; then
+  fail "S7 language.version" "exit $RC, expected 1 naming language.version"; show s7-lang
+else
+  pass "S7 tidy touching language.version stops the task"
+fi
+
 if [ "$SET" = offline ]; then
   [ "$fails" = 0 ] || exit 1
   exit 0
@@ -214,6 +285,8 @@ fi
 # ---- S5 title and body (real resolver, after S2) ---------------------------------------
 if [ -z "${CASCADE_RESOLVER_REAL:-}" ]; then
   printf 'SKIP S5: CASCADE_RESOLVER_REAL is not set\n'
+elif [ ! -x "$CASCADE_RESOLVER_REAL" ]; then
+  fail S5 "CASCADE_RESOLVER_REAL is not executable: $CASCADE_RESOLVER_REAL"
 elif [ "$s2_ok" != 1 ]; then
   fail S5 "needs S2 to pass first"
 else

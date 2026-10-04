@@ -237,6 +237,13 @@ edits it.
   two table rows, no `need-human-review`, and `## Notes` last.
 - Sandbox commits use `git -c user.name=cascade-test -c user.email=cascade-test@localhost`, so a CI
   runner without a git identity can run them.
+- S7 (offline, beyond contract §8): a fake `cue` first on `PATH` sets core's `v:` on `mod get` and,
+  on `mod tidy`, raises `cue.dev/x/k8s.io@v0` or rewrites `language.version`. Against an older tree
+  with a `language-of` stub row newer than the pinned CUE and `CASCADE_EXPECT` naming core, it
+  checks the language.version and raised-key warnings and that `newest` gets `--expect` (exit 0),
+  that a raised frozen key is exit 1, and that a touched `language.version` is exit 1.
+- S5 fails with a clear message when `CASCADE_RESOLVER_REAL` is set but not executable (the
+  network job before `.github` `add-cascade-resolver` merges).
 
 ### D7. CI placement
 
@@ -295,14 +302,36 @@ of its own (contract §6.1).
 **Explored**: each finding against the worktree, the contract and the workspace root `.tasks/`.
 **Decision**: all ten applied, none rejected: the 3.3 gate runs in a sandbox copy (or under
 `CASCADE_ALLOW_DIRTY=1`); `deps:cascade:test` takes the contract §3 anchors and CI sets
-`CASCADE_RESOLVER` to the stub (D1, D7; later replaced by contract v1.1 C7, see D1); the frozen check after `tidy` covers every other dep key
-(D3); `pins.sh` omits a missing core key (D2); the two-writers risk is restated and lands in
-`AGENTS.md` (task 3.4); the contract is cited by name and its durable home; the 2.5 and 4.6 checks
-no longer depend on the environment or on uncommitted files; the `generate-index.sh` range is
-`:32-37`; `.claude/worktrees/` goes into `.gitignore` (task 3.5).
+`CASCADE_RESOLVER` to the stub (D1, D7; later replaced by contract v1.1 C7, see D1); the frozen
+check after `tidy` covers every other dep key (D3); `pins.sh` omits a missing core key (D2); the
+two-writers risk is restated and lands in `AGENTS.md` (task 3.4); the contract is cited by name and
+its durable home; the 2.5 and 4.6 checks no longer depend on the environment or on uncommitted
+files; the `generate-index.sh` range is `:32-37`; `.claude/worktrees/` goes into `.gitignore` (task 3.5).
 **Rationale**: each finding was confirmed against the files. Calling `is-frozen` in phase A (a
 read-only predicate, before any edit) is kept and left for the supervisor to rule on once for all
 four repos, as the review suggests.
+
+### Implementation review and Phase 2 triage
+
+**Context**: the implementation review found one major, three minor findings and three nits; the
+supervisor's Phase 2 triage adds the contract v1.1 clarifications C1 to C10.
+**Explored**: each finding against `cascade.sh` and `test.sh`, and C4 to C7 against the Taskfile
+and both workflows.
+**Decision**: all seven findings applied, none rejected (tasks 4.10 and 4.11):
+- `semver-cmp` runs outside the `[ ]` test, so its failure stops the task (rule 5).
+- S5 names a non-executable `CASCADE_RESOLVER_REAL`.
+- D3 names `--absolute-git-dir`.
+- A CLI tag outside the `.opm-cli-version` shape stops phase A.
+- `CASCADE_EXPECT` is split with `read -a`.
+- A get or tidy that changes `language.version` is exit 1.
+- S7 covers the edit-phase paths (D6).
+
+C4 (the `repo` plus `org-github` layout), C5 (the stub table on every stub call, `semver-cmp`
+included) and C6 (the offline step in `Validate catalog`) already held. C7 drops the resolver var
+from `deps:cascade:test` (D1, D7). C3 settles the plan's open question: calling `is-frozen` in
+phase A, before `newest`, stays.
+**Rationale**: each finding was reproduced or read against the files; S7 turns the manual sandbox
+checks of the earlier report into a regression test that needs no network.
 
 ### Spike findings (section 1)
 

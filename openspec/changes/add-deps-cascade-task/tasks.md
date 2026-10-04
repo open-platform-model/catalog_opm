@@ -37,6 +37,8 @@
 - [x] 4.7 `go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.7 .github/workflows/*.yml` exits 0; `shellcheck .tasks/cascade/*.sh` is clean
 - [x] 4.8 `AGENTS.md` § Build And Dev Commands: a row for `deps:cascade:test` (sets, where each runs) (design, Durable decisions)
 - [x] 4.9 `task check` green, then commit `ci(cascade): test deps:cascade offline in CI and on the network weekly`
+- [x] 4.10 Implementation review: `cascade.sh` stops on a failed `semver-cmp`, a CLI tag outside the `.opm-cli-version` shape and a touched `language.version`, and splits `CASCADE_EXPECT` with `read -a`; `deps:cascade:test` takes no resolver var (contract v1.1 C7) (design, Implementation review)
+- [x] 4.11 `test.sh`: S7 with a fake `cue` (offline) and the S5 executable check (design D6)
 
 ## 5. Archive
 
