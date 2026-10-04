@@ -42,6 +42,6 @@
 
 ## 5. Archive
 
-- [ ] 5.1 Run `openspec verify` for `add-deps-cascade-task` (the `opsx:verify` skill) and confirm every Durable decision is landed in `AGENTS.md`
-- [ ] 5.2 Archive the change on this branch with `--skip-specs`, so the archive rides the implementing PR; never push to main (owner decision 2026-10-01, workspace `RELEASING.md`, Owner settings)
-- [ ] 5.3 `openspec validate --all --strict` green, then commit `chore(openspec): archive add-deps-cascade-task`
+- [x] 5.1 Run `openspec verify` for `add-deps-cascade-task` (the `opsx:verify` skill) and confirm every Durable decision is landed in `AGENTS.md`
+- [x] 5.2 Archive the change on this branch with `--skip-specs`, so the archive rides the implementing PR; never push to main (owner decision 2026-10-01, workspace `RELEASING.md`, Owner settings)
+- [x] 5.3 `openspec validate --all --strict` green, then commit `chore(openspec): archive add-deps-cascade-task`
