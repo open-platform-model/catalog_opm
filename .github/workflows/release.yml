@@ -5,11 +5,10 @@ on:
     branches:
       - main
 
-permissions:
-  contents: write
-  pull-requests: write
-  packages: write
-  actions: write
+# Each job grants exactly what its steps use (the repo default token is
+# read-only). Git and PR writes in release-please go through the release App
+# token, never GITHUB_TOKEN.
+permissions: {}
 
 env:
   # opm resolves the registry via --registry > OPM_REGISTRY > config file — it
@@ -23,6 +22,15 @@ jobs:
   release-please:
     name: Release Please
     runs-on: ubuntu-latest
+    # The only job that reads RELEASE_APP_PRIVATE_KEY. Environment release
+    # deploys from main only, so no branch workflow can read the key.
+    environment: release
+    # GITHUB_TOKEN only logs in to GHCR for the fixture gate (packages: read)
+    # and dispatches ci.yml onto the release branch (actions: write).
+    permissions:
+      contents: read
+      packages: read
+      actions: write
     # Manifest mode emits PER-PACKAGE outputs keyed by the package PATH, even
     # for a single package: the module lives at src/, so its outputs are
     # "src--release_created", "src--tag_name" and "src--version". The tag
@@ -45,9 +53,11 @@ jobs:
       - name: Clone the code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          # The identity advance below pushes to the release branch; pushed
-          # with GITHUB_TOKEN, that commit's CI would wait for approval.
           token: ${{ steps.app-token.outputs.token }}
+          # The App token is not left in .git/config while the fixture gate,
+          # release-please and the downloaded opm run. Only the identity
+          # advance below needs it, and passes it to its own git calls.
+          persist-credentials: false
 
       # The rendered-output fixture gate runs on the pushed main commit BEFORE
       # release-please, which is what pushes the opm-vX.Y.Z tag when a release
@@ -115,13 +125,24 @@ jobs:
       #
       # The module directory and release-please package path is src; the
       # component, which names the release branch and the tag, is opm.
+      #
+      # The fetch and push authenticate as the release App, with the token in
+      # a per-command header (never in .git/config): pushed with GITHUB_TOKEN,
+      # the commit's CI would wait for approval.
       - name: Advance identity.Version on the release PR
+        env:
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           set -euo pipefail
+          auth=$(printf 'x-access-token:%s' "$APP_TOKEN" | base64 -w0)
+          echo "::add-mask::${auth}"
+          # Only git gets the token: opm below runs without it in its env.
+          unset APP_TOKEN
+          app_git() { git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic ${auth}" "$@"; }
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           BRANCH="release-please--branches--main--components--opm"
-          if ! git fetch origin "$BRANCH" 2>/dev/null; then
+          if ! app_git fetch origin "$BRANCH" 2>/dev/null; then
             echo "no open release branch - nothing to advance"
             exit 0
           fi
@@ -134,7 +155,7 @@ jobs:
           fi
           git add src/identity/identity.cue
           git commit -m "chore: advance opm identity.Version to ${VERSION}"
-          git push origin "$BRANCH"
+          app_git push origin "$BRANCH"
 
       # A PR created with GITHUB_TOKEN never triggers pull_request workflows,
       # so the required CI check would sit pending forever on the protected
@@ -157,6 +178,9 @@ jobs:
     needs: release-please
     if: needs.release-please.outputs.opm_release_created == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     # published is set right after the push, the job's last step, so
     # publish-docs, verify-published and notify-downstream key on it: each runs
     # whenever the module reached GHCR.
@@ -171,6 +195,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ needs.release-please.outputs.opm_tag_name }}
+          persist-credentials: false
 
       # Read from the released tag, so the CLI that publishes a release is the
       # one committed in it. The opm CLI pin lives in .opm-cli-version only, so
@@ -251,6 +276,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ needs.release-please.outputs.opm_tag_name }}
+          persist-credentials: false
 
       # Read from the released tag, so the CLI that verifies a release is the
       # one committed in it, the same CLI publish-cue published it with. The

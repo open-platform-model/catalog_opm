@@ -16,13 +16,22 @@ env:
   CUE_REGISTRY: 'opmodel.dev=ghcr.io/open-platform-model,registry.cue.works'
   OPM_REGISTRY: 'opmodel.dev=ghcr.io/open-platform-model,registry.cue.works'
 
+# The job runs the PR's own tree, so its token only reads: the repo, and GHCR
+# to resolve core. Nothing here writes.
+permissions: {}
+
 jobs:
   ci:
     name: Validate catalog
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
     steps:
       - name: Clone the code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       # The opm CLI pin lives in .opm-cli-version only, so a bump never edits a
       # workflow file. The grep refuses a missing, empty or malformed file here,
