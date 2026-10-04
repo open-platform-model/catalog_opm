@@ -367,3 +367,37 @@ _testDeploySeccompMixedValues: [
 		"\(S.runAsNonRoot)|\(S.runAsUser)|\(S.runAsGroup)|\(S.fsGroup)|\(S.supplementalGroups[0])|\(S.seccompProfile.type)"
 	},
 ] & ["true|1337|1337|1337|2000|RuntimeDefault"]
+
+// ---- Pod-level security context without a seccomp profile ----------------
+// The pod securityContext renders (runAsNonRoot is set), so the absence check
+// below is not vacuous: a seccompProfile rendered unconditionally fails it.
+_testDeployNoSeccompComponent: {
+	#instance: {name: "istio", namespace: "istio-system", uuid: "00000000-0000-0000-0000-000000000000"}
+
+	res.#Container
+	tr.#SecurityContext
+
+	metadata: {
+		name: "istiod"
+		labels: "core.opmodel.dev/workload-type": "stateless"
+	}
+
+	spec: {
+		container: _testDeployContainer
+		securityContext: runAsNonRoot: true
+	}
+}
+
+_testDeployNoSeccompTransformer: (#DeploymentTransformer.#transform & {
+	#moduleInstance: _testDeployModuleInstance
+	#component:      _testDeployNoSeccompComponent
+	#context:        _testDeployContext
+}).output
+
+_testDeployNoSeccompPodRunAsNonRoot: [
+	if _testDeployNoSeccompTransformer.spec.template.spec.securityContext.runAsNonRoot != _|_ {"rendered"},
+] & ["rendered"]
+
+_testDeployNoSeccompPodProfileAbsent: [
+	if _testDeployNoSeccompTransformer.spec.template.spec.securityContext.seccompProfile != _|_ {"leaked"},
+] & []

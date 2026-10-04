@@ -332,3 +332,52 @@ _testDSSeccompPodProfile: [
 _testDSSeccompPodNoLocalhostProfile: [
 	if _testDSSeccompTransformer.spec.template.spec.securityContext.seccompProfile.localhostProfile != _|_ {"leaked"},
 ] & []
+
+// ---- Pod-level security context without a seccomp profile ----------------
+// The pod securityContext renders (runAsNonRoot is set), so the absence check
+// below is not vacuous: a seccompProfile rendered unconditionally fails it.
+_testDSNoSeccompComponent: {
+	#instance: {name: "agent", namespace: "kube-system", uuid: "00000000-0000-0000-0000-000000000000"}
+
+	res.#Container
+	tr.#SecurityContext
+
+	metadata: {
+		name: "agent"
+		labels: "core.opmodel.dev/workload-type": "daemon"
+	}
+
+	spec: {
+		container: {
+			name: "agent"
+			image: {
+				repository: "docker.io/library/busybox"
+				tag:        "1.36"
+				digest:     ""
+			}
+		}
+		securityContext: runAsNonRoot: true
+	}
+}
+
+_testDSNoSeccompTransformer: (#DaemonSetTransformer.#transform & {
+	#moduleInstance: {
+		metadata: {
+			name:      "agent"
+			namespace: "kube-system"
+			fqn:       "opmodel.dev/modules/agent@0.1.0"
+			uuid:      "00000000-0000-0000-0000-000000000000"
+		}
+		#moduleMetadata: version: "0.1.0"
+	}
+	#component: _testDSNoSeccompComponent
+	#context: #runtimeName: "opm-test"
+}).output
+
+_testDSNoSeccompPodRunAsNonRoot: [
+	if _testDSNoSeccompTransformer.spec.template.spec.securityContext.runAsNonRoot != _|_ {"rendered"},
+] & ["rendered"]
+
+_testDSNoSeccompPodProfileAbsent: [
+	if _testDSNoSeccompTransformer.spec.template.spec.securityContext.seccompProfile != _|_ {"leaked"},
+] & []
