@@ -257,16 +257,23 @@ jobs:
   # opm-docs reads it from the tag.
   # The workflow-level permissions carry no id-token; this job grants what
   # publish.yml's release mode needs and nothing more.
+  # Once per docs bundle of docs-kit.cue, both from the same release tag:
+  # catalog-opm (the Catalogs tab) and catalog-opm-docs (docs/site). fail-fast
+  # is off, so one project's failure never cancels the other's publish.
   publish-docs:
     name: Publish the opm docs bundle
     needs: [release-please, publish-cue]
     if: always() && needs.publish-cue.outputs.published == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [catalog-opm, catalog-opm-docs]
     permissions:
       contents: read
       packages: write
       id-token: write
-    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.2.1
+    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.6.0
     with:
-      project: catalog-opm
+      project: ${{ matrix.project }}
       mode: release
       tag: ${{ needs.release-please.outputs.opm_tag_name }}

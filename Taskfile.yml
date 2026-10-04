@@ -11,6 +11,9 @@ vars:
   # is generated from (v0.12.0: v1.36.0). tools/kindgen reads each kind's
   # scope from this tag's OpenAPI spec; move it with every x/k8s.io bump.
   KUBERNETES_VERSION: v1.36.0
+  # The docs bundles docs-kit.cue declares: catalog-opm (the Catalogs tab)
+  # and catalog-opm-docs (the authored pages under docs/site/).
+  DOCS_PROJECTS: catalog-opm catalog-opm-docs
 
 tasks:
   default:
@@ -111,11 +114,13 @@ tasks:
 
   ## Docs bundle
   #
-  # docs-kit.cue declares one docs bundle, catalog-opm: the catalog reference
-  # opm-docs generates from the module, plus the authored pages under
-  # docs/catalogs/opm/. CI builds, signs and publishes it through docs-kit's
-  # publish.yml (docs.yml, release.yml); nothing here commits reference
-  # pages. These tasks run the same opm-docs release locally. The
+  # docs-kit.cue declares two docs bundles, both versioned by the opm-v tags:
+  # catalog-opm, the catalog reference opm-docs generates from the module plus
+  # the authored pages under docs/catalogs/opm/ (the Catalogs tab), and
+  # catalog-opm-docs, the authored pages under docs/site/ (placed in /docs/).
+  # CI builds, signs and publishes both through docs-kit's publish.yml
+  # (docs.yml, release.yml); nothing here commits reference pages. These
+  # tasks run the same opm-docs release locally over DOCS_PROJECTS. The
   # release is pinned in .opm-docs-version and in every publish.yml ref, and
   # docs:bundle:check refuses the two disagreeing.
 
@@ -125,10 +130,11 @@ tasks:
       - bash .tasks/opm-docs.sh install
 
   docs:bundle:
-    desc: Build the catalog-opm docs bundle of the work tree into out/catalog-opm/ (a local preview of edge)
+    desc: Build each docs bundle (catalog-opm, catalog-opm-docs) of the work tree into out/<project>/ (a local preview of edge)
     deps: [tools:opm-docs]
     cmds:
-      - .bin/opm-docs build --project catalog-opm --out out
+      - for: {var: DOCS_PROJECTS}
+        cmd: .bin/opm-docs build --project {{.ITEM}} --out out
 
   docs:pins:check:
     desc: Refuse a docs-kit publish.yml ref under .github/workflows/ that names another release than .opm-docs-version (offline)
@@ -136,11 +142,12 @@ tasks:
       - bash .tasks/opm-docs.sh pin-check
 
   docs:bundle:check:
-    desc: Check the docs-kit pins agree, then build and lint the catalog-opm docs bundle into a temporary directory
+    desc: Check the docs-kit pins agree once, then build and lint each docs bundle (catalog-opm, catalog-opm-docs) into a temporary directory
     deps: [tools:opm-docs]
     cmds:
       - task: docs:pins:check
-      - .bin/opm-docs check --project catalog-opm
+      - for: {var: DOCS_PROJECTS}
+        cmd: .bin/opm-docs check --project {{.ITEM}}
 
   ## Kubernetes kind table
   #

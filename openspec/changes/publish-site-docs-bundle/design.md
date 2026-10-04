@@ -15,6 +15,8 @@ This repository is on docs-kit `v0.2.1` (#128); opmodel.dev pins `0.2.2`.
 
 **Trial build, 2026-10-03, docs-kit `v0.2.1`.** With the After config of proposal.md in a scratch tree, `opm-docs check --project catalog-opm-docs` passed: 7 pages, no lint violation. `v0.2.1` predates `pages[].edit`, so task 1.6 re-checks the manifest at the gate's release.
 
+**G3.0 re-read, 2026-10-04, docs-kit `v0.6.0`** (task 1.1). The release lists the four archives and `checksums.txt`; opmodel.dev `main` pins `OPM_DOCS_VERSION=0.6.0`. C1 (the `catalog-opm-docs` row), C3 (`#Page.edit`), C5 (inputs, per-mode permissions, the release tree's config read first), C6 and C15 match this design; nothing in it changed. Section 1 therefore moves straight to `v0.6.0`. Task 1.6 at `v0.6.0`: `out/catalog-opm-docs/` holds the 7 pages, each `generated: false` with `source` and `edit` equal to `docs/site/<path>` and a `lastmod`, placement `docs` at `/docs/` with no `owns`; `opm-docs lint --bundle` (markup check included) passes both bundles; `out/catalog-opm/` has the same 50 pages and identical content as a build of `main` with the same tool, and none of its pages has `edit`.
+
 No member file, `apiVersion` segment, definition, default, closedness or required-field set is touched.
 
 ## Goals / Non-Goals
