@@ -1,0 +1,12 @@
+# Declares which enhancement decisions this change implements. Consumed by
+# `task enhancements:delivery:log` at archive time.
+#
+# 0028:D12 is implemented whole: R1 (seccomp profile at pod and container
+# level, rendered into the pod), R2 (a role with no subjects renders alone) and
+# R3 (a role with subjects renders exactly as before). D12's four rough edges
+# are follow-ups the decision itself excludes, so nothing is under-delivered.
+# Before logging, diff this list against proposal.md's Non-goals.
+implements:
+  - enhancement: "0028"
+    decisions: [D12]
+    resolves: []
