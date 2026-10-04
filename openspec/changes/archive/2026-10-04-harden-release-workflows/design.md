@@ -98,10 +98,12 @@ out (no such directory).
 
 ### D6. Dependabot for github-actions
 
-Weekly, prefix `ci` (a hidden type here, so a bump releases nothing). Ignored:
+Weekly, prefix `ci` (a hidden type here, so a bump releases nothing), with a seven-day
+`cooldown` so a just-published (possibly compromised) action release is not proposed at once
+(audit GOV-4 fix notes). Ignored:
 `open-platform-model/docs-kit*` (moves with `.opm-docs-version`, `task docs:pins:check`) and
 `open-platform-model/.github*` (moves only by the `ci(deps)` pin PR). Same shape as library, cli
-and opm-operator.
+and opm-operator, except that those have no cooldown yet.
 
 ## Research & Decisions
 
@@ -138,4 +140,4 @@ publishes nothing and holds no write grant after D2. docs-kit already sets `cach
 - Every workflow declares `permissions:`; publishing and key-holding jobs get per-job grants;
   `RELEASE_APP_PRIVATE_KEY` is read only in a job with `environment: release`; publishing jobs
   restore no Actions cache; branch-publish skips `release-please--**` and `dependabot/**`; Dependabot covers
-  github-actions with the two ignores. Lands in `AGENTS.md` § Release & publishing.
+  github-actions with a seven-day cooldown and the two ignores. Lands in `AGENTS.md` § Release & publishing.

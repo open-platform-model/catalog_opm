@@ -39,8 +39,9 @@ workflows lean on repository defaults that are about to change, and hold more th
   already explicit and read-only.
 - **`.github/CODEOWNERS`**: the plan's six-line spec, minus `/.cascade-frozen` (no such file here)
   and `/hack/` (no such directory).
-- **`.github/dependabot.yml`**: the `github-actions` ecosystem, weekly, `ci` prefix, ignoring
-  `open-platform-model/docs-kit*` and `open-platform-model/.github*` (both move by hand).
+- **`.github/dependabot.yml`**: the `github-actions` ecosystem, weekly, seven-day cooldown, `ci`
+  prefix, ignoring `open-platform-model/docs-kit*` and `open-platform-model/.github*` (both move
+  by hand).
 - **`AGENTS.md`** § Release & publishing: the `release` Environment, the per-job permission rule,
   the no-cache rule for publishing jobs, the branch-publish exclusion, and Dependabot.
 

@@ -4,6 +4,10 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    # A new action release waits a week before it is proposed, so a
+    # compromised release is more likely to be caught and pulled first.
+    cooldown:
+      default-days: 7
     ignore:
       # docs-kit's publish.yml is pinned by release tag and moves together
       # with .opm-docs-version in one PR (docs-kit C5, C12; task
