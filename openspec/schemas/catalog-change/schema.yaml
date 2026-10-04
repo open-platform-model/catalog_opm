@@ -28,8 +28,9 @@ artifacts:
         any code exists. Keep it to the fields that change.
       - **Impact**: Downstream consumers reached (the `modules` fleet, platforms subscribing
         to the catalog, `cli` fixtures under `testing.opmodel.dev`), and what each has to do.
-        State the release class (`feat:` / `fix:` / `feat!:`); `opm` is a stable line, where a
-        break is a new major.
+        State the release class (`feat:` / `fix:` / `feat!:`) of each section's commit and of
+        the PR title (the highest of them; only the title reaches release-please); `opm` is a
+        stable line, where a break is a new major.
       - **Enhancement**: When the change implements decisions from an entry in the sibling
         `enhancements/` repo, cite the entry and decision numbers instead of restating the
         design, and create `enhancement.yaml` in this change directory now.

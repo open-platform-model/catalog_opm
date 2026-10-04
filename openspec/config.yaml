@@ -122,8 +122,9 @@ rules:
     - Name every downstream consumer the change reaches (the `modules` fleet, platforms
       subscribing to the catalog, `cli` fixtures under `testing.opmodel.dev`) and what each of
       them has to do about it.
-    - State the release class (`feat:` / `fix:` / `feat!:`) of each section's commit per
-      Principle I and whether any member moves to a new `apiVersion` segment. `opm` is a
+    - State the release class (`feat:` / `fix:` / `feat!:`) of each section's commit and of
+      the PR title (the highest of them; only the title reaches release-please) per
+      Principle I, and whether any member moves to a new `apiVersion` segment. `opm` is a
       stable line, so a break is a new major and moves the module path.
     - Breaking changes MUST be called out explicitly with downstream migration cost — a tightened
       constraint or a changed transformer output counts as breaking even when nothing is removed.

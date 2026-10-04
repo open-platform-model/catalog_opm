@@ -16,9 +16,9 @@
 
 ## 3. PR title release class
 
-- [ ] 3.1 Under the table in `AGENTS.md`, make the D1 sentence conditional on `PR_TITLE` and add the D5 title rule. In the Squash message bullet, end with the footer sentence "never takes effect: under `BLANK`, or with the empty-body merge above, it never reaches `main`" (design.md D2).
-- [ ] 3.2 Change `openspec/config.yaml:125`, `openspec/schemas/catalog-change/schema.yaml:31` and `openspec/schemas/catalog-change/templates/proposal.md:29` to ask for the release class of each section's commit and of the PR title (design.md D5).
-- [ ] 3.3 `openspec validate align-release-docs-with-blank-squash --strict` passes, `openspec instructions proposal --change align-release-docs-with-blank-squash` shows the new Impact text, and `task check` is green. Then commit `docs(agents): title a PR with its highest release class`.
+- [x] 3.1 Under the table in `AGENTS.md`, make the D1 sentence conditional on `PR_TITLE` and add the D5 title rule. In the Squash message bullet, end with the footer sentence "never takes effect: under `BLANK`, or with the empty-body merge above, it never reaches `main`" (design.md D2).
+- [x] 3.2 Change `openspec/config.yaml:125`, `openspec/schemas/catalog-change/schema.yaml:31` and `openspec/schemas/catalog-change/templates/proposal.md:29` to ask for the release class of each section's commit and of the PR title (design.md D5).
+- [x] 3.3 `openspec validate align-release-docs-with-blank-squash --strict` passes, `openspec instructions proposal --change align-release-docs-with-blank-squash` shows the new Impact text, and `task check` is green. Then commit `docs(agents): title a PR with its highest release class`.
 
 ## 4. Archive
 
