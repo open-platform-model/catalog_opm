@@ -108,6 +108,16 @@ The existing job gains the same matrix and keeps its `needs`, its condition (`al
 - [A required check is added for `Docs / check` before section 1 merges] -> task 1.8 re-reads branch protection; today only `Validate catalog` is required.
 - [A page that passes the site's shell lint fails `opm-docs lint` in bundle mode] -> the trial build found none at `v0.2.1`; task 1.6 repeats it at the gate's release.
 
+## Rollout record
+
+Section 2, 2026-10-04.
+
+- **Package**: `ghcr.io/open-platform-model/docs/catalog-opm-docs` is `public` and linked to `open-platform-model/catalog_opm` (GitHub packages API).
+- **Edge**: catalog_opm#135 merged as `3e07d1c`; its push run (`Docs / edge (catalog-opm-docs)`, https://github.com/open-platform-model/catalog_opm/actions/runs/37185835088) is green. The `edge` tag moves with every push to `main`; it read `sha256:9d9814190ce915e2818c98764b7e917f4e64370f72c94fce914f01c684f300a1` when checked. `cosign verify` with docs-kit C9's flags passes for the digest `sha256:ae9fa3a5b139a11a15321bb4dfce3a900af139e07f476b7cce9a860c1ce109c1`, the earlier edge.
+- **Release**: the owner forced a patch, catalog_opm#136 (`fix(catalog)`, HPA `averageUtilization` above 100); release PR #138 produced opm v4.5.2 (tag `opm-v4.5.2`, built from `fce215ab465e36da5772e695aa9ed565d1db5b6f`). Release run https://github.com/open-platform-model/catalog_opm/actions/runs/37186145038: `Publish the opm docs bundles (catalog-opm-docs)` build and publish are green, as is the `catalog-opm` pair.
+- **Tags**: `docs/catalog-opm-docs:4.5.2.0`, `4.5.2`, `4.5` and `4` all resolve anonymously (`crane digest`) to `sha256:0c14339552c4f49a5e8416da77cd5ebc10cc5a92976ed48b29f14e245127b88d`; `cosign verify` passes for it.
+- **Site**: opmodel.dev#43 merged; `v1.0` takes `catalog-opm-docs` at tag `4` (G3.1 holds, and the site reads no git for these pages).
+
 ## Durable decisions
 
 - `docs/site/` ships in the `catalog-opm-docs` bundle, built from the same `opm-v` tags as the tab; the dispatch and the tasks name a project: `AGENTS.md`, "Docs bundles" and Repository Layout (section 1).
