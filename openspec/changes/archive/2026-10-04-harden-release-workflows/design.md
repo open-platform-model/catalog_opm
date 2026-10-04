@@ -62,12 +62,15 @@ checkouts set `persist-credentials: false`.
 checkout sets `persist-credentials: false`; no task or `.tasks/` script runs `git fetch`, `git
 push` or `gh` (checked by grep), so nothing needs the credential.
 
-### D3. branch-publish.yml: grants on the job, `release-please--**` skipped, no cache
+### D3. branch-publish.yml: grants on the job, bot heads skipped, no cache
 
 The job keeps `contents: read` and `packages: write` (it publishes), moved from workflow level to
-job level under `permissions: {}`. `release-please--**` joins `branches-ignore`: a release head is
-bot-written, nobody consumes its dev tag, and skipping it keeps `packages: write` away from that
-tree before a human reads it (plan item 4; `deps/**` was already skipped). `actions/setup-go`
+job level under `permissions: {}`. `release-please--**` and `dependabot/**` join
+`branches-ignore`: both heads are bot-written, nobody consumes their dev tags, and skipping them
+keeps `packages: write` away from those trees before a human reads them (plan item 4; `deps/**`
+was already skipped). Dependabot's push runs get a read-only token by default, but a workflow's
+`permissions:` key raises it, so without the skip each action bump (D6) would run the new action
+SHA and `task check` and then publish with a GHCR write token, unreviewed. `actions/setup-go`
 gets `cache: false`: the job publishes, and a restored Go cache is an input nobody verifies
 (plan item 3). The checkout sets `persist-credentials: false`; `branch-tag.sh` reads tags from
 the full-history checkout and never fetches.
@@ -134,5 +137,5 @@ publishes nothing and holds no write grant after D2. docs-kit already sets `cach
 
 - Every workflow declares `permissions:`; publishing and key-holding jobs get per-job grants;
   `RELEASE_APP_PRIVATE_KEY` is read only in a job with `environment: release`; publishing jobs
-  restore no Actions cache; branch-publish skips `release-please--**`; Dependabot covers
+  restore no Actions cache; branch-publish skips `release-please--**` and `dependabot/**`; Dependabot covers
   github-actions with the two ignores. Lands in `AGENTS.md` § Release & publishing.

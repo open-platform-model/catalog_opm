@@ -32,8 +32,9 @@ workflows lean on repository defaults that are about to change, and hold more th
 - **`ci.yml`**: top-level `permissions: {}`; the `Validate catalog` job gets `contents: read` and
   `packages: read`; its checkout uses `persist-credentials: false`.
 - **`branch-publish.yml`**: top-level `permissions: {}`; the job gets `contents: read` and
-  `packages: write`. `release-please--**` joins `deps/**` in `branches-ignore`. setup-go gets
-  `cache: false`. The checkout uses `persist-credentials: false`.
+  `packages: write`. `release-please--**` and `dependabot/**` join `deps/**` in
+  `branches-ignore`. setup-go gets `cache: false`. The checkout uses
+  `persist-credentials: false`.
 - **`cascade-task.yml`**: the repo checkout uses `persist-credentials: false`. Its permissions are
   already explicit and read-only.
 - **`.github/CODEOWNERS`**: the plan's six-line spec, minus `/.cascade-frozen` (no such file here)
@@ -84,7 +85,7 @@ jobs:
 permissions: {}
 jobs: {ci: {permissions: {contents: read, packages: read}}}
 # branch-publish.yml
-on: {push: {branches-ignore: [main, 'deps/**', 'release-please--**']}}
+on: {push: {branches-ignore: [main, 'deps/**', 'release-please--**', 'dependabot/**']}}
 permissions: {}
 jobs: {publish: {permissions: {contents: read, packages: write}}}
 #   setup-go: cache: false

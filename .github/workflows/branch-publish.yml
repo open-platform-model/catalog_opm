@@ -5,10 +5,12 @@ on:
     branches-ignore:
       - main
       # Bot branches never publish dev catalogs: the release cascade's
-      # deps/cascade and release-please's release heads. Their trees are
-      # bot-written, so no packages: write token runs them before review.
+      # deps/cascade, release-please's release heads and Dependabot's bumps.
+      # Their trees are bot-written, so no packages: write token runs them
+      # (or a new action SHA) before review.
       - 'deps/**'
       - 'release-please--**'
+      - 'dependabot/**'
 
 permissions: {}
 
