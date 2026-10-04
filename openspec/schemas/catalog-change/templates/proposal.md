@@ -26,8 +26,9 @@
 ## Impact
 
 <!-- Downstream consumers reached (modules fleet, subscribing platforms, cli fixtures) and what
-     each has to do. Release class (feat: / fix: / feat!:); opm is a stable line, where a break
-     is a new major. -->
+     each has to do. Release class (feat: / fix: / feat!:) of each section's commit and of the
+     PR title (the highest of them; only the title reaches release-please); opm is a stable
+     line, where a break is a new major. -->
 
 ## Enhancement
 
