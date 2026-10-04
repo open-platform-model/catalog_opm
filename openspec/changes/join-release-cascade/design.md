@@ -249,6 +249,18 @@ required inputs and types. A planted unknown key `tagg` fails it, so the check b
 - `notify-downstream` → `cascade-notify.yml` (wiring §4.1): inputs `tag` (string, required)
   and `org-github-ref` (string, default `main`). The caller passes `tag` only. The reusable job
   declares `contents: read`, which the caller grants. No `secrets:` on either side.
+- `cascade` job → `cascade-receive.yml` (wiring §6.1): the caller passes `dry-run` (boolean,
+  the only required input), `gates-only`, `setup-go` and `labels-managed` (boolean), and
+  `g2-mode`, `g3-mode` and `cue-version` (string), all declared with those types. The called
+  jobs declare `contents: read` + `pull-requests: read` (`compute`, `publish`) and
+  `contents: read` + `statuses: write` + `pull-requests: read` (`gates`); the caller grants
+  `contents: read`, `pull-requests: read` and `statuses: write`, which covers all three.
+  `publish` does its writes with the App token, not `GITHUB_TOKEN`.
+- `gates` job → `cascade-gates.yml` (wiring §8.3): the caller passes `g2-mode` and `g3-mode`
+  (string), both declared. The called job declares `statuses: write` and `actions: write`,
+  exactly what the caller grants.
+- Apart from comments, both new files equal the wiring §5 (with the §5.1 values) and §8.3 YAML;
+  the only added line is `cue-version: v0.17.1` (D4).
 
 ### Contract choices that apply to catalog_opm
 

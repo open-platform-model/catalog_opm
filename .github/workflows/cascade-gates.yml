@@ -1,0 +1,33 @@
+name: Cascade gates
+
+# Posts the release gates cascade/freshness (G2) and cascade/settled (G3) on every
+# PR (workspace RELEASING.md, "Gates"; Phase 3 wiring contract §8.3). A PR that
+# is not a release PR gets both as success, n/a. On the release PR it dispatches
+# a gates-only Deps cascade run on main, which evaluates and posts them. The mode
+# comes from CASCADE_G2_MODE and CASCADE_G3_MODE, warn by default; neither status
+# is a required check.
+#
+# pull_request_target is safe here: the reusable job checks out nothing and runs
+# no PR code. Its token can only post a commit status and dispatch
+# deps-cascade.yml on main. The caller passes no secret input.
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize]
+
+permissions: {}
+
+concurrency:
+  group: cascade-gates-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  gates:
+    name: Cascade gates
+    permissions:
+      statuses: write
+      actions: write
+    uses: open-platform-model/.github/.github/workflows/cascade-gates.yml@main
+    with:
+      g2-mode: ${{ vars.CASCADE_G2_MODE || 'warn' }}
+      g3-mode: ${{ vars.CASCADE_G3_MODE || 'warn' }}
