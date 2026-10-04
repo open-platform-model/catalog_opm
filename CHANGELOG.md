@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.5.2](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.5.1...opm-v4.5.2) (2026-10-04)
+
+
+### Bug Fixes
+
+* **catalog:** allow scaling utilization targets above 100 percent ([#136](https://github.com/open-platform-model/catalog_opm/issues/136)) ([91d37d4](https://github.com/open-platform-model/catalog_opm/commit/91d37d40b16627fc685943a39900eaeee8a3908e))
+
 ## [4.5.1](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.5.0...opm-v4.5.1) (2026-10-03)
 
 
