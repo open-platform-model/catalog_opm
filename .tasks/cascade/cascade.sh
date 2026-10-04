@@ -34,6 +34,9 @@ CLI_KEY=github.com/open-platform-model/cli
 # The repo's pinned CUE version for the language.version check (contract §5.2 rule 10;
 # design D5). Read only, never edited.
 CUE_VERSION_FILE=.github/workflows/branch-publish.yml
+# The shape .opm-cli-version must keep (pins.sh CLI_SHAPE; ci.yml, "Read the pinned opm CLI
+# version"). Stricter than the contract §2.2 version: no "-" inside the prerelease, no build.
+CLI_SHAPE='^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$'
 
 # Rule 1: the snapshot a CASCADE_ALLOW_DIRTY=1 run is judged by (contract §5.2).
 snapshot() {
@@ -76,8 +79,11 @@ export OPM_REGISTRY="$CUE_REGISTRY"
 
 # expect_for KEY: the version CASCADE_EXPECT names for KEY ("<pin-key>=<v> ..."), if any.
 expect_for() {
-  local w
-  for w in ${CASCADE_EXPECT:-}; do
+  local w ws=()
+  # read -a, never an unquoted expansion: the value can come from an untrusted payload, and
+  # an unquoted word would also be glob-expanded against the tree.
+  read -r -a ws <<<"${CASCADE_EXPECT:-}"
+  for w in "${ws[@]}"; do
     if [ "${w%%=*}" = "$1" ]; then
       printf '%s\n' "${w#*=}"
       return 0
@@ -124,6 +130,9 @@ key_v() {
   fi
 }
 
+# lang_block: the language: block of src/cue.mod/module.cue (empty when there is none).
+lang_block() { awk '/^language:/ { d = 1 } d { print } d && /^\}$/ { exit }' "$CORE_FILE"; }
+
 # dep_keys: every key of the deps: block of src/cue.mod/module.cue except core.
 dep_keys() {
   awk -v core="$CORE_KEY" '
@@ -163,7 +172,11 @@ if [ -n "$core_to" ]; then
     lang=$("$R" language-of "$CORE_KEY" "$core_to") || rc=$?
     case "$rc" in
       0)
-        if [ "$("$R" semver-cmp "$lang" "$pinned")" = 1 ]; then
+        # Never inside the [ ] test: set -e does not see a failed command substitution there.
+        cmp_rc=0
+        order=$("$R" semver-cmp "$lang" "$pinned") || cmp_rc=$?
+        [ "$cmp_rc" = 0 ] || die "resolver semver-cmp $lang $pinned failed (exit $cmp_rc)" "$cmp_rc"
+        if [ "$order" = 1 ]; then
           warn "$CORE_KEY" "core \`$core_to\` declares language.version \`$lang\`, newer than the pinned CUE \`$pinned\` in \`$CUE_VERSION_FILE\`"
         fi ;;
       3) ;;
@@ -184,6 +197,8 @@ if is_frozen "$CLI_FILE" "$CLI_KEY"; then
 else
   cli_to=$(resolve "$CLI_KEY" opm-cli "" "$cli_cur")
 fi
+# A tag pins.sh and CI would refuse is never written (contract §2.2 allows more).
+[[ -z "$cli_to" || "$cli_to" =~ $CLI_SHAPE ]] || die "opm CLI $cli_to does not fit the $CLI_FILE shape"
 
 # ---- Phase B: tools. None: catalog_opm has no version-advance module. --------------------
 
@@ -191,6 +206,7 @@ fi
 if [ -n "$core_to" ]; then
   declare -A before=()
   for k in "${others[@]}"; do before[$k]=$(key_v "$k"); done
+  lang_before=$(lang_block)
 
   # Rule 6: an explicit version, one get and one tidy, in src/ only.
   (
@@ -198,6 +214,9 @@ if [ -n "$core_to" ]; then
     cue mod get "$CORE_MOD@$core_to"
     cue mod tidy
   )
+  # Rule 14: the task never touches language.version, and neither may the get or tidy it runs.
+  [ "$(lang_block)" = "$lang_before" ] \
+    || die "cue mod get or tidy changed language.version in $CORE_FILE"
   now=$(key_v "$CORE_KEY")
   [ "$now" = "$core_to" ] || die "$CORE_FILE: core is $now after cue mod get, expected $core_to"
   note "core: $core_cur -> $core_to"
