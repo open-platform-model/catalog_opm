@@ -280,3 +280,55 @@ _testDSRollingDefaultsNoParams: [
 _testDSRuntimeClassNameResolves:    "\(_testDSRuntimeClassTransformer.metadata.name)" & "nvidia-device-plugin-nvidia-device-plugin"
 _testDSStrategyNameResolves:        "\(_testDSStrategyTransformer.metadata.name)" & "agent-agent"
 _testDSRollingDefaultsNameResolves: "\(_testDSRollingDefaultsTransformer.metadata.name)" & "agent-agent-rolling"
+
+// ---- Pod-level seccomp profile alone ----------------------------------------
+// The trait sets ONLY a seccomp profile, no other pod-level field, so the
+// pod-level presence guard itself is under test: if it does not name
+// seccompProfile, no pod securityContext renders at all.
+_testDSSeccompComponent: {
+	#instance: {name: "agent", namespace: "kube-system", uuid: "00000000-0000-0000-0000-000000000000"}
+
+	res.#Container
+	tr.#SecurityContext
+
+	metadata: {
+		name: "agent"
+		labels: "core.opmodel.dev/workload-type": "daemon"
+	}
+
+	spec: {
+		container: {
+			name: "agent"
+			image: {
+				repository: "docker.io/library/busybox"
+				tag:        "1.36"
+				digest:     ""
+			}
+		}
+		securityContext: seccompProfile: type: "RuntimeDefault"
+	}
+}
+
+_testDSSeccompTransformer: (#DaemonSetTransformer.#transform & {
+	#moduleInstance: {
+		metadata: {
+			name:      "agent"
+			namespace: "kube-system"
+			fqn:       "opmodel.dev/modules/agent@0.1.0"
+			uuid:      "00000000-0000-0000-0000-000000000000"
+		}
+		#moduleMetadata: version: "0.1.0"
+	}
+	#component: _testDSSeccompComponent
+	#context: #runtimeName: "opm-test"
+}).output
+
+_testDSSeccompPodProfile: [
+	if _testDSSeccompTransformer.spec.template.spec.securityContext.seccompProfile != _|_ {
+		_testDSSeccompTransformer.spec.template.spec.securityContext.seccompProfile.type
+	},
+] & ["RuntimeDefault"]
+
+_testDSSeccompPodNoLocalhostProfile: [
+	if _testDSSeccompTransformer.spec.template.spec.securityContext.seccompProfile.localhostProfile != _|_ {"leaked"},
+] & []

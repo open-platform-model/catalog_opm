@@ -88,3 +88,42 @@ _testCronJobExactNameTransformer: (#CronJobTransformer.#transform & {
 }).output
 
 _testCronJobExactNameResolves: "\(_testCronJobExactNameTransformer.metadata.name)" & "nightly-sync"
+
+// ---- Pod-level seccomp profile alone ----------------------------------------
+// The trait sets ONLY a seccomp profile, no other pod-level field, so the
+// pod-level presence guard itself is under test: if it does not name
+// seccompProfile, no pod securityContext renders at all.
+_testCronJobSeccompComponent: {
+	#instance: {name: "batch", namespace: "jobs", uuid: "00000000-0000-0000-0000-000000000000"}
+
+	res.#Container
+	tr.#SecurityContext
+	tr.#CronJobConfig
+
+	metadata: {
+		name: "sync"
+		labels: "core.opmodel.dev/workload-type": "scheduled-task"
+	}
+
+	spec: {
+		container: _testCronJobContainer
+		securityContext: seccompProfile: type: "RuntimeDefault"
+		cronJobConfig: scheduleCron: "0 * * * *"
+	}
+}
+
+_testCronJobSeccompTransformer: (#CronJobTransformer.#transform & {
+	#moduleInstance: _testCronJobModuleInstance
+	#component:      _testCronJobSeccompComponent
+	#context:        _testCronJobContext
+}).output
+
+_testCronJobSeccompPodProfile: [
+	if _testCronJobSeccompTransformer.spec.jobTemplate.spec.template.spec.securityContext.seccompProfile != _|_ {
+		_testCronJobSeccompTransformer.spec.jobTemplate.spec.template.spec.securityContext.seccompProfile.type
+	},
+] & ["RuntimeDefault"]
+
+_testCronJobSeccompPodNoLocalhostProfile: [
+	if _testCronJobSeccompTransformer.spec.jobTemplate.spec.template.spec.securityContext.seccompProfile.localhostProfile != _|_ {"leaked"},
+] & []
