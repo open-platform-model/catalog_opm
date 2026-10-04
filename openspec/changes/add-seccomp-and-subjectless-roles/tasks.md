@@ -23,6 +23,6 @@
 
 ## 3. Durable decisions: docs/
 
-- [ ] 3.1 `docs/transformer-authoring.md`: new section 7, the shared-security-context wiring rule (design.md Durable decisions, first entry).
-- [ ] 3.2 `AGENTS.md`, the fixture bullets: the presence-list assertion rule, beside the bullet that a golden literal asserts presence and never absence (design.md Durable decisions, second entry).
-- [ ] 3.3 `task check` green, then commit `docs(catalog): note the shared security context wiring and presence-list rules`
+- [x] 3.1 `docs/transformer-authoring.md`: new section 7, the shared-security-context wiring rule (design.md Durable decisions, first entry).
+- [x] 3.2 `AGENTS.md`, the fixture bullets: the presence-list assertion rule, beside the bullet that a golden literal asserts presence and never absence (design.md Durable decisions, second entry).
+- [x] 3.3 `task check` green, then commit `docs(catalog): note the shared security context wiring and presence-list rules`

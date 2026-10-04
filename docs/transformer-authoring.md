@@ -125,3 +125,22 @@ if o.#scope == "Namespaced" if o.metadata.namespace == _|_ {
 A refusal that depends on such a field sits in the member's schema, behind guards that hold
 only for a concrete entry, never in the transformer (rule 3). See
 `src/resources/v1alpha1/objects.cue` for the schema side.
+
+## 7. A field of the shared security context is wired at every scope it renders at
+
+`#SecurityContextSchema` (`resources/v1beta1/container.cue`) is one schema for two
+scopes: a container's `securityContext`, and the pod-level `securityContext` of the
+`security-context` trait. Adding a field to it is not done until every renderer of each
+scope Kubernetes accepts it at carries it:
+
+- **Pod scope:** the pod-level block of all five workload transformers (Deployment,
+  StatefulSet, DaemonSet, Job, CronJob). Each block opens with a presence guard over the
+  fields it renders; the new field goes into that guard as well as into the body. Without
+  it, a pod security context holding only the new field renders no `securityContext` at
+  all, and a fixture that also sets `runAsNonRoot` hides the bug.
+- **Container scope:** `#ToK8sContainer` in `container_helpers.cue`, which renders main,
+  init and sidecar containers alike.
+
+Assert each scope with a presence-list guard (AGENTS.md, the fixture bullets), and give
+the pod-level fixture the new field and no other pod-level field, so the presence guard
+itself is under test.
