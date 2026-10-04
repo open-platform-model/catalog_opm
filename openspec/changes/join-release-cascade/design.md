@@ -240,7 +240,15 @@ release.
 
 ### Caller inputs checked
 
-Filled in by tasks 2.3 and 3.4.
+Checked against the wiring contract and the reusable workflows on A's branch
+`feat/add-release-cascade-workflows` at `04bc25d` (worktree copies; the branch is not on
+`origin` yet). The check copies the callers and A's three files into a scratch tree, points
+each `uses:` at the local copy and runs actionlint v1.7.12, which then validates input names,
+required inputs and types. A planted unknown key `tagg` fails it, so the check bites.
+
+- `notify-downstream` → `cascade-notify.yml` (wiring §4.1): inputs `tag` (string, required)
+  and `org-github-ref` (string, default `main`). The caller passes `tag` only. The reusable job
+  declares `contents: read`, which the caller grants. No `secrets:` on either side.
 
 ### Contract choices that apply to catalog_opm
 

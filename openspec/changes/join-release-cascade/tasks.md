@@ -8,11 +8,11 @@
 
 ## 2. `.github/workflows/release.yml`: notify downstream after publish
 
-- [ ] 2.1 Add the job `notify-downstream` exactly as design D3 shows (wiring §4.3, §4.5 catalog_opm row). Name `Notify downstream`, `needs: [release-please, publish-cue]`, `if: ${{ !cancelled() && needs.publish-cue.outputs.published == 'true' && vars.CASCADE_NOTIFY != 'off' }}`, `permissions: {contents: read}`, `uses: open-platform-model/.github/.github/workflows/cascade-notify.yml@main`, `with: {tag: ${{ needs.release-please.outputs.opm_tag_name }}}`, with no `secrets:` and no `org-github-ref`. Place it after `publish-docs`, with the comment from design D3
-- [ ] 2.2 `AGENTS.md` § Release & publishing: add a bullet for `notify-downstream`. It covers what it waits for (`published` only), whom it dispatches to (library, opm-operator, cli), the Environment, the `CASCADE_NOTIFY=off` stop switch, and recovery: "Re-run failed jobs" on the Release run, or the receivers' daily sweep (design D3, Durable decisions)
-- [ ] 2.3 Check the call against wiring §4.1 and against `on.workflow_call.inputs` of `cascade-notify.yml` in A's `add-release-cascade-workflows` worktree: `tag` must be its only required input, and no `with:` key may be unknown. Record the result and the A commit checked in design.md "Caller inputs checked"
-- [ ] 2.4 `actionlint` exits 0 on `.github/workflows/*.yml`
-- [ ] 2.5 `openspec validate join-release-cascade --strict` and `task check` green, then commit `ci(release): notify downstream repos after publish`
+- [x] 2.1 Add the job `notify-downstream` exactly as design D3 shows (wiring §4.3, §4.5 catalog_opm row). Name `Notify downstream`, `needs: [release-please, publish-cue]`, `if: ${{ !cancelled() && needs.publish-cue.outputs.published == 'true' && vars.CASCADE_NOTIFY != 'off' }}`, `permissions: {contents: read}`, `uses: open-platform-model/.github/.github/workflows/cascade-notify.yml@main`, `with: {tag: ${{ needs.release-please.outputs.opm_tag_name }}}`, with no `secrets:` and no `org-github-ref`. Place it after `publish-docs`, with the comment from design D3
+- [x] 2.2 `AGENTS.md` § Release & publishing: add a bullet for `notify-downstream`. It covers what it waits for (`published` only), whom it dispatches to (library, opm-operator, cli), the Environment, the `CASCADE_NOTIFY=off` stop switch, and recovery: "Re-run failed jobs" on the Release run, or the receivers' daily sweep (design D3, Durable decisions)
+- [x] 2.3 Check the call against wiring §4.1 and against `on.workflow_call.inputs` of `cascade-notify.yml` in A's `add-release-cascade-workflows` worktree: `tag` must be its only required input, and no `with:` key may be unknown. Record the result and the A commit checked in design.md "Caller inputs checked"
+- [x] 2.4 `actionlint` exits 0 on `.github/workflows/*.yml`
+- [x] 2.5 `openspec validate join-release-cascade --strict` and `task check` green, then commit `ci(release): notify downstream repos after publish`
 
 ## 3. `.github/workflows/deps-cascade.yml` and `cascade-gates.yml`
 
