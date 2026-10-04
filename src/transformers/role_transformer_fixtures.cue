@@ -284,6 +284,25 @@ _testUnboundClusterRoleCount: (len(_testUnboundClusterRoleTransformer) + 0) & 1
 _testUnboundClusterRoleKind:  "\(_testUnboundClusterRoleTransformer[0].kind)" & "ClusterRole"
 _testUnboundClusterRoleRule:  "\(_testUnboundClusterRoleTransformer[0].rules[0].nonResourceURLs[0])" & "/metrics"
 
+// Pins `subjects` optional. The outputs above stay concrete if the field
+// turns required (`!= _|_` is false for a missing required field) and cue
+// vet skips hidden fields, so the role spec is exported instead: it uses the
+// #transform form, so .tasks/fixtures.sh exports it and a required field
+// fails with "field is required but not present".
+_testUnboundClusterRoleSpec: (#RoleTransformer.#transform & {
+	#moduleInstance: {
+		metadata: {
+			name:      "metrics"
+			namespace: "monitoring"
+			fqn:       "opmodel.dev/modules/metrics@0.1.0"
+			uuid:      "00000000-0000-0000-0000-000000000000"
+		}
+		#moduleMetadata: version: "0.1.0"
+	}
+	#component: _testUnboundClusterRoleComponent
+	#context: #runtimeName: "opm-test"
+}).#component.spec.role
+
 // Test: EMBEDDED subject-less namespace Role. It renders the Role alone.
 _testUnboundNsRoleComponent: {
 	metadata: name: "viewer"
