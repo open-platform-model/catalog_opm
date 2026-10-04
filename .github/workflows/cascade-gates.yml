@@ -1,5 +1,4 @@
 name: Cascade gates
-
 # Posts the release gates cascade/freshness (G2) and cascade/settled (G3) on every
 # PR (workspace RELEASING.md, "Gates"; Phase 3 wiring contract §8.3). A PR that
 # is not a release PR gets both as success, n/a. On the release PR it dispatches
@@ -14,17 +13,13 @@ name: Cascade gates
 # task -x deps:cascade, read-only and without secrets (wiring contract 8.2).
 # No call passes secrets:. The reusable workflow is pinned to the repo's one
 # .github main SHA (Phase 3 wiring contract version 3.1, section 8.3).
-
 on:
   pull_request_target:
     types: [opened, reopened, synchronize]
-
 permissions: {}
-
 concurrency:
   group: cascade-gates-${{ github.event.pull_request.number }}
   cancel-in-progress: true
-
 jobs:
   gates:
     name: Cascade gates

@@ -277,6 +277,17 @@ the pin to the two reusable workflows and to the resolver checkout in `cascade-t
 - **Every key-holding job runs on `ubuntu-latest`**: `notify-downstream` and `publish`. A
   self-hosted runner label would hand the key to a machine outside GitHub's hosted pool.
 
+And one addition from the implementation review (its finding 3):
+
+- **The key-holding jobs' other values are fixed too.** The notify job's `name`, `needs`
+  (`[release-please, publish-cue]`), `if:`, `timeout-minutes` (20), step name and `tag` input
+  must equal wiring §4.6; the `publish` job's `name`, `needs` (`cascade`), `timeout-minutes`
+  (15), step name and `labels-managed` (`false`) must equal §5.2. Without this, notify could
+  wait for `verify-published` (which §4.5 forbids) or run on `always()`, and the `tag` input
+  could read the key through a `secrets[...]` or `toJSON(secrets)` form the key-reader regex
+  does not match. The contract's script does not have these asserts; the review asks for a
+  contract amendment that adds them in all five repos.
+
 It runs as `task cascade:wiring:check`, a step "Verify the cascade wiring" in `ci.yml`'s required
 job `Validate catalog` right after "Install Task", and as a member of the aggregate `task check`.
 It needs mikefarah yq v4 (preinstalled on the runner; the script refuses any other yq).
@@ -339,15 +350,17 @@ on `main`), read from the local `.github` clone after a fetch.
   `cascade` call fails it ("input \"labels-managed\" is not defined"), so the check bites.
 - **Byte for byte.** With comments removed, `deps-cascade.yml` equals the wiring §5 block with the
   §5.2 catalog_opm `jobs:` map and `<SHA>` filled in, apart from one blank line where the header
-  comment sits; `cascade-gates.yml` equals §8.3 the same way.
+  comment sits; `cascade-gates.yml` equals §8.3 with no blank lines at all (the header comment
+  sits between `name:` and `on:`, which §8.3 allows).
 
 ### Wiring check run
 
 Run on 2026-10-04 with mikefarah yq v4.53.3 and shellcheck v0.11.0 (clean).
 
-- **Delta from the contract script.** `diff` against wiring §10.1 item 6 shows only the addendum:
-  the header lines naming it, `ENV_ALLOW=(OPM_REGISTRY CUE_REGISTRY)`, one `runs-on` line in
-  `key_job`, and the env block, where the deny-list of `BASH_ENV`, `ENV` and `NODE_OPTIONS`
+- **Delta from the contract script.** `diff` against wiring §10.1 item 6 shows only the addendum
+  and the review's value asserts (D8): the header lines naming them,
+  `ENV_ALLOW=(OPM_REGISTRY CUE_REGISTRY)`, one `runs-on` line in `key_job`, six `eq` lines for
+  the notify job, five for `publish`, and the env block, where the deny-list of `BASH_ENV`, `ENV` and `NODE_OPTIONS`
   becomes the allow-list plus a check that `env` is a map (or absent), so a
   `${{ fromJSON(...) }}` expression cannot hide keys. `RECEIVER=true` and
   `PIN_COMMENT='.github main'` are the contract's defaults.
@@ -368,6 +381,12 @@ Run on 2026-10-04 with mikefarah yq v4.53.3 and shellcheck v0.11.0 (clean).
   `self-hosted`; `publish` on `[ubuntu-latest]` and on `ubuntu-24.04`). Passed: the unmutated
   baseline, a second header comment line in `deps-cascade.yml`, `release.yml`'s `env` without
   `CUE_REGISTRY` (the list allows, it does not require), and an edit to an unrelated job.
+- **Review probes** (the reviewer's harness, re-run after the value asserts): refused are notify
+  `if: always()`, notify `needs: release-please`, notify `needs` with `verify-published`, the
+  `tag` input reading `secrets["CASCADE_APP_PRIVATE_KEY"]` or another expression, `publish`
+  `needs: []` and `labels-managed: true`. Still passing, as the review expects: raised caller
+  permissions on the `cascade` and `gates` calls (the called jobs declare narrower ones), and
+  edits outside the key-holding jobs that cannot reach the Environment secret.
 
 ### Re-grep
 
@@ -384,10 +403,11 @@ the `AGENTS.md` edit, leaves only allowed hits:
   proposal), and Risks quoting that phrase to say it does not address review finding 1;
 - "reusable notify" only where the text says there is none (`AGENTS.md`, design D3);
 - `holds no write grant` in the `verify-published` comment, about `GITHUB_TOKEN` grants, not the
-  cascade.
+  cascade;
+- `no checkout and no` in Risks, about the per-PR gates job, which checks out nothing.
 
 No hit for `org-github-ref`, `not pass any secret`, `main yet`, `ships it on`, `resolver is on`,
-`no checkout and no`, `re-arm`, `sandbox step` or "shared workflow … mint/declare/publish".
+`re-arm`, `sandbox step` or "shared workflow … mint/declare/publish".
 
 ## Risks / Trade-offs
 

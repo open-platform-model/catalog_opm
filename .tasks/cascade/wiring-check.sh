@@ -4,7 +4,9 @@
 # `task cascade:wiring:check`; needs mikefarah yq v4. Prints every mismatch,
 # then exits 1 if there was one. With the supervisor's addendum for the join
 # changes: release.yml's workflow env keys are an allow-list, and every
-# key-holding job runs on ubuntu-latest. It guards against mistakes; review
+# key-holding job runs on ubuntu-latest. Beyond the contract script it also
+# compares the notify and publish jobs' name, needs, if, timeout-minutes and
+# non-key inputs with contract 4.6 and 5.2. It guards against mistakes; review
 # and the main ruleset guard against a deliberate edit of this file.
 # shellcheck disable=SC2016 # the single-quoted ${{ }} strings are GitHub expressions, compared literally
 set -euo pipefail
@@ -50,6 +52,17 @@ key_job() {
 }
 
 key_job release.yml notify-downstream cascade-notify '{"contents":"read"}' '["client-id","private-key","tag"]'
+# The notify job's own values (contract 4.6, catalog_opm): it waits for the
+# push only, never for verify-published (4.5), and its tag is the release tag,
+# so no other value (a secrets[...] or toJSON(secrets) form included) can sit
+# in the key-holding job.
+r=$W/release.yml
+eq "release.yml:notify-downstream name" 'Notify downstream' "$(yq -r '.jobs.notify-downstream.name' "$r")"
+eq "release.yml:notify-downstream needs" '["release-please","publish-cue"]' "$(yq -o=json -I=0 '.jobs.notify-downstream.needs' "$r")"
+eq "release.yml:notify-downstream if" '${{ !cancelled() && needs.publish-cue.outputs.published == '\''true'\'' && vars.CASCADE_NOTIFY != '\''off'\'' }}' "$(yq -r '.jobs.notify-downstream.if' "$r")"
+eq "release.yml:notify-downstream timeout-minutes" 20 "$(yq -r '.jobs.notify-downstream["timeout-minutes"]' "$r")"
+eq "release.yml:notify-downstream step name" 'Notify downstream' "$(yq -r '.jobs.notify-downstream.steps[0].name' "$r")"
+eq "release.yml:notify-downstream tag" '${{ needs.release-please.outputs.opm_tag_name }}' "$(yq -r '.jobs.notify-downstream.steps[0].with.tag' "$r")"
 # Workflow-level env reaches the notify action's steps, so release.yml's own
 # env keys are an allow-list: anything else (BASH_ENV, ENV, NODE_OPTIONS or a
 # new key) fails. The env must be a map, so an expression cannot hide keys.
@@ -62,6 +75,11 @@ if [ "$RECEIVER" = true ]; then
   eq "deps-cascade.yml top-level keys" '["concurrency","jobs","name","on","permissions"]' "$(yq -o=json -I=0 'keys | sort' "$d")"
   eq "deps-cascade.yml concurrency.group" "$GROUP" "$(yq -r '.concurrency.group' "$d")"
   eq "deps-cascade.yml publish if" "$PUBLISH_IF" "$(yq -r '.jobs.publish.if' "$d")"
+  eq "deps-cascade.yml publish name" Publish "$(yq -r '.jobs.publish.name' "$d")"
+  eq "deps-cascade.yml publish needs" cascade "$(yq -o=json -I=0 '.jobs.publish.needs' "$d" | tr -d '"')"
+  eq "deps-cascade.yml publish timeout-minutes" 15 "$(yq -r '.jobs.publish["timeout-minutes"]' "$d")"
+  eq "deps-cascade.yml publish step name" Publish "$(yq -r '.jobs.publish.steps[0].name' "$d")"
+  eq "deps-cascade.yml publish labels-managed" false "$(yq -o=json -I=0 '.jobs.publish.steps[0].with["labels-managed"]' "$d")"
   eq "deps-cascade.yml cascade dry-run" "$DRY" "$(yq -r '.jobs.cascade.with["dry-run"]' "$d")"
   eq "deps-cascade.yml publish dry-run" "$DRY" "$(yq -r '.jobs.publish.steps[0].with["dry-run"]' "$d")"
   re "deps-cascade.yml cascade uses" '^open-platform-model/\.github/\.github/workflows/cascade-receive\.yml@[0-9a-f]{40}$' "$(yq -r '.jobs.cascade.uses' "$d")"
