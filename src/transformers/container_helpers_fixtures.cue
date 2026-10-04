@@ -330,3 +330,72 @@ _testToK8sContainerPreStop: {
 		lifecycle: preStop: exec: command: ["/bin/sh", "-c", "sleep 5"]
 	}
 }
+
+// Test: a container-level seccomp profile renders on the container.
+_testToK8sContainerSeccomp: {
+	in: {
+		name: "sandboxed"
+		image: {
+			repository: "app"
+			tag:        "v1"
+			digest:     ""
+		}
+		securityContext: seccompProfile: type: "RuntimeDefault"
+	}
+
+	out: (#ToK8sContainer & {"in": in}).out
+}
+
+// Presence guard: an unset optional is only incomplete, which `cue vet`
+// accepts, so a dropped seccompProfile must fail on a list length instead.
+_testToK8sContainerSeccompType: [
+	if _testToK8sContainerSeccomp.out.securityContext.seccompProfile != _|_ {
+		_testToK8sContainerSeccomp.out.securityContext.seccompProfile.type
+	},
+] & ["RuntimeDefault"]
+
+// Test: a container security context without a seccomp profile renders none.
+_testToK8sContainerNoSeccomp: {
+	in: {
+		name: "plain"
+		image: {
+			repository: "app"
+			tag:        "v1"
+			digest:     ""
+		}
+		securityContext: runAsNonRoot: true
+	}
+
+	out: (#ToK8sContainer & {"in": in}).out
+}
+
+_testToK8sContainerNoSeccompRunAsNonRoot: [
+	if _testToK8sContainerNoSeccomp.out.securityContext.runAsNonRoot != _|_ {
+		_testToK8sContainerNoSeccomp.out.securityContext.runAsNonRoot
+	},
+] & [true]
+
+_testToK8sContainerNoSeccompLeaked: [
+	if _testToK8sContainerNoSeccomp.out.securityContext.seccompProfile != _|_ {"leaked"},
+] & []
+
+// Negatives: RuntimeDefault is the only accepted type, and the profile is
+// closed, so every other type and a localhostProfile are refused.
+_testSeccompUnknownTypeRefused: [
+	if ({type: "Foo"} & res.#SeccompProfileSchema) != _|_ {"accepted"},
+] & []
+
+_testSeccompLocalhostRefused: [
+	if ({type: "Localhost"} & res.#SeccompProfileSchema) != _|_ {"accepted"},
+] & []
+
+_testSeccompUnconfinedRefused: [
+	if ({type: "Unconfined"} & res.#SeccompProfileSchema) != _|_ {"accepted"},
+] & []
+
+_testSeccompLocalhostProfileRefused: [
+	if ({
+		type:             "RuntimeDefault"
+		localhostProfile: "x"
+	} & res.#SeccompProfileSchema) != _|_ {"accepted"},
+] & []

@@ -278,3 +278,126 @@ _testDeployRollingDefaultsPresent: [
 _testDeployRollingDefaultsNoParams: [
 	if _testDeployRollingDefaultsTransformer.spec.strategy.rollingUpdate != _|_ {"leaked"},
 ] & []
+
+// ---- Pod-level seccomp profile alone ----------------------------------------
+// The trait sets ONLY a seccomp profile, no other pod-level field, so the
+// pod-level presence guard itself is under test: if it does not name
+// seccompProfile, no pod securityContext renders at all.
+_testDeploySeccompComponent: {
+	#instance: {name: "istio", namespace: "istio-system", uuid: "00000000-0000-0000-0000-000000000000"}
+
+	res.#Container
+	tr.#SecurityContext
+
+	metadata: {
+		name: "istiod"
+		labels: "core.opmodel.dev/workload-type": "stateless"
+	}
+
+	spec: {
+		container: {
+			_testDeployContainer
+			securityContext: seccompProfile: type: "RuntimeDefault"
+		}
+		securityContext: seccompProfile: type: "RuntimeDefault"
+	}
+}
+
+_testDeploySeccompTransformer: (#DeploymentTransformer.#transform & {
+	#moduleInstance: _testDeployModuleInstance
+	#component:      _testDeploySeccompComponent
+	#context:        _testDeployContext
+}).output
+
+_testDeploySeccompPodProfile: [
+	if _testDeploySeccompTransformer.spec.template.spec.securityContext.seccompProfile != _|_ {
+		_testDeploySeccompTransformer.spec.template.spec.securityContext.seccompProfile.type
+	},
+] & ["RuntimeDefault"]
+
+_testDeploySeccompPodNoLocalhostProfile: [
+	if _testDeploySeccompTransformer.spec.template.spec.securityContext.seccompProfile.localhostProfile != _|_ {"leaked"},
+] & []
+
+// The container-level profile renders on the container.
+_testDeploySeccompContainerProfile: [
+	if _testDeploySeccompTransformer.spec.template.spec.containers[0].securityContext.seccompProfile != _|_ {
+		_testDeploySeccompTransformer.spec.template.spec.containers[0].securityContext.seccompProfile.type
+	},
+] & ["RuntimeDefault"]
+
+// ---- Pod-level seccomp profile beside the other pod-level fields -----------
+// Adding seccompProfile must not drop any field the pod block already renders.
+_testDeploySeccompMixedComponent: {
+	#instance: {name: "istio", namespace: "istio-system", uuid: "00000000-0000-0000-0000-000000000000"}
+
+	res.#Container
+	tr.#SecurityContext
+
+	metadata: {
+		name: "istiod"
+		labels: "core.opmodel.dev/workload-type": "stateless"
+	}
+
+	spec: {
+		container: _testDeployContainer
+		securityContext: {
+			runAsNonRoot: true
+			runAsUser:    1337
+			runAsGroup:   1337
+			fsGroup:      1337
+			supplementalGroups: [2000]
+			seccompProfile: type: "RuntimeDefault"
+		}
+	}
+}
+
+_testDeploySeccompMixedTransformer: (#DeploymentTransformer.#transform & {
+	#moduleInstance: _testDeployModuleInstance
+	#component:      _testDeploySeccompMixedComponent
+	#context:        _testDeployContext
+}).output
+
+// Field count is arithmetic, so a dropped or leaked field cannot be absorbed;
+// the list guard pins each value.
+_testDeploySeccompMixedFieldCount: (len(_testDeploySeccompMixedTransformer.spec.template.spec.securityContext) + 0) & 6
+_testDeploySeccompMixedValues: [
+	if _testDeploySeccompMixedTransformer.spec.template.spec.securityContext != _|_ {
+		let S = _testDeploySeccompMixedTransformer.spec.template.spec.securityContext
+		"\(S.runAsNonRoot)|\(S.runAsUser)|\(S.runAsGroup)|\(S.fsGroup)|\(S.supplementalGroups[0])|\(S.seccompProfile.type)"
+	},
+] & ["true|1337|1337|1337|2000|RuntimeDefault"]
+
+// ---- Pod-level security context without a seccomp profile ----------------
+// The pod securityContext renders (runAsNonRoot is set), so the absence check
+// below is not vacuous: a seccompProfile rendered unconditionally fails it.
+_testDeployNoSeccompComponent: {
+	#instance: {name: "istio", namespace: "istio-system", uuid: "00000000-0000-0000-0000-000000000000"}
+
+	res.#Container
+	tr.#SecurityContext
+
+	metadata: {
+		name: "istiod"
+		labels: "core.opmodel.dev/workload-type": "stateless"
+	}
+
+	spec: {
+		container: _testDeployContainer
+		securityContext: runAsNonRoot: true
+	}
+}
+
+_testDeployNoSeccompTransformer: (#DeploymentTransformer.#transform & {
+	#moduleInstance: _testDeployModuleInstance
+	#component:      _testDeployNoSeccompComponent
+	#context:        _testDeployContext
+}).output
+
+_testDeployNoSeccompPodRunAsNonRoot: [
+	if _testDeployNoSeccompTransformer.spec.template.spec.securityContext.runAsNonRoot != _|_ {"rendered"},
+] & ["rendered"]
+
+_testDeployNoSeccompPodProfileAbsent: [
+	if _testDeployNoSeccompTransformer.spec.template.spec.securityContext.seccompProfile != _|_ {"leaked"},
+] & []

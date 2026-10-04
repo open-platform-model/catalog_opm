@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.6.0](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.5.2...opm-v4.6.0) (2026-10-04)
+
+
+### Features
+
+* **catalog:** add a seccomp profile to the workload security context ([#141](https://github.com/open-platform-model/catalog_opm/issues/141)) ([9bdafe8](https://github.com/open-platform-model/catalog_opm/commit/9bdafe8041baa83366559397cbc1c6e688fd334c))
+
 ## [4.5.2](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.5.1...opm-v4.5.2) (2026-10-04)
 
 
