@@ -243,8 +243,8 @@ jobs:
             | sed -E 's/module:[[:space:]]*"(.*)@v[0-9]+"/\1/')
           opm catalog registry check "${PATH_DECLARED}@v${VERSION}" --compat
 
-  # The opm docs bundle of the release (docs-kit.cue, catalog-opm), built from
-  # the released tag and published as <version>.0 by docs-kit's publish.yml
+  # The opm docs bundles of the release (docs-kit.cue: catalog-opm and
+  # catalog-opm-docs), built from the released tag and published as <version>.0 by docs-kit's publish.yml
   # (docs-kit docs/contracts.md C5). It runs here, in the run the release-PR
   # merge starts, because publish.yml publishes only from refs/heads/main: a
   # `release: published` trigger would run on the tag ref and be refused.
@@ -261,7 +261,7 @@ jobs:
   # catalog-opm (the Catalogs tab) and catalog-opm-docs (docs/site). fail-fast
   # is off, so one project's failure never cancels the other's publish.
   publish-docs:
-    name: Publish the opm docs bundle
+    name: Publish the opm docs bundles
     needs: [release-please, publish-cue]
     if: always() && needs.publish-cue.outputs.published == 'true'
     strategy:

@@ -23,7 +23,7 @@ No member file, `apiVersion` segment, definition, default, closedness or require
 
 **Goals:** publish `docs/site/` as `catalog-opm-docs` at `edge` and with every opm release, from the same workflows as `catalog-opm`.
 
-**Non-Goals:** moving or rewriting any page; the site's switch (opmodel.dev `serve-docs-from-bundles`); a backfill of releases cut before section 1 (they cannot build this project, see below); docs-kit's own changes.
+**Non-Goals:** moving or rewriting any page; the site's switch (opmodel.dev `serve-docs-from-bundles`); a backfill of releases cut before section 1 (most would build with `main`'s config and publish the retired reference pages, so a guard refuses them, see below); docs-kit's own changes.
 
 ## Decisions
 
@@ -75,7 +75,7 @@ The existing job gains the same matrix and keeps its `needs`, its condition (`al
 
 ### The first release bundle needs the next opm release
 
-`opm-v4.5.1`, the newest release, already has a `docs-kit.cue` (one project, `catalog-opm`). In release mode `build --source src` reads the release tree's config when it has one (C5), so a `mode: release` dispatch of `catalog-opm-docs` for `opm-v4.5.1` fails with an unknown project. docs-kit `orchestration.md` first assumed that dispatch works; it does not, and this change MUST NOT rely on it. C5 stays as it is (supervisor decision, 2026-10-03): gate G3.1 is the first `catalog-opm-docs` release bundle, published with the next opm release. The first release bundle is published by `release.yml` with the first opm release whose tag contains section 1's `docs-kit.cue`. Section 1 is a `ci` commit, so it cuts no release by itself; the bundle waits for the next `feat:` or `fix:` on opm, or for an owner-forced patch (as opm 4.5.1 was for `catalog-opm`).
+`opm-v4.5.1`, the newest release, already has a `docs-kit.cue` (one project, `catalog-opm`). In release mode `build --source src` reads the release tree's config when it has one (C5), so a `mode: release` dispatch of `catalog-opm-docs` for `opm-v4.5.1` fails with an unknown project. docs-kit `orchestration.md` first assumed that dispatch works; it does not, and this change MUST NOT rely on it. Earlier tags are worse: up to `opm-v4.5.0` they have no `docs-kit.cue`, so C5 falls back to `main`'s config, and a `mode: release` dispatch of `catalog-opm-docs` builds, lints and publishes their retired reference pages (an `opm-v4.5.0` dry run gave 59 pages, 52 of them retired) as `4.5.0.0`, moving `4.5` and `4`. Nothing in C5 stops that, so `docs.yml` gets a `guard` job that `dispatch` needs: it reads `docs-kit.cue` at the tag through the contents API and refuses `catalog-opm-docs` unless that file exists and declares the project. C5 stays as it is (supervisor decision, 2026-10-03): gate G3.1 is the first `catalog-opm-docs` release bundle, published with the next opm release. The first release bundle is published by `release.yml` with the first opm release whose tag contains section 1's `docs-kit.cue`. Section 1 is a `ci` commit, so it cuts no release by itself; the bundle waits for the next `feat:` or `fix:` on opm, or for an owner-forced patch (as opm 4.5.1 was for `catalog-opm`).
 
 ## Research & Decisions
 
@@ -98,7 +98,7 @@ The existing job gains the same matrix and keeps its `needs`, its condition (`al
 **Context**: docs-kit `orchestration.md` offers a dispatch for the newest `opm-v4.*` tag as the go-live path.
 **Explored**: `git show opm-v4.5.1:docs-kit.cue` declares only `catalog-opm`; C5 reads the release tree's config first.
 **Decision**: no backfill; the first release bundle comes with the next opm release.
-**Rationale**: the dispatch cannot build the project; changing that is docs-kit's call (reported to its plan as a gap).
+**Rationale**: for `opm-v4.5.1` the dispatch fails (unknown project); for every earlier tag it would succeed with `main`'s config and publish the retired reference pages, so the refusal is policy, enforced by `docs.yml`'s `guard` job, not by C5. Changing C5 is docs-kit's call (reported to its plan as a gap).
 
 ## Risks / Trade-offs
 
