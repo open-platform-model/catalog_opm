@@ -20,6 +20,6 @@
 
 ## 4. Verify and archive
 
-- [ ] 4.1 Run `openspec verify` for `harden-release-workflows` (the `opsx:verify` skill); confirm the Durable decisions landed in `AGENTS.md`
-- [ ] 4.2 Archive the change on this branch with `--skip-specs`
-- [ ] 4.3 `openspec validate --all --strict` and `task check` green, then commit `chore(openspec): archive harden-release-workflows`
+- [x] 4.1 Run `openspec verify` for `harden-release-workflows` (the `opsx:verify` skill); confirm the Durable decisions landed in `AGENTS.md`
+- [x] 4.2 Archive the change on this branch with `--skip-specs`
+- [x] 4.3 `openspec validate --all --strict` and `task check` green, then commit `chore(openspec): archive harden-release-workflows`
