@@ -67,7 +67,7 @@ Each requirement is satisfied by the CUE in Before / After and the transformer e
 ## Dependencies / gates
 
 - **Upstream gate (blocks the PR, the archive and the merge): a cli release carrying the cli change `fix-compat-unauthored-defaults`, and this repo's `.opm-cli-version` bumped to it.** With cli `v1.0.0-beta.7`, `opm catalog publish ./src --dry-run` refuses `#RoleResource` against `opm@4.5.1` with `spec.role.subjects default changed ([{name!: string}] -> [{name!: string}])` (design.md, Compatibility gate). The two sides print the same; the "default" is the one CUE derives from `[...#RoleSubjectSchema] & [_, ...]`, which no `*` authored. `opm catalog publish` has no override and the release publish runs the same gate, so an owner exception cannot ship. The cli change compares defaults only where one was authored and does not treat a required-to-optional marker change on a list with no authored default as a default change. Section 1 is implemented ahead of it; section 2 waits for it.
-- **Downstream:** the opm-operator change `add-operator-module` renders its five unbound ClusterRoles through `objects@v1alpha1` until an `opm` release carrying this change exists, and carries a follow-up task to switch them to `#Role` then. This change does not wait for it.
+- **Downstream:** the opm-operator change `add-operator-module` renders its five unbound ClusterRoles through `objects@v1alpha1` until an `opm` release carrying this change exists. A follow-up of that change (the issue its task 6.1 files) switches them to `#Role`, shipped as a module patch release. This change does not wait for it.
 
 ## Impact
 
@@ -75,7 +75,7 @@ Each requirement is satisfied by the CUE in Before / After and the transformer e
 - **`modules` fleet, `opm-modules`:** nothing to do. Their roles all set subjects and render the same objects by construction; this is measured against the catalog's own goldens (task 1.5), not against the fleets.
 - **Subscribing platforms:** nothing to do; they pick up the minor through the release cascade.
 - **`cli` fixtures under `testing.opmodel.dev`:** nothing to do.
-- **opm-operator:** `add-operator-module` switches its five unbound ClusterRoles from `objects@v1alpha1` to `#Role` once this change is released (its follow-up task).
+- **opm-operator:** a follow-up of `add-operator-module` (the issue its task 6.1 files) switches its five unbound ClusterRoles from `objects@v1alpha1` to `#Role` once this change is released.
 - **Release class:** section 1 `feat(catalog)`, section 2 `ci(deps)` (absent when `main` already pins the cli release). PR title: `feat(catalog): render a role with no subjects without a binding`. A minor release; no major, no path move.
 
 ## Principle V
