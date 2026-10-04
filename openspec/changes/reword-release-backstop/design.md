@@ -7,9 +7,12 @@ No catalog member and no `apiVersion` segment changes. The change edits comments
 Sources, highest authority first: the owner's walkthrough decision for follow-up w1-03 ("catalog
 backstop wording (transient GHCR error; the fix must be release-class)"), the supervisor's wave-2
 decision SD14 (fold the `gate-and-tag-fixtures` follow-up on hidden-field prose into this change),
-and the wave-2 plan entry `cat-backstop` with its research and critic notes.
+and the wave-2 plan entry `cat-backstop` with its research and critic notes, and the plan review
+of this change.
 
-State at `origin/main` `daae275` (after catalog_opm#146):
+State at `origin/main` `daae275` (after catalog_opm#146). `origin/main` has since moved to
+`344ad4f` (catalog_opm#151, the cascade pin); it edits `release.yml:373` and other `AGENTS.md`
+lines, and every line cited below is unchanged there.
 
 - `release.yml:227-233`: the backstop comment in `publish-cue` ends "so this cannot fail".
   `:244-245` runs `task vet:fixtures` on the tag. The plan entry pointed at `:207-209`; the critic
@@ -26,48 +29,63 @@ State at `origin/main` `daae275` (after catalog_opm#146):
 **Goals:**
 
 - A reader of a red backstop step knows that a transient registry error is the only normal-path
-  cause and that re-running the job is the recovery.
-- `AGENTS.md` says which commit re-opens the release PR after a burned or skipped version.
+  cause, that re-running the job is the recovery, and what a second failure on a fixture means.
+- `AGENTS.md` says which commit re-opens the release PR after a failed gate or backstop, and that
+  the release PR after a skipped version must not be merged as proposed.
 - Every live statement about `cue vet` and hidden fields matches what was measured.
 
 **Non-Goals:**
 
 - A retry loop around the backstop (optional in the plan entry, not decided by the owner).
 - Edits to archived changes.
-- A remedy for the release notes after a skipped version (D3).
+- A remedy for the release PR after a skipped version (D3): an open question for the owner.
 
 ## Decisions
 
-### D1. Backstop comment: one cause, one recovery
+### D1. Backstop comment: one cause, one recovery, and how to tell them apart
 
 The comment keeps its first sentences and replaces "so this cannot fail" with:
 
 ```yaml
       # publishing the tree the gate refused. On the normal path the gate
       # already passed on this commit, so this step can fail only on a
-      # transient registry error (the exports resolve core from GHCR). The tag
-      # and Release exist by then: re-run this job.
+      # transient registry error (core from GHCR, cue.dev/x/k8s.io from
+      # registry.cue.works). The tag and Release exist by then: re-run this
+      # job. The first error line under each FAIL names the cause. If the
+      # re-run fails on a fixture rather than the registry, the version is
+      # burned; see AGENTS.md, Release & publishing (the fix must be a
+      # feat/fix/perf/revert commit under src/).
 ```
 
 "Re-run this job" is enough: `publish-cue` reads `opm_tag_name` and `opm_version` from the
-`release-please` job's outputs (`release.yml:197`, `:254`), which "Re-run failed jobs" keeps. Re-running publishes the same
-tag; it cuts no new version.
+`release-please` job's outputs (`release.yml:197`, `:254`), which "Re-run failed jobs" keeps.
+Re-running publishes the same tag; it cuts no new version. Both causes end in the same summary
+line (`.tasks/fixtures.sh:82`, "N of N rendered-output fixtures do not evaluate"); only the first
+error line printed under each FAIL (`.tasks/fixtures.sh:77-78`) separates a registry error from a
+conflict, so the comment points the reader there. Both registries matter:
+`src/cue.mod/module.cue` depends on `cue.dev/x/k8s.io`, which resolves from `registry.cue.works`.
 
-### D2. Recovery after a burned version needs a user-facing commit under `src/`
+### D2. The fix after a failed gate or backstop is always a user-facing commit under `src/`
 
-When the backstop refuses a real failure, the version is burned: tag and Release exist, no GHCR
-artifact. release-please then finds that Release (its manifest version matches the tag) and counts
-commits from its SHA. With only hidden commits since, it logs "No user facing commits" and opens no
-release PR, so the fix never ships. The fix MUST land as a `feat`, `fix`, `perf` or `revert`
-commit (the visible types in `release-please-config.json`) that touches `src/` (release-please
-ignores commits outside the package path, `AGENTS.md` "Forced version").
+The owner's rule (w1-03) is unconditional, and this change states it that way: after a failed gate
+or a failed backstop, the fix lands as a `feat`, `fix`, `perf` or `revert` commit (the visible
+types in `release-please-config.json`) that touches `src/` (release-please ignores commits outside
+the package path, `AGENTS.md` "Forced version").
+
+On the burned path it is also mechanically required. Tag and Release exist, no GHCR artifact;
+release-please finds that Release (its manifest version matches the tag) and counts commits from
+its SHA. With only hidden commits since, it logs "No user facing commits" and opens no release PR,
+so the fix never ships.
+
+On the skipped path a hidden-type fix would open a release PR, but only through the bootstrap walk
+in D3, which proposes a wrong version. `AGENTS.md` does not document reliance on that walk.
 
 The plan entry also offered "or carry Release-As". In this repo that is not an alternative. A
 `Release-As:` footer never reaches `main` (`AGENTS.md` "Squash message"), and the `release-as`
 config key only picks the version: it still needs a user-facing commit under `src/`. `AGENTS.md`
 says so instead of naming Release-As as a way out.
 
-### D3. After a skipped version, the next release PR re-lists history
+### D3. After a skipped version, the next release PR proposes a major bump
 
 The plan entry's research said that after the label is removed, "the skipped version's entries
 appear only in `CHANGELOG.md`", with the merge commit treated as released. Reading
@@ -78,39 +96,49 @@ release-please 17.3.0 (the version `release-please-action` v4.4.1 locks), `src/m
    release PR wrote that version into `.release-please-manifest.json` but was never tagged, so
    none matches.
 2. `backfillReleasesFromTags` looks for the tag `opm-v<that version>`; there is none.
-3. `needsBootstrap` is then true, and commit collection walks back to `bootstrap-sha`
-   (`9e93ecc`, the 0.6.0 release in June 2026), up to the default search depth of 500.
-4. The latest release is backfilled from the manifest version with an empty SHA, so the next
-   version is still computed from the skipped one.
+3. `needsBootstrap` is then true (`manifest.ts:611`), and commit collection walks back to
+   `bootstrap-sha` (`9e93ecc`, the 0.6.0 release in June 2026, `manifest.ts:660`).
+4. The latest release is backfilled from the manifest version with an empty SHA, and
+   `commitsAfterSha(..., undefined)` keeps every collected commit (`manifest.ts:1808-1817`).
 
-The next release PR therefore gets the right version, but its notes list every user-facing commit
-under `src/` since `bootstrap-sha`, the skipped version's entries included. And because such
-commits exist, it opens even when the fix itself is a hidden type. `AGENTS.md` states this
-behaviour so an operator expects it. Whether to repair it (hand-editing the release PR's notes,
-a `last-release-sha` in the config, or moving `bootstrap-sha` forward) is a decision for the owner
-and is left out (open point in the report). This is read from source, not run against a real
-release.
+Since `9e93ecc` five `feat!:` commits touch `src/`: `c0cd3ec`, `38ae2f1`, `8a5c484`, `eab9b12` and
+`e92248f`. The next release PR therefore proposes a major bump from the skipped version (5.0.0
+from 4.7.0 today), on a module whose import path is major v4, and its notes re-list every
+user-facing commit under `src/` since 0.6.0. This is the same failure class `AGENTS.md` records
+for the `RELEASE` stamp (the bogus "release opm 2.0.0" PR after `opm-v3.0.0`). The `Release-As`
+footers since `9e93ecc` (`37d2771`, `089c2dd`, `75d61f8`) touch nothing under `src/`, so they are
+not resurrected.
+
+`AGENTS.md` states this so an operator does not merge that PR: it must not be merged as proposed
+until a remedy is applied. The remedy is not decided. The plan review recommends the repo's
+"Forced version" set-then-drop pattern with `last-release-sha` (checked before the bootstrap
+branch, `manifest.ts:655`) set to the skipped release PR's merge commit, dropped after the next
+release; alternatives are `release-as` with hand-edited notes, or moving `bootstrap-sha` forward
+after every release. That choice is the owner's and is an open question in the report;
+`AGENTS.md` says the remedy needs a maintainer decision. This is read from source, not run
+against a real release.
 
 ### D4. Hidden fields: what `cue vet` checks
 
 Measured facts (cue v0.17.1):
 
-- `cue vet` evaluates the hidden fields of a package it loads as the main instance, so an
-  error-class conflict there fails it: `_boom: 1 & 2` in `transformers` failed `cue vet ./...` (j2
-  experiment, 2026-10-02), and a golden set to `"WRONG"` failed `cue vet -t fixtures ./...`
-  (`gate-and-tag-fixtures` review).
+- `cue vet` evaluates the hidden fields of the package it vets (loaded as the main instance), so
+  an error-class conflict there fails it: `_boom: 1 & 2` in `transformers` failed `cue vet ./...`
+  (j2 experiment, 2026-10-02), and a golden set to `"WRONG"` failed `cue vet -t fixtures ./...`
+  (`gate-and-tag-fixtures` review). Hidden fields of an imported package stay lazy when only its
+  definitions are referenced (j2), hence the scope.
 - It does not report a hidden field that stays incomplete, plain or with `-c`: a hidden rule-1
   gate case in core exits 0 under both (wave-1 core review), and 44 of 47 fixtures failed export
   in 2026-09 while vet passed.
-- Fixtures sit in `@if(fixtures)` files, so only `cue vet -t fixtures` loads them; `task vet` runs
-  both views.
+- Fixtures sit in files tagged with the `fixtures` if build attribute, so only
+  `cue vet -t fixtures` loads them; `task vet` runs both views.
 
 Each of the five sites gets that wording, kept to its local length:
 
 | Site | New claim |
 | --- | --- |
 | `AGENTS.md:201` (`task vet:fixtures` row) | `cue vet`, `-c` included, fails on a conflict in a hidden field but passes one that stays incomplete; `cue export` forces it concrete |
-| `AGENTS.md:300` (Transformer fixtures) | replace "does not descend into hidden fields at all" with the D4 claim; the rest of the bullet already says the two checks are complementary |
+| `AGENTS.md:300` (Transformer fixtures) | replace "does not descend into hidden fields at all" with the D4 claim, scoped to the package vet loads; the rest of the bullet already says the two checks are complementary |
 | `Taskfile.yml:71-73` (`vet:fixtures` desc) | `cue vet` (including `-c`) passes a hidden field that stays incomplete |
 | `.tasks/fixtures.sh:18-20` | `cue vet`, including `-c`, does not report an incomplete hidden field (it does fail on a conflict in one) |
 | `role_transformer_fixtures.cue:288-289` | "cue vet skips hidden fields" becomes "cue vet passes an incomplete hidden field" |
@@ -125,7 +153,7 @@ against cue v0.17.1 on this tree, not only against the earlier reports.
 **Context**: The plan entry cited `release.yml:207-209`; the critic said `:227-233`; #146 merged
 since.
 **Explored**: `grep -n 'cannot fail' .github/workflows/release.yml` at `daae275`.
-**Decision**: Edit `:227-233` (unchanged by #146).
+**Decision**: Edit `:227-233` (unchanged by #146 and by #151).
 **Rationale**: The line numbers the critic gave still hold on current `main`.
 
 ### Release-As as an alternative recovery
@@ -138,26 +166,35 @@ owner's decision names the release-class commit alone.
 
 ### What the next release PR contains after a skip
 
-**Context**: The research claimed the skipped version's entries stay only in `CHANGELOG.md`.
+**Context**: The research claimed the skipped version's entries stay only in `CHANGELOG.md`; the
+first draft of this design claimed the version stays right. The plan review showed both wrong.
 **Explored**: release-please 17.3.0 `src/manifest.ts` (release lookup, `backfillReleasesFromTags`,
-bootstrap walk, manifest backfill); `release-please-config.json` (`bootstrap-sha` `9e93ecc`).
-**Decision**: State the actual behaviour (D3); leave the remedy to the owner.
-**Rationale**: Writing the research claim into `AGENTS.md` would document behaviour release-please
-does not have.
+bootstrap walk, `commitsAfterSha`); `release-please-config.json` (`bootstrap-sha` `9e93ecc`);
+`git log 9e93ecc.. -- src/` for breaking commits.
+**Decision**: State the actual behaviour and forbid merging the PR as proposed (D3); leave the
+remedy to the owner.
+**Rationale**: Writing either earlier claim into `AGENTS.md` would tell an operator a dangerous
+release PR is safe to merge.
 
 ## Risks / Trade-offs
 
 - [D3 is read from source, not run] → It is labelled as such in the report. A real skip is rare
-  and the gate before release-please makes it rarer; the first one will show the result.
-- [A `docs` commit edits a file under `src/`] → It is a comment in an `@if(fixtures)` file, so
-  no consumer loads it, and `docs` is hidden, so no release follows.
+  and the gate before release-please makes it rarer; the first one will show the result, and the
+  `AGENTS.md` text errs toward not merging.
+- [`AGENTS.md` names no remedy for a skip] → An operator who skips a version must wait for a
+  maintainer decision. Accepted until the owner picks one.
+- [A `docs` commit edits a file under `src/`] → It is a comment in a file tagged with the
+  `fixtures` if build attribute, so no consumer loads it, and `docs` is hidden, so no release
+  follows.
 
 ## Durable decisions
 
-- Backstop failure on the normal path means a transient registry error; re-run `publish-cue`.
-  Lands in `AGENTS.md` § Release & publishing (and the `release.yml` comment).
-- After a burned version the fix is a `feat`/`fix`/`perf`/`revert` commit touching `src/`, and
-  after a skipped version the next release PR's notes re-list everything since `bootstrap-sha`.
-  Lands in `AGENTS.md` § Release & publishing.
-- `cue vet` fails on a conflict in a hidden field but passes an incomplete one, `-c` included.
-  Lands in `AGENTS.md` (Transformer fixtures bullet and the task table).
+- Backstop failure on the normal path means a transient registry error; re-run `publish-cue`; a
+  re-run that fails on a fixture means the version is burned. Lands in `AGENTS.md` § Release &
+  publishing (and the `release.yml` comment).
+- After a failed gate or backstop the fix is always a `feat`/`fix`/`perf`/`revert` commit touching
+  `src/`. After a skipped version the next release PR proposes a major bump and re-lists history
+  since `bootstrap-sha`, and must not be merged as proposed. Lands in `AGENTS.md` § Release &
+  publishing.
+- `cue vet` fails on a conflict in a hidden field of the package it vets but passes an incomplete
+  one, `-c` included. Lands in `AGENTS.md` (Transformer fixtures bullet and the task table).
