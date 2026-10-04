@@ -42,8 +42,8 @@ supervisor (wiring, "Sources").
   `repository_dispatch` (`upstream-released`), the daily sweep `17 5 * * *` and
   `workflow_dispatch` (`dry_run`, `gates_only`), with the wiring §5 concurrency expression.
   It calls `cascade-receive.yml@main` with
-  `dry-run: ${{ inputs.dry_run == true || vars.CASCADE_DRY_RUN != 'false' }}`, `setup-go: false`
-  and `labels-managed: false`. The receiver accepts payloads from core and cli only (wiring §3.2).
+  `dry-run: ${{ inputs.dry_run == true || vars.CASCADE_DRY_RUN != 'false' }}`, `setup-go: false`,
+  `labels-managed: false` and `cue-version: v0.17.1`. The receiver accepts payloads from core and cli only (wiring §3.2).
   It is live only when `CASCADE_DRY_RUN` is exactly `false`.
 - **Add the per-PR gates caller `.github/workflows/cascade-gates.yml`** (wiring §8.3) on
   `pull_request_target` (`opened`, `reopened`, `synchronize`). It posts `cascade/freshness` (G2)
@@ -131,6 +131,10 @@ notify-downstream:      # name: Notify downstream
   (`main` only) with `CASCADE_APP_PRIVATE_KEY` and `CASCADE_APP_CLIENT_ID`
   (`RELEASING.md:516-527`).
 - Before merge: the supervisor sets the repo variable `CASCADE_DRY_RUN=true` (wiring §1, §10).
+- Before merge, after A merges: the supervisor diffs the `with:` keys of the three callers
+  (`notify-downstream`, `deps-cascade.yml`, `cascade-gates.yml`) against `on.workflow_call.inputs`
+  of `cascade-notify.yml`, `cascade-receive.yml` and `cascade-gates.yml` on `.github` `main`. An
+  undeclared key would stop the whole Release run from loading.
 - Gates: the Phase 3 exit gate for catalog_opm. A `workflow_dispatch` dry run on `main` must show
   mode `fresh` and action `noop` (or the diff `task -x deps:cascade` gives locally), and both
   statuses must appear on the next PR (wiring §1, §10).

@@ -75,9 +75,9 @@ State on `main` (fce215a) that the design relies on:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ needs.release-please.outputs.opm_tag_name }}
-      - name: Read the pinned opm CLI version      # verbatim from publish-cue
+      - name: Read the pinned opm CLI version      # from publish-cue, comment reworded
       - name: Install opm                          # verbatim from publish-cue
-      - name: Login to GHCR                        # verbatim from publish-cue
+      - name: Login to GHCR                        # from publish-cue, comment reworded
       # the existing comment: an aid, not a gate (0011 D7)
       - name: Verify the published build           # verbatim, env VERSION from opm_version
 ```
@@ -91,7 +91,10 @@ State on `main` (fce215a) that the design relies on:
 - **Permissions.** The job declares `contents: read` and `packages: read`. Before, the step held
   the workflow's write grants. A registry read needs no write.
 - **The moved steps stay verbatim**, including the inline `${{ secrets.GITHUB_TOKEN }}` and
-  `${{ github.actor }}` in "Login to GHCR". Wiring §4.5 says "the unchanged verify step". The
+  `${{ github.actor }}` in "Login to GHCR". Two comments are rewritten, because the new job only
+  reads: "the CLI that publishes a release" (`release.yml:174-178`) and "opm's push path reads the
+  docker credential chain" (`:196-197`). Only the verify step's `run:` and `env:` stay
+  byte-identical. Wiring §4.5 says "the unchanged verify step". The
   no-inline-expressions rule of wiring §2.2 governs the `.github` reusable workflows, and neither
   value is attacker-controlled here. Hardening the login is a separate, repo-wide `ci` change.
 - **No CUE and no Task in the job.** The verify step runs only `grep`, `sed` and `opm`.
@@ -101,18 +104,19 @@ State on `main` (fce215a) that the design relies on:
 
 ### D2. `publish-docs` keeps `always()`; only the comments change
 
-After the split, "Publish CUE catalog" is the last step of `publish-cue`. `published=true`
-therefore implies the job succeeded, and `always()` is redundant. Wiring §4.5 says to keep
-`publish-docs` unchanged. Removing `always()` buys nothing and costs a behaviour review, so the
-`if:` stays.
+After the split, "Publish CUE catalog" is the last step of `publish-cue`. `always()` still
+matters in one case: a post-job step, such as checkout's cleanup, can fail `publish-cue` after
+`published=true` is set. Without `always()`, that failure would skip `publish-docs` for a module
+that is on GHCR. Wiring §4.5 also says to keep `publish-docs` unchanged, so the `if:` stays.
 
 Two comments become false and are rewritten:
 
 - the `publish-cue` comment (`:160-161`), which describes a later non-gating step;
-- the `publish-docs` comment sentence (`:253-255`) that explains `always()` by the verification
+- the `publish-docs` comment sentence (`:251-255`) that explains `always()` by the verification
   step.
 
-The new text says that `always()` is kept from before the split and is harmless.
+The new text says that `always()` keeps a failing post-job step of `publish-cue` from skipping
+the docs once the module is on GHCR.
 
 ### D3. `notify-downstream` follows wiring §4.3 and §4.5 exactly
 
@@ -149,7 +153,7 @@ The new text says that `always()` is kept from before the split and is harmless.
 - **No `org-github-ref`.** Production always runs `.github` `main` (wiring §2.4).
 - **Recovery.** A red `Notify downstream` job is re-run with "Re-run failed jobs" on the Release
   run. Otherwise the three receivers' daily sweeps pick the release up within a day
-  (`RELEASING.md:200`).
+  (`RELEASING.md:201`).
 
 ### D4. `deps-cascade.yml` is wiring §5 with catalog_opm's values
 
@@ -161,9 +165,14 @@ The file is the wiring §5 YAML with these values:
 - `labels-managed: false`, because this repo has no `labels.yml`, so `publish` creates the five
   bot labels with `--force` (wiring §6.4 step 4).
 
-`setup-cue` stays at its default `true` and `cue-version` at `v0.17.1`, the same CUE that
-`branch-publish.yml` pins and that `cascade.sh` compares `language.version` against. The file
-carries:
+`setup-cue` stays at its default `true`. `cue-version: v0.17.1` is passed explicitly, although
+it equals the `.github` default (wiring §6.1). This repo pins its CUE in five other workflow
+places (`ci.yml:38`, `cascade-task.yml:48`, `release.yml:66`, `release.yml:211`,
+`branch-publish.yml:24`). If the
+receiver took `.github`'s default, a CUE bump here would leave the receiver and G2 running
+`cue mod get` and `cue mod tidy` on the old CUE, and no grep for the old version in this repo
+would find it. (`cascade.sh:219` only refuses a change to `language.version`; it does not compare
+it with the CUE that runs.) The file carries:
 
 - `permissions: {}` at the top;
 - on the job, `contents: read`, `pull-requests: read` and `statuses: write`, which together cover
@@ -221,11 +230,17 @@ module is on GHCR. `publish-docs` already keys on it.
 **Context**: wiring §10 asks each B to run actionlint on the new files.
 **Explored**: actionlint v1.7.12 (scratchpad binary) on today's workflows exits 0. It validates a
 local reusable workflow's inputs, but it does not fetch a remote `owner/repo/...@ref` call.
-**Decision**: run actionlint on every section. Section 2 and 3 also compare each `with:` key
-against the reusable workflow's `workflow_call` inputs on `.github` `main`, or on A's branch
-before A merges (tasks 2.3, 3.4).
+**Decision**: run actionlint on every section. Sections 2 and 3 also compare each `with:` key
+against wiring §4.1, §6.1 and §8.3 and against the `workflow_call` inputs of A's branch copies
+(tasks 2.3, 3.4), and record the result below under "Caller inputs checked". `.github` `main`
+holds none of the three files until A merges, so the check against `main` is the supervisor's
+pre-merge step (proposal, "Depends on / gates").
 **Rationale**: a misspelled input on a remote call fails only at run time, which here means a
 release.
+
+### Caller inputs checked
+
+Filled in by tasks 2.3 and 3.4.
 
 ### Contract choices that apply to catalog_opm
 
@@ -245,15 +260,17 @@ release.
 ## Risks / Trade-offs
 
 - [This PR merges before `.github` `add-release-cascade-workflows`] → GitHub cannot resolve
-  `cascade-notify.yml@main`, and the whole Release run fails at load time. No release PR update,
-  no tag, no publish. Mitigation: "Depends on" in the proposal; tasks 2.3 and 3.4 check that the
-  called files exist on `.github` `main` before the PR leaves draft. The supervisor merges A first
-  (wiring §1).
+  `cascade-notify.yml@main`, and the whole Release run fails at load time. That is GitHub's
+  documented behaviour for an invalid reusable-workflow reference, and for a `with:` key the
+  called workflow does not declare, so no spike tests it. No release PR update,
+  no tag, no publish. Mitigation: "Depends on" in the proposal; tasks 2.3 and 3.4 check every `with:` key
+  against the contract and A's branch; before this PR merges, the supervisor diffs them against
+  `.github` `main` (proposal, "Depends on / gates"). The supervisor merges A first (wiring §1).
 - [E1 fails in A's sandbox cycle: an Environment secret is invisible to a reusable-workflow job]
   → wiring §13.1 replaces notify and publish with composite actions. That changes this repo's
   callers: a local `environment: cascade` job for notify, and a local `publish` job in
   `deps-cascade.yml`. Mitigation: sections 2 and 3 are re-planned with `opsx:update` before they
-  are implemented. Section 1 does not depend on E1.
+  are implemented. Section 1 does not depend on E1 and needs no re-plan; it still ships in this change's one PR.
 - [A verify finding is now easier to miss, because the release run's headline job is green] → the
   job is named `Verify the published build` and the run is still red overall. It was never a gate
   (0011:D7).
@@ -279,5 +296,7 @@ release.
   `CASCADE_DRY_RUN` (live only at exactly `false`), `CASCADE_NOTIFY=off`, `CASCADE_G2_MODE` and
   `CASCADE_G3_MODE`; recovery of a failed notify. Lands in `AGENTS.md` § Release & publishing
   (tasks 2.2, 3.3).
+- **A CUE bump moves every pinned CUE literal under `.github/workflows/`, including
+  `cue-version:` in `deps-cascade.yml`.** Lands in `AGENTS.md` § Release & publishing (task 3.3).
 - **Phase 4 and Phase 5 steps** (setting `CASCADE_DRY_RUN=false`, making G2 and G3 required) stay
   with the change and `RELEASING.md`. They are rollout steps, not authoring rules.
