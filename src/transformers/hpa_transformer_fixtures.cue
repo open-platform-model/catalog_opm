@@ -189,3 +189,40 @@ _testHPADefaultNameTransformer: (#HPATransformer.#transform & {
 
 _testHPADefaultNameResolves:   "\(_testHPADefaultNameTransformer[0].metadata.name)" & "istio-istiod"
 _testHPADefaultTargetResolves: "\(_testHPADefaultNameTransformer[0].spec.scaleTargetRef.name)" & "istio-istiod"
+
+// A utilization target above 100 percent of the request is valid Kubernetes
+// (usage may exceed requests up to the limit) and renders unchanged.
+_testHPAOverRequestComponent: {
+	#instance: {name: "istio", namespace: "istio-system", uuid: "00000000-0000-0000-0000-000000000000"}
+
+	res.#Container
+	tr.#Scaling
+
+	metadata: {
+		name: "istiod"
+		labels: "core.opmodel.dev/workload-type": "stateless"
+	}
+
+	spec: {
+		container: _testHPAContainer
+		scaling: {
+			count: 1
+			auto: {
+				min: 1
+				max: 5
+				metrics: [{
+					type: "cpu"
+					target: averageUtilization: 150
+				}]
+			}
+		}
+	}
+}
+
+_testHPAOverRequestTransformer: (#HPATransformer.#transform & {
+	#moduleInstance: _testHPAModuleInstance
+	#component:      _testHPAOverRequestComponent
+	#context:        _testHPAContext
+}).output
+
+_testHPAOverRequestValue: (_testHPAOverRequestTransformer[0].spec.metrics[0].resource.target.averageUtilization + 0) & 150

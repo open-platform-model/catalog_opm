@@ -62,6 +62,8 @@ import (
 }
 
 #MetricTargetSpec: {
-	averageUtilization?: int & >=1 & <=100
+	// Target usage as a percentage of the pods' resource requests. It may
+	// exceed 100, which targets usage above the request.
+	averageUtilization?: int & >=1
 	averageValue?:       string
 }
