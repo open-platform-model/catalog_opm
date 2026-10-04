@@ -311,7 +311,15 @@ release.
 
 ### Caller inputs checked
 
-Filled by tasks 2.2 and 3.3.
+Checked against `.github` at `2376ffae4bfc665f327d51581350dea694c01504` (PR 9's squash commit
+on `main`), read from the local `.github` clone after a fetch.
+
+- `notify-downstream` → `.github/actions/cascade-notify/action.yml`: inputs `tag`, `client-id`
+  and `private-key`, all `required: true`, no other. The step passes exactly those three. The job
+  block equals the wiring §4.6 catalog_opm block line for line with `<SHA>` filled in (`diff`
+  empty).
+
+Receiver and gates callers: task 3.3.
 
 ### Wiring check run
 

@@ -9,10 +9,10 @@
 
 ## 2. `.github/workflows/release.yml`: the caller-owned notify job
 
-- [ ] 2.1 Replace the version 2 `notify-downstream` job (a call of the reusable `cascade-notify.yml@main`) with the catalog_opm block of wiring §4.6, byte for byte except the pin: `runs-on: ubuntu-latest`, `environment: cascade`, `timeout-minutes: 20`, `permissions: {contents: read}`, and one step that runs `open-platform-model/.github/.github/actions/cascade-notify@2376ffae4bfc665f327d51581350dea694c01504 # .github main` with `tag`, `client-id: ${{ vars.CASCADE_APP_CLIENT_ID }}` and `private-key: ${{ secrets.CASCADE_APP_PRIVATE_KEY }}`. `needs` and `if:` are unchanged. It stays the last job. Rewrite its comment to the caller-owned job (wiring §10.1 items 1 and 9; design D3)
-- [ ] 2.2 Check the `with:` keys against `inputs` of `.github/actions/cascade-notify/action.yml` at `2376ffa`: `tag`, `client-id` and `private-key`, all required, no other. Record it in design.md "Caller inputs checked"
-- [ ] 2.3 actionlint v1.7.12 exits 0 on `.github/workflows/*.yml`
-- [ ] 2.4 `openspec validate join-release-cascade --strict` and `task check` green, then commit `ci(release): notify downstream from a caller-owned cascade job`
+- [x] 2.1 Replace the version 2 `notify-downstream` job (a call of the reusable `cascade-notify.yml@main`) with the catalog_opm block of wiring §4.6, byte for byte except the pin: `runs-on: ubuntu-latest`, `environment: cascade`, `timeout-minutes: 20`, `permissions: {contents: read}`, and one step that runs `open-platform-model/.github/.github/actions/cascade-notify@2376ffae4bfc665f327d51581350dea694c01504 # .github main` with `tag`, `client-id: ${{ vars.CASCADE_APP_CLIENT_ID }}` and `private-key: ${{ secrets.CASCADE_APP_PRIVATE_KEY }}`. `needs` and `if:` are unchanged. It stays the last job. Rewrite its comment to the caller-owned job (wiring §10.1 items 1 and 9; design D3)
+- [x] 2.2 Check the `with:` keys against `inputs` of `.github/actions/cascade-notify/action.yml` at `2376ffa`: `tag`, `client-id` and `private-key`, all required, no other. Record it in design.md "Caller inputs checked"
+- [x] 2.3 actionlint v1.7.12 exits 0 on `.github/workflows/*.yml`
+- [x] 2.4 `openspec validate join-release-cascade --strict` and `task check` green, then commit `ci(release): notify downstream from a caller-owned cascade job`
 
 ## 3. `.github/workflows/deps-cascade.yml` and `cascade-gates.yml`
 

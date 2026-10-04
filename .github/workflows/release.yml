@@ -328,15 +328,24 @@ jobs:
 
   # The release cascade (workspace RELEASING.md, "Notify after publish"): tell library,
   # opm-operator and cli that opm-vX.Y.Z is on GHCR. It waits only for the push
-  # (published), never for verify-published or publish-docs. The reusable workflow
-  # declares the cascade Environment and mints the App token itself; a job that calls
-  # a reusable workflow cannot set environment. CASCADE_NOTIFY=off stops it.
+  # (published), never for verify-published or publish-docs. This job is
+  # caller-owned: it declares environment: cascade and passes the App key only
+  # as the private-key input of the SHA-pinned cascade-notify action, its one
+  # step; no checkout or run: of its own, no env:, container: or services:.
+  # task cascade:wiring:check holds that shape. CASCADE_NOTIFY=off stops it.
   notify-downstream:
     name: Notify downstream
     needs: [release-please, publish-cue]
     if: ${{ !cancelled() && needs.publish-cue.outputs.published == 'true' && vars.CASCADE_NOTIFY != 'off' }}
+    runs-on: ubuntu-latest
+    environment: cascade
+    timeout-minutes: 20
     permissions:
       contents: read
-    uses: open-platform-model/.github/.github/workflows/cascade-notify.yml@main
-    with:
-      tag: ${{ needs.release-please.outputs.opm_tag_name }}
+    steps:
+      - name: Notify downstream
+        uses: open-platform-model/.github/.github/actions/cascade-notify@2376ffae4bfc665f327d51581350dea694c01504 # .github main
+        with:
+          tag: ${{ needs.release-please.outputs.opm_tag_name }}
+          client-id: ${{ vars.CASCADE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.CASCADE_APP_PRIVATE_KEY }}
