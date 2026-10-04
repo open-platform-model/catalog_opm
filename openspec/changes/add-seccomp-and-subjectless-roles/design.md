@@ -16,14 +16,14 @@ Closedness: unchanged everywhere. Defaults: none added or changed. Required-fiel
 
 **Goals:**
 
-- 0028:D12:R1: an author sets a seccomp profile at pod level (the `security-context` trait) and at container level (`#ContainerSchema.securityContext`), and the rendered pod of every workload kind carries it.
-- 0028:D12:R2: a role with no subjects renders the Role or ClusterRole alone.
-- 0028:D12:R3: a role with subjects renders exactly as before, proven by an unchanged export of the existing goldens.
+- Proposal R1 to R3: an author sets a seccomp profile at pod level (the `security-context` trait) and at container level (`#ContainerSchema.securityContext`), in the Kubernetes shape, and the rendered pod of every workload kind carries it.
+- Proposal R4 and R5: a role with no subjects renders the Role or ClusterRole alone; an empty subject list stays refused.
+- Proposal R6 and R7: a role with subjects, and every component that sets no seccomp profile, renders exactly as before, proven by unchanged exports of the existing goldens.
 - Every new fixture fails when the behaviour it covers regresses.
 
 **Non-Goals:**
 
-- The four experiment 01 rough edges (proposal Non-goals).
+- The four catalog rough edges the operator render hit (proposal Non-goals).
 - Pod-level fields the trait accepts and no transformer renders (Risks).
 - Propagating `#StatelessWorkloadSchema.securityContext` from the blueprint wrapper (Risks).
 - `procMount`, `seLinuxOptions`, `appArmorProfile`, `windowsOptions`, `sysctls`: no module needs them (Principle V).
@@ -100,13 +100,25 @@ output: [
 ]
 ```
 
-The object bodies are untouched, so a role with subjects renders the same list (0028:D12:R3). The transformer's `metadata.description` and `requiredResources` do not change.
+The object bodies are untouched, so a role with subjects renders the same list (proposal R6). The transformer's `metadata.description` and `requiredResources` do not change.
 
 **D-E. The trait's description names what it renders.** `#SecurityContextTrait`'s doc comment and `metadata.description` become "Pod-level security settings for a workload: user, groups and seccomp profile". The current text claims "privilege and capabilities", which no workload transformer renders at pod level (they are container-only fields in Kubernetes); AGENTS.md § Descriptions forbids claiming behaviour no transformer has. `metadata.description` is on the compat gate's provenance denylist (0010:D30), so this is not a contract change.
 
 **D-F. Fixtures assert presence and absence with list guards, not interpolation alone.** Interpolating a missing optional field (`"\(x.seccompProfile.type)" & "RuntimeDefault"`) is incomplete, not an error, so `cue vet` passes it when the field is not rendered (measured, Research below). Presence is asserted with `[if x.f != _|_ {x.f.type}] & ["RuntimeDefault"]`, absence with `[if x.f != _|_ {"leaked"}] & []`, and the role output's object count with `(len(out) + 0) & 1`. Each new component is written in the embedded form (`{res.#X, ...}`). The new transform outputs are declared `_test<Name>: (#<T>.#transform & {...}).output` so `task vet:fixtures` exports them.
 
 ## Research & Decisions
+
+### Measured gap: the operator rendered through catalog `opm` 4.5.2
+
+**Context**: the opm-operator's planned module renders its controller through this catalog's workload and role resources; before planning, the operator was rendered that way to see what the catalog could not carry.
+**Explored**: 2026-10-04, operator v1.0.0-beta.5, core v2.0.0-beta.2, catalog `opm` 4.5.2, CLI 1.0.0-beta.7. A scratch module rendered all 19 objects of the operator's install manifest (4 CRDs, Namespace, Deployment, ServiceAccount, Service, one namespaced Role, two bound ClusterRoles, three bindings, five unbound ClusterRoles) and a script compared them field by field with the manifest. Findings that concern this change:
+- The rendered Deployment's pod lost `securityContext.seccompProfile: {type: RuntimeDefault}`, which the manifest sets; the compare reported `.spec.template.spec.securityContext.seccompProfile: {"type": "RuntimeDefault"} -> "<absent>"`. Without it the pod fails Pod Security `restricted`. `grep -r seccomp src` found no field at either level. Every other pod-level field the operator sets (`runAsNonRoot`) rendered.
+- The five unbound ClusterRoles (`metrics-reader`, the ModuleInstance admin, editor and viewer roles, the TransformerRegistration admin role, none with an aggregation rule) could not go through `#Role`, because `#RoleSchema.subjects` requires at least one subject and the transformer always adds a binding. They were rendered through `objects@v1alpha1` instead, so a subject-less catalog role has never been rendered; the spike below is the first.
+- The bound roles (one namespaced Role, two ClusterRoles) rendered equal to the manifest through `#Role`, apart from the binding names the catalog derives from the role name. That naming is not changed here.
+- Four further render failures, each reported only as "N errors in empty disjunction" and each avoidable in the module, are listed in the proposal's Non-goals.
+**Decision**: add the seccomp field at both scopes and make `subjects` optional; nothing else from that render is in scope.
+**Rationale**: these two are the only gaps the operator module cannot write around without leaving the catalog's abstractions; the rest have workarounds and stay follow-ups.
+
 
 ### Spike: both changes render, and the assertions bite
 
