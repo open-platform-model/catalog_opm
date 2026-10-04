@@ -233,7 +233,6 @@ jobs:
           opm catalog publish ./src --version "${VERSION}"
           echo "published=true" >> "$GITHUB_OUTPUT"
 
-
   # Out-of-band verification of the build publish-cue just pushed, in its own
   # job so that a finding never fails publish-cue: notify-downstream and
   # publish-docs key on publish-cue's published output and never wait for this
@@ -243,6 +242,7 @@ jobs:
     needs: [release-please, publish-cue]
     if: needs.publish-cue.outputs.published == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: read
       packages: read
@@ -280,7 +280,7 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       # Out-of-band verification of the build just pushed — an aid, not a gate
-      # (0011 D7): a finding fails this job for visibility, the artifact stays.
+      # (0011:D7): a finding fails this job for visibility, the artifact stays.
       - name: Verify the published build
         env:
           VERSION: ${{ needs.release-please.outputs.opm_version }}
@@ -300,9 +300,9 @@ jobs:
   # does not serve; always() keeps a post-job step that fails publish-cue
   # after the push (a checkout cleanup) from skipping it, and published is
   # only ever true when release-please released opm. It never waits for
-  # verify-published. When this job does not run,
-  # docs.yml's dispatch publishes the release instead. No version is passed:
-  # opm-docs reads it from the tag.
+  # verify-published. When this job does not run, docs.yml's dispatch
+  # publishes the release instead. No version is passed: opm-docs reads it
+  # from the tag.
   # The workflow-level permissions carry no id-token; this job grants what
   # publish.yml's release mode needs and nothing more.
   # Once per docs bundle of docs-kit.cue, both from the same release tag:

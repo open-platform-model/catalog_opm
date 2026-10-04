@@ -5,7 +5,7 @@
 - [x] 1.3 `AGENTS.md` § Release & publishing: replace "A post-publish `opm catalog registry check --compat` verifies the pushed build (an aid, not a gate)" with the `verify-published` rule: an aid in its own job, run only when `published` is true, and never a `needs` of `publish-docs` or of the notify job (design, Durable decisions)
 - [x] 1.4 Run the scratchpad `actionlint` (v1.7.12) on `.github/workflows/*.yml`; it must exit 0. `git diff` must show the verify step's `run:` and `env:` byte-identical to `main`'s
 - [x] 1.5 `openspec validate join-release-cascade --strict` and `task check` green, then commit `ci(release): verify the published build in its own job`
-- [ ] 1.6 Apply the implementation review nits to `verify-published` (review findings 7, 8, 9, 11): one blank line before its comment, the `publish-docs` comment reflowed, `0011:D7` in the verify comment, and `timeout-minutes: 15` on the job. Its `if:` stays the contract's (wiring §4.5); the gap it leaves is stated in design D2 (review finding 4). actionlint exits 0, the verify step's `run:` and `env:` still equal `main`'s, then commit `ci(release): tidy the verify-published job`
+- [x] 1.6 Apply the implementation review nits to `verify-published` (review findings 7, 8, 9, 11): one blank line before its comment, the `publish-docs` comment reflowed, `0011:D7` in the verify comment, and `timeout-minutes: 15` on the job. Its `if:` stays the contract's (wiring §4.5); the gap it leaves is stated in design D2 (review finding 4). actionlint exits 0, the verify step's `run:` and `env:` still equal `main`'s, then commit `ci(release): tidy the verify-published job`
 
 ## 2. `.github/workflows/release.yml`: the caller-owned notify job
 
