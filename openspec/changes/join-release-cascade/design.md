@@ -319,7 +319,27 @@ on `main`), read from the local `.github` clone after a fetch.
   block equals the wiring §4.6 catalog_opm block line for line with `<SHA>` filled in (`diff`
   empty).
 
-Receiver and gates callers: task 3.3.
+- `cascade` job → `.github/workflows/cascade-receive.yml`: declared inputs `dry-run` (boolean,
+  required), `gates-only`, `setup-go`, `setup-cue` (boolean), `g2-mode`, `g3-mode`, `cue-version`
+  (string). The caller passes `dry-run`, `gates-only`, `setup-go`, `g2-mode`, `g3-mode` and
+  `cue-version`, each declared with that type, and no `labels-managed`. The called jobs declare
+  `contents: read` + `pull-requests: read` (`compute`) and `contents: read` + `statuses: write` +
+  `pull-requests: read` (`gates`); the caller grants `contents: read`, `pull-requests: read` and
+  `statuses: write`, which covers both.
+- `publish` step → `.github/actions/cascade-publish/action.yml`: inputs `dry-run`, `client-id`,
+  `private-key` (required) and `labels-managed` (optional, default `'false'`). The step passes
+  exactly those four. The job grants `contents: read` and `pull-requests: read`, which the action
+  needs for its checkout and the `cascade-plan` download; it writes with the App token.
+- `gates` job → `.github/workflows/cascade-gates.yml`: the caller passes `g2-mode` and `g3-mode`
+  (string), both declared. The called job declares `statuses: write` and `actions: write`, exactly
+  what the caller grants.
+- **Method for the two workflows.** Both callers were copied into a scratch repo with the two
+  reusable files from `2376ffa` (and their `actionlint.yaml`), each `uses:` rewritten to the local
+  copy, and actionlint v1.7.12 run on the callers: exit 0. Re-adding `labels-managed: false` to the
+  `cascade` call fails it ("input \"labels-managed\" is not defined"), so the check bites.
+- **Byte for byte.** With comments removed, `deps-cascade.yml` equals the wiring §5 block with the
+  §5.2 catalog_opm `jobs:` map and `<SHA>` filled in, apart from one blank line where the header
+  comment sits; `cascade-gates.yml` equals §8.3 the same way.
 
 ### Wiring check run
 

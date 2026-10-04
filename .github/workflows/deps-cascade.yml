@@ -1,17 +1,24 @@
 name: Deps cascade
 
 # The release cascade's receiver (workspace RELEASING.md, "The receiver"; Phase 3
-# wiring contract §5). It runs task -x deps:cascade through the shared
-# cascade-receive workflow in open-platform-model/.github and keeps one rolling
-# deps/cascade PR. It accepts payloads from core and cli only (cli moves
-# .opm-cli-version, the release-tool edge).
+# wiring contract version 3.1, sections 5 and 5.2). Two jobs. cascade calls the
+# reusable cascade-receive.yml (compute runs task -x deps:cascade and plans the
+# rolling deps/cascade PR; gates posts G2 and G3); neither holds a secret.
+# publish is this repo's own job: it declares environment: cascade and passes
+# the App key only as the private-key input of the cascade-publish action, its
+# one step; no checkout or run: of its own, no env:, container: or services:
+# (the action checks out the repo but never runs it). No call passes secrets:.
+# It accepts payloads from core and cli only (cli moves .opm-cli-version, the
+# release-tool edge).
 #
 # Live only when the repo variable CASCADE_DRY_RUN is exactly false: unset, true
-# or anything else is a dry run that computes and summarizes but never pushes.
+# or anything else is a dry run that computes and summarizes but never pushes,
+# and cascade-publish refuses to mint unless its dry-run input is exactly false.
 # A manual run with dry_run, and any run from a ref other than main, are dry runs
-# too. gates_only is what Cascade gates sends for a release PR. The caller passes
-# no secrets: the reusable publish job declares the cascade Environment itself.
-# cue-version is this repo's CUE pin; a CUE bump moves it with the others.
+# too. gates_only is what Cascade gates sends for a release PR.
+#
+# Every .github reference is pinned to one .github main SHA, moved only by a
+# ci(deps) pin PR; task cascade:wiring:check holds this file's shape in CI.
 
 on:
   repository_dispatch:
@@ -42,12 +49,39 @@ jobs:
       contents: read
       pull-requests: read
       statuses: write
-    uses: open-platform-model/.github/.github/workflows/cascade-receive.yml@main
+    uses: open-platform-model/.github/.github/workflows/cascade-receive.yml@2376ffae4bfc665f327d51581350dea694c01504 # .github main
     with:
       dry-run: ${{ inputs.dry_run == true || vars.CASCADE_DRY_RUN != 'false' }}
       gates-only: ${{ inputs.gates_only == true }}
       g2-mode: ${{ vars.CASCADE_G2_MODE || 'warn' }}
       g3-mode: ${{ vars.CASCADE_G3_MODE || 'warn' }}
       setup-go: false
-      labels-managed: false
+      # This repo's CUE pin: a CUE bump moves it with every other CUE literal
+      # under .github/workflows/.
       cue-version: v0.17.1
+
+  publish:
+    name: Publish
+    needs: cascade
+    if: >-
+      !cancelled()
+      && needs.cascade.outputs.compute-ok == 'true'
+      && needs.cascade.outputs.dry-run == 'false'
+      && inputs.dry_run != true
+      && vars.CASCADE_DRY_RUN == 'false'
+      && github.ref == 'refs/heads/main'
+      && contains(fromJSON('["push","recreate","close","conflict","too_long"]'), needs.cascade.outputs.action)
+    runs-on: ubuntu-latest
+    environment: cascade
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Publish
+        uses: open-platform-model/.github/.github/actions/cascade-publish@2376ffae4bfc665f327d51581350dea694c01504 # .github main
+        with:
+          dry-run: ${{ inputs.dry_run == true || vars.CASCADE_DRY_RUN != 'false' }}
+          labels-managed: false
+          client-id: ${{ vars.CASCADE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.CASCADE_APP_PRIVATE_KEY }}
