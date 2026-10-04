@@ -35,7 +35,7 @@ when that change is archived; cited below as
   `testdata/{stub-resolve.sh,older.tsv,s1-calls.txt}`. `stub-resolve.sh` is the contract §7 stub,
   byte for byte.
 - **Tests** (contract §8): the offline set (stub checksum, `pins.sh` agreement, S1 no-op, S3 error,
-  S6 dirty tree) becomes a step in the required `Validate catalog` job (`ci.yml:20-23`). The
+  S6 dirty tree, and S7 edit-phase guards with a fake `cue`) becomes a step in the required `Validate catalog` job (`ci.yml:20-23`). The
   network set (S2 older pins, S4 frozen, S5 title and body against the real resolver) runs in a new,
   non-required workflow `.github/workflows/cascade-task.yml`.
 - **`AGENTS.md`** gains the four tasks in § Build And Dev Commands, the `.tasks/cascade/` entry
