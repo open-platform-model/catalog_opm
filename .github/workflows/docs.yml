@@ -1,25 +1,46 @@
 name: Docs
 
-# The catalog-opm docs bundle (docs-kit.cue): the generated catalog reference
-# plus the authored pages under docs/catalogs/opm/, built, signed and
-# published by docs-kit's reusable publish.yml (docs-kit docs/contracts.md
-# C5). opmodel.dev's Catalogs tab pulls it from
-# ghcr.io/open-platform-model/docs/catalog-opm.
+# Two docs bundles (docs-kit.cue), both versioned by the opm-v release tags
+# and built, signed and published by docs-kit's reusable publish.yml
+# (docs-kit docs/contracts.md C5):
+#
+#   catalog-opm       the generated catalog reference plus the authored pages
+#                     under docs/catalogs/opm/; opmodel.dev's Catalogs tab
+#                     pulls it from ghcr.io/open-platform-model/docs/catalog-opm.
+#   catalog-opm-docs  the authored pages under docs/site/, placed in the site's
+#                     /docs/ tree; ghcr.io/open-platform-model/docs/catalog-opm-docs.
+#
+# check and edge run once per project (a matrix, fail-fast off, so one
+# project's failure never cancels the other's publish). A dispatch names its
+# project.
 #
 #   pull_request       check: build and lint, publish nothing
 #   push to main       edge: publish the commit as the edge build
 #   workflow_dispatch  release: the recovery when release.yml's publish-docs
 #                      job did not run for an opm release. Only for releases
-#                      cut after this repository gained docs-kit.cue: earlier
-#                      tags have the module at opm/ and are never backfilled.
+#                      whose tree declares the project in docs-kit.cue (the
+#                      tree's config is read first, C5): catalog-opm from the
+#                      first release with docs-kit.cue (earlier tags have the
+#                      module at opm/), catalog-opm-docs from the first release
+#                      after it joined docs-kit.cue. catalog-opm-docs is
+#                      never backfilled: tags up to opm-v4.5.0 have no
+#                      docs-kit.cue, so publish.yml would build them with
+#                      main's config and publish the retired reference pages
+#                      under docs/site/reference/ (opm-v4.5.1's config names
+#                      only catalog-opm, so that one fails). The guard job
+#                      refuses a catalog-opm-docs dispatch unless the tag's
+#                      own docs-kit.cue declares the project.
 #                      revision: a docs revision of a published release. It
 #                      applies fix, a single-parent commit on main that changes
 #                      only Markdown or only comments, to the release tree and
 #                      publishes <version>.<next> (docs-kit README, "Fixing a
 #                      release's docs"; docs/contracts.md, "Docs revisions").
-#                      Dispatch either on main; publish.yml refuses any other ref:
-#                      gh workflow run docs.yml --ref main -f mode=release -f tag=opm-vX.Y.Z
-#                      gh workflow run docs.yml --ref main -f mode=revision -f tag=opm-vX.Y.Z -f fix=<40-hex sha>
+#                      Docs revisions are dispatched by hand
+#                      (open-platform-model/catalog_opm#130 tracks automating them).
+#                      Dispatch either on main, naming the project;
+#                      publish.yml refuses any other ref:
+#                      gh workflow run docs.yml --ref main -f project=catalog-opm-docs -f mode=release -f tag=opm-vX.Y.Z
+#                      gh workflow run docs.yml --ref main -f project=catalog-opm-docs -f mode=revision -f tag=opm-vX.Y.Z -f fix=<40-hex sha>
 #
 # publish.yml is pinned by docs-kit release tag, never a SHA: the signing
 # certificate names it at that ref, and the site trusts only docs-kit's v*
@@ -34,6 +55,14 @@ on:
     branches: [main]
   workflow_dispatch:
     inputs:
+      # A recovery or a revision names its bundle. The CLI must pass
+      # -f project (required, no default); the web UI preselects the first
+      # option, catalog-opm, so check the dropdown there.
+      project:
+        description: catalog-opm (the Catalogs tab) or catalog-opm-docs (docs/site)
+        type: choice
+        options: [catalog-opm, catalog-opm-docs]
+        required: true
       mode:
         description: release (recover a release with no bundle) or revision (fix a published release's docs)
         type: choice
@@ -57,34 +86,84 @@ permissions: {}
 jobs:
   check:
     if: github.event_name == 'pull_request'
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [catalog-opm, catalog-opm-docs]
     permissions:
       contents: read
       packages: read
-    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.2.1
+    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.6.0
     with:
-      project: catalog-opm
+      project: ${{ matrix.project }}
       mode: check
 
   edge:
     if: github.event_name == 'push'
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [catalog-opm, catalog-opm-docs]
     permissions:
       contents: read
       packages: write
       id-token: write
-    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.2.1
+    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.6.0
     with:
-      project: catalog-opm
+      project: ${{ matrix.project }}
       mode: edge
+
+  # Refuses the backfill catalog-opm-docs must never get (see the header):
+  # the tag's own docs-kit.cue must exist and declare catalog-opm-docs. It
+  # reads the file through the contents API at refs/tags/<tag>, so a missing
+  # tag, a tree without docs-kit.cue and any API failure all refuse. Inputs
+  # reach the shell through env only.
+  guard:
+    if: github.event_name == 'workflow_dispatch'
+    name: Refuse a catalog-opm-docs backfill
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check that the tag declares the project
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PROJECT: ${{ inputs.project }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          if [ "$PROJECT" != "catalog-opm-docs" ]; then
+            echo "project $PROJECT: no backfill guard"
+            exit 0
+          fi
+          if ! [[ "$TAG" =~ ^opm-v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::tag must be opm-vX.Y.Z, got: $TAG"
+            exit 1
+          fi
+          if ! config=$(gh api -H 'Accept: application/vnd.github.raw+json' \
+              "repos/${REPO}/contents/docs-kit.cue?ref=refs/tags/${TAG}"); then
+            echo "::error::$TAG has no docs-kit.cue (or the tag does not exist): publish.yml would build it with main's config and publish the retired reference pages. catalog-opm-docs is never backfilled."
+            exit 1
+          fi
+          # Drop line comments, then look for the bundle's label.
+          if ! sed -E 's#//.*$##' <<<"$config" \
+              | grep -Eq '"catalog-opm-docs"[[:space:]]*:'; then
+            echo "::error::docs-kit.cue at $TAG does not declare catalog-opm-docs. catalog-opm-docs is never backfilled."
+            exit 1
+          fi
+          echo "docs-kit.cue at $TAG declares catalog-opm-docs"
 
   dispatch:
     if: github.event_name == 'workflow_dispatch'
+    needs: guard
     permissions:
       contents: read
       packages: write
       id-token: write
-    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.2.1
+    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.6.0
     with:
-      project: catalog-opm
+      project: ${{ inputs.project }}
       mode: ${{ inputs.mode }}
       tag: ${{ inputs.tag }}
       fix: ${{ inputs.fix }}
