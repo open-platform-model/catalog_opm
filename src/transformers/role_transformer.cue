@@ -7,9 +7,9 @@ import (
 )
 
 // RoleTransformer converts OPM Role resources to Kubernetes RBAC objects.
-// Generates both the role and its binding from a single OPM resource:
-//   scope: "namespace" → k8s Role + RoleBinding
-//   scope: "cluster"   → k8s ClusterRole + ClusterRoleBinding
+// Generates the role, and its binding when the role has subjects:
+//   scope: "namespace" → k8s Role (+ RoleBinding when subjects are set)
+//   scope: "cluster"   → k8s ClusterRole (+ ClusterRoleBinding when subjects are set)
 #RoleTransformer: c.#ComponentTransformer & {
 	metadata: {
 		modulePath:     id.kindPrefix.transformers
@@ -57,7 +57,7 @@ import (
 		}]
 
 		// Build k8s-shaped subjects from CUE-referenced identities
-		_k8sSubjects: [for s in _role.subjects {
+		_k8sSubjects: [if _role.subjects != _|_ for s in _role.subjects {
 			kind:      "ServiceAccount"
 			name:      s.name
 			namespace: #context.#moduleInstanceMetadata.namespace
@@ -71,8 +71,8 @@ import (
 			}
 		}
 
-		// Emit the (Role|ClusterRole) + (RoleBinding|ClusterRoleBinding) pair
-		// based on scope. Output is a list of resources; the renderer
+		// Emit the Role or ClusterRole by scope, and its RoleBinding or
+		// ClusterRoleBinding only when the role has subjects. Output is a list of resources; the renderer
 		// dispatches on cue.Kind and produces one Compiled per list element.
 		output: [
 			if _role.scope == "namespace" {
@@ -88,7 +88,7 @@ import (
 				}
 				rules: _k8sRules
 			},
-			if _role.scope == "namespace" {
+			if _role.scope == "namespace" && _role.subjects != _|_ {
 				apiVersion: "rbac.authorization.k8s.io/v1"
 				kind:       "RoleBinding"
 				metadata: {
@@ -118,7 +118,7 @@ import (
 				}
 				rules: _k8sRules
 			},
-			if _role.scope == "cluster" {
+			if _role.scope == "cluster" && _role.subjects != _|_ {
 				apiVersion: "rbac.authorization.k8s.io/v1"
 				kind:       "ClusterRoleBinding"
 				metadata: {
