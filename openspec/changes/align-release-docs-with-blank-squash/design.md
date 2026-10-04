@@ -74,7 +74,7 @@ The rule stays because:
 
 ### D5. The PR title carries the highest release class of its commits
 
-Under the table in `AGENTS.md`, after the D1 sentence: "Title a PR with the highest release class among its commits (`feat!` > `feat` > `fix`/`perf`/`revert` > hidden types), with a `!` if any commit breaks."
+Under the table in `AGENTS.md`, after the D1 sentence: "Title a PR with the highest release class among its commits (`feat!` > `feat` > `fix`/`perf`/`revert` > hidden types), with a `!` if any commit breaks, except a release cascade PR (below)."
 
 The OpenSpec guidance that asks a proposal to state each section's release class gains the title: `openspec/config.yaml:125` becomes "State the release class (`feat:` / `fix:` / `feat!:`) of each section's commit and of the PR title (the highest of them; only the title reaches release-please)", and `schema.yaml:31` and `templates/proposal.md:29` say the same.
 
@@ -108,5 +108,5 @@ Alternative: name these sites as a follow-up. Rejected, because the interim empt
 - The squash message is `BLANK`, and until it is applied, merge every PR (release PRs included) with an empty body and a subject equal to the PR title. Lands as an `AGENTS.md` rule (D2).
 - A forced version is `release-as` on `packages.src`, removed by the next PR, and it needs a user-facing commit that touches `src/`. Lands as an `AGENTS.md` rule (D2).
 - A cascade PR in this repo never carries `!`. Lands as an `AGENTS.md` rule (D2).
-- A PR is titled with the highest release class among its commits, `!` if any breaks. Lands as an `AGENTS.md` rule (D5); the proposal guidance in `openspec/config.yaml`, `schema.yaml` and `templates/proposal.md` asks for it.
+- A PR is titled with the highest release class among its commits, `!` if any breaks, except a release cascade PR. Lands as an `AGENTS.md` rule (D5); the proposal guidance in `openspec/config.yaml`, `schema.yaml` and `templates/proposal.md` asks for it.
 - The reason for the `word(` rule (D4): edits `openspec/config.yaml` directly; not a promoted authoring rule, so the archive check does not look for it in `docs/` or `AGENTS.md`.

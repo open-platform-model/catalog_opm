@@ -254,7 +254,7 @@ Releases are driven by Conventional Commit types. Use the right type.
 | `feat!:` (a `!` in the PR title) | major (bumps the module path too) | yes | removing/renaming a definition, tightening output |
 | `refactor:`/`docs:`/`style:`/`chore:`/`test:`/`ci:`/`build:` | none | hidden | moves, comments, tooling — no published change   |
 
-The PR title becomes the squash commit's subject (once the title setting is `PR_TITLE`; until then see Squash message below), and once the squash message is `BLANK` it is the only text that reaches release-please. Title a PR with the highest release class among its commits (`feat!` > `feat` > `fix`/`perf`/`revert` > hidden types), with a `!` if any commit breaks.
+The PR title becomes the squash commit's subject (once the title setting is `PR_TITLE`; until then see Squash message below), and once the squash message is `BLANK` it is the only text that reaches release-please. Title a PR with the highest release class among its commits (`feat!` > `feat` > `fix`/`perf`/`revert` > hidden types), with a `!` if any commit breaks, except a release cascade PR (below).
 
 **Rule of thumb:** if the published catalog is byte-identical before and after, it is not a `feat:` or `fix:`.
 

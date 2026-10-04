@@ -13,7 +13,7 @@ Text only. No CUE, workflow or config value changes; the OpenSpec schema edit is
   - The squash message is `BLANK`. Until the owner applies that setting (today the repo still squashes with `COMMIT_MESSAGES`, `COMMIT_OR_PR_TITLE`), merge with an explicit empty body, release PRs included, and keep a one-commit PR's commit subject identical to the PR title (or pass `--subject`), since `PR_TITLE` is not applied either.
   - A forced version is a `release-as` key on the `src` package in `release-please-config.json`, landed by a normal PR and removed by the next PR once that release is cut. `release-as` alone does not release: it needs a user-facing commit (`feat`/`fix`/`perf`/`revert`) that touches `src/` (measured with #122 to #125, opm 4.5.1).
   - A release cascade PR here never carries `!`, even under `deps-cascade:breaking` (`RELEASING.md`, "Bump rule"). `opm` is a stable 4.x line, so `!` would make release-please propose 5.0.0 while the module path stays `opmodel.dev/catalogs/opm@v4`. A breaking adoption is a hand-made crossing to `opmodel.dev/catalogs/opm@v5`.
-- `AGENTS.md`, under the table: title a PR with the highest release class among its commits, with `!` if any commit breaks, since only the title reaches release-please.
+- `AGENTS.md`, under the table: title a PR with the highest release class among its commits, with `!` if any commit breaks (never on a release cascade PR), since only the title reaches release-please.
 - `openspec/config.yaml:125`, `openspec/schemas/catalog-change/schema.yaml:31` and `openspec/schemas/catalog-change/templates/proposal.md:29`: a proposal states the release class of each section's commit and of the PR title, which is the highest of them (design.md D5).
 - `AGENTS.md:223`, the release-PR merge command: add `--body ''` so the release PR's commit list does not reach `main` under `COMMIT_MESSAGES`.
 - `AGENTS.md:126`, the stable-line bullet: say the `!` goes in the PR title.
@@ -37,6 +37,6 @@ After:  | `feat!:` (a `!` in the PR title) | major (bumps the module path too) |
 ## Impact
 
 - Downstream consumers (`modules` fleet, subscribing platforms, `cli` fixtures): none. Nothing published changes.
-- Release class: every section commits as `docs(...)`. `docs` is hidden in `release-please-config.json`, so no release is cut.
+- Release class: every section commits as `docs(...)` and the archive as `chore(openspec)`; the PR title is `docs(...)`, the highest of them. `docs` and `chore` are hidden in `release-please-config.json`, so no release is cut.
 - Depends on: none. This changes no task, so it does not wait for `.github` `add-cascade-resolver`. It documents the owner decision (`RELEASING.md`, "Owner settings") and holds both before and after the owner applies `BLANK`.
 - Related: the same sweep in cli and opm-operator, and the `.github` README and mention-guard comments. Each is its own change.
