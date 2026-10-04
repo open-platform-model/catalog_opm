@@ -18,9 +18,10 @@ when that change is archived; cited below as
 "contract §N"). Where it and workspace `RELEASING.md` disagree, `RELEASING.md` wins.
 
 - **Four new Taskfile tasks** (contract §5.1): `deps:cascade`, `deps:cascade:title`,
-  `deps:cascade:body` and `deps:cascade:test`. They find the resolver through the env
-  `CASCADE_RESOLVER` or the sibling `.github` checkout (contract §3), declared at task level,
-  never as a global var.
+  `deps:cascade:body` and `deps:cascade:test`. The first three find the resolver through the
+  env `CASCADE_RESOLVER` or the sibling `.github` checkout (contract §3), declared at task
+  level, never as a global var; `deps:cascade:test` needs no resolver, because it runs against
+  the repo's own stub (contract v1.1 C7).
 - **`deps:cascade` moves exactly two pins** (workspace `RELEASING.md`, section "What each repo's
   task moves"; contract §6.1):
   - core (`opmodel.dev/core@v2`, shipped class) to `newest cue opmodel.dev/core@v2`, written by

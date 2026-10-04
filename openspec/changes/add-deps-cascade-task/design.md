@@ -107,19 +107,14 @@ global `vars:` entry is added, so no other task runs `git rev-parse`.
 
   deps:cascade:test:
     desc: Test deps:cascade in sandbox copies against the contract stub (CASCADE_TEST_SET=offline|all)
-    vars: *cascade_resolver
-    env: *cascade_env
-    preconditions: *cascade_pre
     cmds:
       - bash .tasks/cascade/test.sh
 ```
 
-`deps:cascade:test` takes the same var, env and precondition as the other three, as contract §3
-requires of all four cascade tasks. Inside each scenario `test.sh` still exports
-`CASCADE_RESOLVER` as the stub, and S5 uses `CASCADE_RESOLVER_REAL`. Where no `.github` checkout
-sits beside the repo (CI), the caller sets `CASCADE_RESOLVER` to the repo's own stub,
-`$GITHUB_WORKSPACE/.tasks/cascade/testdata/stub-resolve.sh` (D7), as the library and cli plans
-do. The spike confirmed that a YAML anchor shared across task-level `vars:` (with an `sh:` var),
+`deps:cascade:test` takes no resolver var, env or precondition (contract v1.1 clarification C7,
+which supersedes the plan review's F2). `test.sh` unsets any inherited `CASCADE_RESOLVER`, runs
+every scenario against the repo's own stub, and S5 against `CASCADE_RESOLVER_REAL`, so neither a
+`.github` checkout nor a resolver var is needed to run it, in CI or locally. The spike confirmed that a YAML anchor shared across task-level `vars:` (with an `sh:` var),
 `env:` and `preconditions:` resolves per task, and that `CASCADE_RESOLVER` from the environment
 wins.
 
@@ -157,8 +152,9 @@ There is no `test` row: the `@if(fixtures)` files live under `src/` and ship, so
 
 1. **Clean start** (rule 1): refuse with exit 1 when `git status --porcelain --untracked-files=all`
    is non-empty, unless `CASCADE_ALLOW_DIRTY=1`, which records the contract's `snapshot`.
-2. **State** (rule 2): `STATE=$(git rev-parse --git-dir)/cascade`, truncate `$STATE/warnings`,
-   export `CASCADE_WARNINGS`.
+2. **State** (rule 2): `STATE=$(git rev-parse --absolute-git-dir)/cascade`, truncate
+   `$STATE/warnings`, export `CASCADE_WARNINGS`. It names the same directory as the contract's
+   `--git-dir`; the absolute form stays right after the `cd` to the top level.
 3. **Steering files** (rule 3): `"$CASCADE_RESOLVER" check-files --repo-root .`.
 4. **Registries** (rule 4): export `CUE_REGISTRY` and `OPM_REGISTRY` as
    `opmodel.dev=ghcr.io/open-platform-model,registry.cue.works`. catalog_opm resolves no
@@ -246,8 +242,8 @@ edits it.
 
 - **Offline set** (required): a step `Test the cascade task (offline)` in `Validate catalog`, right
   after `Verify every fixture is behind the fixtures tag` (`ci.yml:61-63`) and before the GHCR
-  login, running `task -x deps:cascade:test` with `CASCADE_TEST_SET: offline` and
-  `CASCADE_RESOLVER: ${{ github.workspace }}/.tasks/cascade/testdata/stub-resolve.sh` (D1). It needs `git`,
+  login, running `task -x deps:cascade:test` with `CASCADE_TEST_SET: offline` and no resolver
+  (D1; contract v1.1 C6 names `Validate catalog` as catalog_opm's required job). It needs `git`,
   `bash` and `yq` (ubuntu-latest ships mikefarah yq v4); no registry.
 - **Network set** (not required): new `.github/workflows/cascade-task.yml`, job
   `Cascade task (network)`, `timeout-minutes: 20`, `permissions: contents: read`; triggers
@@ -258,8 +254,8 @@ edits it.
   lays out the Phase 3 receiver), so the resolver never lands in the tree `test.sh` copies into its
   sandboxes; setup-cue `v0.17.1` and setup-task (the SHAs `ci.yml:36,41` pin); then, in `repo`,
   `task -x deps:cascade:test` with
-  `CASCADE_RESOLVER: ${{ github.workspace }}/repo/.tasks/cascade/testdata/stub-resolve.sh` (D1) and
-  `CASCADE_RESOLVER_REAL: ${{ github.workspace }}/org-github/.github/scripts/cascade/cascade-resolve.sh`.
+  `CASCADE_RESOLVER_REAL: ${{ github.workspace }}/org-github/.github/scripts/cascade/cascade-resolve.sh`
+  (D1). Contract v1.1 C4 makes this `repo` plus `org-github` layout the one every repo uses.
   No GHCR login: core is public and resolves anonymously (checked with an empty Docker and CUE
   config). catalog_opm has no `.tasks/*.yaml`, so that contract path is left out. Until `.github`
   `add-cascade-resolver` merges, its `main` has no resolver and S5 fails in this non-required job;
@@ -299,7 +295,7 @@ of its own (contract §6.1).
 **Explored**: each finding against the worktree, the contract and the workspace root `.tasks/`.
 **Decision**: all ten applied, none rejected: the 3.3 gate runs in a sandbox copy (or under
 `CASCADE_ALLOW_DIRTY=1`); `deps:cascade:test` takes the contract §3 anchors and CI sets
-`CASCADE_RESOLVER` to the stub (D1, D7); the frozen check after `tidy` covers every other dep key
+`CASCADE_RESOLVER` to the stub (D1, D7; later replaced by contract v1.1 C7, see D1); the frozen check after `tidy` covers every other dep key
 (D3); `pins.sh` omits a missing core key (D2); the two-writers risk is restated and lands in
 `AGENTS.md` (task 3.4); the contract is cited by name and its durable home; the 2.5 and 4.6 checks
 no longer depend on the environment or on uncommitted files; the `generate-index.sh` range is

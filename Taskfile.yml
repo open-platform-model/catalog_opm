@@ -214,9 +214,10 @@ tasks:
   #
   # The repo's half of the release cascade (workspace RELEASING.md, "The cascade";
   # Phase 2 cascade contract §5). Run every one with `task -x` to see the real
-  # exit code: 0 moved, 3 nothing to do, anything else an error. Each task finds
-  # the shared resolver itself (contract §3): $CASCADE_RESOLVER when set (an
-  # absolute path), else the .github checkout beside this repo's main checkout.
+  # exit code: 0 moved, 3 nothing to do, anything else an error. Each task but
+  # deps:cascade:test finds the shared resolver itself (contract §3):
+  # $CASCADE_RESOLVER when set (an absolute path), else the .github checkout
+  # beside this repo's main checkout.
 
   deps:cascade:
     desc: Move core in src/ and .opm-cli-version to the newest published versions (working tree only; exit 0 moved, 3 nothing to do)
@@ -253,11 +254,10 @@ tasks:
     cmds:
       - '"$CASCADE_RESOLVER" body --classes .tasks/cascade/classes --pins .tasks/cascade/pins.sh'
 
+  # No resolver var: every scenario runs against the repo's own copy of the
+  # contract stub, and S5 against CASCADE_RESOLVER_REAL (contract v1.1, C7).
   deps:cascade:test:
     desc: Test deps:cascade in sandbox copies against the contract stub (CASCADE_TEST_SET=offline|all; S5 needs CASCADE_RESOLVER_REAL)
-    vars: *cascade_resolver
-    env: *cascade_env
-    preconditions: *cascade_pre
     cmds:
       - bash .tasks/cascade/test.sh
 

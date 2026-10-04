@@ -68,7 +68,6 @@ jobs:
       - name: Test the cascade task (offline)
         env:
           CASCADE_TEST_SET: offline
-          CASCADE_RESOLVER: ${{ github.workspace }}/.tasks/cascade/testdata/stub-resolve.sh
         run: task -x deps:cascade:test
 
       - name: Login to GHCR (read deps)
