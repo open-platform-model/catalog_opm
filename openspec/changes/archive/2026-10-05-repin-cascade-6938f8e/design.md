@@ -11,8 +11,11 @@ sections "Pinning and bumps" and "The wiring check".
 
 All five references carry `6938f8e0247e019cb0c2db13fff5b7b558a6b67d # .github main`.
 `gh api repos/open-platform-model/.github/compare/6938f8e...main --jq .status` printed
-`identical` before the edit. `git diff 7b9ad1b 6938f8e` on `.github` touches no action, no
-reusable workflow and no caller shape, so no caller input and no `wiring-check.yaml` key changes.
+`identical` before the edit. `git diff 7b9ad1b 6938f8e` on `.github` changes no action or
+reusable workflow file and no caller shape, so no caller input and no `wiring-check.yaml` key
+changes. It does change resolver code that `cascade-publish` runs: `lib/common.sh` (the EXIT trap
+in `work_dir`) and `lib/release.sh` (`git_isolated`), both sourced by `cascade-resolve.sh`, which
+`wiring/receive-publish.sh` calls. See the proposal's Canary entry.
 
 ### D2. The copy
 

@@ -56,8 +56,15 @@ No catalog member changes, so there is no CUE member shape. The reviewed surface
   `chore`, all hidden, so `opm` does not advance. PR title: `ci(deps): pin the cascade to .github
   6938f8e`.
 - **modules fleet, subscribing platforms, cli fixtures:** nothing to do.
-- **Canary**: the `.github` diff touches neither `cascade-publish` nor `cascade-notify`, so no live
-  canary run gates this pin.
+- **Canary**: the `.github` diff changes resolver code that `cascade-publish` runs
+  (`lib/common.sh`, `lib/release.sh`, sourced by `cascade-resolve.sh`, which
+  `wiring/receive-publish.sh` calls); `cascade-notify` does not run it. catalog_opm is the canary
+  (`.github` README step 2): after merge, run `gh workflow run deps-cascade.yml -R
+  open-platform-model/catalog_opm` with `CASCADE_DRY_RUN` true and check the README's dry-run
+  points before the other repos' pin PRs merge. This re-run is also the first real check of
+  `.github` PR 14, which catalog_opm's failed dry run at 7b9ad1b (run 37234985795) prompted. A
+  dry run skips `Publish`, so whether the other pins also wait for a first live publish run is
+  the supervisor's call under the README's rule for a diff that touches `cascade-publish`.
 
 ## Enhancement
 
