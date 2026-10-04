@@ -67,9 +67,16 @@ jobs:
       # tag or GitHub Release exists. The merged release PR keeps its
       # `autorelease: pending` label, and release-please tags that PR's merge
       # commit, not HEAD: when the fix lands, the next run would tag the broken
-      # tree. Remove the label from the merged release PR before the fix lands,
-      # so that version is skipped. publish-cue re-runs this check on the tag
-      # as a backstop for when that is missed.
+      # tree. The first error line under each FAIL names the cause. On a
+      # registry fetch error, re-run this job; remove the label only when a
+      # fixture itself fails. Then remove it from the merged release PR before
+      # the fix lands, so that version is skipped, and land the fix as a
+      # feat/fix/perf/revert commit under src/ that also sets last-release-sha
+      # in release-please-config.json to the skipped PR's merge commit. Without
+      # it release-please finds no tag for the manifest version, walks back to
+      # bootstrap-sha and proposes a major bump. Drop the key in the PR after
+      # the next release; see AGENTS.md, Release & publishing. publish-cue
+      # re-runs this check on the tag as a backstop for a missed label.
       - name: Setup CUE
         uses: cue-lang/setup-cue@a93fa358375740cd8b0078f76355512b9208acb1 # v1.0.1
         with:
@@ -230,13 +237,15 @@ jobs:
       # unless its `autorelease: pending` label was removed. Checking the tag
       # here burns that version (tag and Release, no GHCR artifact) instead of
       # publishing the tree the gate refused. On the normal path the gate
-      # already passed on this commit, so this step can fail only on a
-      # transient registry error (core from GHCR, cue.dev/x/k8s.io from
-      # registry.cue.works). The tag and Release exist by then: re-run this
-      # job. The first error line under each FAIL names the cause. If the
-      # re-run fails on a fixture rather than the registry, the version is
-      # burned; see AGENTS.md, Release & publishing (the fix must be a
-      # feat/fix/perf/revert commit under src/).
+      # already passed on this commit, so the fixture check below can fail
+      # only on a transient registry error (core from GHCR, cue.dev/x/k8s.io
+      # from registry.cue.works). The tag and Release exist by then. The first
+      # error line under each FAIL names the cause: on a registry fetch error,
+      # re-run this job. Only when a fixture itself fails is the version
+      # burned; the fix must then be a feat/fix/perf/revert commit under src/.
+      # A burned version has its Release, so no last-release-sha is needed
+      # (that remedy is for a skipped version); see AGENTS.md, Release &
+      # publishing.
       - name: Setup CUE
         uses: cue-lang/setup-cue@a93fa358375740cd8b0078f76355512b9208acb1 # v1.0.1
         with:

@@ -36,7 +36,7 @@ follow-up of `gate-and-tag-fixtures` into this change (SD14).
   otherwise opens no release PR; the `release-as` key only chooses the version and needs that
   commit too. After a skipped version (label removed), the next release PR proposes a major bump
   (5.0.0 today, on a module whose path is major v4) and its notes re-list everything since `bootstrap-sha`; the
-  bullet says it must not be merged as proposed. The text states each rule itself and cites no
+  bullet says it must not be merged as proposed unless the fix PR set `last-release-sha` to the skipped merge commit. The text states each rule itself and cites no
   design decision number.
 - **Hidden-field prose**: `AGENTS.md` (the `task vet:fixtures` row and the Transformer fixtures
   bullet), `Taskfile.yml` (`vet:fixtures` description), `.tasks/fixtures.sh` (the "WHY cue
@@ -50,11 +50,8 @@ Not in this change:
   the owner decided wording only.
 - The archived `2026-10-03-gate-and-tag-fixtures/design.md` keeps its "cannot fail" text. The
   archive is a record; `AGENTS.md` carries the correction.
-- The remedy for the release PR after a skipped version (the review recommends a `last-release-sha`
-  set-then-drop in `release-please-config.json`). This change states the behaviour and forbids
-  merging the bad PR; choosing the remedy is the owner's call (open question in the report).
-- The gate step in the `release-please` job: it runs before any tag, so a transient failure there
-  costs only a re-run, and its comment makes no false claim.
+- Any workflow behaviour change. The gate comment in the `release-please` job gains only the
+  registry-versus-fixture rule and the `last-release-sha` skip remedy (supervisor triage SD20).
 
 ## Before / After
 
@@ -108,7 +105,7 @@ conflict in one, but passes one that stays incomplete, with or without `-c`
   do.
 - **Release operators:** a red `publish-cue` on the backstop step now says to re-run and how to
   tell a registry error from a burned version, and `AGENTS.md` says which commit re-opens the
-  release PR and that the release PR after a skip must not be merged as proposed.
+  release PR and that the release PR after a skip must not be merged as proposed unless the fix PR set `last-release-sha` to the skipped merge commit.
 - **Serialization:** builds on catalog_opm#146 (`ci: harden the release workflows`, merged as
   `daae275`), which also edits `release.yml`. `origin/main` has since moved to `344ad4f`
   (catalog_opm#151); its hunks in `release.yml` and `AGENTS.md` do not overlap this change, and a

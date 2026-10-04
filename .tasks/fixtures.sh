@@ -18,10 +18,11 @@ export LC_ALL=C
 # WHY cue export and not cue vet: `cue vet` — including `cue vet -c` — does not
 # report an incomplete hidden field (it does fail on a conflict in one), so a
 # fixture whose inputs no longer make the output concrete passes vet while
-# comparing nothing. Measured 2026-09-15 (cue v0.17.1, core v2.0.0-alpha.9): 44 of the 47
-# rendered-output fixtures in the opm catalog's transformers/ failed export while `cue vet
-# ./...` exited 0. `cue export -e <field>` forces concreteness and is what makes
-# the golden literals load-bearing. See AGENTS.md, Working Style.
+# comparing nothing. Measured 2026-09-15 (cue v0.17.1, core v2.0.0-alpha.9):
+# 44 of the 47 rendered-output fixtures in the opm catalog's transformers/
+# failed export while `cue vet ./...` exited 0. `cue export -e <field>` forces
+# concreteness and is what makes the golden literals load-bearing. See
+# AGENTS.md, Working Style.
 #
 # WHY only this declaration form: sweeping every hidden `_test*` field reports
 # ~92 failures in opm, most of them component fixtures (`_test*Component`) whose

@@ -18,7 +18,7 @@ lines, and every line cited below is unchanged there.
   `:244-245` runs `task vet:fixtures` on the tag. The plan entry pointed at `:207-209`; the critic
   corrected it, and #146 did not move the block.
 - `release.yml:62-72` and `:87-88`: the gate in the `release-please` job, before the action that
-  pushes the tag. Its comment is accurate and stays.
+  pushes the tag. Its comment gains the registry-versus-fixture rule and the skip remedy (D3).
 - `AGENTS.md:230`: the release-path bullet, ending in the label-removal recovery and the backstop.
 - `AGENTS.md:201`, `:300`, `Taskfile.yml:71-73`, `.tasks/fixtures.sh:18-20`,
   `src/transformers/role_transformer_fixtures.cue:288-289`: the hidden-field claim.
@@ -31,14 +31,13 @@ lines, and every line cited below is unchanged there.
 - A reader of a red backstop step knows that a transient registry error is the only normal-path
   cause, that re-running the job is the recovery, and what a second failure on a fixture means.
 - `AGENTS.md` says which commit re-opens the release PR after a failed gate or backstop, and that
-  the release PR after a skipped version must not be merged as proposed.
+  the release PR after a skipped version must not be merged as proposed unless the fix PR set `last-release-sha` to the skipped merge commit.
 - Every live statement about `cue vet` and hidden fields matches what was measured.
 
 **Non-Goals:**
 
 - A retry loop around the backstop (optional in the plan entry, not decided by the owner).
 - Edits to archived changes.
-- A remedy for the release PR after a skipped version (D3): an open question for the owner.
 
 ## Decisions
 
@@ -109,14 +108,15 @@ for the `RELEASE` stamp (the bogus "release opm 2.0.0" PR after `opm-v3.0.0`). T
 footers since `9e93ecc` (`37d2771`, `089c2dd`, `75d61f8`) touch nothing under `src/`, so they are
 not resurrected.
 
-`AGENTS.md` states this so an operator does not merge that PR: it must not be merged as proposed
-until a remedy is applied. The remedy is not decided. The plan review recommends the repo's
-"Forced version" set-then-drop pattern with `last-release-sha` (checked before the bootstrap
-branch, `manifest.ts:655`) set to the skipped release PR's merge commit, dropped after the next
-release; alternatives are `release-as` with hand-edited notes, or moving `bootstrap-sha` forward
-after every release. That choice is the owner's and is an open question in the report;
-`AGENTS.md` says the remedy needs a maintainer decision. This is read from source, not run
-against a real release.
+Remedy (supervisor triage SD20, 2026-10-05): the repo's "Forced version" set-then-drop pattern.
+The fix PR after a skip sets top-level `last-release-sha` in `release-please-config.json` to the
+skipped release PR's merge commit; the PR after the next release drops it. release-please checks
+`last-release-sha` before the bootstrap branch (`manifest.ts:655`, re-read at v17.3.0 on
+2026-10-05), so the walk stops at the skipped merge, the latest release is backfilled from the
+manifest (the skipped version), and the bump is computed as usual. The gate comment, the backstop
+comment and `AGENTS.md` all say: on a registry fetch error re-run the job; remove the label only
+when a fixture itself fails. A burned version needs no key, because its Release exists. This is
+read from source, not run against a real release.
 
 ### D4. Hidden fields: what `cue vet` checks
 
@@ -179,8 +179,8 @@ first draft of this design claimed the version stays right. The plan review show
 **Explored**: release-please 17.3.0 `src/manifest.ts` (release lookup, `backfillReleasesFromTags`,
 bootstrap walk, `commitsAfterSha`); `release-please-config.json` (`bootstrap-sha` `9e93ecc`);
 `git log 9e93ecc.. -- src/` for breaking commits.
-**Decision**: State the actual behaviour and forbid merging the PR as proposed (D3); leave the
-remedy to the owner.
+**Decision**: State the actual behaviour and document the `last-release-sha` set-then-drop
+remedy (D3, SD20).
 **Rationale**: Writing either earlier claim into `AGENTS.md` would tell an operator a dangerous
 release PR is safe to merge.
 
@@ -189,8 +189,8 @@ release PR is safe to merge.
 - [D3 is read from source, not run] → It is labelled as such in the report. A real skip is rare
   and the gate before release-please makes it rarer; the first one will show the result, and the
   `AGENTS.md` text errs toward not merging.
-- [`AGENTS.md` names no remedy for a skip] → An operator who skips a version must wait for a
-  maintainer decision. Accepted until the owner picks one.
+- [The `last-release-sha` remedy is unexercised] → `AGENTS.md` tells the operator to check the
+  proposed version before merging the release PR after a skip.
 - [A `docs` commit edits a file under `src/`] → It is a comment in a file tagged with the
   `fixtures` if build attribute, so no consumer loads it, and `docs` is hidden, so no release
   follows.
@@ -202,7 +202,7 @@ release PR is safe to merge.
   publishing (and the `release.yml` comment).
 - After a failed gate or backstop the fix is always a `feat`/`fix`/`perf`/`revert` commit touching
   `src/`. After a skipped version the next release PR proposes a major bump and re-lists history
-  since `bootstrap-sha`, and must not be merged as proposed. Lands in `AGENTS.md` § Release &
+  since `bootstrap-sha`, and must not be merged as proposed unless the fix PR set `last-release-sha` to the skipped merge commit. Lands in `AGENTS.md` § Release &
   publishing.
 - `cue vet` fails on a conflict in a hidden field of the package it vets but passes an incomplete
   one, `-c` included. Lands in `AGENTS.md` (Transformer fixtures bullet and the task table).

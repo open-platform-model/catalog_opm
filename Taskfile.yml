@@ -70,8 +70,7 @@ tasks:
       `.output` of a `#transform`, and its golden literal only compares
       something when the field evaluates concretely. `cue vet` (including
       `-c`) passes a hidden field that stays incomplete, so this exports
-      each one, with
-      -t fixtures because fixtures live in @if(fixtures) files.
+      each one, with -t fixtures because fixtures live in @if(fixtures) files.
     cmds:
       - bash .tasks/fixtures.sh "{{.MODULE_DIR}}"
 
