@@ -44,6 +44,6 @@
 
 ## 7. Verify and archive
 
-- [ ] 7.1 Run `openspec verify` for `join-release-cascade` (the `opsx:verify` skill). Confirm that every Durable decision in design.md has landed in `AGENTS.md`
-- [ ] 7.2 Archive the change on this branch with `--skip-specs`, so the archive rides the implementing PR. Never push to main (owner decision 4; `RELEASING.md` "Owner settings")
-- [ ] 7.3 `openspec validate --all --strict` and `task check` green, then commit `chore(openspec): archive join-release-cascade`
+- [x] 7.1 Run `openspec verify` for `join-release-cascade` (the `opsx:verify` skill). Confirm that every Durable decision in design.md has landed in `AGENTS.md`
+- [x] 7.2 Archive the change on this branch with `--skip-specs`, so the archive rides the implementing PR. Never push to main (owner decision 4; `RELEASING.md` "Owner settings")
+- [x] 7.3 `openspec validate --all --strict` and `task check` green, then commit `chore(openspec): archive join-release-cascade`
