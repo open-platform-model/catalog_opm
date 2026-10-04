@@ -13,13 +13,13 @@
 
 ## 2. Roles with no subjects (proposal R4, R5, R6): src/resources/, src/transformers/
 
-- [ ] 2.1 `src/resources/v1beta1/role.cue`: `subjects!` becomes `subjects?`, still `[...#RoleSubjectSchema] & [_, ...]` (design D-C). Reword the `#RoleResource` doc comment and `metadata.description` to say subjects are optional and that a role without them renders no binding; keep the description the first sentence of the doc comment, word for word.
-- [ ] 2.2 `src/transformers/role_transformer.cue`: guard `_k8sSubjects` and the RoleBinding and ClusterRoleBinding arms on `_role.subjects != _|_` (design D-D); leave every object body unchanged; update the transformer's doc comment to name the role-only output.
-- [ ] 2.3 `src/transformers/role_transformer_fixtures.cue`: embedded-form subject-less ClusterRole (a `nonResourceURLs` rule, the shape of the operator's `metrics-reader`) and subject-less namespace Role, each declared `_test<Name>: (#RoleTransformer.#transform & {...}).output`; assert `(len(out) + 0) & 1` and the kind by interpolation; add a negative fixture that `subjects: []` is still refused against `res.#RoleSchema`.
-- [ ] 2.4 R6: add a golden for `_testNsRoleTransformer` (namespace Role plus RoleBinding, as a closed two-element list, labels spelled out) so both scopes have a with-subjects golden; confirm `cue export -t fixtures -e _testExtendedRulesTransformer ./transformers` is byte-identical to `origin/main`. Confirm the length guard fails when the ClusterRoleBinding arm's subjects guard is temporarily removed, then restore it.
-- [ ] 2.5 `task generate:index` (description changed); review the `src/INDEX.md` diff.
+- [x] 2.1 `src/resources/v1beta1/role.cue`: `subjects!` becomes `subjects?`, still `[...#RoleSubjectSchema] & [_, ...]` (design D-C). Reword the `#RoleResource` doc comment and `metadata.description` to say subjects are optional and that a role without them renders no binding; keep the description the first sentence of the doc comment, word for word.
+- [x] 2.2 `src/transformers/role_transformer.cue`: guard `_k8sSubjects` and the RoleBinding and ClusterRoleBinding arms on `_role.subjects != _|_` (design D-D); leave every object body unchanged; update the transformer's doc comment to name the role-only output.
+- [x] 2.3 `src/transformers/role_transformer_fixtures.cue`: embedded-form subject-less ClusterRole (a `nonResourceURLs` rule, the shape of the operator's `metrics-reader`) and subject-less namespace Role, each declared `_test<Name>: (#RoleTransformer.#transform & {...}).output`; assert `(len(out) + 0) & 1` and the kind by interpolation; add a negative fixture that `subjects: []` is still refused against `res.#RoleSchema`.
+- [x] 2.4 R6: add a golden for `_testNsRoleTransformer` (namespace Role plus RoleBinding, as a closed two-element list, labels spelled out) so both scopes have a with-subjects golden; confirm `cue export -t fixtures -e _testExtendedRulesTransformer ./transformers` is byte-identical to `origin/main`. Confirm the length guard fails when the ClusterRoleBinding arm's subjects guard is temporarily removed, then restore it.
+- [x] 2.5 `task generate:index` (description changed); review the `src/INDEX.md` diff.
 - [ ] 2.6 Cross-cutting (proposal R7): `opm catalog publish ./src --dry-run` reports no compatibility violation for `container@v1beta1`, `security-context@v1beta1`, `role@v1beta1` or `stateless-workload@v1beta1`; if it refuses, stop and report instead of moving a segment.
-- [ ] 2.7 `task check` green, then commit `feat(catalog): render a role with no subjects without a binding`
+- [x] 2.7 `task check` green, then commit `feat(catalog): render a role with no subjects without a binding`
 
 ## 3. Durable decisions: docs/
 

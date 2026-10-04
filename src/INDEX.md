@@ -122,7 +122,7 @@ CUE module: `opmodel.dev/catalogs/opm@v4`
 | `#PolicyRuleSchema` | `resources/v1beta1/role.cue` | Single RBAC permission rule, exactly one of the two k8s forms |
 | `#ResourcePolicyRuleSchema` | `resources/v1beta1/role.cue` |  |
 | `#Role` | `resources/v1beta1/role.cue` |  |
-| `#RoleResource` | `resources/v1beta1/role.cue` | An RBAC role with its rules and the subjects it binds, at namespace or cluster scope |
+| `#RoleResource` | `resources/v1beta1/role.cue` | An RBAC role with its rules and any subjects it binds, at namespace or cluster scope |
 | `#RoleSchema` | `resources/v1beta1/role.cue` |  |
 | `#RoleSubjectSchema` | `resources/v1beta1/role.cue` | Role subject — embeds an identity directly via CUE reference |
 | `#SecretSchema` | `resources/v1beta1/secret.cue` | Secret specification |
