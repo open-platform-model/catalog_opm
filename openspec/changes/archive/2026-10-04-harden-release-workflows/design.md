@@ -131,9 +131,16 @@ publishes nothing and holds no write grant after D2. docs-kit already sets `cach
 - [The `release` Environment's branch policy refuses a run] → `release.yml` runs only on pushes
   to `main`, which the policy (`main`) allows.
 - [A grant is missing and a run fails after the default flips] → each grant is traced to a step
-  in D1 to D4; actionlint checks the permission names. The first release after merge is the
-  real proof; a failure there is a red job before any tag only if it hits `release-please`'s
-  `gh workflow run`, which runs after release-please and is idempotent on re-run.
+  in D1 to D4; actionlint checks the permission names. The first push to `main` after merge is
+  the real proof. If `packages: read` is missing, the fixture gate's GHCR login fails before
+  release-please runs, so no tag or release exists and a re-run after the fix is safe. If
+  `actions: write` is missing, `gh workflow run ci.yml` in "Trigger required CI on the release
+  PR" gets a 403 that its `|| echo` swallows: the job stays green and logs "no open release
+  branch", but the release PR's required `Validate catalog` check never starts. The symptom is a
+  release PR stuck on a pending check; a maintainer dispatches `ci.yml` on the release branch by
+  hand until the grant is fixed.
+  A missing `packages: write` fails `publish-cue` after the tag exists; re-running that job
+  publishes the tagged tree.
 - [CODEOWNERS with two owners means an admin's own PR needs the other's review] → owner decision
   28 accepts it; admins keep the pull-request bypass.
 

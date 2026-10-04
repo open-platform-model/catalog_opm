@@ -15,9 +15,10 @@ on:
 permissions: {}
 
 # One publish per branch at a time. A branch pushed twice within a second (same
-# commit) would start two runs that race to push the same dev tag. Queue, never cancel: cancelling a run mid-publish can
-# leave a partial push behind. The second run then finds the tag already
-# published and the publish step accepts that (see below).
+# commit) would start two runs that race to push the same dev tag. Queue, never
+# cancel: cancelling a run mid-publish can leave a partial push behind. The
+# second run then finds the tag already published and the publish step accepts
+# that (see below).
 concurrency:
   group: branch-publish-${{ github.ref }}
   cancel-in-progress: false
