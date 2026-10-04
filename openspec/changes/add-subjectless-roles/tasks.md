@@ -10,7 +10,7 @@
 
 ## 2. Compatibility gate (proposal R4): .opm-cli-version
 
-- [ ] 2.1 Gate: confirm a cli release carrying `fix-compat-unauthored-defaults` is published (`gh release list -R open-platform-model/cli`) and that its notes or tag history include the fix. If none exists, stop here and report; do not open the PR.
-- [ ] 2.2 Bring the branch up to date with `origin/main` by a merge if it moved (never rewrite pushed history). If `main` already pins that release or a later one in `.opm-cli-version`, skip the bump. Otherwise bump `.opm-cli-version` to that release (`task deps:update` moves it with core; keep only the cli line if core also moves, and note it).
-- [ ] 2.3 With the pinned cli installed as CI installs it (`.github/workflows/ci.yml`, "Install opm"), `opm catalog publish ./src --dry-run` reports no compatibility violation for `role@v1beta1`; already-published as the only refusal is the CI-accepted outcome. Do not move a segment to get past a refusal; report it instead.
-- [ ] 2.4 `task check` green, then commit `chore(deps): pin the opm cli release that accepts optional role subjects` (skip the commit when 2.2 skipped the bump).
+- [x] 2.1 Gate: confirm a cli release carrying `fix-compat-unauthored-defaults` is published (`gh release list -R open-platform-model/cli`) and that its notes or tag history include the fix. If none exists, stop here and report; do not open the PR.
+- [x] 2.2 Bring the branch up to date with `origin/main` by a merge if it moved (never rewrite pushed history). If `main` already pins that release or a later one in `.opm-cli-version`, skip the bump. Otherwise bump `.opm-cli-version` to that release (`task deps:update` moves it with core; keep only the cli line if core also moves, and note it).
+- [x] 2.3 With the pinned cli installed as CI installs it (`.github/workflows/ci.yml`, "Install opm"), `opm catalog publish ./src --dry-run` reports no compatibility violation for `role@v1beta1`; already-published as the only refusal is the CI-accepted outcome. Do not move a segment to get past a refusal; report it instead.
+- [x] 2.4 `task check` green, then commit `ci(deps): pin the opm cli release that accepts optional role subjects` (skip the commit when 2.2 skipped the bump). The pin is a release-tool file, so the commit type is `ci(deps)`.

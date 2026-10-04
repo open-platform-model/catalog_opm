@@ -76,7 +76,7 @@ Each requirement is satisfied by the CUE in Before / After and the transformer e
 - **Subscribing platforms:** nothing to do; they pick up the minor through the release cascade.
 - **`cli` fixtures under `testing.opmodel.dev`:** nothing to do.
 - **opm-operator:** `add-operator-module` switches its five unbound ClusterRoles from `objects@v1alpha1` to `#Role` once this change is released (its follow-up task).
-- **Release class:** section 1 `feat(catalog)`, section 2 `chore(deps)` (absent when `main` already pins the cli release). PR title: `feat(catalog): render a role with no subjects without a binding`. A minor release; no major, no path move.
+- **Release class:** section 1 `feat(catalog)`, section 2 `ci(deps)` (absent when `main` already pins the cli release). PR title: `feat(catalog): render a role with no subjects without a binding`. A minor release; no major, no path move.
 
 ## Principle V
 
