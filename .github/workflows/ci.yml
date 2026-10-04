@@ -62,6 +62,14 @@ jobs:
       - name: Verify every fixture is behind the fixtures tag
         run: task vet:fixtures:tagged
 
+      # Offline too: task deps:cascade in sandbox copies of the tree against the
+      # repo's own copy of the contract stub (no registry, no .github checkout).
+      # The network scenarios and the real resolver run in cascade-task.yml.
+      - name: Test the cascade task (offline)
+        env:
+          CASCADE_TEST_SET: offline
+        run: task -x deps:cascade:test
+
       - name: Login to GHCR (read deps)
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 

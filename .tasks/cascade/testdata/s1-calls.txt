@@ -1,0 +1,5 @@
+check-files --repo-root .
+is-frozen .opm-cli-version github.com/open-platform-model/cli --repo-root .
+is-frozen src/cue.mod/module.cue opmodel.dev/core@v2 --repo-root .
+newest cue opmodel.dev/core@v2 --current V --repo-root .
+newest opm-cli --current V --repo-root .

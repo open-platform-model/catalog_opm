@@ -210,6 +210,57 @@ tasks:
         fi
         exit $rc
 
+  ## Release cascade
+  #
+  # The repo's half of the release cascade (workspace RELEASING.md, "The cascade";
+  # Phase 2 cascade contract §5). Run every one with `task -x` to see the real
+  # exit code: 0 moved, 3 nothing to do, anything else an error. Each task but
+  # deps:cascade:test finds the shared resolver itself (contract §3):
+  # $CASCADE_RESOLVER when set (an absolute path), else the .github checkout
+  # beside this repo's main checkout.
+
+  deps:cascade:
+    desc: Move core in src/ and .opm-cli-version to the newest published versions (working tree only; exit 0 moved, 3 nothing to do)
+    vars: &cascade_resolver
+      CASCADE_RESOLVER_PATH:
+        sh: |
+          if [ -n "${CASCADE_RESOLVER:-}" ]; then
+            case "$CASCADE_RESOLVER" in /*) ;; *) echo "CASCADE_RESOLVER must be absolute" >&2; exit 1 ;; esac
+            printf '%s\n' "$CASCADE_RESOLVER"; exit 0
+          fi
+          common=$(git rev-parse --path-format=absolute --git-common-dir) || exit 1
+          printf '%s\n' "$(dirname "$common")/../.github/.github/scripts/cascade/cascade-resolve.sh"
+    env: &cascade_env
+      CASCADE_RESOLVER: '{{.CASCADE_RESOLVER_PATH}}'
+    preconditions: &cascade_pre
+      - sh: test -x '{{.CASCADE_RESOLVER_PATH}}'
+        msg: "cascade resolver not found: check out open-platform-model/.github beside this repo, or set CASCADE_RESOLVER"
+    cmds:
+      - bash .tasks/cascade/cascade.sh
+
+  deps:cascade:title:
+    desc: Print the cascade PR title computed from the diff against the base (exit 3 when there is no diff)
+    vars: *cascade_resolver
+    env: *cascade_env
+    preconditions: *cascade_pre
+    cmds:
+      - '"$CASCADE_RESOLVER" title --classes .tasks/cascade/classes --pins .tasks/cascade/pins.sh'
+
+  deps:cascade:body:
+    desc: Print the cascade PR body (moved pins, triggering releases, warnings, Notes)
+    vars: *cascade_resolver
+    env: *cascade_env
+    preconditions: *cascade_pre
+    cmds:
+      - '"$CASCADE_RESOLVER" body --classes .tasks/cascade/classes --pins .tasks/cascade/pins.sh'
+
+  # No resolver var: every scenario runs against the repo's own copy of the
+  # contract stub, and S5 against CASCADE_RESOLVER_REAL (contract v1.1, C7).
+  deps:cascade:test:
+    desc: Test deps:cascade in sandbox copies against the contract stub (CASCADE_TEST_SET=offline|all; S5 needs CASCADE_RESOLVER_REAL)
+    cmds:
+      - bash .tasks/cascade/test.sh
+
   ## Aggregate
 
   check:

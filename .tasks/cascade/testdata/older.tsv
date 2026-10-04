@@ -1,0 +1,5 @@
+# Older published versions per pin key, for scenario S2 (Phase 2 cascade contract §8; design D6).
+# <pin-key>\t<version>. Each must be strictly older than the tree's pin; test.sh checks it.
+# No pin-of row: catalog_opm has no consistent set (contract §6.1).
+opmodel.dev/core@v2	v2.0.0-alpha.13
+github.com/open-platform-model/cli	v1.0.0-beta.4

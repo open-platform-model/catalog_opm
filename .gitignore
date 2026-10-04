@@ -11,3 +11,6 @@ out.cue
 # docs bundle preview (task docs:bundle) and the pinned opm-docs binary
 /out/
 /.bin/
+
+# Claude Code worktrees: other checkouts of this repo (task deps:cascade refuses a tree with untracked files)
+.claude/worktrees/

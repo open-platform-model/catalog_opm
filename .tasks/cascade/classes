@@ -1,0 +1,5 @@
+# Path-class map for the cascade PR title and body (Phase 2 cascade contract §4.1, §5.3).
+# One "<class> <pattern>" per line; the first match wins; an unmatched path is shipped.
+# No test paths: the @if(fixtures) files live under src/ and ship.
+release-tool .opm-cli-version
+shipped src/
