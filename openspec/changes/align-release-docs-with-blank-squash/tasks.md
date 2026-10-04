@@ -14,7 +14,13 @@
 - [x] 2.3 Run `openspec validate align-release-docs-with-blank-squash --strict` and confirm it passes. Run `openspec instructions apply --change align-release-docs-with-blank-squash --json` and confirm the new guidance text comes through; a malformed rules entry is dropped silently (`openspec/config.yaml` design-rules comment).
 - [x] 2.4 `task check` is green. Then commit `docs(openspec): restate the release rules for the blank squash message`.
 
-## 3. Archive
+## 3. PR title release class
 
-- [ ] 3.1 Archive the change on this branch with `openspec archive align-release-docs-with-blank-squash --skip-specs`, after checking that every Durable decision in design.md is landed, so the archive rides the implementing PR; never push to main
-- [ ] 3.2 `openspec validate --all --strict` green, then commit `chore(openspec): archive align-release-docs-with-blank-squash`
+- [ ] 3.1 Under the table in `AGENTS.md`, make the D1 sentence conditional on `PR_TITLE` and add the D5 title rule. In the Squash message bullet, end with the footer sentence "never takes effect: under `BLANK`, or with the empty-body merge above, it never reaches `main`" (design.md D2).
+- [ ] 3.2 Change `openspec/config.yaml:125`, `openspec/schemas/catalog-change/schema.yaml:31` and `openspec/schemas/catalog-change/templates/proposal.md:29` to ask for the release class of each section's commit and of the PR title (design.md D5).
+- [ ] 3.3 `openspec validate align-release-docs-with-blank-squash --strict` passes, `openspec instructions proposal --change align-release-docs-with-blank-squash` shows the new Impact text, and `task check` is green. Then commit `docs(agents): title a PR with its highest release class`.
+
+## 4. Archive
+
+- [ ] 4.1 Archive the change on this branch with `openspec archive align-release-docs-with-blank-squash --skip-specs`, after checking that every Durable decision in design.md is landed, so the archive rides the implementing PR; never push to main
+- [ ] 4.2 `openspec validate --all --strict` green, then commit `chore(openspec): archive align-release-docs-with-blank-squash`
