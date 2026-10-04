@@ -1,0 +1,18 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    ignore:
+      # docs-kit's publish.yml is pinned by release tag and moves together
+      # with .opm-docs-version in one PR (docs-kit C5, C12; task
+      # docs:pins:check); a Dependabot bump would move one pin alone.
+      - dependency-name: "open-platform-model/docs-kit*"
+      # The cascade workflows, actions and resolver move together, one .github
+      # SHA per repo, only through a ci(deps) pin PR (workspace RELEASING.md,
+      # "Moving the cascade pin"); a Dependabot bump would move one reference alone.
+      - dependency-name: "open-platform-model/.github*"
+    commit-message:
+      # ci is a hidden type here, so an action bump cuts no release.
+      prefix: "ci"

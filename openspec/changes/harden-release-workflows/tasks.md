@@ -13,10 +13,10 @@
 
 ## 3. Code owners, Dependabot and AGENTS.md
 
-- [ ] 3.1 Add `.github/CODEOWNERS` (design D5)
-- [ ] 3.2 Add `.github/dependabot.yml` for github-actions (design D6)
-- [ ] 3.3 `AGENTS.md` § Release & publishing: the durable decisions of design.md, and drop "This repo has no Dependabot config"
-- [ ] 3.4 `task check` green, then commit `ci: add code owners and Dependabot for actions`
+- [x] 3.1 Add `.github/CODEOWNERS` (design D5)
+- [x] 3.2 Add `.github/dependabot.yml` for github-actions (design D6)
+- [x] 3.3 `AGENTS.md` § Release & publishing: the durable decisions of design.md, and drop "This repo has no Dependabot config"
+- [x] 3.4 `task check` green, then commit `ci: add code owners and Dependabot for actions`
 
 ## 4. Verify and archive
 
