@@ -1,0 +1,13 @@
+pin-comment: .github main
+receiver: true
+env-allow: [OPM_REGISTRY, CUE_REGISTRY]
+publish-workflows: [release.yml, branch-publish.yml, docs.yml]
+ci:
+  workflow: ci.yml
+  job: ci
+notify:
+  needs: [release-please, publish-cue]
+  if: ${{ !cancelled() && needs.publish-cue.outputs.published == 'true' && vars.CASCADE_NOTIFY != 'off' }}
+  tag: ${{ needs.release-please.outputs.opm_tag_name }}
+publish:
+  labels-managed: false
