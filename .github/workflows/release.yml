@@ -230,7 +230,13 @@ jobs:
       # unless its `autorelease: pending` label was removed. Checking the tag
       # here burns that version (tag and Release, no GHCR artifact) instead of
       # publishing the tree the gate refused. On the normal path the gate
-      # already passed on this commit, so this cannot fail.
+      # already passed on this commit, so this step can fail only on a
+      # transient registry error (core from GHCR, cue.dev/x/k8s.io from
+      # registry.cue.works). The tag and Release exist by then: re-run this
+      # job. The first error line under each FAIL names the cause. If the
+      # re-run fails on a fixture rather than the registry, the version is
+      # burned; see AGENTS.md, Release & publishing (the fix must be a
+      # feat/fix/perf/revert commit under src/).
       - name: Setup CUE
         uses: cue-lang/setup-cue@a93fa358375740cd8b0078f76355512b9208acb1 # v1.0.1
         with:
