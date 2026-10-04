@@ -232,6 +232,21 @@ else
   pass "S7 tidy touching language.version stops the task"
 fi
 
+# A newest opm-cli tag that pins.sh and CI would refuse stops the task before any edit.
+d=$(sandbox s7-cli-shape)
+set_older "$d"
+setup=$(commit_setup "$d")
+awk -F'\t' -v OFS='\t' '$1 == "newest" && $2 == "opm-cli" { $4 = "v1.0.0-rc-1" } { print }' \
+  "$TABLE" >"$WORK/s7-cli-shape.tsv"
+PATH="$WORK/bin:$PATH" run_cascade "$d" "$WORK/s7-cli-shape.tsv" "$setup" s7-cli-shape
+if [ "$RC" != 1 ] || ! grep -q "does not fit the $CLI_FILE shape" "$WORK/s7-cli-shape.out"; then
+  fail "S7 CLI shape" "exit $RC, expected 1 naming the $CLI_FILE shape"; show s7-cli-shape
+elif [ -n "$(status_of "$d")" ]; then
+  fail "S7 CLI shape" "the tree changed: $(status_of "$d")"
+else
+  pass "S7 an off-shape opm CLI tag stops the task before any edit"
+fi
+
 if [ "$SET" = offline ]; then
   [ "$fails" = 0 ] || exit 1
   exit 0
