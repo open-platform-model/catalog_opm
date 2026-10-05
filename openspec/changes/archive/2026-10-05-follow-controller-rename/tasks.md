@@ -16,6 +16,6 @@
 
 ## 3. Verify and archive
 
-- [ ] 3.1 Verify the change against these artifacts (the `opsx:verify` skill)
-- [ ] 3.2 Archive the change on this branch with `--skip-specs`
-- [ ] 3.3 `openspec validate --all --strict` and `task check` green, then commit `chore(openspec): archive follow-controller-rename`
+- [x] 3.1 Verify the change against these artifacts (the `opsx:verify` skill)
+- [x] 3.2 Archive the change on this branch with `--skip-specs`
+- [x] 3.3 `openspec validate --all --strict` and `task check` green, then commit `chore(openspec): archive follow-controller-rename`
