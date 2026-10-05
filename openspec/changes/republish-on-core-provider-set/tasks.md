@@ -8,7 +8,7 @@
 
 ## 2. Pin the opm catalog's derived provides: src/
 
-- [ ] 2.1 Re-run the 1.1 check for a core-moving PR. If one appeared, stop and report it.
-- [ ] 2.2 Add `src/catalog_fixtures.cue` as in design D-B: `@if(fixtures)` above `package opm`, a package-level required `provides!: []`, the comment (at most 6 lines), and the sentinel `_testCatalogProvides: true` so `task vet:fixtures:tagged` counts the file. Confirm `task vet:fixtures:tagged` reports one more file than before.
-- [ ] 2.3 Mutation checks, each reverted afterwards: (a) add a stub transformer to `#transformers` in a scratch edit that requires `backup@v1alpha1` with `fulfilment: "provider"`, and confirm `task vet` fails on `provides`; (b) set the core pin back to `v2.0.0-beta.1` and confirm `task vet` fails (`provides` required but not present); (c) drop the `@if(fixtures)` line and confirm `task vet:fixtures:tagged` fails. Confirm that a plain `cue vet ./...` and `(cd src && cue export .)` do not include the assertion, i.e. the fixture file never ships.
-- [ ] 2.4 `task check` green, then commit `test(catalog): pin the opm catalog's derived provides to empty`
+- [x] 2.1 Re-run the 1.1 check for a core-moving PR. If one appeared, stop and report it.
+- [x] 2.2 Add `src/catalog_fixtures.cue` as in design D-B: `@if(fixtures)` above `package opm`, a package-level required `provides!: []`, the comment (at most 6 lines), and the sentinel `_testCatalogProvides: true` so `task vet:fixtures:tagged` counts the file. Confirm `task vet:fixtures:tagged` reports one more file than before.
+- [x] 2.3 Mutation checks, each reverted afterwards: (a) add a stub transformer to `#transformers` in a scratch edit that requires `backup@v1alpha1` with `fulfilment: "provider"`, and confirm `task vet` fails on `provides`; (b) set the core pin back to `v2.0.0-beta.1` and confirm `task vet` fails (`provides` required but not present); (c) drop the `@if(fixtures)` line and confirm `task vet:fixtures:tagged` fails. Confirm that a plain `cue vet ./...` and `(cd src && cue export .)` do not include the assertion, i.e. the fixture file never ships.
+- [x] 2.4 `task check` green, then commit `test(catalog): pin the opm catalog's derived provides to empty`
