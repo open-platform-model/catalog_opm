@@ -53,7 +53,7 @@ Measured 2026-10-05 on a scratch copy of `origin/main` 7c0dc2d: `cue export .` i
 
 - **library** (`lib-h2`, same round): `Catalog.Provides()` decodes `provides` from this catalog once the `opm` release carrying this change is published, and folds in Go for every older `opm` build. That release is the gate for removing the library fallback before GA. The removal is not part of this change.
 - **opm-operator**: nothing to do here. Its test for an old catalog belongs to the operator's h2 work.
-- **`modules` fleet, `opm-modules`, subscribing platforms**: nothing to do. They pick up the release through the cascade. A platform evaluates every catalog at its own core pin, so the field is present only where a platform's core is at beta.3 or later.
+- **`modules` fleet, `opm-modules`, subscribing platforms**: nothing to do. They pick up the release through the cascade. Every module or platform that moves to this `opm` release is raised to at least core v2.0.0-beta.3 by MVS (an additive core release), so it carries `provides`; a catalog acquired standalone at an older `opm` build has none, which the library fallback covers.
 - **`cli` fixtures under `testing.opmodel.dev`**: nothing to do. The j3 consumer pin bump is not part of this change (below).
 - **Release class:** section 1 `fix(deps)` (the published module changes: a new core pin and one derived field), section 2 `test(catalog)` (hidden; the fixture file never ships). PR title: `fix(deps): move the opm catalog onto core v2.0.0-beta.3`. This is a patch class and has no `!`; the AGENTS.md cascade-title rule gives the same title. The open release PR catalog_opm#145 (opm 4.7.0, another session) already carries #143's `feat`, so when this change merges release-please folds it into that PR, and the republish ships as 4.7.0, not as its own patch. That PR is not touched here.
 
@@ -64,5 +64,5 @@ No published surface is authored here. The `provides` field comes from core, and
 ## Non-goals
 
 - The j3 consumer pin bump (core-j3's binding of the attachment maps): it follows core-j3's release, as a separate change.
-- Moving `#PreBoundRegistration._providerSet` (`src/resources/v1alpha1/transformer_registration.cue:114`) onto core's `provides`. core#120 lists it as not in that change, and no owner decision covers it. `#PreBoundRegistration` takes a bare `#transformers` map, not a catalog value, so it has no `provides` to read. The PR body names a catalog_opm issue that tracks this duplicate fold, so it outlives the archived change.
+- Moving `#PreBoundRegistration._providerSet` (`src/resources/v1alpha1/transformer_registration.cue:114`) onto core's `provides`. core#120 lists it as not in that change, and no owner decision covers it. `#PreBoundRegistration` takes a bare `#transformers` map, not a catalog value, so it has no `provides` to read. catalog_opm#155 tracks this duplicate fold, so it outlives the archived change.
 - Cutting or merging a release: release-please and catalog_opm#145 handle that.
