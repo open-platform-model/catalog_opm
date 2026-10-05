@@ -8,11 +8,11 @@
 
 ## 2. Repository prose
 
-- [ ] 2.1 `AGENTS.md` Notify downstream bullet: "library, opm-controller and cli"
-- [ ] 2.2 `.github/workflows/release.yml` `notify-downstream` comment: "opm-controller and cli"
-- [ ] 2.3 `.tasks/branch-tag.sh` range-subscription comment: "the opm-controller's platform registry"
-- [ ] 2.4 The residue grep (`opm[-_ ]?operator|operator-system|operatorVersion|...`) outside `CHANGELOG.md` and `openspec/changes/archive/` hits only `.tasks/cascade/wiring-check.sh`
-- [ ] 2.5 `task check` green, then commit `docs: name opm-controller in the cascade prose`
+- [x] 2.1 `AGENTS.md` Notify downstream bullet: "library, opm-controller and cli"
+- [x] 2.2 `.github/workflows/release.yml` `notify-downstream` comment: "opm-controller and cli"
+- [x] 2.3 `.tasks/branch-tag.sh` range-subscription comment: "the opm-controller's platform registry"
+- [x] 2.4 The residue grep (`opm[-_ ]?operator|operator-system|operatorVersion|...`) outside `CHANGELOG.md` and `openspec/changes/archive/` hits only `.tasks/cascade/wiring-check.sh`
+- [x] 2.5 `task check` green, then commit `docs: name opm-controller in the cascade prose`
 
 ## 3. Verify and archive
 

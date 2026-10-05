@@ -368,7 +368,7 @@ jobs:
       tag: ${{ needs.release-please.outputs.opm_tag_name }}
 
   # The release cascade (workspace RELEASING.md, "Notify after publish"): tell library,
-  # opm-operator and cli that opm-vX.Y.Z is on GHCR. It waits only for the push
+  # opm-controller and cli that opm-vX.Y.Z is on GHCR. It waits only for the push
   # (published), never for verify-published or publish-docs. This job is
   # caller-owned: it declares environment: cascade and passes the App key only
   # as the private-key input of the SHA-pinned cascade-notify action, its one

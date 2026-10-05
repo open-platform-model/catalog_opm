@@ -95,7 +95,7 @@ fi
 #      `1.0.0-beta.1` on the base version alone, before prerelease identifiers
 #      are even consulted — so moving to the next minor makes it strictly
 #      worse, not better.
-#   2. Explicit range subscriptions (the opm-operator's platform registry
+#   2. Explicit range subscriptions (the opm-controller's platform registry
 #      filters) admit prereleases deliberately. They are unaffected by the
 #      `@vN` stable-preference rule, so a next-minor dev build wins them
 #      whenever that minor has no release of its own yet.
