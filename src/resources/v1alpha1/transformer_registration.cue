@@ -43,7 +43,7 @@ import (
 	spec: transformerRegistration: {
 		// The provider CATALOG's module path, never a module's: a catalog is
 		// what carries transformers, so a claim naming a module names nothing
-		// that could implement a contract. The operator's acceptance refuses a
+		// that could implement a contract. The controller's acceptance refuses a
 		// non-catalog artifact structurally (0015 D10), so nothing beyond the
 		// type is gated here.
 		catalog!: c.#ModulePathType

@@ -227,7 +227,7 @@ _testPreBoundNonProviderOutput: spec: provides: []
 // #Catalog.provides, which sorts ascending, so the declaration order of the
 // #transformers map no longer reaches the output. '-' sorts before '@', so
 // backup-command comes first. Insertion order coming back (a local fold)
-// fails this golden. opm-operator sorts both lists before comparing anyway.
+// fails this golden. opm-controller sorts both lists before comparing anyway.
 
 // Two transformers requiring two DIFFERENT provider contracts: the case a real
 // provider catalog hits, and the only one where order is observable.

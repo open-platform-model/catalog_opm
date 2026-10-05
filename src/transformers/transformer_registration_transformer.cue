@@ -7,8 +7,8 @@ import (
 )
 
 // WHY the group, version and kind below are literals: they name a CRD that
-// opm-operator owns (enhancement 0015 D3), so nothing in this catalog can
-// derive them. The operator's TransformerRegistration CRD must match these
+// opm-controller owns (0015:D3), so nothing in this catalog can derive
+// them. The controller's TransformerRegistration CRD must match these
 // three strings exactly — this file and that CRD are the two sides of one
 // contract, and changing either alone breaks the other.
 // WHY the group is the bare `opmodel.dev`, with no `opm.` or kind-specific
@@ -19,7 +19,7 @@ import (
 // dot-prefixed group here and was unappliable).
 
 // TransformerRegistrationTransformer renders a provider module's claim as the
-// cluster-scoped TransformerRegistration the operator accepts. The object's
+// cluster-scoped TransformerRegistration the controller accepts. The object's
 // name and spec.providerRef come from the rendering instance alone, so a
 // module cannot claim to be another provider (0015 D11, D12).
 #TransformerRegistrationTransformer: c.#ComponentTransformer & {

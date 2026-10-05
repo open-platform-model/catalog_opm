@@ -1,10 +1,10 @@
 ## 1. src/ comment sites
 
-- [ ] 1.1 `src/transformers/transformer_registration_transformer.cue`: the WHY block names `opm-controller` (cite `0015:D3`) and "the controller's TransformerRegistration CRD"; the doc comment says "the controller accepts"
-- [ ] 1.2 `src/transformers/transformer_registration_transformer_fixtures.cue`: "opm-controller sorts both lists"
-- [ ] 1.3 `src/resources/v1alpha1/transformer_registration.cue`: "The controller's acceptance refuses"
-- [ ] 1.4 `task generate:index`; the `#TransformerRegistrationTransformer` row reads "the controller accepts"
-- [ ] 1.5 `task check` green, then commit `docs(transformers): name the controller in the registration comments`
+- [x] 1.1 `src/transformers/transformer_registration_transformer.cue`: the WHY block names `opm-controller` (cite `0015:D3`) and "the controller's TransformerRegistration CRD"; the doc comment says "the controller accepts"
+- [x] 1.2 `src/transformers/transformer_registration_transformer_fixtures.cue`: "opm-controller sorts both lists"
+- [x] 1.3 `src/resources/v1alpha1/transformer_registration.cue`: "The controller's acceptance refuses"
+- [x] 1.4 `task generate:index`; the `#TransformerRegistrationTransformer` row reads "the controller accepts"
+- [x] 1.5 `task check` green, then commit `docs(transformers): name the controller in the registration comments`
 
 ## 2. Repository prose
 
