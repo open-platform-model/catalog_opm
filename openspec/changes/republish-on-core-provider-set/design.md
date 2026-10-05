@@ -44,6 +44,7 @@ package opm
 // opm defines provider-fulfilled contracts (backup@v1alpha1,
 // backup-command@v1alpha1) and implements none (AGENTS.md: never a stub).
 // Core derives provides; this requires it and pins it empty.
+// A bare "incomplete" from task vet means core lost provides: run cue vet -c -t fixtures . in src/.
 provides!: []
 
 // Keeps this file under task vet:fixtures:tagged.
@@ -84,7 +85,7 @@ Alternative considered: re-derive the set in the fixture and compare it with `pr
 
 - The publish compatibility gate (cli `v1.0.0-beta.8`) could treat the new root field or core's changed definitions as a violation. -> Already measured in plan review on the bumped tree: `opm catalog publish ./src --dry-run` reported member gate 71 checked, 0 refused; posture gate 28, 0 refused; compat gate 38 compared, 0 refused, 8 alpha-exempt, 0 new; and a single "already holds v4.6.0" refusal. opm-docs v0.6.0 `check` passed for both projects. Task 1.4 re-confirms it. Any other refusal MUST stop the change and be reported, with no workaround.
 - `opm-docs` could render the new root field into the reference bundle. -> `task docs:bundle:check` is part of `task check`. Note any page diff in the report.
-- `#PreBoundRegistration._providerSet` (`src/resources/v1alpha1/transformer_registration.cue`) is a second catalog-side derivation of the same rule once core's `provides` is published, the drift library ADR-012 exists to prevent. Out of scope here (proposal Non-goals); the PR body MUST name a catalog_opm issue that tracks it.
+- `#PreBoundRegistration._providerSet` (`src/resources/v1alpha1/transformer_registration.cue`) is a second catalog-side derivation of the same rule once core's `provides` is published, the drift library ADR-012 exists to prevent. Out of scope here (proposal Non-goals); catalog_opm#155 tracks it, and the PR body MUST name that issue.
 - A platform on core beta.3 with an older `opm` release has no `provides` for that entry. -> That is why the library keeps its fallback until GA (owner decision h2).
 
 ## Durable decisions
