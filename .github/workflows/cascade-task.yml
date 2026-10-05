@@ -33,13 +33,13 @@ jobs:
       # The repo and the resolver are checked out side by side, so the resolver
       # never sits inside the tree the test copies into its sandboxes.
       - name: Clone the code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: repo
           persist-credentials: false
 
       - name: Clone the shared cascade resolver
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: open-platform-model/.github
           ref: 0f9c6ac2c9b752a79f4874f637ef9955bcf00c13 # .github main
