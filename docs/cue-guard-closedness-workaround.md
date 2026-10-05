@@ -140,6 +140,7 @@ write it as `#Helper: #Base & {…}` and let the call site name `#Helper` alone.
 #PreBoundRegistration: #TransformerRegistration & {
     #identity: {…}
     #transformers: [string]: _
+    let T = #transformers // #transformers inside _catalog would name its own field
     _catalog: c.#Catalog & {…}
     spec: transformerRegistration: {…}
 }

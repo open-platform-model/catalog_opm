@@ -96,12 +96,19 @@ _testPreBoundIdentity: {
 // its fqn: the helper reads provides from a c.#Catalog built over the map, and
 // #Catalog closes #transformers to #ImplFQNType keys and #ComponentTransformer
 // values, so a bare `{requiredTraits: …}` is refused with "field not allowed".
+// WHY catalogVersion and modulePath are authored: a real provider catalog's map
+// arrives already stamped by its own #Catalog, so the helper's _catalog must
+// agree with that stamp. Authoring them here pins the 0015:D11 agreement: an
+// _catalog whose version or path drifts from #identity fails every
+// _testPreBound fixture with a metadata conflict.
 _testPreBoundTransformer: c.#ComponentTransformer & {
 	#name: c.#NameType
 	metadata: {
-		name:        #name
-		fqn:         "opmodel.dev/catalogs/k8up/transformers/\(#name)@1.0.0"
-		description: "Synthetic provider transformer"
+		name:           #name
+		fqn:            "opmodel.dev/catalogs/k8up/transformers/\(#name)@1.0.0"
+		modulePath:     "opmodel.dev/catalogs/k8up/transformers"
+		catalogVersion: "1.0.0"
+		description:    "Synthetic provider transformer"
 	}
 }
 
