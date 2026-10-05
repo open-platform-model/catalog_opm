@@ -46,7 +46,8 @@ package opm
 // Core derives provides; this requires it and pins it empty.
 provides!: []
 
-_testCatalogProvides: true // keeps this file under task vet:fixtures:tagged
+// Keeps this file under task vet:fixtures:tagged.
+_testCatalogProvides: true
 ```
 
 A hidden `_test` field cannot hold the assertion, because `provides` comes from the embedded `c.#Catalog`, and a lexical reference to it from a sibling file fails with `reference "provides" not found` (spike below). A regular field in an `@if(fixtures)` file unifies with the derived value in `cue vet -t fixtures ./...` (the second half of `task vet`) and never reaches a consumer.
