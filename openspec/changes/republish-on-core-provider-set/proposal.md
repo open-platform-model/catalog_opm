@@ -9,7 +9,7 @@ It implements no undelivered enhancement decision (h2 is a walkthrough task, and
 ## What Changes
 
 - **`src/cue.mod/module.cue`**: `opmodel.dev/core@v2` moves from `v2.0.0-beta.1` to `v2.0.0-beta.3`, with one `cue mod tidy` in `src/`. This is the same edit `task -x deps:cascade` makes. The cascade is in dry run (`CASCADE_DRY_RUN=true`), so no bot PR exists, and no open PR makes this bump. `.opm-cli-version` and `cue.dev/x/k8s.io@v0` stay where they are.
-- **`src/catalog_fixtures.cue`** (new, `@if(fixtures)`, never ships): asserts at package level that the derived `provides` of `opm` is `[]`. `task vet` loads it in its fixtures view. `opm` defines provider-fulfilled contracts (`backup@v1alpha1`, `backup-command@v1alpha1`) but implements none, and AGENTS.md says it never ships a stub transformer for one. The fixture turns that rule into a vet failure that names the contract.
+- **`src/catalog_fixtures.cue`** (new, `@if(fixtures)`, never ships): requires the derived `provides` of `opm` at package level (`provides!: []`), so it must come from core, and pins it to `[]`. A `_testCatalogProvides` sentinel keeps the file under `task vet:fixtures:tagged`. `task vet` loads it in its fixtures view. `opm` defines provider-fulfilled contracts (`backup@v1alpha1`, `backup-command@v1alpha1`) but implements none, and AGENTS.md says it never ships a stub transformer for one. The fixture turns that rule into a vet failure on `provides` (`cue eval -e provides .` in `src/` then names the offending FQN), and a core pin without `provides` fails vet too.
 - Re-vet everything in both views (`task vet`) and every rendered-output fixture (`task vet:fixtures`) on the new core, as part of `task check`.
 
 No catalog member changes, no member moves `apiVersion` segment, and nothing is **BREAKING**.
@@ -24,7 +24,7 @@ No member's shape changes. The published catalog value gains one derived field f
 // src/cue.mod/module.cue
 deps: "opmodel.dev/core@v2": v: "v2.0.0-beta.1"
 
-// cue export ./src (catalog root): no provides field
+// (cd src && cue export .), catalog root: no provides field
 kind: "Catalog"
 metadata: {...}
 ```
@@ -35,7 +35,7 @@ metadata: {...}
 // src/cue.mod/module.cue
 deps: "opmodel.dev/core@v2": v: "v2.0.0-beta.3"
 
-// cue export ./src (catalog root): derived by core's #Catalog, never authored here
+// (cd src && cue export .), catalog root: derived by core's #Catalog, never authored here
 kind: "Catalog"
 metadata: {...}
 provides: []
@@ -43,10 +43,11 @@ provides: []
 // src/catalog_fixtures.cue (fixtures view only)
 @if(fixtures)
 package opm
-provides: []
+provides!: []
+_testCatalogProvides: true
 ```
 
-Measured 2026-10-05 on a scratch copy of `origin/main` 7c0dc2d: `cue export ./src` differs only by `"provides": []`.
+Measured 2026-10-05 on a scratch copy of `origin/main` 7c0dc2d: `cue export .` in `src/` differs only by `"provides": []`.
 
 ## Impact
 
@@ -63,5 +64,5 @@ No published surface is authored here. The `provides` field comes from core, and
 ## Non-goals
 
 - The j3 consumer pin bump (core-j3's binding of the attachment maps): it follows core-j3's release, as a separate change.
-- Moving `#PreBoundRegistration._providerSet` (`src/resources/v1alpha1/transformer_registration.cue:114`) onto core's `provides`. core#120 lists it as not in that change, and no owner decision covers it. `#PreBoundRegistration` takes a bare `#transformers` map, not a catalog value, so it has no `provides` to read.
+- Moving `#PreBoundRegistration._providerSet` (`src/resources/v1alpha1/transformer_registration.cue:114`) onto core's `provides`. core#120 lists it as not in that change, and no owner decision covers it. `#PreBoundRegistration` takes a bare `#transformers` map, not a catalog value, so it has no `provides` to read. The PR body names a catalog_opm issue that tracks this duplicate fold, so it outlives the archived change.
 - Cutting or merging a release: release-please and catalog_opm#145 handle that.
