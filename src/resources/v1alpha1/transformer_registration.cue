@@ -56,7 +56,7 @@ import (
 		// Every provider-fulfilled contract the named catalog's own
 		// transformers require. Required, not derived, so a claim arriving
 		// without one is refused; #PreBoundRegistration below is what fills
-		// it, folding the list out of the provider catalog's transformers.
+		// it, reading core's derived #Catalog.provides over those transformers.
 		provides!: [...c.#ContractFQNType]
 	}
 }
@@ -76,10 +76,10 @@ import (
 // Adding an fqn here would list a member no platform can subscribe to and
 // break the gate. Do not add one.
 //
-// WHY this catalog cannot exercise the fold on itself: a provider-fulfilled
+// WHY this catalog cannot exercise the helper on itself: a provider-fulfilled
 // member ships no transformer here, and never a stub (CLAUDE.md, Working
 // Style), so no opm transformer requires a provider-fulfilled contract and
-// folding over opm's own #transformers yields an empty set. That is the
+// the provider set of opm's own #transformers is empty. That is the
 // correct result for opm; the helper exists for a PROVIDER catalog to
 // instantiate, and the fixtures in transformers/ supply synthetic input.
 //
@@ -91,11 +91,21 @@ import (
 // hidden fields, which closedness does not check. See
 // docs/cue-guard-closedness-workaround.md.
 
+// WHY provides is read from a c.#Catalog and never folded here: a catalog's
+// provider set is core's #Catalog.provides (library ADR-012, one derived rule
+// in one place), and a second fold in this repository could drift from it.
+// _catalog is the provider catalog rebuilt from the two inputs, so core both
+// derives the set and stamps each transformer's catalogVersion and modulePath
+// from #identity: a #transformers map from another catalog is a conflict.
+// metadata spells out the two fields because #identity is closed and
+// #Catalog.metadata adds fqn; the let alias is needed because #transformers
+// inside _catalog names _catalog's own field.
+
 // #TransformerRegistration pre-bound for a provider catalog: pass the
 // catalog's own identity package and its own #transformers map and the module
 // authors no spec field. catalog and version come from the identity; provides
-// folds out of those transformers, so the claim cannot disagree with the
-// catalog it names (0015 D11).
+// is core's #Catalog.provides over those transformers, so the claim cannot
+// disagree with the catalog it names (0015:D11).
 #PreBoundRegistration: #TransformerRegistration & {
 	// The provider catalog's identity package — `{modulePath: id.ModulePath,
 	// version: id.Version}` at the call site.
@@ -104,27 +114,19 @@ import (
 		version:    c.#VersionType
 	}
 
-	// The provider catalog's own #transformers map. Typed openly because the
-	// fold reads two fields of each value and nothing else.
+	// The provider catalog's own #transformers map. Typed openly here because
+	// _catalog applies core's #Catalog constraint to it.
 	#transformers: [string]: _
 
-	// Every provider-fulfilled contract those transformers require,
-	// deduplicated through struct keys. Both demand maps are optional on
-	// core's #ComponentTransformer, so each is guarded before comprehending.
-	_providerSet: {
-		for _, t in #transformers {
-			if t.requiredTraits != _|_ {
-				for fqn, m in t.requiredTraits if m.fulfilment == "provider" {(fqn): true}
-			}
-			if t.requiredResources != _|_ {
-				for fqn, m in t.requiredResources if m.fulfilment == "provider" {(fqn): true}
-			}
-		}
+	let T = #transformers
+	_catalog: c.#Catalog & {
+		metadata: {modulePath: #identity.modulePath, version: #identity.version}
+		#transformers: T
 	}
 
 	spec: transformerRegistration: {
-		catalog: #identity.modulePath
-		version: #identity.version
-		provides: [for fqn, _ in _providerSet {fqn}]
+		catalog:  #identity.modulePath
+		version:  #identity.version
+		provides: _catalog.provides
 	}
 }

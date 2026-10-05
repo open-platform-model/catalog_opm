@@ -3,6 +3,7 @@
 package transformers
 
 import (
+	c "opmodel.dev/core@v2"
 	res "opmodel.dev/catalogs/opm/resources/v1alpha1"
 	tra "opmodel.dev/catalogs/opm/traits/v1alpha1"
 )
@@ -71,7 +72,7 @@ _testTransformerRegistrationLabelCount: (len(_testTransformerRegistrationOutput.
 
 // WHY these fixtures build their own transformers: this catalog ships no
 // transformer requiring a provider-fulfilled contract (a provider-fulfilled
-// member ships none here, and never a stub), so the fold over opm's own
+// member ships none here, and never a stub), so the provider set of opm's own
 // #transformers is empty by rule and proves nothing. Each fixture supplies
 // the map a real provider catalog would pass, and its golden asserts
 // spec.provides alone — the rest of the object is pinned above.
@@ -91,11 +92,34 @@ _testPreBoundIdentity: {
 	version:    "1.0.0"
 }
 
+// WHY each synthetic transformer embeds c.#ComponentTransformer and is keyed by
+// its fqn: the helper reads provides from a c.#Catalog built over the map, and
+// #Catalog closes #transformers to #ImplFQNType keys and #ComponentTransformer
+// values, so a bare `{requiredTraits: …}` is refused with "field not allowed".
+// WHY catalogVersion and modulePath are authored: a real provider catalog's map
+// arrives already stamped by its own #Catalog, so the helper's _catalog must
+// agree with that stamp. Authoring them here pins the 0015:D11 agreement: an
+// _catalog whose version or path drifts from #identity fails every
+// _testPreBound fixture with a metadata conflict.
+_testPreBoundTransformer: c.#ComponentTransformer & {
+	#name: c.#NameType
+	metadata: {
+		name:           #name
+		fqn:            "opmodel.dev/catalogs/k8up/transformers/\(#name)@1.0.0"
+		modulePath:     "opmodel.dev/catalogs/k8up/transformers"
+		catalogVersion: "1.0.0"
+		description:    "Synthetic provider transformer"
+	}
+}
+
 // A required trait with fulfilment "provider" yields exactly its FQN.
 _testPreBoundTraitComponent: res.#PreBoundRegistration & {
 	metadata: name: "provider"
 	#identity: _testPreBoundIdentity
-	#transformers: backup: requiredTraits: (tra.#BackupTrait.metadata.fqn): tra.#BackupTrait
+	#transformers: "opmodel.dev/catalogs/k8up/transformers/backup@1.0.0": _testPreBoundTransformer & {
+		#name: "backup"
+		requiredTraits: (tra.#BackupTrait.metadata.fqn): tra.#BackupTrait
+	}
 }
 
 _testPreBoundTraitOutput: (#TransformerRegistrationTransformer.#transform & {
@@ -110,13 +134,16 @@ _testPreBoundTraitOutput: spec: {
 	provides: ["opmodel.dev/catalogs/opm/traits/backup@v1alpha1"]
 }
 
-// requiredResources alone is enough; the value is synthetic because opm ships
-// no provider-fulfilled RESOURCE and the fold reads fulfilment only.
+// requiredResources alone is enough; the resource is synthetic because opm
+// ships no provider-fulfilled RESOURCE, and core's fold reads fulfilment only.
 _testPreBoundResourceComponent: res.#PreBoundRegistration & {
 	metadata: name: "provider"
 	#identity: _testPreBoundIdentity
-	#transformers: store: requiredResources: {
-		"opmodel.dev/catalogs/k8up/resources/backup-store@v1alpha1": fulfilment: "provider"
+	#transformers: "opmodel.dev/catalogs/k8up/transformers/store@1.0.0": _testPreBoundTransformer & {
+		#name: "store"
+		requiredResources: "opmodel.dev/catalogs/k8up/resources/backup-store@v1alpha1": c.#Resource & {
+			fulfilment: "provider"
+		}
 	}
 }
 
@@ -135,7 +162,9 @@ _testPreBoundResourceOutput: spec: provides: [
 _testPreBoundNeitherComponent: res.#PreBoundRegistration & {
 	metadata: name: "provider"
 	#identity: _testPreBoundIdentity
-	#transformers: noop: {}
+	#transformers: "opmodel.dev/catalogs/k8up/transformers/noop@1.0.0": _testPreBoundTransformer & {
+		#name: "noop"
+	}
 }
 
 _testPreBoundNeitherOutput: (#TransformerRegistrationTransformer.#transform & {
@@ -148,14 +177,20 @@ _testPreBoundNeitherOutput: (#TransformerRegistrationTransformer.#transform & {
 // the struct goldens above, which only assert presence.
 _testPreBoundNeitherOutput: spec: provides: []
 
-// Two transformers requiring the same contract contribute ONE entry; the
-// struct keys of _providerSet are what deduplicate them.
+// Two transformers requiring the same contract contribute ONE entry; core's
+// #Catalog.provides deduplicates them.
 _testPreBoundDedupComponent: res.#PreBoundRegistration & {
 	metadata: name: "provider"
 	#identity: _testPreBoundIdentity
 	#transformers: {
-		backup: requiredTraits: (tra.#BackupTrait.metadata.fqn):  tra.#BackupTrait
-		restore: requiredTraits: (tra.#BackupTrait.metadata.fqn): tra.#BackupTrait
+		"opmodel.dev/catalogs/k8up/transformers/backup@1.0.0": _testPreBoundTransformer & {
+			#name: "backup"
+			requiredTraits: (tra.#BackupTrait.metadata.fqn): tra.#BackupTrait
+		}
+		"opmodel.dev/catalogs/k8up/transformers/restore@1.0.0": _testPreBoundTransformer & {
+			#name: "restore"
+			requiredTraits: (tra.#BackupTrait.metadata.fqn): tra.#BackupTrait
+		}
 	}
 }
 
@@ -174,8 +209,9 @@ _testPreBoundDedupOutput: spec: provides: [
 _testPreBoundNonProviderComponent: res.#PreBoundRegistration & {
 	metadata: name: "provider"
 	#identity: _testPreBoundIdentity
-	#transformers: reg: requiredResources: {
-		(res.#TransformerRegistrationResource.metadata.fqn): res.#TransformerRegistrationResource
+	#transformers: "opmodel.dev/catalogs/k8up/transformers/reg@1.0.0": _testPreBoundTransformer & {
+		#name: "reg"
+		requiredResources: (res.#TransformerRegistrationResource.metadata.fqn): res.#TransformerRegistrationResource
 	}
 }
 
@@ -187,12 +223,11 @@ _testPreBoundNonProviderOutput: (#TransformerRegistrationTransformer.#transform 
 
 _testPreBoundNonProviderOutput: spec: provides: []
 
-// WHY this fixture pins ORDER and not only membership: the fold accumulates
-// into a struct and reads it back with a comprehension, so provides comes out
-// in INSERTION order — the declaration order of the catalog's #transformers
-// map, then of each transformer's demand map — never sorted (measured, cue
-// v0.17.1). Reordering that map is therefore a rendered-output change. It is
-// not an acceptance risk: opm-operator sorts both lists before comparing.
+// WHY this fixture pins ORDER and not only membership: provides is core's
+// #Catalog.provides, which sorts ascending, so the declaration order of the
+// #transformers map no longer reaches the output. '-' sorts before '@', so
+// backup-command comes first. Insertion order coming back (a local fold)
+// fails this golden. opm-operator sorts both lists before comparing anyway.
 
 // Two transformers requiring two DIFFERENT provider contracts: the case a real
 // provider catalog hits, and the only one where order is observable.
@@ -200,8 +235,14 @@ _testPreBoundMultiComponent: res.#PreBoundRegistration & {
 	metadata: name: "provider"
 	#identity: _testPreBoundIdentity
 	#transformers: {
-		backup: requiredTraits: (tra.#BackupTrait.metadata.fqn):         tra.#BackupTrait
-		command: requiredTraits: (tra.#BackupCommandTrait.metadata.fqn): tra.#BackupCommandTrait
+		"opmodel.dev/catalogs/k8up/transformers/backup@1.0.0": _testPreBoundTransformer & {
+			#name: "backup"
+			requiredTraits: (tra.#BackupTrait.metadata.fqn): tra.#BackupTrait
+		}
+		"opmodel.dev/catalogs/k8up/transformers/command@1.0.0": _testPreBoundTransformer & {
+			#name: "command"
+			requiredTraits: (tra.#BackupCommandTrait.metadata.fqn): tra.#BackupCommandTrait
+		}
 	}
 }
 
@@ -212,6 +253,6 @@ _testPreBoundMultiOutput: (#TransformerRegistrationTransformer.#transform & {
 }).output
 
 _testPreBoundMultiOutput: spec: provides: [
-	"opmodel.dev/catalogs/opm/traits/backup@v1alpha1",
 	"opmodel.dev/catalogs/opm/traits/backup-command@v1alpha1",
+	"opmodel.dev/catalogs/opm/traits/backup@v1alpha1",
 ]

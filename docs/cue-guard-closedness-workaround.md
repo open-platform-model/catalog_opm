@@ -140,7 +140,8 @@ write it as `#Helper: #Base & {…}` and let the call site name `#Helper` alone.
 #PreBoundRegistration: #TransformerRegistration & {
     #identity: {…}
     #transformers: [string]: _
-    _providerSet: {…}
+    let T = #transformers // #transformers inside _catalog would name its own field
+    _catalog: c.#Catalog & {…}
     spec: transformerRegistration: {…}
 }
 
@@ -188,7 +189,7 @@ CUE
 cue eval /tmp/closed.cue   # must report both fields as not allowed
 ```
 
-The standing guard in this repo is `task vet:fixtures`: the five
+The standing guard in this repo is `task vet:fixtures`: the six
 `_testPreBound*Output` fixtures in `src/transformers/transformer_registration_transformer_fixtures.cue`
 stop evaluating the moment `#PreBoundRegistration` stops embedding
 `#TransformerRegistration`.
