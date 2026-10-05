@@ -135,6 +135,7 @@ The resource fixture's synthetic `{fulfilment: "provider"}` becomes a `c.#Resour
 **Context**: D-A assumes beta.4 vets `opm` clean. D-B assumes a `c.#Catalog` built inside the helper accepts the call shapes in use and derives the same set.
 **Explored**: 2026-10-05, cue v0.17.1, a scratch copy of `src/` at `origin/main` 0560990:
 - `cue mod get opmodel.dev/core@v2.0.0-beta.4` and `cue mod tidy` changed only the core line. `cue vet ./...` and `cue vet -t fixtures ./...` passed.
+- Task 1.3, in the worktree: `cue export .` in `src/` is byte-identical on beta.3 and beta.4. `cue eval -e '#transformers'` is identical; `#resources`, `#traits` and `#blueprints` differ only in field order (each member's `metadata.modulePath` line moves two lines down, behind the `fqn` binding j3 adds), with the same multiset of lines. No field or value changes.
 - With D-B applied and the fixtures as in D-D, `cue vet ./...` and `cue vet -t fixtures ./...` passed. The six goldens export the same sets as before, and the multi case exports `provides: [".../backup-command@v1alpha1", ".../backup@v1alpha1"]`.
 - With D-B applied and the fixtures unchanged, vet fails with `_testPreBound*Component._catalog.#transformers.backup: field not allowed` (bare string keys, values not `#ComponentTransformer`). The fixtures must be rewritten (D-D).
 **Decision**: D-A to D-D as written. Section 1 is not a spike.
