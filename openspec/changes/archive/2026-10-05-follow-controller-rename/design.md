@@ -18,8 +18,25 @@ default or required-field set changes.
 - `CHANGELOG.md` and the OpenSpec archive (history).
 - A catalog release.
 
-## Decisions
+## Research & Decisions
 
+### Leave `.tasks/cascade/wiring-check.sh` alone
+**Context**: The file names `opm-operator` on two lines, so the residue check flags it.
+**Explored**: A byte comparison against `.github/scripts/cascade/wiring-check.sh` in the `.github` repo
+at `0f9c6ac` found the two files byte-identical; the catalog copy is a mirror the pin round writes.
+**Decision**: Do not edit it here; it follows when the `.github` change rewrites the canonical file and
+the pin round copies it in.
+**Rationale**: A local edit would break the byte identity the cascade wiring check relies on, and the
+next pin round would overwrite it anyway.
+
+### Library parity pin moved
+**Context**: The next `opm` release has to reach the library's parity test.
+**Explored**: On library main, `parity_harness_test.go` (`shippedCatalogVersion`) reads the catalog
+version from `testdata/parity/cue.mod/module.cue` and holds no versioned literals.
+**Decision**: The Impact section names the `module.cue` deps as the bump site.
+**Rationale**: The older "seven literals" instruction no longer matches the harness.
+
+### Wording and commit types
 - **Exact strings, never a bare `operator` rule.** Each site is replaced by its full phrase
   (`opm-operator` → `opm-controller`, "the operator's" → "the controller's"). A word-level replace
   would hit `operator: "In"` selectors and toleration fields that are Kubernetes API.

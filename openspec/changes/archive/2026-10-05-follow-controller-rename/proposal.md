@@ -62,8 +62,9 @@ No member's shape, constraint, default or output changes. The reviewed surface i
 - **modules fleet, subscribing platforms, cli fixtures under `testing.opmodel.dev`:** nothing to do.
 - **opm-suite-installer** vendors this catalog; its copy of the fixtures comment updates through its
   own `cue mod tidy` after the next `opm` release, never by hand.
-- **library:** the next `opm` release that library pins needs the seven `<name>@<version>` literals
-  in `opm/kernel/parity_harness_test.go` bumped with the pin, or `TestParity_ShippedCatalog` fails.
+- **library:** bump the `opmodel.dev/catalogs/opm@v4` dep in `testdata/parity/cue.mod/module.cue`
+  (and `testdata/parity/opm_platform/cue.mod/module.cue`) with the catalog pin, then run
+  `go test ./opm/kernel/ -run TestParity`.
 - **Cascade:** none of the three hashed `.tasks/cascade` files (`pins.sh`, `classes`, `cascade.sh`)
   changes, so the `.github` `mirror_sources` hashes for catalog_opm stay valid.
 
