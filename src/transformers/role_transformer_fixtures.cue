@@ -286,9 +286,9 @@ _testUnboundClusterRoleRule:  "\(_testUnboundClusterRoleTransformer[0].rules[0].
 
 // Pins `subjects` optional. The outputs above stay concrete if the field
 // turns required (`!= _|_` is false for a missing required field) and cue
-// vet skips hidden fields, so the role spec is exported instead: it uses the
-// #transform form, so .tasks/fixtures.sh exports it and a required field
-// fails with "field is required but not present".
+// vet passes an incomplete hidden field, so the role spec is exported
+// instead: it uses the #transform form, so .tasks/fixtures.sh exports it and
+// a required field fails with "field is required but not present".
 _testUnboundClusterRoleSpec: (#RoleTransformer.#transform & {
 	#moduleInstance: {
 		metadata: {
