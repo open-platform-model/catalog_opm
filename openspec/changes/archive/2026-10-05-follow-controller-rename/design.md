@@ -41,15 +41,15 @@ version from `testdata/parity/cue.mod/module.cue` and holds no versioned literal
   (`opm-operator` → `opm-controller`, "the operator's" → "the controller's"). A word-level replace
   would hit `operator: "In"` selectors and toleration fields that are Kubernetes API.
 - **Hidden commit types.** The edits are comments, so `docs` is the honest class; a `fix:` to force a
-  release would publish an `opm` version whose only change is wording. The plan batches the text with
-  the next functional change instead.
+  release would publish an `opm` version whose only change is wording. The text batches with the next
+  functional change instead.
 - **Cite as `0015:D3`** on the touched line, per the workspace reference format. Untouched citations
   on neighbouring lines are left for their own change.
 
 ## Risks / Trade-offs
 
 - [The published `opm` module keeps the old wording until the next functional release] → accepted;
-  the plan batches it, and the docs bundle rebuilds from that release.
+  the text batches with it, and the docs bundle rebuilds from that release.
 - [The comments name `opm-controller` before the GitHub repo is renamed] → the branch merges only in
   the cutover sitting, after the rename.
 

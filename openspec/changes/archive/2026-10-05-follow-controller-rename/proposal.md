@@ -1,7 +1,7 @@
 ## Why
 
 The Kubernetes controller `opm-operator` is renamed `opm-controller` (repo, image, namespace, CUE module,
-CLI noun; workspace plan `claude-stuff/rename-opm-controller/PLAN.md`, owner decisions of 2026-10-05). The
+CLI noun; enhancement 0032, "The Operator Becomes the Controller", 0032:D1). The
 owner decided there is no migration and no trace of the old name: every live reference follows. This
 catalog names the controller in six places, all comments or prose.
 
@@ -57,7 +57,7 @@ No member's shape, constraint, default or output changes. The reviewed surface i
 - **Published catalog: no behaviour change.** Only comments under `src/` change, so the module source
   differs but no member does. Section 1 commits as `docs(transformers)`, section 2 as `docs`, the
   archive as `chore(openspec)`: all hidden types, so `opm` does not advance on its own. The text ships
-  with the next functional catalog release (plan: batch with the next functional catalog change). PR
+  with the next functional catalog release. PR
   title: `docs: follow the opm-controller rename`.
 - **modules fleet, subscribing platforms, cli fixtures under `testing.opmodel.dev`:** nothing to do.
 - **opm-suite-installer** vendors this catalog; its copy of the fixtures comment updates through its
