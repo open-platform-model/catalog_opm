@@ -93,7 +93,7 @@ jobs:
     permissions:
       contents: read
       packages: read
-    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.6.0
+    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.7.0
     with:
       project: ${{ matrix.project }}
       mode: check
@@ -108,7 +108,7 @@ jobs:
       contents: read
       packages: write
       id-token: write
-    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.6.0
+    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.7.0
     with:
       project: ${{ matrix.project }}
       mode: edge
@@ -161,7 +161,7 @@ jobs:
       contents: read
       packages: write
       id-token: write
-    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.6.0
+    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.7.0
     with:
       project: ${{ inputs.project }}
       mode: ${{ inputs.mode }}

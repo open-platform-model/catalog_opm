@@ -51,7 +51,7 @@ jobs:
           private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
 
       - name: Clone the code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           token: ${{ steps.app-token.outputs.token }}
           # The App token is not left in .git/config while the fixture gate,
@@ -78,12 +78,12 @@ jobs:
       # the next release; see AGENTS.md, Release & publishing. publish-cue
       # re-runs this check on the tag as a backstop for a missed label.
       - name: Setup CUE
-        uses: cue-lang/setup-cue@a93fa358375740cd8b0078f76355512b9208acb1 # v1.0.1
+        uses: cue-lang/setup-cue@b0e30e540a2dae47304ebf16586a5b2db023b61c # v2.0.0
         with:
           version: v0.17.1
 
       - name: Install Task
-        uses: go-task/setup-task@3be4020d41929789a01026e0e427a4321ce0ad44 # v2.0.0
+        uses: go-task/setup-task@a00fbb05ce67b35648be3c78cbc9fd85354c757e # v2.2.0
         with:
           version: 3.x
 
@@ -96,7 +96,7 @@ jobs:
 
       - name: Run release-please
         id: release
-        uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4.4.1
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         with:
           token: ${{ steps.app-token.outputs.token }}
           config-file: release-please-config.json
@@ -199,7 +199,7 @@ jobs:
       # release-please uses GITHUB_TOKEN, and GitHub suppresses workflow runs
       # for GITHUB_TOKEN-pushed tags, so a tag trigger would never fire.
       - name: Clone the released tag
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ needs.release-please.outputs.opm_tag_name }}
           persist-credentials: false
@@ -247,12 +247,12 @@ jobs:
       # (that remedy is for a skipped version); see AGENTS.md, Release &
       # publishing.
       - name: Setup CUE
-        uses: cue-lang/setup-cue@a93fa358375740cd8b0078f76355512b9208acb1 # v1.0.1
+        uses: cue-lang/setup-cue@b0e30e540a2dae47304ebf16586a5b2db023b61c # v2.0.0
         with:
           version: v0.17.1
 
       - name: Install Task
-        uses: go-task/setup-task@3be4020d41929789a01026e0e427a4321ce0ad44 # v2.0.0
+        uses: go-task/setup-task@a00fbb05ce67b35648be3c78cbc9fd85354c757e # v2.2.0
         with:
           version: 3.x
 
@@ -288,7 +288,7 @@ jobs:
       packages: read
     steps:
       - name: Clone the released tag
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ needs.release-please.outputs.opm_tag_name }}
           persist-credentials: false
@@ -361,7 +361,7 @@ jobs:
       contents: read
       packages: write
       id-token: write
-    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.6.0
+    uses: open-platform-model/docs-kit/.github/workflows/publish.yml@v0.7.0
     with:
       project: ${{ matrix.project }}
       mode: release
