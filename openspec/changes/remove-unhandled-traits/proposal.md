@@ -71,7 +71,7 @@ _testRemovedTraitsStayRemoved: [for k, _ in #traits if k == "\(id.kindPrefix.tra
 
 **Migration.** There is nothing to move to: neither trait had an effect. A module that attached one deletes the embedding (`tr.#Sizing`, `tr.#EncryptionConfig`) and the `spec: sizing` or `spec: encryption` block. Container requests and limits are set where they already render, on the container (`spec: container: resources`). Nothing in OPM renders an encryption requirement; a module that needs one states it through the platform it runs on.
 
-**What an author sees after the bump.** A module that still names a removed definition fails to evaluate with CUE's own error, before any render. The exact text is measured in design.md.
+**What an author sees after the bump.** A module that still embeds a removed wrapper fails a concrete evaluation (`cue vet -c`, `cue export`, a render) with CUE's own `undefined field: #Sizing` or `undefined field: #EncryptionConfig`. `cue vet -c=false` does not report it. The measurements are in design.md.
 
 **Consumers.**
 

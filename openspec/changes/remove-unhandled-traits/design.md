@@ -14,7 +14,7 @@ Listing is enforced in both directions by `task vet:listing`, so the file and it
 **Non-Goals:**
 
 - No transformer for either trait, and no replacement member.
-- No new gate that every advisory trait has a transformer. HostNetwork on a stateless workload shows the general case is per transformer, not per catalog.
+- No new gate that every listed trait that is not provider-fulfilled is required or listed by at least one transformer. The property can be checked in CUE, but the change's scope is the two traits; a general gate is a separate change.
 - No deprecation release. A deprecated trait that still renders nothing keeps the trap open for one more release and adds a state the catalog has no vocabulary for.
 
 ## Decisions
@@ -67,10 +67,10 @@ Considered: a shell gate in `.tasks/`. Refused: a new script for two names, wher
 
 **Context**: the release note must say what a module that still attaches a removed trait gets.
 **Explored**: scratch package inside `src/` on this branch (not committed), cue v0.17.1, a component that embeds `bp.#StatelessWorkload`.
-- Embedding the wrapper, the form `docs/site/authoring/attach-a-trait.md` teaches: `tr.#Sizing` gives `web: undefined field: #Sizing:` with the file and line of the embedding; `tr.#EncryptionConfig` gives `web: undefined field: #EncryptionConfig:`. Exit 1 from `cue vet`, before any render.
+- Embedding the wrapper, the form `docs/site/authoring/attach-a-trait.md` teaches: `tr.#Sizing` gives `web: undefined field: #Sizing:` with the file and line of the embedding; `tr.#EncryptionConfig` gives `web: undefined field: #EncryptionConfig:`. This text comes from a concrete evaluation only: `cue vet -c` (exit 1), `cue export` or a render. The error is incomplete-class, so `cue vet -c=false` exits 0 and plain `cue vet` prints only `some instances are incomplete`.
 - Keying `#traits` by the definition (`(tr.#SizingTrait.metadata.fqn): tr.#SizingTrait`): `cue vet -c` exits 1, but the first lines are `web.spec.restartPolicy: field not allowed` and `web.spec.scaling: field not allowed`, not the missing definition. `cue vet -c=false` exits 0. This form is not the documented one.
 - Writing `spec: sizing` or `spec: encryption` with no attachment: not told apart from a control component by raw `cue vet` in this harness. `attach-a-trait.md` states such a field is refused as "field not allowed"; that was true before this change too, and was not measured here through `opm module build`.
-**Decision**: the release note and the PR body name the embedding case and its `undefined field` error.
+**Decision**: the release note and the PR body name the embedding case, its `undefined field` error, and that only a concrete evaluation reports it. A consumer check that vets with `-c=false` passes the pin bump and meets the error at the first render.
 **Rationale**: it is the documented attachment form and the one case with a clean, measured message.
 
 ### The publish dry run
@@ -84,7 +84,7 @@ Considered: a shell gate in `.tasks/`. Refused: a new script for two names, wher
 
 - [A third-party module attached one of the traits] -> It fails to evaluate at its next pin bump with a CUE error that names the missing definition; the fix is to delete the attachment. The release note says the traits had no effect. The module's current pin keeps working: published builds are immutable.
 - [A break ships in a minor] -> Owner decision (proposal, Release class). The PR body states the exception.
-- [Someone re-adds `sizing` later with a transformer] -> The guard fails and its comment says why it exists; a re-add with a transformer deletes the guard entry in the same change.
+- [Someone re-adds `sizing` later with a transformer] -> At `v1beta1` the guard fails and its comment says why it exists; a re-add with a transformer deletes the guard entry in the same change. The publish gate also compares a returning `sizing@v1beta1` against the last published shape (cli `internal/publish/compat.go`, read from source, not run). A re-add at `v1beta2` does not trip the guard, by design: it is a new contract.
 
 ## Durable decisions
 
