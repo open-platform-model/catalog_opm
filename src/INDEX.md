@@ -566,9 +566,6 @@ CUE module: `opmodel.dev/catalogs/opm@v4`
 | `#DisruptionBudget` | `traits/v1beta1/disruption_budget.cue` |  |
 | `#DisruptionBudgetSchema` | `traits/v1beta1/disruption_budget.cue` | Exactly one of minAvailable or maxUnavailable must be set |
 | `#DisruptionBudgetTrait` | `traits/v1beta1/disruption_budget.cue` | How many of a workload's pods must stay available during voluntary disruptions |
-| `#EncryptionConfig` | `traits/v1beta1/encryption.cue` |  |
-| `#EncryptionConfigSchema` | `traits/v1beta1/encryption.cue` |  |
-| `#EncryptionConfigTrait` | `traits/v1beta1/encryption.cue` | Declares whether a workload requires encryption at rest and in transit |
 | `#Expose` | `traits/v1beta1/expose.cue` | Component wrapper: attaches the trait and supplies the Service name's default, the component's own short DNS name (0019 D22) |
 | `#ExposeSchema` | `traits/v1beta1/expose.cue` | Service expose specification |
 | `#ExposeTrait` | `traits/v1beta1/expose.cue` | Exposes a workload's ports through a Kubernetes Service |
@@ -633,10 +630,6 @@ CUE module: `opmodel.dev/catalogs/opm@v4`
 | `#SidecarContainers` | `traits/v1beta1/sidecar_containers.cue` |  |
 | `#SidecarContainersSchema` | `traits/v1beta1/sidecar_containers.cue` | Sidecar container shape — alias of #ContainerSchema |
 | `#SidecarContainersTrait` | `traits/v1beta1/sidecar_containers.cue` | Additional containers that run beside a workload's main container |
-| `#Sizing` | `traits/v1beta1/sizing.cue` |  |
-| `#SizingSchema` | `traits/v1beta1/sizing.cue` |  |
-| `#SizingTrait` | `traits/v1beta1/sizing.cue` | Vertical sizing for a workload: resource requests and limits |
-| `#VerticalScalingSchema` | `traits/v1beta1/sizing.cue` | An empty struct: it admits no fields, and no transformer reads it |
 | `#TcpRoute` | `traits/v1beta1/tcp_route.cue` |  |
 | `#TcpRouteRuleSchema` | `traits/v1beta1/tcp_route.cue` | No L7 match fields for TCP |
 | `#TcpRouteSchema` | `traits/v1beta1/tcp_route.cue` |  |

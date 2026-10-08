@@ -63,6 +63,23 @@ Considered: a shell gate in `.tasks/`. Refused: a new script for two names, wher
 **Decision**: no override is needed; task 1.6 confirms it with a dry run.
 **Rationale**: read from source at cli `v1.0.0-beta.10`, the pinned version.
 
+### What an author sees after the removal
+
+**Context**: the release note must say what a module that still attaches a removed trait gets.
+**Explored**: scratch package inside `src/` on this branch (not committed), cue v0.17.1, a component that embeds `bp.#StatelessWorkload`.
+- Embedding the wrapper, the form `docs/site/authoring/attach-a-trait.md` teaches: `tr.#Sizing` gives `web: undefined field: #Sizing:` with the file and line of the embedding; `tr.#EncryptionConfig` gives `web: undefined field: #EncryptionConfig:`. Exit 1 from `cue vet`, before any render.
+- Keying `#traits` by the definition (`(tr.#SizingTrait.metadata.fqn): tr.#SizingTrait`): `cue vet -c` exits 1, but the first lines are `web.spec.restartPolicy: field not allowed` and `web.spec.scaling: field not allowed`, not the missing definition. `cue vet -c=false` exits 0. This form is not the documented one.
+- Writing `spec: sizing` or `spec: encryption` with no attachment: not told apart from a control component by raw `cue vet` in this harness. `attach-a-trait.md` states such a field is refused as "field not allowed"; that was true before this change too, and was not measured here through `opm module build`.
+**Decision**: the release note and the PR body name the embedding case and its `undefined field` error.
+**Rationale**: it is the documented attachment form and the one case with a clean, measured message.
+
+### The publish dry run
+
+**Context**: task 1.6.
+**Explored**: `opm catalog publish ./src --dry-run` with a cli built from the `cli` checkout at `v1.0.0-beta.10-11-gef54c046` (the pinned `v1.0.0-beta.10` binary is not installed on this machine): `member gate 69 members checked, 0 refused`, `posture gate 26 traits checked, 0 refused`, `compat gate 36 compared, 0 refused, 8 alpha-exempt, 0 prerelease-exempt, 0 new`; the one refusal is `already holds v4.6.0`.
+**Decision**: nothing to change.
+**Rationale**: already-published as the only refusal is the outcome `ci.yml` accepts outside a release.
+
 ## Risks / Trade-offs
 
 - [A third-party module attached one of the traits] -> It fails to evaluate at its next pin bump with a CUE error that names the missing definition; the fix is to delete the attachment. The release note says the traits had no effect. The module's current pin keeps working: published builds are immutable.
