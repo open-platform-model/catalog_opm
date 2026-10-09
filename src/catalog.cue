@@ -51,7 +51,6 @@ metadata: {
 #traits: {
 	(tr.#CronJobConfigTrait.metadata.fqn):     tr.#CronJobConfigTrait
 	(tr.#DisruptionBudgetTrait.metadata.fqn):  tr.#DisruptionBudgetTrait
-	(tr.#EncryptionConfigTrait.metadata.fqn):  tr.#EncryptionConfigTrait
 	(tr.#ExposeTrait.metadata.fqn):            tr.#ExposeTrait
 	(tr.#GracefulShutdownTrait.metadata.fqn):  tr.#GracefulShutdownTrait
 	(tr.#GrpcRouteTrait.metadata.fqn):         tr.#GrpcRouteTrait
@@ -70,7 +69,6 @@ metadata: {
 	(tr.#ScalingTrait.metadata.fqn):           tr.#ScalingTrait
 	(tr.#SecurityContextTrait.metadata.fqn):   tr.#SecurityContextTrait
 	(tr.#SidecarContainersTrait.metadata.fqn): tr.#SidecarContainersTrait
-	(tr.#SizingTrait.metadata.fqn):            tr.#SizingTrait
 	(tr.#TcpRouteTrait.metadata.fqn):          tr.#TcpRouteTrait
 	(tr.#TlsRouteTrait.metadata.fqn):          tr.#TlsRouteTrait
 	(tr.#UpdateStrategyTrait.metadata.fqn):    tr.#UpdateStrategyTrait
