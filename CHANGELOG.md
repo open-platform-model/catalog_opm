@@ -1,5 +1,19 @@
 # Changelog
 
+## [4.7.0](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.6.0...opm-v4.7.0) (2026-10-09)
+
+
+### Features
+
+* **catalog:** render a role with no subjects without a binding ([#143](https://github.com/open-platform-model/catalog_opm/issues/143)) ([3288406](https://github.com/open-platform-model/catalog_opm/commit/3288406366347810c206003d1576d12de82021ef))
+* **traits:** remove the sizing and encryption traits, which rendered nothing ([#162](https://github.com/open-platform-model/catalog_opm/issues/162)) ([816baef](https://github.com/open-platform-model/catalog_opm/commit/816baef344aee580801d3b5b8c62790e1190f757))
+
+
+### Bug Fixes
+
+* **deps:** move the opm catalog onto core v2.0.0-beta.3 ([#156](https://github.com/open-platform-model/catalog_opm/issues/156)) ([0560990](https://github.com/open-platform-model/catalog_opm/commit/05609905bd7b814ede35d4e12d569a00b18c3b71))
+* **deps:** move the opm catalog onto core v2.0.0-beta.4 and read its provides ([#157](https://github.com/open-platform-model/catalog_opm/issues/157)) ([423c6f9](https://github.com/open-platform-model/catalog_opm/commit/423c6f9ac3b04387a7b93fb0bfa7f82929ec8ca3))
+
 ## [4.6.0](https://github.com/open-platform-model/catalog_opm/compare/opm-v4.5.2...opm-v4.6.0) (2026-10-04)
 
 
