@@ -1,9 +1,9 @@
 schema: catalog-change
 
 # The enhancement store: the design record of OPM. `openspec instructions` lists its specs; read
-# one entry with `openspec show <id>-<slug> --store opm-enhancements`. Register a checkout once per
-# machine with `openspec store register <path> --id opm-enhancements`; without it the commands
-# print a warning and go on.
+# one entry with `openspec show <id>-<slug> --store opm-enhancements`. If OpenSpec warns that the
+# store `opm-enhancements` is not registered, report the warning and go on; the human runs
+# `task enhancements:register`.
 references:
   - id: opm-enhancements
     remote: https://github.com/open-platform-model/enhancements.git
@@ -49,8 +49,8 @@ context: |
     `opm-docs build` (in `task docs:bundle:check`) refuses a member whose doc comment does not
     open with it.
   - There is no `openspec/specs/` directory and no delta specs. Every change's `.openspec.yaml`
-    carries `skip_specs: true`, which `openspec new change` writes for a schema with no specs
-    artifact (OpenSpec 1.14.1). Never create a `specs/` directory inside a change.
+    carries `skip_specs: true`. OpenSpec 1.14.1 writes it for a schema with no specs artifact; the
+    pinned 1.12.0 does not, so write it by hand. Never create a `specs/` directory inside a change.
   - The proposal's **Before / After** CUE block is where intended behavior is reviewed before
     code exists. Write it as CUE, not prose.
   - A decision a FUTURE catalog author needs (a convention, an evaluator pitfall, a filing rule)
@@ -120,12 +120,12 @@ context: |
   - Enhancements live in the OpenSpec store `opm-enhancements` (see `references:`). Read an entry
     with `openspec show <id>-<slug> --store opm-enhancements`; its `tasks.md` says which repo
     still has work.
-  - A change here delivers a line of an entry's `tasks.md` and says so in its proposal
-    (`## Enhancement`, `Delivers NNNN, task X.Y.`).
-  - In a comment, name an enhancement by its id beside the reason in words, once at the symbol:
-    `(enhancement 0010)`, or `(enhancements 0010 and 0011)` for two. An enhancement id appears only
-    beside a reason in words, never alone, and never with a decision number (no `NNNN:Dn`, no
-    `NNNN Dn`, no `NNNN:OQn`): decision numbers restart per entry and the store can renumber them.
+  - A change here that delivers a line of an entry's `tasks.md` says so in its proposal
+    (`## Enhancement`, `Delivers NNNN, task X.Y.`); otherwise the section says `None.`.
+  - In any text (proposal, design, specs, comments), name an enhancement only by its id beside a
+    reason in words, never alone, and never with a decision number (no `NNNN:Dn`, no `NNNN Dn`,
+    no `NNNN:OQn`): the store has no decision numbers. In a comment, put the id once at the
+    symbol: `(enhancement 0010)`, or `(enhancements 0010 and 0011)` for two.
     A `// WHY` block that holds only an id is a lone id: write the reason.
 
   ## Everything Else Lives in AGENTS.md
@@ -160,6 +160,8 @@ rules:
       archive waits for the last PR."
     - "Never add a Capabilities section and never create a `specs/` directory; the change's `.openspec.yaml` MUST carry `skip_specs: true` (Principle II)."
     - "If the change delivers a line of an enhancement's `tasks.md`, add `## Enhancement` with one line `Delivers NNNN, task X.Y.` per task; otherwise `None.`. Read the entry with `openspec show <id>-<slug> --store opm-enhancements` and name its reason in words rather than restating its design."
+    - "If the change has no spec delta, write `skip_specs: true` in `.openspec.yaml`."
+    - "Name an enhancement only by its id beside a reason in words, never alone, never a decision number."
 
 
   design:
@@ -189,6 +191,7 @@ rules:
     - MUST include a "Durable decisions" section listing every decision a future catalog author
       needs and where it lands at archive (`docs/<note>.md`, a `AGENTS.md` rule, or "stays with
       the change"). Write "None." when empty; never omit the section.
+    - Name an enhancement only by its id beside a reason in words, never alone, never a decision number.
 
   tasks:
     - "Focus: STEPS to take for implementation"
@@ -242,4 +245,4 @@ operations:
     guidance:
       - "Archive with `--skip-specs`: this workspace has no specs and the change declares skip_specs. Never let archive create an openspec/specs/ directory."
       - "Before archiving, read design.md's Durable decisions section. Every entry marked for promotion MUST already be landed in docs/ or AGENTS.md; if one is not, stop and land it first. An archived change must not be the only home of an authoring rule."
-      - "If the change delivers a line of an enhancement's `tasks.md`, a PR on `enhancements` ticks that line."
+      - "If the change delivers a line of an enhancement's `tasks.md`, name it in the PR body; after the repo PR merges, a PR on `enhancements` ticks that line."
