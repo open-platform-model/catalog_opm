@@ -1,7 +1,8 @@
 ## Context
 
 The store design is in the swarm design `T2.3` (sections 6 and 9). This repo holds 256 citations
-of the forms `enhancement 0010 D4`, `(0010 D49)` and `0010:D4` (65 colon forms). They sit in 77 CUE
+of a decision number: the spoken form (`enhancement NNNN Dn`, 191 places) and the colon form
+(`NNNN:Dn`, 65 places). They sit in 77 CUE
 and Go comment lines, `AGENTS.md`, `docs/`, workflows, `.tasks/listing.sh` and 134 places in
 archived changes. Generated `src/INDEX.md` repeats comment text and is regenerated.
 

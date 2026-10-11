@@ -1,8 +1,8 @@
 ## Why
 
 The OPM enhancements now live in an OpenSpec store (`opm-enhancements`). A decision number is not a
-stable name there: an entry can be split or renumbered, so `0010 D4` can point at the wrong text
-later. This repo cites decision numbers in 256 places (code comments, docs, archived changes) and
+stable name there: an entry can be split or renumbered, so a citation of decision number 4
+can point at the wrong text later. This repo cites decision numbers in 256 places (code comments, docs, archived changes) and
 tells agents to write `enhancement.yaml` files that the store no longer reads. The citations must
 name an enhancement by its id beside a reason in words, and the rules for agents must match.
 
