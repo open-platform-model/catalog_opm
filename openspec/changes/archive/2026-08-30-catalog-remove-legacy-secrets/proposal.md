@@ -118,4 +118,4 @@ Version:    "3.0.0" // opm catalog version set; core asserts VersionMajor == Maj
 
 ## Enhancement
 
-Enhancement 0013 (the secrets and its naming slice). Record at archive: (a) this lands before `core`'s slice, not after; (b) the fleet is removed now and reintroduced under enhancement 0013, not migrated. It also closes the `opm-secrets` naming question `catalog-names-readonly-opm-rest` parked on enhancement 0019.
+Enhancement 0013 (the dead secret machinery is deleted, and `#Secret` lives only in `core`). Record at archive: (a) this lands before `core`'s slice, not after; (b) the fleet is removed now and reintroduced under enhancement 0013, not migrated. It also closes the `opm-secrets` naming question `catalog-names-readonly-opm-rest` parked on enhancement 0019.

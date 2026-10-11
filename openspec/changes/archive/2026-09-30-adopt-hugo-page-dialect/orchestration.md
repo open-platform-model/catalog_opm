@@ -34,7 +34,7 @@ Where this file and your change's artifacts disagree, stop and ask the superviso
 - **Scope.**
   - Stay inside your change's scope and "Touches" list.
   - Never add `enhancement.yaml`, even where a repo's propose skill or `openspec/config.yaml` says to write one (O7). Name related 0018 decisions in proposal prose only.
-  - Cite enhancement decisions as enhancement 0018 ("Figures are hand-built inline SVG with one visual language" and "Every page declares one type, a title and a one-line description"), never as a bare `D14`.
+  - Cite enhancement decisions in the form `NNNN:Dn` or `NNNN:Dn:Rm`, never as a bare `Dn`.
 
 ## 2. The change set
 

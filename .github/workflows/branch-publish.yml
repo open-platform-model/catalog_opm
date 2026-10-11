@@ -97,9 +97,9 @@ jobs:
       - name: Check catalog
         run: task check
 
-      # branch-tag.sh derives the deterministic -dev version (enhancement 0011 keeps
-      # the authored version as the trigger and never predicts one). The version is written into the WORKING TREE only — the
-      # runner's checkout, never a commit — because publish asserts that the
+      # branch-tag.sh derives the deterministic -dev version, and enhancement
+      # 0011 keeps it unchanged. The version is written into the WORKING TREE
+      # only — the runner's checkout, never a commit — because publish asserts that the
       # pushed tag equals the tree's own declared Version; a --version
       # flag diverging from the committed release version would be a refusal.
       #
