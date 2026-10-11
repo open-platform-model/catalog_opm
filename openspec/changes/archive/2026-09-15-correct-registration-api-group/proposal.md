@@ -56,7 +56,7 @@ _testTransformerRegistrationOutput: {
 
 ## Impact
 
-**Release class: `fix:`** — `opm` 4.3.0 → 4.3.1. A changed transformer output is normally not additive (Principle I), but this member is `v1alpha1`, and enhancement 0010 ("Contract API versions follow the Kubernetes ladder, and the promise is keyed to the level") keys the promise to the level: alpha carries **no compatibility promise**, and a build may change a value without bumping. This is the case D34 exists for, and it is the same reasoning the contract's own change recorded when it shipped ("both sides are `v1alpha1`, which promises nothing, so they can still move together").
+**Release class: `fix:`** — `opm` 4.3.0 → 4.3.1. A changed transformer output is normally not additive (Principle I), but this member is `v1alpha1`, and enhancement 0010 ("Contract API versions follow the Kubernetes ladder, and the promise is keyed to the level") keys the promise to the level: alpha carries **no compatibility promise**, and a build may change a value without bumping. This is the case that rule exists for, and it is the same reasoning the contract's own change recorded when it shipped ("both sides are `v1alpha1`, which promises nothing, so they can still move together").
 
 Downstream consumers, and what each does:
 

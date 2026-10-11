@@ -8,7 +8,7 @@
 - New `#VolumeSnapshotClassResource` (`k8s/resources/v1/volumesnapshotclass.cue`, `snapshot.storage.k8s.io/v1`) with wrapper and schema; new `#VolumeSnapshotClassTransformer` reading `#component.#names.resourceName` (override-honouring).
 - Both transformers enumerated in `k8s/catalog.cue`; `INDEX.md` regenerated.
 
-Additive only. Justification against Principle V: a named downstream module needs both kinds and cannot express them without falling back to raw manifests beside the ModuleInstance, which D19 rejects as a permanent split of ownership.
+Additive only. Justification against Principle V: a named downstream module needs both kinds and cannot express them without falling back to raw manifests beside the ModuleInstance, which enhancement 0019 rejects as a permanent split of ownership.
 
 ## Before / After
 

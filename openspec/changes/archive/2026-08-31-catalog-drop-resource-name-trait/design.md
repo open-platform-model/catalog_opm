@@ -33,7 +33,7 @@ metadata: name: #component.#names.resourceName
 _targetName: #component.#names.resourceName
 ```
 
-Alternative: keep `#WorkloadName` as `out: #comp.#names.resourceName` so HPA and PDB keep naming the workload through one symbol. Rejected: the coupling the seam protected (HPA `scaleTargetRef.name`, the PDB's name and the StatefulSet `serviceName` matching the workload) is already guarded by `_testHPATargetMatchesDeployment`, `_testPDBNameMatchesDeployment` and `_testStatefulSetServiceNameMatchesService`, and a helper with one arm hides the read D15 wants visible. `#ServiceName` keeps two arms and stays.
+Alternative: keep `#WorkloadName` as `out: #comp.#names.resourceName` so HPA and PDB keep naming the workload through one symbol. Rejected: the coupling the seam protected (HPA `scaleTargetRef.name`, the PDB's name and the StatefulSet `serviceName` matching the workload) is already guarded by `_testHPATargetMatchesDeployment`, `_testPDBNameMatchesDeployment` and `_testStatefulSetServiceNameMatchesService`, and a helper with one arm hides the read that enhancement 0019 wants visible. `#ServiceName` keeps two arms and stays.
 
 **D-B. The trait leaves `optionalTraits` with no replacement.** A component built against `@v4` cannot attach a trait that does not exist, and a component built against `@v2` or `@v3` cannot render on a `@v4` platform at all (different module path). No closedness, default or required-field change reaches any surviving member: an `optionalTraits` entry constrains the transformer's match set, not a component's schema.
 
@@ -73,7 +73,7 @@ The "Trait naming" and "Default naming" section comments in job, cronjob, deploy
 **Rationale**: zero attachments; the seam's trait arm is dead code in every consumer.
 
 ### Release class
-**Context**: D15 said "removed outright, no deprecation cycle" under the alpha stance.
+**Context**: enhancement 0019 said "removed outright, no deprecation cycle" under the alpha stance.
 **Explored**: `opm-v3.0.0` published 2026-08-30T17:08Z (`catalog-remove-legacy-secrets`); `CLAUDE.md` release table (removing a definition is `feat!:`, and a `feat!:` bumps the module path since the alpha line closed at 2.0.0); the compat gate refuses a removed member within a major; zero consumers pin `@v3` (the fleet, the sample Platform, the template seed and every fixture still pin `@v2`).
 **Decision**: `feat!:`, cutting `@v4` now, as its own change on its own branch.
 **Rationale**: the crossing is free while every consumer still owes the `@v2` to `@v3` re-pin; waiting for another break to share a major has no scheduled partner. Recorded as enhancement 0019 ("`#ResourceNameTrait` retires in three sweeps, and the deletion crosses a catalog major").

@@ -4,12 +4,12 @@ Core `v2.0.0-alpha.6` shipped the naming contract of enhancement 0019 ("Three na
 
 ## What Changes
 
-- `#ExposeTrait` declares `#nameConstraint: c.#ServiceNameType` (D21).
-- **BREAKING** `#ExposeSchema.name` moves from `name?: string` to a required, DNS-1035-typed `name: c.#ServiceNameType`; the `#Expose` component wrapper defaults it to `#names.dns.short` (D22). A module that attaches `#ExposeTrait` without the wrapper now refuses at vet with `field is required but not present`; every known consumer attaches through the wrapper.
-- The Service transformer reads `spec.expose.name` and nothing else; the list-index fallback is deleted (D22). Default output is byte-identical: `<instance>-<component>`.
-- The `#Container` component wrapper computes the container entry's `#nameConstraint` from the component's derived `matchLabels`: `c.#NameType` when `workload-type` reads `stateful`, top otherwise (D23, landed on the wrapper rather than on the resource definition; see design.md for the measured reason).
-- `#StatefulWorkloadBlueprint` declares `#nameConstraint: c.#NameType` (D21).
-- **BREAKING** The `#Namespaces` wrapper asserts every rendered namespace name against `c.#NameType` (a dotted map key or explicit name now refuses at vet; the schema field itself stays `string`, because a type there silently kills the key default, measured), and `#NamespacesResource` declares `#nameConstraint: c.#NameType` (D21, both landed per the 2026-08-26 decision).
+- `#ExposeTrait` declares `#nameConstraint: c.#ServiceNameType` (enhancement 0019).
+- **BREAKING** `#ExposeSchema.name` moves from `name?: string` to a required, DNS-1035-typed `name: c.#ServiceNameType`; the `#Expose` component wrapper defaults it to `#names.dns.short` (enhancement 0019). A module that attaches `#ExposeTrait` without the wrapper now refuses at vet with `field is required but not present`; every known consumer attaches through the wrapper.
+- The Service transformer reads `spec.expose.name` and nothing else; the list-index fallback is deleted (enhancement 0019). Default output is byte-identical: `<instance>-<component>`.
+- The `#Container` component wrapper computes the container entry's `#nameConstraint` from the component's derived `matchLabels`: `c.#NameType` when `workload-type` reads `stateful`, top otherwise (enhancement 0019, landed on the wrapper rather than on the resource definition; see design.md for the measured reason).
+- `#StatefulWorkloadBlueprint` declares `#nameConstraint: c.#NameType` (enhancement 0019).
+- **BREAKING** The `#Namespaces` wrapper asserts every rendered namespace name against `c.#NameType` (a dotted map key or explicit name now refuses at vet; the schema field itself stays `string`, because a type there silently kills the key default, measured), and `#NamespacesResource` declares `#nameConstraint: c.#NameType` (enhancement 0019, both landed per the 2026-08-26 decision).
 - No member moves to a new `apiVersion` segment: the slot is additive on every primitive, and the two tightened fields stay in `v1beta1` / `v1alpha1` under the `feat!:` convention (Principle I).
 
 ## Before / After

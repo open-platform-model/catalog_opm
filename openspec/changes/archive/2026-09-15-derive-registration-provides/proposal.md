@@ -80,7 +80,7 @@ Downstream consumers, and what each does:
 - **Subscribing platforms**: nothing. The helper is authoring-side; it changes no rendered output and no contract.
 - **The `modules` fleet**: nothing. No module attaches the registration contract.
 - **`cli` fixtures under `testing.opmodel.dev`**: nothing. No fixture renders a registration.
-- **`opm-operator`**: nothing to do. Its D11 verification compares the claim's `provides` against what it re-derives from the fetched catalog; a claim built through this helper agrees by construction, which is the point. A hand-authored claim keeps working and keeps being verified.
+- **`opm-operator`**: nothing to do. Its verification of the claim (enhancement 0015) compares the claim's `provides` against what it re-derives from the fetched catalog; a claim built through this helper agrees by construction, which is the point. A hand-authored claim keeps working and keeps being verified.
 - **A future provider catalog**: this is the consumer the helper exists for. There is none yet, which is why nothing breaks and nothing needs migrating.
 
 Relies on the v2 alpha line: no. `opm` is on the v4 line and this change does not touch the module path.
@@ -88,8 +88,8 @@ Relies on the v2 alpha line: no. `opm` is on the v4 line and this change does no
 ## Not in this change
 
 - **Making `provides` optional or derived on `#TransformerRegistrationResource` itself.** The field stays required so a claim missing it is refused. The helper is the ergonomic path, not a replacement for the constraint.
-- **A `#provides` fold over a module's components** (the derived-not-authored surface D3 mentions for a future `opm module inspect` or 0011 publish gate). Different fold, different consumer, and enhancement 0015 ("A transformer registration is a cluster-scoped CR, gated by the RBAC the operator already enforces") explicitly keeps it out of the core delta until something consumes it.
-- Anything in `opm-operator`. Its half of D11 shipped in alpha.19.
+- **A `#provides` fold over a module's components** (the derived-not-authored surface that enhancement 0015 mentions for a future `opm module inspect` or 0011 publish gate). Different fold, different consumer, and enhancement 0015 ("A transformer registration is a cluster-scoped CR, gated by the RBAC the operator already enforces") explicitly keeps it out of the core delta until something consumes it.
+- Anything in `opm-operator`. Its half of enhancement 0015 shipped in alpha.19.
 
 ## Enhancement
 

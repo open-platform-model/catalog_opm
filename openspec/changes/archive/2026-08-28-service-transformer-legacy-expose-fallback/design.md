@@ -24,7 +24,7 @@ Closedness, defaults and the required-field set of every member are unchanged; o
 
 **D3. Resolution guard, not a golden.** Same reasoning as the UDP/port guards at lines 320-333: a golden unifies and would repair a wrong value; `"\(name)" & "shop-web"` fails loudly. Also assert the default-name and exact-name fixtures still resolve (they do; unchanged path).
 
-**D4. Correct the "No fallback: there is no path on which the field is unset" comment.** It is true for the wrapper and false for the render path; the replacement comment names the D27 reason.
+**D4. Correct the "No fallback: there is no path on which the field is unset" comment.** It is true for the wrapper and false for the render path; the replacement comment names the additive-only reason of enhancement 0010.
 
 **D5. One seam, `#ServiceName` in `name_helpers.cue`.** Same shape and rationale as `#WorkloadName`: `(#ServiceName & {#comp: #component}).out`, list-index form, `#comp.spec.expose.name` when set else `#comp.#names.dns.short`. The Service transformer's D1 expression moves into it. Six call sites: `service_transformer.cue` (`metadata.name`), `statefulset_transformer.cue` (`serviceName`, keeping its outer `if #component.spec.expose != _|_` arm since a stateful component may have no Expose), and `_backendName` in the four route transformers. Alternative: five inline copies of D1. Rejected: the StatefulSet `serviceName` and each `backendRef` are cross-object references to the Service (enhancement 0019 ("The Service name is one always-read field on the Expose trait, defaulting to the component's short DNS name"), `docs/name-constraints.md` § carve-out 3) and must be byte-identical to what the Service transformer emits; two copies are two chances to drift, and the failure (a headless Service or backend that does not exist) is silent. The helper is also where the next posture change gets its fallback, once.
 
@@ -38,7 +38,7 @@ Closedness, defaults and the required-field set of every member are unchanged; o
 **Context**: the error names an optional field no current schema declares.
 **Explored**: 2026-08-28: the published artifacts alpha.2 … alpha.5 all carry `#ExposeSchema.name?: string` (git tags differ from what was published); alpha.6+ carry `name!`. The kernel fills `#component` with the module's own value, so an alpha.3-pinned module hands the alpha.7 transformer `name?: string`. Same module re-pinned to alpha.7 renders on alpha.7; on an alpha.3 platform the alpha.3 transformer (which had the fallback) renders it too.
 **Decision**: restore the fallback in the transformer.
-**Rationale**: it is the D27-conformant fix, one expression, and `#names.dns.short` is by construction the value the wrapper would have defaulted.
+**Rationale**: it is the fix that conforms to the additive-only rule of enhancement 0010, one expression, and `#names.dns.short` is by construction the value the wrapper would have defaulted.
 
 ### Why `#names.dns.short` and not `<instance>-<component>` string interpolation (the alpha.5 fallback)
 **Context**: alpha.5 interpolated `#moduleInstanceMetadata.name` and `#component.metadata.name`.
@@ -48,7 +48,7 @@ Closedness, defaults and the required-field set of every member are unchanged; o
 
 ## Risks / Trade-offs
 
-- [A legacy component whose core is < alpha.4 has no `#names`; the fallback is then bottom] → same failure as today, one field later; out of D27's promise (core is a separate contract) and no such module exists in the workspace.
+- [A legacy component whose core is < alpha.4 has no `#names`; the fallback is then bottom] → same failure as today, one field later; out of the promise of enhancement 0010 (core is a separate contract) and no such module exists in the workspace.
 - [The comment at lines 92-97 is copied by the next transformer author] → D4 rewrites it; the docs rule covers the pattern.
 
 ## Durable decisions

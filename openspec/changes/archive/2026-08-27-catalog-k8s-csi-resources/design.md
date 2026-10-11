@@ -38,7 +38,7 @@ Files added: `k8s/resources/v1/csidriver.cue`, `k8s/resources/v1/volumesnapshotc
 	}
 }
 ```
-(`metadata` also carries `labels?` and `annotations?` like every other `k8s/schemas` member; `fsGroupPolicy` and `volumeLifecycleModes` MAY narrow to their upstream enums the way `#StorageClassSchema` narrows `reclaimPolicy`.) `name!` with no type narrowing: a CSIDriver name is a dotted domain-style string, so neither `#NameType` nor `#ServiceNameType` applies; `#ObjectNameType` (253-rune subdomain) is the right ceiling if any. The rationale (kubelet `CSINodeInfo` registration, `StorageClass.provisioner`) goes in a `// WHY:` block above the field, not in the ≤6-line doc comment. The transformer's `metadata.name: _csi.metadata.name` is the exact-name carve-out (D19), same form as `apiservice_transformer.cue:47`. The resource declares no `#nameConstraint`: per `docs/name-constraints.md` the slot exists for names that land in a DNS label position, and neither kind's name does (no `k8s/` resource declares one today).
+(`metadata` also carries `labels?` and `annotations?` like every other `k8s/schemas` member; `fsGroupPolicy` and `volumeLifecycleModes` MAY narrow to their upstream enums the way `#StorageClassSchema` narrows `reclaimPolicy`.) `name!` with no type narrowing: a CSIDriver name is a dotted domain-style string, so neither `#NameType` nor `#ServiceNameType` applies; `#ObjectNameType` (253-rune subdomain) is the right ceiling if any. The rationale (kubelet `CSINodeInfo` registration, `StorageClass.provisioner`) goes in a `// WHY:` block above the field, not in the ≤6-line doc comment. The transformer's `metadata.name: _csi.metadata.name` is the exact-name carve-out (enhancement 0019), same form as `apiservice_transformer.cue:47`. The resource declares no `#nameConstraint`: per `docs/name-constraints.md` the slot exists for names that land in a DNS label position, and neither kind's name does (no `k8s/` resource declares one today).
 
 **D-B. `VolumeSnapshotClass` follows `StorageClass`.**
 
@@ -51,30 +51,30 @@ Files added: `k8s/resources/v1/csidriver.cue`, `k8s/resources/v1/volumesnapshotc
 	...
 }
 ```
-Transformer: `metadata.name: #component.#names.resourceName`, cluster-scoped, labels from `#context.labels`. The override ceiling is `#ObjectNameType` (D20); nothing further to declare. Closedness: both schemas open (`...`) and hand-written per the raw family convention in `k8s/schemas/` (no vendored k8s types dependency in `k8s/cue.mod`, and none is added).
+Transformer: `metadata.name: #component.#names.resourceName`, cluster-scoped, labels from `#context.labels`. The override ceiling is `#ObjectNameType` (enhancement 0019); nothing further to declare. Closedness: both schemas open (`...`) and hand-written per the raw family convention in `k8s/schemas/` (no vendored k8s types dependency in `k8s/cue.mod`, and none is added).
 
 **D-C. Category labels.** Both carry `"resource.opmodel.dev/category": "storage"` and `"core.opmodel.dev/resource-category": "storage"` on the transformer, matching `storageclass`.
 
 ## Research & Decisions
 
 ### Whether CSIDriver is exact-name
-**Context**: D19 re-enumerates carve-outs on this catalog's evidence.
+**Context**: enhancement 0019 re-enumerates carve-outs on this catalog's evidence.
 **Explored**: the rationale of the `catalogs/k8s` sweep (kubelet `CSINodeInfo` registration and `StorageClass.provisioner` reference the driver by name; `experiments/09-name-constraint-propagation/` in enhancement 0019).
 **Decision**: exact; authored `metadata.name!`.
 **Rationale**: a prefixed or overridden name breaks provisioning silently.
 
 ### Whether VolumeSnapshotClass honours the override
-**Context**: same D19 contrast as StorageClass.
+**Context**: same contrast of enhancement 0019 as StorageClass.
 **Explored**: `snapshot.storage.k8s.io/v1` names are referenced by `VolumeSnapshot.spec.volumeSnapshotClassName`, label-shaped.
 **Decision**: read `#names.resourceName`.
-**Rationale**: identical position to `storageClassName`; D19 keeps StorageClass in the sweep for the same reason.
+**Rationale**: identical position to `storageClassName`; enhancement 0019 keeps StorageClass in the sweep for the same reason.
 
 ## Risks / Trade-offs
 
 - Snapshot CRDs are not installed on every cluster -> the member exists; a platform that lacks the CRD simply has no consumer; no catalog-side check is possible or wanted.
 - Open schemas admit typos in spec fields -> raw family stance; unchanged from every other `k8s/` member.
 - `k8s/resources/v1/object.cue:17` names VolumeSnapshotClass as the escape-hatch example -> reword that doc comment so `INDEX.md` does not send users to `object` for a kind that now has a member.
-- D19's carve-out prose mentions `crd`; `k8s/` has no CRD member -> the docs entry lists apiservice, object, csidriver only.
+- The carve-out prose of enhancement 0019 mentions `crd`; `k8s/` has no CRD member -> the docs entry lists apiservice, object, csidriver only.
 
 ## Durable decisions
 

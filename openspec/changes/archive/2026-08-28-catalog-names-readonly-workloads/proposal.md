@@ -4,17 +4,17 @@ Every workload transformer in `opm/` rebuilds the rendered object's name by hand
 
 Since `library` v1.0.0-alpha.14 the kernel fills `#component` with the whole evaluated component, so `#component.#names.resourceName` (core's single source of truth, `core@v2.0.0-alpha.6`) is readable inside `#transform`. Enhancement 0019 ("Transformers read `#component.#names` for the primary object; they never derive its name") makes reading it the contract: a transformer reads the primary object's name, never derives it. This is the first of three catalog slices and takes the seven transformers where drift is silent.
 
-This slice is the first sweep of a staged retirement of `#ResourceNameTrait` (user decision 2026-08-27, revising D15's "removed outright"): introduce the read and publish; migrate the `modules` fleet; delete the trait in a later change.
+This slice is the first sweep of a staged retirement of `#ResourceNameTrait` (user decision 2026-08-27, revising the "removed outright" of enhancement 0019): introduce the read and publish; migrate the `modules` fleet; delete the trait in a later change.
 
 ## What Changes
 
 - `#WorkloadName` becomes the single seam between the two name authorities that coexist during the deprecation window: the deprecated trait override, else `#component.#names.resourceName`. The `#instance` input is removed; the hand-rolled formula is gone.
 - The seven `#WorkloadName` callers (deployment, statefulset, daemonset, job, cronjob, hpa, pdb) keep calling it, so the HPA `scaleTargetRef.name` and the PDB's own name stay byte-identical to the workload's name.
-- StatefulSet `spec.serviceName`: `#ExposeTrait` is optional on the StatefulSet transformer, so the outer `expose` guard stays; the hand-rolled fallback for a component without `#Expose` becomes `#component.#names.dns.short` (a read, the value a default-named headless Service would carry), and the inner `expose.name != _|_` guard goes (`name!` since D22).
+- StatefulSet `spec.serviceName`: `#ExposeTrait` is optional on the StatefulSet transformer, so the outer `expose` guard stays; the hand-rolled fallback for a component without `#Expose` becomes `#component.#names.dns.short` (a read, the value a default-named headless Service would carry), and the inner `expose.name != _|_` guard goes (`name!` since enhancement 0019).
 - `#ResourceNameTrait`, the `#ResourceName` wrapper and `#ResourceNameSchema` are marked deprecated in their doc comments, pointing at `metadata.resourceName`. No behaviour change.
 - In-file fixtures for the seven transformers gain `#instance: {name, namespace, uuid}` so `#names` resolves outside `#Module` (rule already in `docs/name-constraints.md`); job and cronjob, which have no fixtures today, get one; each kind gets a default-named fixture pinned by interpolation; PDB and StatefulSet gain name-parity guards matching the HPA one.
 
-Not breaking for any rendered output: default-named components already render `<instance>-<component>`, which is exactly what D16 made `#names.resourceName` compute; trait users keep the trait's value through the seam.
+Not breaking for any rendered output: default-named components already render `<instance>-<component>`, which is exactly what enhancement 0019 made `#names.resourceName` compute; trait users keep the trait's value through the seam.
 
 ## Before / After
 

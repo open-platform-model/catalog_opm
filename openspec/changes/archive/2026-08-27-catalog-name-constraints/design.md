@@ -23,9 +23,9 @@ Member files touched, all in `opm/` (`opmodel.dev/catalogs/opm@v2`):
 
 **Non-Goals:**
 
-- Making any other transformer read `#component.#names` (D15, next slice).
+- Making any other transformer read `#component.#names` (the read sweep of enhancement 0019, next slice).
 - Deleting `#ResourceNameTrait` / `#WorkloadName` (next slice).
-- Anything in `k8s/` (D19, third slice).
+- Anything in `k8s/` (the `k8s` sweep of enhancement 0019, third slice).
 
 ## Decisions
 
@@ -57,13 +57,13 @@ The trait's spec schema has no lexical path to the owning component, and a field
 }
 ```
 
-D23 places the conditional on the container resource, keyed off the entry's own key. That spelling was measured and rejected here (Research & Decisions below): on the blueprint path the entry's key is never answered, the conditional stays unresolved, and an unresolved slot defers every validator in the component's conjunction. The wrapper is the catalog's own component-level surface (the same site the Expose default lives on), and the component's derived `matchLabels` is concrete on every path where a key is answered, so the conditional always resolves. The slot still lands on the container entry, so core's collection reads it exactly as D23 intends; only the input moved. `#ContainerResource` itself keeps top. A default arm (`c.#NameType | *_`) would win over the concrete one; the list index picks the first present element. The key stays `core.opmodel.dev/workload-type`.
+Enhancement 0019 places the conditional on the container resource, keyed off the entry's own key. That spelling was measured and rejected here (Research & Decisions below): on the blueprint path the entry's key is never answered, the conditional stays unresolved, and an unresolved slot defers every validator in the component's conjunction. The wrapper is the catalog's own component-level surface (the same site the Expose default lives on), and the component's derived `matchLabels` is concrete on every path where a key is answered, so the conditional always resolves. The slot still lands on the container entry, so core's collection reads it exactly as enhancement 0019 intends; only the input moved. `#ContainerResource` itself keeps top. A default arm (`c.#NameType | *_`) would win over the concrete one; the list index picks the first present element. The key stays `core.opmodel.dev/workload-type`.
 
-Consequence for D23's letter: a module attaching `#ContainerResource` raw, without `#Container`, gets no stateful constraint from the container. The fleet and the cli fixtures attach through wrappers everywhere; the deviation is reported to 0019 for a D23 amendment.
+Consequence for the letter of enhancement 0019: a module attaching `#ContainerResource` raw, without `#Container`, gets no stateful constraint from the container. The fleet and the cli fixtures attach through wrappers everywhere; the deviation is reported to 0019 for an amendment of its stateful constraint.
 
 ### The blueprint keeps its own constraint
 
-`#StatefulWorkloadBlueprint: #nameConstraint: c.#NameType` stays as D21 prescribes. With the wrapper spelling above it is genuinely redundant on the `#StatefulWorkload` path (both resolve to `#NameType`), and the only source for a component that attaches the blueprint without the `#Container` wrapper.
+`#StatefulWorkloadBlueprint: #nameConstraint: c.#NameType` stays as enhancement 0019 prescribes. With the wrapper spelling above it is genuinely redundant on the `#StatefulWorkload` path (both resolve to `#NameType`), and the only source for a component that attaches the blueprint without the `#Container` wrapper.
 
 ### Namespace names are asserted on the `#Namespaces` wrapper, and the schema field stays `string`
 
@@ -71,7 +71,7 @@ Typing `#NamespaceSchema.name: c.#NameType` was measured and reverted: the type 
 
 ### Namespace lands on both the emitted name and the resource slot
 
-`#NamespacesResource` emits a map of exact names, not the component's `resourceName`, so the string that reaches the API server is `#NamespaceSchema.name`; typing it `c.#NameType` is what protects the rendered object. The resource additionally declares `#nameConstraint: c.#NameType` as D21 prescribes (user decision 2026-08-26: both).
+`#NamespacesResource` emits a map of exact names, not the component's `resourceName`, so the string that reaches the API server is `#NamespaceSchema.name`; typing it `c.#NameType` is what protects the rendered object. The resource additionally declares `#nameConstraint: c.#NameType` as enhancement 0019 prescribes (user decision 2026-08-26: both).
 
 ### The transformer reads the field and nothing else
 
@@ -81,9 +81,9 @@ Typing `#NamespaceSchema.name: c.#NameType` was measured and reverted: the type 
 
 ### An unresolved `#nameConstraint` defers every validator in the component
 
-**Context**: D23 spells the container conditional on the resource definition, reading the entry's own `workload-type` key. For a blueprint-attached component that key is answered by the blueprint's `matchLabels` and never on the container entry, so the entry holds the unanswered required disjunction.
+**Context**: enhancement 0019 spells the container conditional on the resource definition, reading the entry's own `workload-type` key. For a blueprint-attached component that key is answered by the blueprint's `matchLabels` and never on the container entry, so the entry holds the unanswered required disjunction.
 
-**Explored**: cue v0.17.1, scratch files in `opm/` against core `v2.0.0-alpha.6`. Matrix: `#StatefulWorkload` with a 64-rune override, a dotted override, a 63-rune override and a default; raw `#Container` stateful with 64 runes and with a dot; raw stateless with a dot; `#StatelessWorkload` with a dot; Expose on a stateful blueprint with 64 runes; Expose with a leading-digit `resourceName`. Three spellings of the container conditional: plain compare on the entry (D23 as written), `!= _|_ &&` guarded on the entry, and the plain compare on the `#Container` wrapper reading the component's derived `matchLabels`.
+**Explored**: cue v0.17.1, scratch files in `opm/` against core `v2.0.0-alpha.6`. Matrix: `#StatefulWorkload` with a 64-rune override, a dotted override, a 63-rune override and a default; raw `#Container` stateful with 64 runes and with a dot; raw stateless with a dot; `#StatelessWorkload` with a dot; Expose on a stateful blueprint with 64 runes; Expose with a leading-digit `resourceName`. Three spellings of the container conditional: plain compare on the entry (as enhancement 0019 wrote it), `!= _|_ &&` guarded on the entry, and the plain compare on the `#Container` wrapper reading the component's derived `matchLabels`.
 
 **Decision**: The wrapper spelling.
 
@@ -97,7 +97,7 @@ Typing `#NamespaceSchema.name: c.#NameType` was measured and reverted: the type 
 
 **Decision**: `name!: c.#ServiceNameType`.
 
-**Rationale**: A plain typed field is merely non-concrete, which `cue vet` admits without `-c`; the `!` marker is what D22's "refuses at vet" needs. The wrapper's `spec: expose: name: *#names.dns.short | c.#ServiceNameType` satisfies the marker.
+**Rationale**: A plain typed field is merely non-concrete, which `cue vet` admits without `-c`; the `!` marker is what the "refuses at vet" of enhancement 0019 needs. The wrapper's `spec: expose: name: *#names.dns.short | c.#ServiceNameType` satisfies the marker.
 
 ### Transformer fixtures never pass through `#Module`
 
@@ -114,7 +114,7 @@ Typing `#NamespaceSchema.name: c.#NameType` was measured and reverted: the type 
 - [A downstream module attaches `#ExposeTrait` raw] -> refuses at vet with `field is required but not present`; the fix is the wrapper or an explicit `spec.expose.name`. No known consumer does this (17 fleet modules and 4 cli fixtures/templates checked).
 - [The wrapper default masks a wrong `#instance`] -> the resolution guard in the transformer test data pins the resolved string.
 - [A future dot-hostile kind is added without a slot, or with a conditional that can stay unresolved] -> `docs/name-constraints.md` records the rule and the deferred-validator hazard; the transformer test data carries the must-fail record.
-- [A module attaches `#ContainerResource` or `#StatefulWorkloadBlueprint` raw] -> the wrapper-hosted conditional does not reach it; the blueprint constant does. Reported to 0019 as a D23 deviation.
+- [A module attaches `#ContainerResource` or `#StatefulWorkloadBlueprint` raw] -> the wrapper-hosted conditional does not reach it; the blueprint constant does. Reported to 0019 as a deviation from its stateful constraint.
 
 ## Durable decisions
 
