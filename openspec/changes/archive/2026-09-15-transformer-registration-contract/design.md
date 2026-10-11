@@ -2,13 +2,13 @@
 
 ## Context
 
-See `proposal.md` § Why. The decision is `enhancements/0015` D9, with D11's stamping and D12's naming as properties of the rendered object; the pre-drafted shapes are that entry's `contracts/contracts.cue` (`#TransformerRegistrationContract`, `#RenderedRegistration`).
+See `proposal.md` § Why. The decision is in enhancement 0015, with the stamping and the naming of the claim as properties of the rendered object; the pre-drafted shapes are that entry's `contracts/contracts.cue` (`#TransformerRegistrationContract`, `#RenderedRegistration`).
 
 Current state, measured 2026-09-14 against core `v2.0.0-alpha.9` and this catalog at `4.2.0`:
 
 - `opm/resources/v1alpha1/` holds three members (`admission_policy`, `namespace`, `webhook`); `opm/transformers/` is flat, 23 transformer files, each carrying its golden fixture in the same file.
 - `#Resource.spec` is `spec!: (strings.ToCamel(metadata.#definitionName)): _`, so a member named `transformer-registration` owns `spec.transformerRegistration` and MAY declare required fields inside it.
-- Core's `#TransformerContext.#moduleInstanceMetadata` is a **projection** computed at the `#transform` site from `#moduleInstance` (0019 D12, core alpha.7). A fixture can no longer fill it directly; it supplies `#moduleInstance` and `#context.#runtimeName`.
+- Core's `#TransformerContext.#moduleInstanceMetadata` is a **projection** computed at the `#transform` site from `#moduleInstance` (enhancement 0019 ("`#TransformerContext` becomes a projection of the other two inputs; the kernel fills `#runtimeName` alone"), core alpha.7). A fixture can no longer fill it directly; it supplies `#moduleInstance` and `#context.#runtimeName`.
 - `task vet:listing` requires every member filed under a kind directory to be a key of the matching `catalog.cue` map.
 
 ## Goals / Non-Goals
@@ -130,7 +130,7 @@ The pre-draft emits no labels. Every other transformer here stamps `#context.lab
 **Context**: The first spike copied the fixture idiom from `namespace_transformer.cue`, filling `#context: #moduleInstanceMetadata: {...}` directly.
 **Explored**: That form under `cue export`; then the form the library's own pins use (supply `#moduleInstance`, leave the projection to compute).
 **Decision**: New fixtures MUST supply `#transform.#moduleInstance` (an instance-shaped value with `metadata.{name,namespace,fqn,uuid}` and `#moduleMetadata.version`) plus `#context: #runtimeName`, and MUST NOT write `#moduleInstanceMetadata`.
-**Rationale**: since 0019 D12 that field is a projection of `#moduleInstance`, which the old form leaves as `_`. Measured: the old form fails `cue export` with `#moduleInstance.metadata undefined as #moduleInstance is incomplete (type _)`, while `cue vet` exits 0 because the failure is incomplete-class, not an error. The new form exports concretely.
+**Rationale**: since enhancement 0019 ("`#TransformerContext` becomes a projection of the other two inputs; the kernel fills `#runtimeName` alone") that field is a projection of `#moduleInstance`, which the old form leaves as `_`. Measured: the old form fails `cue export` with `#moduleInstance.metadata undefined as #moduleInstance is incomplete (type _)`, while `cue vet` exits 0 because the failure is incomplete-class, not an error. The new form exports concretely.
 
 ### `provides` is authored here, derived later
 
@@ -141,10 +141,10 @@ The pre-draft emits no labels. Every other transformer here stamps `#context.lab
 
 ## Risks / Trade-offs
 
-- [The literals `opm.opmodel.dev/v1alpha1` and `TransformerRegistration` must match a CRD that does not exist yet] -> D3 fixes the group and kind, the operator slice builds against this change, and both are `v1alpha1`, which promises nothing (0010 D34) while the two sides converge.
-- [A module attaching the contract on a cluster with no CRD fails at apply] -> the correct loud failure (0010 D28); no module attaches it today, and the provider module lands with the operator slice.
+- [The literals `opm.opmodel.dev/v1alpha1` and `TransformerRegistration` must match a CRD that does not exist yet] -> D3 fixes the group and kind, the operator slice builds against this change, and both are `v1alpha1`, which promises nothing (enhancement 0010, "Contract API versions follow the Kubernetes ladder, and the promise is keyed to the level") while the two sides converge.
+- [A module attaching the contract on a cluster with no CRD fails at apply] -> the correct loud failure (enhancement 0010, "An unresolved primitive demand is an error; a trait's optionality is stated by its catalog and overridden by the attachment"); no module attaches it today, and the provider module lands with the operator slice.
 - [`provides` can disagree with the named catalog] -> D11's acceptance re-derives and refuses drift naming both lists. Not detectable in this catalog, which never sees the provider's transformer map.
-- [**Pre-existing, out of scope**: 22 of 23 transformer fixture files no longer evaluate] -> 21 fill `#context.#moduleInstanceMetadata`, retired as an input by 0019 D12; `role_transformer.cue` supplies neither `#moduleInstance` nor `#runtimeName` and fails the same way. `cue vet` stays green in both cases because the failure is incomplete-class. Only `pvc_transformer.cue` is clean (re-measured per file during apply, 2026-09-14; the design-time count of 21 missed `role_transformer.cue`). Every golden output in this catalog has been unchecked since core alpha.7. This change does not repair them; it must not copy the pattern, and the finding needs its own change.
+- [**Pre-existing, out of scope**: 22 of 23 transformer fixture files no longer evaluate] -> 21 fill `#context.#moduleInstanceMetadata`, retired as an input by enhancement 0019 ("`#TransformerContext` becomes a projection of the other two inputs; the kernel fills `#runtimeName` alone"); `role_transformer.cue` supplies neither `#moduleInstance` nor `#runtimeName` and fails the same way. `cue vet` stays green in both cases because the failure is incomplete-class. Only `pvc_transformer.cue` is clean (re-measured per file during apply, 2026-09-14; the design-time count of 21 missed `role_transformer.cue`). Every golden output in this catalog has been unchecked since core alpha.7. This change does not repair them; it must not copy the pattern, and the finding needs its own change.
 
 ## Durable decisions
 

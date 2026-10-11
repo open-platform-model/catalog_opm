@@ -1,6 +1,6 @@
 ## Why
 
-After `catalog-names-readonly-workloads`, the seven workload transformers read the primary object's name from `#component.#names.resourceName`. Five more `opm/` transformers still interpolate `"\(#context.#moduleInstanceMetadata.name)-\(#component.metadata.name)"` for their primary object: `http_route`, `grpc_route`, `tcp_route`, `tls_route` and `network_policy`. Each is a second authority for the same name, and enhancement 0019 D15 makes that a review-enforced rule rather than a habit. This slice finishes `opm/` and lands the authoring rule where future authors read it (Principle II: an archived change is never the only home of a rule).
+After `catalog-names-readonly-workloads`, the seven workload transformers read the primary object's name from `#component.#names.resourceName`. Five more `opm/` transformers still interpolate `"\(#context.#moduleInstanceMetadata.name)-\(#component.metadata.name)"` for their primary object: `http_route`, `grpc_route`, `tcp_route`, `tls_route` and `network_policy`. Each is a second authority for the same name, and enhancement 0019 ("Transformers read `#component.#names` for the primary object; they never derive its name") makes that a review-enforced rule rather than a habit. This slice finishes `opm/` and lands the authoring rule where future authors read it (Principle II: an archived change is never the only home of a rule).
 
 ## What Changes
 
@@ -8,7 +8,7 @@ After `catalog-names-readonly-workloads`, the seven workload transformers read t
 - Route `backendRefs[].name` today reads the route's own `_name`, which is only the Service's name while the Service keeps its default. It becomes `#component.spec.expose.name` (the Service's one authoritative name field, D22), and **`#ExposeTrait` moves from absent to `requiredTraits` on all four route transformers**: a route without a Service has nothing to point at, and today such a component silently renders a dangling `backendRef`. This is a matching change (a component with a route trait and no `#Expose` stops matching and is refused at render) and is the one non-neutral edit in this slice.
 - Exact-name transformers are audited and left verbatim, with an inline `// exact — <contract>` comment at every authored-name site: `namespace`, `crd`, `validating_webhook`, `mutating_webhook`, `admission_policy`, `role`, `sa_resource` (whose name site is `sa_helpers.cue`). `service` already reads `expose.name` and is compliant. `configmap`, `secret` (content-hashed via `#ImmutableName` / `#SecretImmutableName`) and `pvc` (per-volume, prefixed) emit secondary names and stay derived (D15 carve-out).
 - Fixtures: the four route transformers have none today and get one each (context, `#Expose`-attached component with `#instance`, name guard, `backendRefs` guard); `network_policy` gains `#instance` and a name guard (it has only selector guards today).
-- Two authoring rules land in `docs/name-constraints.md` and one line in `CLAUDE.md`: transformers read primary identity, never derive it; no transformer copies `resourceName` into a label value (0019 D19: label values cap at 63 runes, the override ceiling is 253).
+- Two authoring rules land in `docs/name-constraints.md` and one line in `CLAUDE.md`: transformers read primary identity, never derive it; no transformer copies `resourceName` into a label value (enhancement 0019 ("The D15 sweep extends to `catalogs/k8s`, with that catalog's exact-name carve-outs enumerated on their own evidence"): label values cap at 63 runes, the override ceiling is 253).
 
 No member schema changes; no `apiVersion` segment moves.
 
@@ -51,4 +51,4 @@ metadata: name: #component.#names.resourceName
 
 ## Enhancement
 
-`enhancements/0019` D15 (second `opm/` slice: the non-workload primary-object reads and the review rule) and D19's label-copy rule as authoring text. `enhancement.yaml` declares D15; D19's code half is `catalog-names-readonly-k8s`.
+Enhancement 0019 (second `opm/` slice: the non-workload primary-object reads and the review rule, plus its label-copy rule as authoring text). The change declared it in an `enhancement.yaml` file, since retired; the code half of the label-copy rule is `catalog-names-readonly-k8s`.

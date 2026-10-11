@@ -65,8 +65,8 @@ The other seven pages change the same way, each keeping its own number (table ab
 ## Enhancement
 
 This change carries no delivery claim and no `enhancement.yaml` (supervisor ruling O7). It brings the pages in line with enhancement 0018's page contract:
-- 0018:D7 and 0018:D7:R1: a title, a one-line description and one of four types, and nothing else is required;
-- 0018:D7:R3: the address comes from where a page sits, so no page declares it;
-- the `weight` key of `#Page` in `enhancements/0018/contracts/contracts.cue`, which the Starlight `sidebar.order` never matched.
+- Enhancement 0018 ("Every page declares one type, a title and a one-line description"): a title, a one-line description and one of four types, and nothing else is required;
+- Enhancement 0018 ("Every page declares one type, a title and a one-line description"): the address comes from where a page sits, so no page declares it;
+- the `weight` key of `#Page` in the pre-drafted `contracts/contracts.cue` of enhancement 0018, which the Starlight `sidebar.order` never matched.
 
-Under 0018:D8, catalog_opm owns these pages. The source-repo pull-request check that 0018:D13 describes is not part of this change.
+Under enhancement 0018 ("A page lives in the repository whose change would make it wrong; the site is assembled by section"), catalog_opm owns these pages. The source-repo pull-request check that enhancement 0018 ("Every writing rule names what checks it, and machine checks run in the owning repository's pull requests") describes is not part of this change.

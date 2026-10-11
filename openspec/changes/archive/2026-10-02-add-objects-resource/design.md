@@ -93,7 +93,7 @@ The resource MAY be attached to a component beside other resources (a `#Containe
 
 ### D6. Placement: `v1alpha1`
 
-The member starts at `v1alpha1` (0010 D34): an x/k8s.io bump can add kinds to the table and so tighten validation of objects that passed open before. Alpha promises nothing, which is the honest promise for a member whose validation follows upstream.
+The member starts at `v1alpha1` (enhancement 0010, "Contract API versions follow the Kubernetes ladder, and the promise is keyed to the level"): an x/k8s.io bump can add kinds to the table and so tighten validation of objects that passed open before. Alpha promises nothing, which is the honest promise for a member whose validation follows upstream.
 
 ### D7. The table is generated, and checked in CUE
 

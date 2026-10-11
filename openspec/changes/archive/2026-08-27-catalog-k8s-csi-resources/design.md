@@ -59,7 +59,7 @@ Transformer: `metadata.name: #component.#names.resourceName`, cluster-scoped, la
 
 ### Whether CSIDriver is exact-name
 **Context**: D19 re-enumerates carve-outs on this catalog's evidence.
-**Explored**: D19's rationale (kubelet `CSINodeInfo` registration and `StorageClass.provisioner` reference the driver by name; `experiments/09-name-constraint-propagation/` in `enhancements/0019`).
+**Explored**: the rationale of the `catalogs/k8s` sweep (kubelet `CSINodeInfo` registration and `StorageClass.provisioner` reference the driver by name; `experiments/09-name-constraint-propagation/` in enhancement 0019).
 **Decision**: exact; authored `metadata.name!`.
 **Rationale**: a prefixed or overridden name breaks provisioning silently.
 

@@ -37,12 +37,12 @@ Alternative: keep `#WorkloadName` as `out: #comp.#names.resourceName` so HPA and
 
 **D-B. The trait leaves `optionalTraits` with no replacement.** A component built against `@v4` cannot attach a trait that does not exist, and a component built against `@v2` or `@v3` cannot render on a `@v4` platform at all (different module path). No closedness, default or required-field change reaches any surviving member: an `optionalTraits` entry constrains the transformer's match set, not a component's schema.
 
-**D-C. Fixtures migrate to `metadata.resourceName`; the StatefulSet comments are rewritten.** Each exact-name fixture drops `tr.#ResourceName` and `spec.resourceName` and gains `metadata: resourceName:`; every pinned string stays (`istiod` in deployment, hpa and pdb; `istio-cni-node` in daemonset; `nightly-sync` in job and cronjob; `database` and `database-headless` in statefulset). The StatefulSet exact fixture used to prove that the trait renames the StatefulSet only, not its Service. That fact no longer exists. What it proves after this change: `metadata.resourceName: "database"` moves `#names.dns.short` along with the object name, so the Expose wrapper's default Service name would be `database` too; the explicit `expose.name: "database-headless"` wins over that default, and `serviceName` follows the Service that renders, not the workload's own name (0019 D22, carve-out 3). The two comments, final text:
+**D-C. Fixtures migrate to `metadata.resourceName`; the StatefulSet comments are rewritten.** Each exact-name fixture drops `tr.#ResourceName` and `spec.resourceName` and gains `metadata: resourceName:`; every pinned string stays (`istiod` in deployment, hpa and pdb; `istio-cni-node` in daemonset; `nightly-sync` in job and cronjob; `database` and `database-headless` in statefulset). The StatefulSet exact fixture used to prove that the trait renames the StatefulSet only, not its Service. That fact no longer exists. What it proves after this change: `metadata.resourceName: "database"` moves `#names.dns.short` along with the object name, so the Expose wrapper's default Service name would be `database` too; the explicit `expose.name: "database-headless"` wins over that default, and `serviceName` follows the Service that renders, not the workload's own name (enhancement 0019 ("The Service name is one always-read field on the Expose trait, defaulting to the component's short DNS name"), carve-out 3). The two comments, final text:
 
 ```cue
 // At the serviceName field:
 // WHY: Deliberately NOT metadata.name. serviceName is a cross-object
-// reference to the governing Service (0019 D22, carve-out 3), whose one
+// reference to the governing Service (enhancement 0019; carve-out 3), whose one
 // authoritative name is expose.name, and an author may set that apart from
 // the workload's resourceName. The read goes through #ServiceName so it
 // stays byte-identical to the Service transformer's, including the fallback
@@ -50,7 +50,7 @@ Alternative: keep `#WorkloadName` as `out: #comp.#names.resourceName` so HPA and
 
 // Above _testSTSExactComponent:
 // serviceName names the GOVERNING SERVICE, so it follows expose.name through
-// #ServiceName, the seam the Service transformer renders through (0019 D22).
+// #ServiceName, the seam the Service transformer renders through (enhancement 0019).
 //
 // resourceName and expose.name are set to DIFFERENT values on purpose.
 // metadata.resourceName moves #names.dns.short along with the object name,
@@ -76,10 +76,10 @@ The "Trait naming" and "Default naming" section comments in job, cronjob, deploy
 **Context**: D15 said "removed outright, no deprecation cycle" under the alpha stance.
 **Explored**: `opm-v3.0.0` published 2026-08-30T17:08Z (`catalog-remove-legacy-secrets`); `CLAUDE.md` release table (removing a definition is `feat!:`, and a `feat!:` bumps the module path since the alpha line closed at 2.0.0); the compat gate refuses a removed member within a major; zero consumers pin `@v3` (the fleet, the sample Platform, the template seed and every fixture still pin `@v2`).
 **Decision**: `feat!:`, cutting `@v4` now, as its own change on its own branch.
-**Rationale**: the crossing is free while every consumer still owes the `@v2` to `@v3` re-pin; waiting for another break to share a major has no scheduled partner. Recorded as enhancement 0019 D25.
+**Rationale**: the crossing is free while every consumer still owes the `@v2` to `@v3` re-pin; waiting for another break to share a major has no scheduled partner. Recorded as enhancement 0019 ("`#ResourceNameTrait` retires in three sweeps, and the deletion crosses a catalog major").
 
 ### Name-constraint collection
-**Context**: 0019 D21 collects every attached primitive's `#nameConstraint`.
+**Context**: enhancement 0019 ("Dot-hostile primitives declare a `#nameConstraint`; the component asserts the resolved name against their conjunction, the matchLabels pattern applied to naming") collects every attached primitive's `#nameConstraint`.
 **Explored**: `resource_name.cue` declares none (slot defaults to top).
 **Decision**: nothing to do.
 **Rationale**: unifying top is the identity; the conjunction is unchanged with the trait gone.

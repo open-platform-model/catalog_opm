@@ -1,6 +1,6 @@
 ## Why
 
-Every passthrough transformer in `k8s/` declares the same line: `_name: "\(#context.#moduleInstanceMetadata.name)-\(#context.#componentMetadata.name)"`, and honours no override. Enhancement 0019 D19 extends the D15 read-only rule to this catalog: the principle is catalog-independent and the first downstream consumer of `k8s/` (an `openebs_zfs` storage module) needs override-honouring names on `StorageClass` and verbatim names on `CSIDriver`. This slice does the rewrite; the two missing kinds are `catalog-k8s-csi-resources`.
+Every passthrough transformer in `k8s/` declares the same line: `_name: "\(#context.#moduleInstanceMetadata.name)-\(#context.#componentMetadata.name)"`, and honours no override. Enhancement 0019 ("The D15 sweep extends to `catalogs/k8s`, with that catalog's exact-name carve-outs enumerated on their own evidence") extends the D15 read-only rule to this catalog: the principle is catalog-independent and the first downstream consumer of `k8s/` (an `openebs_zfs` storage module) needs override-honouring names on `StorageClass` and verbatim names on `CSIDriver`. This slice does the rewrite; the two missing kinds are `catalog-k8s-csi-resources`.
 
 ## What Changes
 
@@ -35,7 +35,7 @@ name: "\(_instName)-\(_compName)-\(_userName)"
 #transform: {
 	#component: _
 	#context:   c.#TransformerContext
-	_name: #component.#names.resourceName // 0019 D15/D19: read, never derived
+	_name: #component.#names.resourceName // enhancement 0019: read, never derived
 	output: metadata: name: _name
 }
 
@@ -53,4 +53,4 @@ name: "\(#component.#names.resourceName)-\(_userName)"
 
 ## Enhancement
 
-`enhancements/0019` D19 (sweep extends to `catalogs/k8s`, carve-outs re-enumerated: apiservice, object, csidriver) and D15. `enhancement.yaml` declares D15 and D19. The `CSIDriver` and `VolumeSnapshotClass` members D19 adds are `catalog-k8s-csi-resources`.
+Enhancement 0019 (the name read sweep extends to `catalogs/k8s`, carve-outs re-enumerated: apiservice, object, csidriver, and the transformers read the primary object's name from `#component.#names`). The change declared it in an `enhancement.yaml` file, since retired. The `CSIDriver` and `VolumeSnapshotClass` members that enhancement adds are `catalog-k8s-csi-resources`.

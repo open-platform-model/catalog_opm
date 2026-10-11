@@ -81,7 +81,7 @@ Each requirement is satisfied by the CUE in Before / After and the transformer e
 
 ## Impact
 
-- **Members touched, all staying at `v1beta1`:** `container@v1beta1`, `security-context@v1beta1`, the `stateless-workload@v1beta1` blueprint (through the shared schema), and the five workload transformers. Adding an optional field is additive under 0010:D27.
+- **Members touched, all staying at `v1beta1`:** `container@v1beta1`, `security-context@v1beta1`, the `stateless-workload@v1beta1` blueprint (through the shared schema), and the five workload transformers. Adding an optional field is additive under enhancement 0010 ("Inside one API version a contract is additive-only, and both ends enforce it").
 - **`modules` fleet, `opm-modules`:** nothing to do. Their components render the same objects by construction (the edit is additive and no existing value changes branch); this is not measured against the fleets, only against the catalog's own goldens (task 1.9).
 - **Subscribing platforms:** nothing to do; they pick up the minor through the release cascade.
 - **`cli` fixtures under `testing.opmodel.dev`:** nothing to do.

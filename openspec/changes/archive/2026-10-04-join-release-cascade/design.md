@@ -80,12 +80,12 @@ State on `main` (fe62d0e) that the design relies on:
       - name: Read the pinned opm CLI version      # from publish-cue, comment reworded
       - name: Install opm                          # verbatim from publish-cue
       - name: Login to GHCR                        # from publish-cue, comment reworded
-      # the existing comment: an aid, not a gate (0011:D7)
+      # the existing comment: an aid, not a gate (enhancement 0011)
       - name: Verify the published build           # verbatim, env VERSION from opm_version
 ```
 
 - **Why a job and not `continue-on-error`.** `continue-on-error: true` on the step would keep
-  `publish-cue` green, but it would also hide a finding. 0011:D7 wants the finding visible. A
+  `publish-cue` green, but it would also hide a finding. Enhancement 0011 ("A published catalog can be verified out of band") wants the finding visible. A
   separate job shows it red under its own name, and `notify-downstream` and `publish-docs` never
   depend on it.
 - **Same checkout pin.** The job keeps the file's checkout pin, v6.0.2 `de0fac2e…`, so the file
@@ -416,7 +416,7 @@ No hit for `org-github-ref`, `not pass any secret`, `main yet`, `ships it on`, `
   supervisor's pre-merge check repeats the `compare` (wiring §10.1).
 - [A verify finding is now easier to miss, because the release run's headline job is green] → the
   job is named `Verify the published build` and the run is still red overall. It was never a gate
-  (0011:D7).
+  (enhancement 0011, "A published catalog can be verified out of band").
 - [`verify-published` is skipped when a post-job step fails `publish-cue` after the push] → D2;
   the contract's `if:` is kept and the gap reported.
 - [Shared App key reach (wiring Facts, §11.5)] → whoever can run a job in catalog_opm's `cascade`

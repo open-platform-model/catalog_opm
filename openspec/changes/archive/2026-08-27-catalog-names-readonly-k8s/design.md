@@ -47,7 +47,7 @@ Expect exactly 25 hunks. Closedness, defaults, required fields: unchanged.
 
 ### Exact-name membership
 **Context**: D19 says the class transfers, the membership does not.
-**Explored**: D19 text and `experiments/09-name-constraint-propagation/` in `enhancements/0019`; `k8s/transformers/apiservice_transformer.cue:47` (`_as.metadata.name`), `object_transformer.cue:54`.
+**Explored**: the `catalogs/k8s` sweep text and `experiments/09-name-constraint-propagation/` in enhancement 0019; `k8s/transformers/apiservice_transformer.cue:47` (`_as.metadata.name`), `object_transformer.cue:54`.
 **Decision**: apiservice, object (user segment), csidriver.
 **Rationale**: as decided in D19 (user decision 2026-08-24).
 

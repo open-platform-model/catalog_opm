@@ -1,6 +1,6 @@
 ## Why
 
-`#ResourceNameTrait` has been deprecated since `catalogs/opm` 2.0.0-alpha.7 (sweep 1 of the staged retirement recorded as enhancement 0019 D25), and its only user, `modules/istio_ambient`, moved to `metadata.resourceName` in sweep 2. Two name authorities still coexist in the seven workload transformers through the `#WorkloadName` seam. This change is sweep 3: the trait, its wrapper, its schema and the seam are deleted, leaving `#component.#names.resourceName` as the one source of a workload's rendered name (0019 D15). Now, because the deletion is a member removal and therefore a major crossing, and every consumer still pins `@v2`: nobody has re-pinned to `@v3` yet, so the crossing costs the re-pin they already owe and nothing more.
+`#ResourceNameTrait` has been deprecated since `catalogs/opm` 2.0.0-alpha.7 (sweep 1 of the staged retirement recorded as enhancement 0019 ("`#ResourceNameTrait` retires in three sweeps, and the deletion crosses a catalog major")), and its only user, `modules/istio_ambient`, moved to `metadata.resourceName` in sweep 2. Two name authorities still coexist in the seven workload transformers through the `#WorkloadName` seam. This change is sweep 3: the trait, its wrapper, its schema and the seam are deleted, leaving `#component.#names.resourceName` as the one source of a workload's rendered name (enhancement 0019, "Transformers read `#component.#names` for the primary object; they never derive its name"). Now, because the deletion is a member removal and therefore a major crossing, and every consumer still pins `@v2`: nobody has re-pinned to `@v3` yet, so the crossing costs the re-pin they already owe and nothing more.
 
 ## What Changes
 
@@ -86,4 +86,4 @@ Version:    "4.0.0" // opm catalog version set; core asserts VersionMajor == Maj
 
 ## Enhancement
 
-`enhancements/0019` D15 (a transformer reads the primary object's name from `#component.#names`; the trait deletion it states) and D25 (the staged retirement; this is sweep 3, and D25 records why the deletion crosses a major). Closes the catalog half of open-platform-model/catalog_opm#44. `enhancement.yaml` declares D15 and D25.
+Enhancement 0019 (a transformer reads the primary object's name from `#component.#names`; the trait deletion it states; and the staged retirement, of which this is sweep 3, with its record of why the deletion crosses a major). Closes the catalog half of open-platform-model/catalog_opm#44. The change declared it in an `enhancement.yaml` file, since retired.

@@ -39,7 +39,7 @@ Member files touched, all in `opm/` (`opmodel.dev/catalogs/opm@v2`):
 }
 ```
 
-The trait's spec schema has no lexical path to the owning component, and a field referenced from inside a struct literal that unifies with `#Component` is not in scope unless the literal declares it (the same rule the catalog's `#transform` slots follow). Re-declaring `#names: _` makes the reference resolve; unification makes it the same value as core's slot. Alternative rejected: keeping the default in the transformer, which leaves the name a render-time fact the projection cannot see (0019 D22).
+The trait's spec schema has no lexical path to the owning component, and a field referenced from inside a struct literal that unifies with `#Component` is not in scope unless the literal declares it (the same rule the catalog's `#transform` slots follow). Re-declaring `#names: _` makes the reference resolve; unification makes it the same value as core's slot. Alternative rejected: keeping the default in the transformer, which leaves the name a render-time fact the projection cannot see (enhancement 0019, "The Service name is one always-read field on the Expose trait, defaulting to the component's short DNS name").
 
 **Required-field-set change:** `#ExposeSchema.name` becomes required. That is what makes a raw `#ExposeTrait` attachment refuse instead of rendering an unnamed Service. **Default change:** none for wrapper users; the wrapper's default reproduces the transformer's old formula exactly.
 

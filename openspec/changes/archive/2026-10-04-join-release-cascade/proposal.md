@@ -35,7 +35,7 @@ that shape, and the branch is rebuilt to version 3.1 (wiring §10.1).
   `if: needs.publish-cue.outputs.published == 'true'` with `permissions: {contents: read,
   packages: read}` and `timeout-minutes: 15`. Its steps are the tag checkout, "Read the pinned opm
   CLI version", "Install opm", "Login to GHCR" and the unchanged verify step. It stays an aid, not
-  a gate (0011:D7): a finding fails only this job. The fixture gate on the tag stays in
+  a gate (enhancement 0011, "A published catalog can be verified out of band"): a finding fails only this job. The fixture gate on the tag stays in
   `publish-cue` before the publish. `publish-docs` keeps its `if:`; only its comment changes.
 - **Add the caller-owned `notify-downstream` job** (wiring §4.3, §4.6 catalog_opm): `needs:
   [release-please, publish-cue]`, the condition

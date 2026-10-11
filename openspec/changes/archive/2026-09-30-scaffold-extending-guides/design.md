@@ -27,7 +27,7 @@ The change touches no CUE. No member file, `apiVersion` segment, closedness, def
   - Blueprint at 20, tied with the trait, relying on the title tiebreak ("Write a blueprint" sorts before "Write a trait"). Rejected: it puts the blueprint before the trait it composes, and an order that rests on a tie breaks silently when a title changes.
 - Weight 20 stays unused. No other repo publishes into the Extending section (cli's page is at 22), so nothing collides.
 
-**The pages live in catalog_opm.** Under 0018:D8, a page lives in the repo whose change would make it wrong, and catalog_opm owns the extending guides for catalog authors. Both pages describe how members of this repo are filed, listed and checked.
+**The pages live in catalog_opm.** Under enhancement 0018 ("A page lives in the repository whose change would make it wrong; the site is assembled by section"), a page lives in the repo whose change would make it wrong, and catalog_opm owns the extending guides for catalog authors. Both pages describe how members of this repo are filed, listed and checked.
 
 **Scaffolds only.** Each page MUST follow `write-a-trait.md`'s shape:
 - front matter with exactly `title`, `description`, `type: how-to` and `weight`;
@@ -56,7 +56,7 @@ Every step comment states what the step says and ends with `Check against: <real
 
 This change's worktree (`origin/main` 7d2e1dd) re-read the catalog files the briefs cite. core's `src/` and `SPEC.md` are unchanged between the `site-src` worktree and `origin/main`.
 **Decision**: The briefs cite those files. Five findings from the research went into the pages as rules:
-- A resource that no transformer handles refuses every render that attaches it (0010:D28), unless it is provider-fulfilled.
+- A resource that no transformer handles refuses every render that attaches it (enhancement 0010, "An unresolved primitive demand is an error; a trait's optionality is stated by its catalog and overridden by the attachment"), unless it is provider-fulfilled.
 - `fqn` must be written with the `\(id.kindPrefix.<kind>)` interpolation on one line, because `task vet:listing` greps for that form.
 - A disagreeing `fqn` passes `cue vet` and is caught only by the publish member gate.
 - A blueprint's wrapper must propagate every composed field to the flat `spec` field the transformers read, with guards hoisted to component level.

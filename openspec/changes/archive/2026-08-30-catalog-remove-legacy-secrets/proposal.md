@@ -2,14 +2,14 @@
 
 Delete the legacy secret mechanism from `opm/` and release it as `opmodel.dev/catalogs/opm@v3` (3.0.0).
 
-`opm-v2.0.0` shipped it broken: `#Secret` with `$opm` / `$secretName` / `$dataKey`, a 265-line `#DiscoverSecrets` walk nobody calls, and three Secret-name formulas that disagree. Enhancement 0013 replaces it with a `core`-owned `#Secret` resolved by the kernel. This change only removes (0013 D9: delete, do not deprecate). The replacement is a later change, after `core` publishes the new type.
+`opm-v2.0.0` shipped it broken: `#Secret` with `$opm` / `$secretName` / `$dataKey`, a 265-line `#DiscoverSecrets` walk nobody calls, and three Secret-name formulas that disagree. Enhancement 0013 replaces it with a `core`-owned `#Secret` resolved by the kernel. This change only removes (enhancement 0013 ("The dead and duplicated secret machinery is deleted, not deprecated"): delete, do not deprecate). The replacement is a later change, after `core` publishes the new type.
 
 ## What Changes
 
 **Removed (all in `opm/`)**
 
 1. **BREAKING** `#EnvVarSchema.from` (typed `#Secret`) from `container@v1beta1`, with the env `secretKeyRef` dispatch in `container_helpers.cue` and the `#instancePrefix` parameter of `#ToK8sContainer` / `#ToK8sContainers` (its only reader). Fifteen forwarding sites in the five workload transformers go too. `#ToK8sVolumes` keeps its own `#instancePrefix`.
-2. **BREAKING** `#SecretSchema.data` narrows from `[string]: #Secret | string` to `[string]: string` (0013 D12). `#SecretsResource` and `#Secrets` are otherwise byte-identical.
+2. **BREAKING** `#SecretSchema.data` narrows from `[string]: #Secret | string` to `[string]: string` (enhancement 0013, "`#Secret` lives in `core`, and `core` is its only definition"). `#SecretsResource` and `#Secrets` are otherwise byte-identical.
 3. From `secret.cue`: `#Secret`, `#SecretType`, `#SecretLiteral`, `#SecretK8sRef`, `#SecretContentHash`, `#SecretImmutableName`, `#GroupSecrets`, `#AutoSecrets`, `#DiscoverSecrets`.
 4. The `opm-secrets` special-case arm and the literal-vs-ref sniffing in `#SecretTransformer`. One formula stays: `{instance}-{component}-{name}[-{hash}]`. The transformer gains a `_test` fixture (it has none).
 
@@ -118,4 +118,4 @@ Version:    "3.0.0" // opm catalog version set; core asserts VersionMajor == Maj
 
 ## Enhancement
 
-`enhancements/0013` D9 and D12. Record at archive: (a) this lands before `core`'s slice, not after; (b) the fleet is removed now and reintroduced under 0013, not migrated. It also closes the `opm-secrets` naming question `catalog-names-readonly-opm-rest` parked on 0019.
+Enhancement 0013 (the secrets and its naming slice). Record at archive: (a) this lands before `core`'s slice, not after; (b) the fleet is removed now and reintroduced under enhancement 0013, not migrated. It also closes the `opm-secrets` naming question `catalog-names-readonly-opm-rest` parked on enhancement 0019.

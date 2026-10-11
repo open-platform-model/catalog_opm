@@ -2,7 +2,7 @@
 
 Every workload transformer in `opm/` rebuilds the rendered object's name by hand through `#WorkloadName` (`opm/transformers/name_helpers.cue`): the exact name from `#ResourceNameTrait` when set, otherwise `"\(#context.#moduleInstanceMetadata.name)-\(#component.metadata.name)"`. The helper exists because HPA and PDB must target the workload by a byte-identical name, and the failure when they drift (an autoscaler pointed at nothing) is silent.
 
-Since `library` v1.0.0-alpha.14 the kernel fills `#component` with the whole evaluated component, so `#component.#names.resourceName` (core's single source of truth, `core@v2.0.0-alpha.6`) is readable inside `#transform`. Enhancement 0019 D15 makes reading it the contract: a transformer reads the primary object's name, never derives it. This is the first of three catalog slices and takes the seven transformers where drift is silent.
+Since `library` v1.0.0-alpha.14 the kernel fills `#component` with the whole evaluated component, so `#component.#names.resourceName` (core's single source of truth, `core@v2.0.0-alpha.6`) is readable inside `#transform`. Enhancement 0019 ("Transformers read `#component.#names` for the primary object; they never derive its name") makes reading it the contract: a transformer reads the primary object's name, never derives it. This is the first of three catalog slices and takes the seven transformers where drift is silent.
 
 This slice is the first sweep of a staged retirement of `#ResourceNameTrait` (user decision 2026-08-27, revising D15's "removed outright"): introduce the read and publish; migrate the `modules` fleet; delete the trait in a later change.
 
@@ -42,7 +42,7 @@ metadata: name: (#WorkloadName & {
 ```cue
 // #WorkloadName resolves a workload's rendered object name during the
 // #ResourceNameTrait deprecation window: the trait's exact name when set,
-// otherwise the component's own #names.resourceName (0019 D15).
+// otherwise the component's own #names.resourceName (enhancement 0019).
 #WorkloadName: {
 	#comp!: _
 	out: [
@@ -70,4 +70,4 @@ metadata: name: (#WorkloadName & {#comp: #component}).out
 
 ## Enhancement
 
-`enhancements/0019` D15 (transformers read `#component.#names` for the primary object), first slice; D15's deletion of `#ResourceNameTrait` is deliberately deferred to a later change and D15 needs a dated revision note recording the staged retirement. `enhancement.yaml` declares D15.
+Enhancement 0019 (transformers read `#component.#names` for the primary object), first slice; its deletion of `#ResourceNameTrait` is deliberately deferred to a later change, and the enhancement needs a dated revision note recording the staged retirement. The change declared it in an `enhancement.yaml` file, since retired.

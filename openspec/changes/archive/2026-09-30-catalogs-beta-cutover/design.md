@@ -122,7 +122,7 @@ The rest of the bullet (the identity writer, `v1` branch and "Was:" history) is 
 
 `AGENTS.md:128`: replace the bullet with two:
 
-> - **`opm` is a stable line: a `feat!:` on `opm` bumps the major, and with it the module path (`opmodel.dev/catalogs/opm@vN`).** It has no prerelease counter to advance. A major crossing is the sanctioned way to correct a `v1betaN` member *in place* when the `v1beta(N+1)` route (0010 D4) would leave the broken shape published under the old segment. It is not a licence to skip that route when a clean new segment is available. Consumers re-pin a path either way. A core beta break that would force an `opm` major needs owner sign-off before it lands.
+> - **`opm` is a stable line: a `feat!:` on `opm` bumps the major, and with it the module path (`opmodel.dev/catalogs/opm@vN`).** It has no prerelease counter to advance. A major crossing is the sanctioned way to correct a `v1betaN` member *in place* when the `v1beta(N+1)` route (enhancement 0010, "A contract is keyed by its own API version; an implementation is keyed by its build") would leave the broken shape published under the old segment. It is not a licence to skip that route when a clean new segment is available. Consumers re-pin a path either way. A core beta break that would force an `opm` major needs owner sign-off before it lands.
 > - **`k8s` is a beta line (`opmodel.dev/catalogs/k8s@v1`, from `1.0.0-beta.1`) on the path to GA.** A breaking change is still allowed during beta, but only as a `feat!:` commit whose `BREAKING CHANGE:` footer is the migration note `CHANGELOG-k8s.md` shows. It advances the `-beta.N` counter and never moves the module path to a new major. release-please keeps `prerelease: true` with `prerelease-type: beta`. GA drops the suffix: `prerelease: false` plus a visible carrier commit under `k8s/`, because a root-only config flip opens no release PR.
 
 Append to that `k8s` bullet (durable decision 2, first half):
@@ -204,7 +204,7 @@ Only the squash message reaches release-please.
 
 **Context**: Should `opm` enter a beta channel too?
 
-**Explored**: `research/catalog_opm.md` open questions A/B/C. The 0011 D9 compat gate is armed for `opm@v4` because it has a stable tag, and a prerelease would exempt beta/GA members from the compare. CUE `@v4` resolution prefers stable, so `4.5.0-beta.1` would be invisible to unpinned consumers. `5.0.0-beta.1` would change the module path for every consumer.
+**Explored**: `research/catalog_opm.md` open questions A/B/C. The enhancement 0011 ("`opm catalog publish` refuses a build that breaks a contract it already published") compat gate is armed for `opm@v4` because it has a stable tag, and a prerelease would exempt beta/GA members from the compare. CUE `@v4` resolution prefers stable, so `4.5.0-beta.1` would be invisible to unpinned consumers. `5.0.0-beta.1` would change the module path for every consumer.
 
 **Decision**: Stay stable (owner default 5 in the canon). `opm` takes `4.4.4` on the core beta.
 

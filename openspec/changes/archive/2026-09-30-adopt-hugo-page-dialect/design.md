@@ -20,7 +20,7 @@ The change touches no CUE. No member file, `apiVersion` segment, closedness, def
 
 **Non-Goals:**
 - Prose edits, new pages or renumbering.
-- A source-repo CI job that lints `docs/site` (a 0018:D13 follow-up, outside this set).
+- A source-repo CI job that lints `docs/site` (a enhancement 0018 ("Every writing rule names what checks it, and machine checks run in the owning repository's pull requests") follow-up, outside this set).
 - Repo-local callout style.
 - A Hugo render of these pages. Change A does that (O4); S workers only lint.
 
