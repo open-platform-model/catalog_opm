@@ -33,9 +33,12 @@ A `// WHY` block that held only an id gets the reason written out.
 
 ### Durable-decision check
 `.tasks/openspec-check.sh` (run by `task openspec:check`, part of `task check`) reads each active
-change's `design.md`. The `## Durable decisions` section must exist. If it is not "None.", it must
-name a target: a `docs/` or `AGENTS.md` path that exists, or the words "stays with the change".
-The check does not read the archive.
+change's `design.md`. The `## Durable decisions` section must exist, and HTML comments are removed
+from it first, so the unfilled template counts as empty. If what is left is not "None.", it must
+name a target: `AGENTS.md`, a `docs/` path, or the words "stays with the change". Every `docs/`
+path it names, in backticks or not, must exist. The check does not read the archive.
+`.tasks/openspec-check-test.sh` runs nine sandbox cases (each rule has a passing and a failing
+case) and runs in the same task.
 
 ### Archive guidance replaces the skill patch
 `operations.archive.guidance` carries the "durable decisions are landed" rule and the line "If the

@@ -39,5 +39,11 @@ them.
 
 None.
 
+Excluded from the rewrite: `CHANGELOG.md` (release-please output, history) and `.claude/**` (the
+`openspec-*` skill files, which the owner regenerates with `openspec update`). Archived text keeps
+a bare decision number that names a decision of the archived change itself, of `core` or of
+`docs-kit`, and keeps an enhancement id that already has words around it. A decision number in a
+quoted decision title is quoted history and stays.
+
 `skip_specs: true` is set in `.openspec.yaml`: this schema has no specs artifact, and the change
 edits comments, docs and rules only.
