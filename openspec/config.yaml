@@ -28,7 +28,7 @@ context: |
   away from them.
   - Prefer additive evolution. Adding an optional field to a member's schema is cheap; tightening
     a published constraint or changing a transformer's output is not.
-  - The break unit is the member's `apiVersion` (enhancement 0010 D4): a member whose shape breaks
+  - The break unit is the member's `apiVersion` (enhancement 0010, "A contract is keyed by its own API version; an implementation is keyed by its build"): a member whose shape breaks
     moves to a new version segment directory; it does not mutate in place.
   - `opm` is a stable line: a `feat!:` PR title on `opm` bumps the major and with it the module
     path (`@vN`). A major crossing is the sanctioned way to correct a `v1betaN` member in place
@@ -75,10 +75,10 @@ context: |
     second module beside it; a Kubernetes object no abstraction models goes through
     `objects@v1alpha1`.
   - Contract members file under `src/<kind>/<apiVersion>/` with the package clause equal to
-    the version segment (enhancement 0010 D49). Transformers file flat under
+    the version segment (enhancement 0010, "Contract kinds file under a version segment (`<kind>/<apiVersion>/`) derived from the key"). Transformers file flat under
     `src/transformers/`. The segment never enters the fqn; the catalog's key space is flat.
   - Identity (`src/identity/identity.cue`) is written only by `opm catalog version set` on the
-    release PR (enhancement 0011 D15). Never hand-edit the version.
+    release PR (enhancement 0011, "The authored version is the trigger; an already-published version is always a refusal; nothing predicts a version"). Never hand-edit the version.
   - Pin `language: version: "v0.17.0"` in `src/cue.mod/module.cue`. That is a consumer floor, not
     a toolchain pin.
 
@@ -89,7 +89,7 @@ context: |
     one.
   - A member that exists so that something *could* be expressed, with no module expressing it, is
     surface without a consumer; leave it out. Experimental candidates go to `v1alpha1`, where alpha
-    promises nothing (0010 D34).
+    promises nothing (enhancement 0010, "Contract API versions follow the Kubernetes ladder, and the promise is keyed to the level").
 
   ### VI. Mergeable Sections (Iterative & Incremental Delivery)
   A change is delivered as the sections of its `tasks.md` (`## N. Title` headings with `N.M`

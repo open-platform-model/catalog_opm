@@ -19,7 +19,7 @@ artifacts:
       - **Why**: 1-2 sentences on the problem or opportunity. What problem does this solve? Why now?
       - **What Changes**: Bullet list of changes. Be specific about new members, modified
         schemas, transformer behavior, or removals. Mark breaking changes with **BREAKING**.
-        A member whose shape breaks moves to a new apiVersion segment directory (0010 D4);
+        A member whose shape breaks moves to a new apiVersion segment directory (enhancement 0010, "A contract is keyed by its own API version; an implementation is keyed by its build");
         say so explicitly.
       - **Before / After**: The CUE shape of every member the change touches, as CUE, not
         prose. For a new member, "Before" is "none". This block is the review surface: it

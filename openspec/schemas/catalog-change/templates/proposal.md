@@ -6,7 +6,7 @@
 
 <!-- Describe what will change. Be specific about new members, modified schemas, transformer
      behavior, or removals. Mark breaking changes with **BREAKING**; a member whose shape breaks
-     moves to a new apiVersion segment directory (0010 D4). -->
+     moves to a new apiVersion segment directory (enhancement 0010, "A contract is keyed by its own API version; an implementation is keyed by its build"). -->
 
 ## Before / After
 

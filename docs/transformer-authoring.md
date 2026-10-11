@@ -1,7 +1,7 @@
 # Authoring rules for transformers and provider adapters
 
 **Status:** Permanent authoring rules, measured 2026-09-13 against CUE `v0.17.1` and the
-shipped kernel during the `enhancements/0015` backup experiments
+shipped kernel during the enhancement 0015 backup experiments
 (`02-policy-and-command`). Every rule below cost a failed render or a failed platform
 build before it was written down.
 
