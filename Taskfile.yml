@@ -183,9 +183,10 @@ tasks:
   ## OpenSpec
 
   openspec:check:
-    desc: Check that every active change declares its durable decisions and that each target file exists
+    desc: Check that every active change declares its durable decisions and that each target file exists, and test that check
     cmds:
       - bash .tasks/openspec-check.sh .
+      - bash .tasks/openspec-check-test.sh
 
   ## Publishing
   #
