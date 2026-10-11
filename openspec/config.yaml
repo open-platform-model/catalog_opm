@@ -1,5 +1,13 @@
 schema: catalog-change
 
+# The enhancement store: the design record of OPM. `openspec instructions` lists its specs; read
+# one entry with `openspec show <id>-<slug> --store opm-enhancements`. Register a checkout once per
+# machine with `openspec store register <path> --id opm-enhancements`; without it the commands
+# print a warning and go on.
+references:
+  - id: opm-enhancements
+    remote: https://github.com/open-platform-model/enhancements.git
+
 context: |
   # OPM Catalog Development Constitution
 
@@ -41,8 +49,8 @@ context: |
     `opm-docs build` (in `task docs:bundle:check`) refuses a member whose doc comment does not
     open with it.
   - There is no `openspec/specs/` directory and no delta specs. Every change's `.openspec.yaml`
-    carries `skip_specs: true`; the `openspec-new-change` and `openspec-propose` skills write
-    it at creation time. Never create a `specs/` directory inside a change.
+    carries `skip_specs: true`, which `openspec new change` writes for a schema with no specs
+    artifact (OpenSpec 1.14.1). Never create a `specs/` directory inside a change.
   - The proposal's **Before / After** CUE block is where intended behavior is reviewed before
     code exists. Write it as CUE, not prose.
   - A decision a FUTURE catalog author needs (a convention, an evaluator pitfall, a filing rule)
@@ -108,6 +116,18 @@ context: |
   suggest we split it into the following changes: [list 2-3 changes, each a few sections that
   leave main releasable]. Should we start with the first?"
 
+  ## Enhancements
+  - Enhancements live in the OpenSpec store `opm-enhancements` (see `references:`). Read an entry
+    with `openspec show <id>-<slug> --store opm-enhancements`; its `tasks.md` says which repo
+    still has work.
+  - A change here delivers a line of an entry's `tasks.md` and says so in its proposal
+    (`## Enhancement`, `Delivers NNNN, task X.Y.`).
+  - In a comment, name an enhancement by its id beside the reason in words, once at the symbol:
+    `(enhancement 0010)`, or `(enhancements 0010 and 0011)` for two. An enhancement id appears only
+    beside a reason in words, never alone, and never with a decision number (no `NNNN:Dn`, no
+    `NNNN Dn`, no `NNNN:OQn`): decision numbers restart per entry and the store can renumber them.
+    A `// WHY` block that holds only an id is a lone id: write the reason.
+
   ## Everything Else Lives in AGENTS.md
   Technology standards, build and validation commands, registry variables, CUE style and the
   doc-comment rules, generated `INDEX.md` handling, commit conventions and release classes, and
@@ -137,11 +157,10 @@ rules:
       consumer must pick up a published pin mid-change, add exactly one line to the proposal,
       `Delivery: one PR per section (<consumer> needs <pin> after section <N>)`, and the change
       ships section by section. In that mode the change stays active on main between PRs, and
-      enhancement delivery logging wait for archive after the last PR."
+      archive waits for the last PR."
     - "Never add a Capabilities section and never create a `specs/` directory; the change's `.openspec.yaml` MUST carry `skip_specs: true` (Principle II)."
-    - When the change implements a slice of an enhancement, cite the entry and the decision
-      numbers it satisfies (e.g. `enhancements/0010` D4, D49) or, when only part of a decision lands, the requirement numbers (`0010:D4:R1/R2`) rather than restating the design.
-    - "If this change implements decisions from an enhancement in the sibling enhancements/ repo, create enhancement.yaml in this change directory declaring it (implements: [{enhancement: \"NNNN\", decisions: [D1, ...], resolves: []}]). Write it at creation time, while the enhancement is in context; it is what makes archive-time delivery logging mechanical."
+    - "If the change delivers a line of an enhancement's `tasks.md`, add `## Enhancement` with one line `Delivers NNNN, task X.Y.` per task; otherwise `None.`. Read the entry with `openspec show <id>-<slug> --store opm-enhancements` and name its reason in words rather than restating its design."
+
 
   design:
     - "Focus: HOW we'll implement it technically"
@@ -217,10 +236,10 @@ operations:
       - "Delivery mode: unless proposal.md carries `Delivery: one PR per section`, all section
         commits ship in one PR after the last section and the PR title carries the change's
         release class. In per-section mode each section commit is the PR title and therefore a
-        release trigger; the change stays active on main between PRs, and enhancement
-        delivery logging wait for archive after the last PR."
+        release trigger; the change stays active on main between PRs, and archive waits
+        for the last PR."
   archive:
     guidance:
       - "Archive with `--skip-specs`: this workspace has no specs and the change declares skip_specs. Never let archive create an openspec/specs/ directory."
       - "Before archiving, read design.md's Durable decisions section. Every entry marked for promotion MUST already be landed in docs/ or AGENTS.md; if one is not, stop and land it first. An archived change must not be the only home of an authoring rule."
-      - "If this change directory contains enhancement.yaml, finish the archive by logging the landing: from the workspace root run `task enhancements:delivery:log FROM=<archived-change-path> SUMMARY=\"<one line: what landed>\"`. It appends a CUE-validated entry to each declared enhancement's delivery.yaml; confirm it printed 'logged' for every declared enhancement."
+      - "If the change delivers a line of an enhancement's `tasks.md`, a PR on `enhancements` ticks that line."

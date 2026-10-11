@@ -32,5 +32,6 @@
 
 ## Enhancement
 
-<!-- If this implements decisions from enhancements/NNNN, cite the entry and decision numbers
-     here and create enhancement.yaml in this change directory. Otherwise write "None." -->
+<!-- If the change delivers a line of an enhancement's tasks.md, one line per task:
+     "Delivers NNNN, task X.Y." Read the entry with
+     `openspec show <id>-<slug> --store opm-enhancements`. Otherwise write "None." -->
