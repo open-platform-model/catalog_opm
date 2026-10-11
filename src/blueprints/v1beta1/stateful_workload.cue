@@ -29,16 +29,16 @@ import (
 		description:    "A workload whose pods keep a stable identity and their own storage (StatefulSet)"
 	}
 
-	// Answers the container resource's required matching key (0010 D36):
+	// Answers the container resource's required matching key (enhancement 0010):
 	// attaching this blueprint is what completes a component's matching
 	// identity. Matching reads matchLabels; metadata.labels on the wrapper
 	// below stays as a transitional duplicate until the kernel's matcher
-	// flips its read (0010 library-matching).
+	// flips its read (enhancement 0010, library matching).
 	matchLabels: "core.opmodel.dev/workload-type": "stateful"
 
 	// The StatefulSet name is a DNS label (pod DNS <sts>-<n>.<svc>...): no
-	// dots, 63 runes (0019 D21). Kept beside the container resource's
-	// conditional (D23) and load-bearing, not redundant: on this path the
+	// dots, 63 runes (enhancement 0019). Kept beside the container resource's
+	// conditional (enhancement 0019) and load-bearing, not redundant: on this path the
 	// workload-type key is answered HERE, never on the container entry, so
 	// the container's conditional cannot fire (measured, cue v0.17.1; see
 	// docs/name-constraints.md).

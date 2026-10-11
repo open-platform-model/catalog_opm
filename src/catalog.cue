@@ -2,10 +2,10 @@
 // (modules pattern — no Catalog: wrapper), sources metadata from the sibling
 // identity/ package, and enumerates every member keyed by its own
 // metadata.fqn. The #Catalog pattern constraints stamp each entry's
-// modulePath/catalogVersion in lockstep (enhancement 0001 D19/D25).
+// modulePath/catalogVersion in lockstep (enhancement 0001).
 //
 // Resources, traits and blueprints are listed in #resources, #traits and
-// #blueprints (enhancement 0015 D1): the listing is what makes a contract
+// #blueprints (enhancement 0015): the listing is what makes a contract
 // visible to a subscribing platform, including a provider-fulfilled one that
 // no transformer here implements. Every member under resources/, traits/ and
 // blueprints/ is a key; one import alias per version segment directory.
@@ -39,7 +39,7 @@ metadata: {
 	(res.#VolumesResource.metadata.fqn):        res.#VolumesResource
 
 	// Experimental abstraction candidates (v1alpha1 contracts; ex
-	// catalog_opm_experimental — 0010 D47).
+	// catalog_opm_experimental — enhancement 0010).
 	(resa.#MutatingWebhooksResource.metadata.fqn):            resa.#MutatingWebhooksResource
 	(resa.#NamespacesResource.metadata.fqn):                  resa.#NamespacesResource
 	(resa.#ObjectsResource.metadata.fqn):                     resa.#ObjectsResource
@@ -74,7 +74,7 @@ metadata: {
 	(tr.#UpdateStrategyTrait.metadata.fqn):    tr.#UpdateStrategyTrait
 	(tr.#WorkloadIdentityTrait.metadata.fqn):  tr.#WorkloadIdentityTrait
 
-	// Experimental abstraction candidates (v1alpha1 contracts — 0010 D34).
+	// Experimental abstraction candidates (v1alpha1 contracts — enhancement 0010).
 	// Both are provider-fulfilled: listing them is what makes them visible
 	// to a subscribing platform, and no transformer here implements them.
 	(tra.#BackupTrait.metadata.fqn):        tra.#BackupTrait
@@ -111,7 +111,7 @@ metadata: {
 	(t.#TlsRouteTransformer.metadata.fqn):               t.#TlsRouteTransformer
 
 	// Experimental abstraction candidates (v1alpha1 contracts; ex
-	// catalog_opm_experimental — 0010 D47).
+	// catalog_opm_experimental — enhancement 0010).
 	(t.#AdmissionPolicyTransformer.metadata.fqn):         t.#AdmissionPolicyTransformer
 	(t.#MutatingWebhookTransformer.metadata.fqn):         t.#MutatingWebhookTransformer
 	(t.#NamespaceTransformer.metadata.fqn):               t.#NamespaceTransformer

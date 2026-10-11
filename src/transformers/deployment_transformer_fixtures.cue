@@ -22,7 +22,7 @@ import (
 /////////////////////////////////////////////////////////////////
 
 // Shared stub inputs. Core projects BOTH #moduleInstanceMetadata and
-// #componentMetadata at the #transform site (alpha.7, 0019 D12), so a fixture
+// #componentMetadata at the #transform site (alpha.7, enhancement 0019), so a fixture
 // supplies #moduleInstance and #component and never the projections; filling
 // them leaves #moduleInstance at `_` and the output never becomes concrete.
 // componentLabels therefore resolves to three entries:

@@ -212,7 +212,7 @@ _testServiceUDPTransformer: (#ServiceTransformer.#transform & {
 _testServiceUDPPortResolves:     (_testServiceUDPTransformer.spec.ports[0].port + 0) & 53
 _testServiceUDPProtocolResolves: "\(_testServiceUDPTransformer.spec.ports[0].protocol)" & "UDP"
 
-// Must-fail record for the naming contract (0019 D21, D22, D23), measured on
+// Must-fail record for the naming contract (enhancement 0019), measured on
 // cue v0.17.1 against core v2.0.0-alpha.6 with the fixtures above (an
 // #instance of prod/media). Each case is deliberately NOT in the package: a
 // refusal would fail vet. Observed output is quoted verbatim.
@@ -220,7 +220,7 @@ _testServiceUDPProtocolResolves: "\(_testServiceUDPTransformer.spec.ports[0].pro
 //   Leading-digit resourceName on an Expose component (DNS-1035 via Expose):
 //     metadata: resourceName: "1web"
 //     -> _nameFits: invalid value "1web" (out of bound =~"^[a-z]([a-z0-9-]*[a-z0-9])?$")
-//   Dotted resourceName on a raw stateful #Container (D23, key on the entry):
+//   Dotted resourceName on a raw stateful #Container (enhancement 0019, key on the entry):
 //     metadata: resourceName: "cache.internal"
 //     -> _nameFits: invalid value "cache.internal" (out of bound =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$")
 //   64-rune resourceName on a #StatefulWorkload (blueprint path):
@@ -242,7 +242,7 @@ _testServiceUDPProtocolResolves: "\(_testServiceUDPTransformer.spec.ports[0].pro
 // Legacy shape: a component compiled against a build <= alpha.5, whose
 // #ExposeSchema carried `name?: string` and whose wrapper set no default. The
 // kernel hands #transform the module's own evaluated value, so this is exactly
-// what the transformer sees for such a module (0010 D27). Hand-built on purpose:
+// what the transformer sees for such a module (enhancement 0010). Hand-built on purpose:
 // embedding the current trait would give `name!` and cannot express "optional
 // and unset". #names is set as core would derive it.
 _testServiceLegacyExposeComponent: {

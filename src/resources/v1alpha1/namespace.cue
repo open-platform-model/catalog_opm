@@ -24,7 +24,7 @@ import (
 	}
 
 	// A Namespace name is the second label of every in-cluster FQDN: no dots,
-	// 63 runes (0019 D21). The names this resource RENDERS are the map
+	// 63 runes (enhancement 0019). The names this resource RENDERS are the map
 	// entries below, typed on #NamespaceSchema; this slot additionally holds
 	// the owning component's metadata.resourceName to the same rule.
 	#nameConstraint: c.#NameType
@@ -43,7 +43,7 @@ import (
 	// bare non-concrete #NameType, and nothing refuses at vet. The
 	// interpolation forces the default to a string first, so
 	// `string & #NameType` is either that string or an error naming it (the
-	// 0019 D21 assertion spelling).
+	// assertion spelling of enhancement 0019).
 
 	// The rendered names are asserted here, on the component, because the
 	// resource entry only ever holds the schema (values land on the
@@ -64,7 +64,7 @@ import (
 
 // Kubernetes Namespace, emitted with its exact name.
 // `name` is auto-populated from the map key in the resource spec. It is a
-// DNS label (0019 D21), asserted by the #Namespaces wrapper rather than typed
+// DNS label (enhancement 0019), asserted by the #Namespaces wrapper rather than typed
 // here: a type on this field would silently kill the key default (see the
 // wrapper). A dotted key or an explicit dotted name refuses at vet.
 #NamespaceSchema: {

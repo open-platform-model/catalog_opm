@@ -66,7 +66,7 @@ _testSTSDefaultName:        "\(_testSTSDefaultTransformer.metadata.name)" & "sho
 _testSTSDefaultServiceName: "\(_testSTSDefaultTransformer.spec.serviceName)" & "shop-db"
 
 // serviceName names the GOVERNING SERVICE, so it follows expose.name through
-// #ServiceName, the seam the Service transformer renders through (0019 D22).
+// #ServiceName, the seam the Service transformer renders through (enhancement 0019).
 //
 // resourceName and expose.name are set to DIFFERENT values on purpose.
 // metadata.resourceName moves #names.dns.short along with the object name,

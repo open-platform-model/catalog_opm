@@ -26,11 +26,11 @@ import (
 		description:    "A task that runs to completion once (Job)"
 	}
 
-	// Answers the container resource's required matching key (0010 D36):
+	// Answers the container resource's required matching key (enhancement 0010):
 	// attaching this blueprint is what completes a component's matching
 	// identity. Matching reads matchLabels; metadata.labels on the wrapper
 	// below stays as a transitional duplicate until the kernel's matcher
-	// flips its read (0010 library-matching).
+	// flips its read (enhancement 0010, library matching).
 	matchLabels: "core.opmodel.dev/workload-type": "task"
 
 	composedResources: [

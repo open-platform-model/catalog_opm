@@ -22,7 +22,7 @@ _testTransformerRegistrationComponent: res.#TransformerRegistration & {
 }
 
 // WHY this fixture supplies #moduleInstance and not
-// #context.#moduleInstanceMetadata: since 0019 D12 that field is a PROJECTION
+// #context.#moduleInstanceMetadata: since enhancement 0019 that field is a PROJECTION
 // computed at the #transform site, so filling it directly leaves
 // #moduleInstance at `_` and the output never becomes concrete. `cue vet`
 // stays green either way (the failure is incomplete-class), which is why the
@@ -98,7 +98,7 @@ _testPreBoundIdentity: {
 // values, so a bare `{requiredTraits: …}` is refused with "field not allowed".
 // WHY catalogVersion and modulePath are authored: a real provider catalog's map
 // arrives already stamped by its own #Catalog, so the helper's _catalog must
-// agree with that stamp. Authoring them here pins the 0015:D11 agreement: an
+// agree with that stamp. Authoring them here pins the agreement that enhancement 0015 requires: an
 // _catalog whose version or path drifts from #identity fails every
 // _testPreBound fixture with a metadata conflict.
 _testPreBoundTransformer: c.#ComponentTransformer & {

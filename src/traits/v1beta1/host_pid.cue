@@ -21,7 +21,7 @@ import (
 		}
 	}
 
-	// Advisory posture (0010 D46): a workload without this trait still
+	// Advisory posture (enhancement 0010): a workload without this trait still
 	// renders; a module may narrow the default at the attachment site.
 	optional: bool | *true
 
