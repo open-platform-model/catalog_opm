@@ -138,8 +138,8 @@ jobs:
 
       # Every publish gate runs, nothing is pushed. On a PR or a push to main
       # the committed version is usually live already, so already-published as
-      # the ONLY refusal still passes (the caller-side tolerance from 0011 D15
-      # — same pattern as cli's publish-templates.sh); any other refusal fails.
+      # the ONLY refusal still passes (the caller-side tolerance, since enhancement 0011 makes an
+      # already-published version always a refusal — same pattern as cli's publish-templates.sh); any other refusal fails.
       # On the dispatched release-branch run the version has been advanced, so
       # this is a full GO rehearsal of the next release.
       - name: Publish gates dry-run
