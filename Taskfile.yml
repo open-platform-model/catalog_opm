@@ -14,6 +14,9 @@ vars:
   # The docs bundles docs-kit.cue declares: catalog-opm (the Catalogs tab)
   # and catalog-opm-docs (the authored pages under docs/site/).
   DOCS_PROJECTS: catalog-opm catalog-opm-docs
+  # The commit of open-platform-model/enhancements that holds the enh tool; the
+  # enh-ref default of the .github cite-lint.yml that ci.yml calls.
+  CITE_LINT_REF: e0335b2ec44e659c0191bc3523d79d17f26f8e7d
 
 tasks:
   default:
@@ -187,6 +190,21 @@ tasks:
     cmds:
       - bash .tasks/openspec-check.sh .
       - bash .tasks/openspec-check-test.sh
+
+  ## Comment rule
+  #
+  # The shared check of the enhancements repo: a comment names an enhancement
+  # by id only beside a reason in words, never by decision number. CI runs the
+  # same rule through the cite-lint job in .github/workflows/ci.yml, which
+  # calls the reusable cite-lint.yml of the .github repo; that workflow holds
+  # the tool commit as its enh-ref default. Keep CITE_LINT_REF equal to it
+  # (compare at each .github pin move). No excludes, here or in the CI call;
+  # an exclude added to one goes into the other with a reason.
+
+  cite-lint:
+    desc: Fail on a decision number or a lone enhancement id in a Go or CUE comment (enh cite-lint at the pinned commit; needs network for go run)
+    cmds:
+      - go run github.com/open-platform-model/enhancements/tools/enh@{{.CITE_LINT_REF}} cite-lint --root .
 
   ## Publishing
   #
