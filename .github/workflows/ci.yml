@@ -21,6 +21,15 @@ env:
 permissions: {}
 
 jobs:
+  # The comment rule (enhancement id only beside a reason in words), by the
+  # reusable workflow of .github; task cite-lint runs the same rule locally.
+  # The call is plain: no secret, read-only token, no exclude.
+  cite-lint:
+    name: Cite lint
+    permissions:
+      contents: read
+    uses: open-platform-model/.github/.github/workflows/cite-lint.yml@2b66da51fede4332969c324b069012632d8edea9 # .github main
+
   ci:
     name: Validate catalog
     runs-on: ubuntu-latest
@@ -52,6 +61,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: bash .tasks/cascade/wiring-check.sh --pin-on-main
+
+      # Offline: every active change declares its durable decisions (task check
+      # runs the same). After the wiring check, which allows only SHA-pinned
+      # actions before it.
+      - name: Check durable decisions
+        run: task openspec:check
 
       # The opm CLI pin lives in .opm-cli-version only, so a bump never edits a
       # workflow file. The grep refuses a missing, empty or malformed file here,
