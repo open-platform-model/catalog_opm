@@ -58,4 +58,4 @@ Nine groups. Run `task vet` at the end of every group; a red vet means the group
 - [x] 9.1 `task generate:index`; review the removed and moved rows in `opm/INDEX.md`
 - [x] 9.2 `task check`
 - [x] 9.3 `opm catalog publish ./opm --dry-run` with the workspace `OPM_REGISTRY` mapping: every gate GO, zero refusals
-- [x] 9.4 At archive time: `task enhancements:delivery:log` for 0013 D9 / D12; record the deviation in `enhancements/0013/README.md` § Deviations
+- [x] 9.4 At archive time: `task enhancements:delivery:log` for enhancement 0013 (the secret machinery is deleted, not deprecated); record the deviation in that enhancement's README, section Deviations

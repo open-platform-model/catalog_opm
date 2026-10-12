@@ -28,7 +28,7 @@ import (
 		}
 	}
 
-	// The matching key this catalog introduces (0010 D36). Required, so a
+	// The matching key this catalog introduces (enhancement 0010). Required, so a
 	// component must answer it — typically by attaching a workload blueprint.
 	matchLabels: "core.opmodel.dev/workload-type"!: "stateless" | "stateful" | "daemon" | "task" | "scheduled-task"
 
@@ -56,7 +56,7 @@ import (
 	// default arm would win over the concrete one.
 
 	// The name constraint the container puts on the owning component's
-	// metadata.resourceName (0019 D23), computed from the workload-type key:
+	// metadata.resourceName (enhancement 0019), computed from the workload-type key:
 	// a stateful workload's pods are addressed as <sts>-<n>.<svc>..., which
 	// puts the name in a DNS label position, and the API server enforces the
 	// label rule on both axes there (no dots, 63 runes). Top otherwise. `matchLabels`

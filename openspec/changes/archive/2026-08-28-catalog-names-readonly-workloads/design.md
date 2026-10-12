@@ -13,7 +13,7 @@ Constraints: `#names` is only concrete when `#instance` is set, which `#Module` 
 
 **Non-Goals:**
 - Deleting the trait or `#WorkloadName` (later change, after the `modules` migration).
-- Secondary names (`#instancePrefix` on env secrets, per-volume ConfigMap/Secret/PVC names via `#ImmutableName`): stay derived as today; D15 lists them as carve-outs and a prefix policy for them is a separate question.
+- Secondary names (`#instancePrefix` on env secrets, per-volume ConfigMap/Secret/PVC names via `#ImmutableName`): stay derived as today; enhancement 0019 lists them as carve-outs and a prefix policy for them is a separate question.
 - Non-workload transformers (routes, network policy) and `k8s/`: `catalog-names-readonly-opm-rest`, `catalog-names-readonly-k8s`.
 
 ## Decisions
@@ -32,7 +32,7 @@ Constraints: `#names` is only concrete when `#instance` is set, which `#Module` 
 
 The `#instance` input goes away; callers become `(#WorkloadName & {#comp: #component}).out`. When the trait is deleted the helper collapses to a direct read and is removed.
 
-**D-B. StatefulSet `serviceName` reads `expose.name` when `#Expose` is attached, else `#names.dns.short`.** `tr.#ExposeTrait` is in `optionalTraits` (`statefulset_transformer.cue:64`), and two shipped stubs (`_testSTSStrategyComponent`, `_testSTSRollingDefaultsComponent`) carry no `#Expose`, so the outer guard is live. `expose.name` is `name!` (D22), so the inner guard is dead and goes. The fallback arm's hand-rolled formula is replaced by `#component.#names.dns.short`: the same value for every no-Expose component (the trait never touches `#names`), and a read rather than a derivation.
+**D-B. StatefulSet `serviceName` reads `expose.name` when `#Expose` is attached, else `#names.dns.short`.** `tr.#ExposeTrait` is in `optionalTraits` (`statefulset_transformer.cue:64`), and two shipped stubs (`_testSTSStrategyComponent`, `_testSTSRollingDefaultsComponent`) carry no `#Expose`, so the outer guard is live. `expose.name` is `name!` (enhancement 0019), so the inner guard is dead and goes. The fallback arm's hand-rolled formula is replaced by `#component.#names.dns.short`: the same value for every no-Expose component (the trait never touches `#names`), and a read rather than a derivation.
 
 ```cue
 serviceName: [
@@ -52,16 +52,16 @@ Closedness, defaults and required fields of every member are unchanged.
 **Context**: Three candidate sources hold the same value today: `#context` interpolation, `#component.metadata.resourceName`, `#component.#names.resourceName`.
 **Explored**: Exploration 2026-08-27 in the workspace conversation; `core/src/component.cue:194` (`#names` derives from `metadata.resourceName` and is the only home of the DNS variants); `library/opm/kernel/component_fill_test.go:39` (a transformer reading `#component.#names.resourceName` and `dns.fqdn` renders through `Kernel.Compile`).
 **Decision**: `#component.#names.resourceName`.
-**Rationale**: D15's own alternatives table: `metadata.resourceName` is the cascade input, `#context` is (under D12) a projection of the component; `#names` is the finalized value.
+**Rationale**: the alternatives table of enhancement 0019: `metadata.resourceName` is the cascade input, `#context` is (under its context projection) a projection of the component; `#names` is the finalized value.
 
 ### Gates
-**Context**: D15 gates the sweep on the component fill and on the D16 default flip.
-**Explored**: `opm/cue.mod/module.cue` pins `core@v2.0.0-alpha.6`, which carries D16 and D20 (`~/.cache/cue/mod/extract/opmodel.dev/core@v2.0.0-alpha.6/component.cue`); library PR 70 (`093119d`) landed the fill, released in v1.0.0-alpha.14.
+**Context**: enhancement 0019 gates the sweep on the component fill and on the flip of the `resourceName` default.
+**Explored**: `opm/cue.mod/module.cue` pins `core@v2.0.0-alpha.6`, which carries the default flip and the name types of enhancement 0019 (`~/.cache/cue/mod/extract/opmodel.dev/core@v2.0.0-alpha.6/component.cue`); library PR 70 (`093119d`) landed the fill, released in v1.0.0-alpha.14.
 **Decision**: no dep bump; proceed.
 **Rationale**: both gates are already in the pinned versions.
 
 ### Live trait users
-**Context**: D15 named istio-cni-node, istiod and database as trait fixtures.
+**Context**: enhancement 0019 named istio-cni-node, istiod and database as trait fixtures.
 **Explored**: `grep` across `modules/`, `cli/tests/fixtures`, `opm-operator/test/fixtures`, `library`: only `modules/istio_ambient/components_control_plane.cue` (istiod) attaches `tr.#ResourceName`.
 **Decision**: keep the trait working through the seam; migrate istiod in `modules` before deletion.
 **Rationale**: the fleet pins catalog releases, so a coexistence window lets the migration land as its own PR.
@@ -71,7 +71,7 @@ Closedness, defaults and required fields of every member are unchanged.
 
 ## Risks / Trade-offs
 
-- A fixture whose `#instance.name` disagrees with its `#context.#moduleInstanceMetadata.name` renders a name from one and labels from the other -> stubs build both from the same literal; D12 later removes the duplication at the source.
+- A fixture whose `#instance.name` disagrees with its `#context.#moduleInstanceMetadata.name` renders a name from one and labels from the other -> stubs build both from the same literal; the context projection of enhancement 0019 later removes the duplication at the source.
 - `#names` non-concrete in a fixture that forgot `#instance` -> `cue vet` passes vacuously (measured); the verification task runs `cue eval -c` over the guards, and `docs/name-constraints.md`'s Fixtures section is corrected to say so.
 - A consumer on a pre-fill kernel gets an empty-disjunction error on every workload -> release class `feat!:` with the kernel floor in the release note.
 - Parity harness in `library` pins the catalog by release -> byte-identity is checked against a `-dev` pre-release before the release PR, not inside this repo's `task check`.

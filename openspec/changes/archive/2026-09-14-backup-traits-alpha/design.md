@@ -3,12 +3,12 @@
 See `proposal.md` for motivation. Files and segments:
 
 - `opm/transformers/pvc_transformer.cue`: one label added to the PVC's `metadata.labels`. Flat transformer file, no segment.
-- `opm/traits/v1alpha1/backup.cue` and `opm/traits/v1alpha1/backup_command.cue`: new directory, `package v1alpha1`, the first `v1alpha1` traits in the module (resources already have a `v1alpha1` segment). Filing per 0010 D49: `modulePath: "\(id.kindPrefix.traits)/v1alpha1"`, `fqn` flat.
+- `opm/traits/v1alpha1/backup.cue` and `opm/traits/v1alpha1/backup_command.cue`: new directory, `package v1alpha1`, the first `v1alpha1` traits in the module (resources already have a `v1alpha1` segment). Filing per enhancement 0010 ("Contract kinds file under a version segment (`<kind>/<apiVersion>/`) derived from the key"): `modulePath: "\(id.kindPrefix.traits)/v1alpha1"`, `fqn` flat.
 - `opm/schemas/common.cue`: `#CronSchema` beside `#NameType`. The `schemas` package cannot import core, so it holds plain types.
 - `opm/catalog.cue`: both traits keyed into `#traits`, behind a new `tra` alias for the `v1alpha1` traits segment. Filing is only half a member's registration; `task vet:listing` enforces the other half.
 - `docs/transformer-authoring.md` (new), `CLAUDE.md` (one pointer line and one rule), `opm/INDEX.md` (regenerated).
 
-Constraints: doc comments at most 6 lines (`task docs:check`); the publish gates run locally as `opm catalog publish ./opm --dry-run` (exit 0 is GO), which is what catches a trait whose `optional` is pinned. The measured shape this change lands is `enhancements/0015/experiments/02-policy-and-command/contracts/traits/v1alpha1/`; deviations are listed under Research & Decisions.
+Constraints: doc comments at most 6 lines (`task docs:check`); the publish gates run locally as `opm catalog publish ./opm --dry-run` (exit 0 is GO), which is what catches a trait whose `optional` is pinned. The measured shape this change lands is the policy-and-command experiment of enhancement 0015 (`contracts/traits/v1alpha1/`); deviations are listed under Research & Decisions.
 
 ## Goals / Non-Goals
 
@@ -18,9 +18,9 @@ Constraints: doc comments at most 6 lines (`task docs:check`); the publish gates
 - Land the adapter-authoring rules the experiments paid for where provider-catalog authors will find them.
 
 **Non-Goals:**
-- No transformer for either trait: the declaring catalog of a provider-fulfilled contract ships none (0010 D37). No stub transformer either, ever; it would count as a provider.
+- No transformer for either trait: the declaring catalog of a provider-fulfilled contract ships none (enhancement 0010, "A contract declares where its fulfilment comes from, and a provider-fulfilled contract admits exactly one provider"). No stub transformer either, ever; it would count as a provider.
 - No `executor` switch and no policy projection (deferred; additive when a module needs it).
-- No repository resolution: `repository` is a name the provider resolves from platform configuration (0015 OQ2).
+- No repository resolution: `repository` is a name the provider resolves from platform configuration (an open question of enhancement 0015).
 - No change to `cron_job_config`'s untyped `scheduleCron`; typing it later is a tightening and its own decision.
 
 ## Decisions
@@ -35,7 +35,7 @@ labels: #context.labels & {"volume.opmodel.dev/name": volumeName}
 
 **D-B. `backup@v1alpha1`, the policy.** Shape as in the proposal's After block. Points that are decisions rather than transcription:
 
-- `optional: bool | *false`: load-bearing. An unhandled backup means there are no backups; a module may narrow to `true` at the attachment site (0010 D28).
+- `optional: bool | *false`: load-bearing. An unhandled backup means there are no backups; a module may narrow to `true` at the attachment site (enhancement 0010, "An unresolved primitive demand is an error; a trait's optionality is stated by its catalog and overridden by the attachment").
 - `appliesTo: [res.#VolumesResource]`: the policy is about persistent state; a component without volumes has nothing to back up.
 - `repository?: sch.#NameType`: a platform-registered name. Inline object storage is refused by shape, because on Velero a location is an admin object and on k8up the credentials Secret must be in the instance namespace; both are the platform's, never the module's.
 - `volumes?: [string, ...string]`: absent means all. Needs D-A.
@@ -81,10 +81,10 @@ Closedness, defaults, required-set: both traits are new, closed definitions; `#B
 
 ## Risks / Trade-offs
 
-- [No provider exists at release, so attaching either trait refuses the render] -> designed (0010 D28, D37): the refusal names the contract; the k8up provider catalog is the next change outside this repo. Under 0015 D18 a platform subscribing this catalog keeps generating.
+- [No provider exists at release, so attaching either trait refuses the render] -> designed (enhancement 0010, "An unresolved primitive demand is an error; a trait's optionality is stated by its catalog and overridden by the attachment" and "A contract declares where its fulfilment comes from, and a provider-fulfilled contract admits exactly one provider"): the refusal names the contract; the k8up provider catalog is the next change outside this repo. Under enhancement 0015 ("An unfulfilled contract is reported, never refused; only over-subscription refuses platform-package generation") a platform subscribing this catalog keeps generating.
 - [Every existing PVC changes on the next reconcile] -> one label, applied in place by SSA; no immutable field moves. Stated in the proposal's Impact.
 - [Quoting moves to adapters; a k8up adapter that wraps naively breaks on a `'` in `command`] -> the authoring note says so; the adapter escapes or uses an exec form.
-- [Alpha shape, first consumer is a provider catalog rather than a module] -> alpha promises nothing (0010 D34); a shape change is a new `v1alpha2` file, not an in-place mutation.
+- [Alpha shape, first consumer is a provider catalog rather than a module] -> alpha promises nothing (enhancement 0010, "Contract API versions follow the Kubernetes ladder, and the promise is keyed to the level"); a shape change is a new `v1alpha2` file, not an in-place mutation.
 
 ## Durable decisions
 

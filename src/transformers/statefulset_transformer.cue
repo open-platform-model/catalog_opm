@@ -141,7 +141,7 @@ import (
 			}
 			spec: {
 				// WHY: Deliberately NOT metadata.name. serviceName is a cross-object
-				// reference to the governing Service (0019 D22, carve-out 3), whose one
+				// reference to the governing Service (enhancement 0019; carve-out 3 in docs/name-constraints.md), whose one
 				// authoritative name is expose.name, and an author may set that apart from
 				// the workload's resourceName. The read goes through #ServiceName so it
 				// stays byte-identical to the Service transformer's, including the fallback

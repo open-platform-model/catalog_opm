@@ -79,7 +79,7 @@ _testRemovedTraitsStayRemoved: [for k, _ in #traits if k == "\(id.kindPrefix.tra
 - Third-party modules and platforms pinned to `opmodel.dev/catalogs/opm@v4`: a module that attached either trait breaks at its next `cue mod tidy` or pin bump past this release, and is fixed as under Migration. A module that stays on its current pin is not affected.
 - A platform that subscribes to the catalog: two fewer contract keys in `#traits`. No platform carried a transformer for either.
 
-**Release class.** Removing a `v1beta1` member is a break by the catalog's own additive-only rule, and `AGENTS.md` types a removal `feat!:`. The owner decided otherwise for this change: it ships as a minor of `opm@v4` under an owner-signed exception to enhancement 0021:D7:R4 (swarm `simplifying-opm-v1`, `DECISIONS.md` 2026-10-08 20:00, "T9.12 a"), because the removed members never rendered anything and a `!` would make release-please propose 5.0.0 while the module path stays `@v4`. So:
+**Release class.** Removing a `v1beta1` member is a break by the catalog's own additive-only rule, and `AGENTS.md` types a removal `feat!:`. The owner decided otherwise for this change: it ships as a minor of `opm@v4` under an owner-signed exception to enhancement 0021 ("A `-beta.N` release line is pre-stable on the path to GA, and breaks only as a declared, migrated change") (swarm `simplifying-opm-v1`, `DECISIONS.md` 2026-10-08 20:00, "T9.12 a"), because the removed members never rendered anything and a `!` would make release-please propose 5.0.0 while the module path stays `@v4`. So:
 
 - Section 1 commit: `feat(traits): ...`, no `!`, no `BREAKING CHANGE` footer.
 - PR title: the same `feat(traits): ...` subject. It is the release note: release-please copies it into `CHANGELOG.md` under the next 4.x minor.
@@ -88,4 +88,4 @@ _testRemovedTraitsStayRemoved: [for k, _ in #traits if k == "\(id.kindPrefix.tra
 
 ## Enhancement
 
-None. The change implements no enhancement decision. It uses an owner exception to 0021:D7:R4 (above) and logs no delivery.
+None. The change implements no enhancement decision. It uses an owner exception to enhancement 0021 ("A `-beta.N` release line is pre-stable on the path to GA, and breaks only as a declared, migrated change") (above) and logs no delivery.

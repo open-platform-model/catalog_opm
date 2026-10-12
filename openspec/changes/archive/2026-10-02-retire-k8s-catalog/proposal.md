@@ -56,4 +56,4 @@ packages: src: {component: "opm", "changelog-path": "/CHANGELOG.md"}
 
 ## Enhancement
 
-None. This retires the raw passthrough family that enhancement 0010 D47 folded into this repository and D48 versioned after upstream, by owner decision, with no new entry; 0010 is archived and is not reopened.
+None. This retires the raw passthrough family that enhancement 0010 ("The first-party catalogs consolidate into one: `catalog_opm` absorbs `catalog_kubernetes` and `catalog_opm_experimental` on the v2 line") folded into this repository and versioned after upstream, by owner decision, with no new entry; 0010 is archived and is not reopened.

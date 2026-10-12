@@ -21,7 +21,7 @@ import (
 		}
 	}
 
-	// Advisory posture (0010 D46): a workload without this trait still
+	// Advisory posture (enhancement 0010): a workload without this trait still
 	// renders; a module may narrow the default at the attachment site.
 	optional: bool | *true
 
@@ -30,14 +30,14 @@ import (
 	// The Service name is the first label of every FQDN that reaches it, and
 	// the API server validates it as DNS-1035 (alphabetic first rune, no dots,
 	// 63 runes). Declared here so a metadata.resourceName override that a
-	// Service cannot carry refuses at vet (0019 D21).
+	// Service cannot carry refuses at vet (enhancement 0019).
 	#nameConstraint: c.#ServiceNameType
 
 	spec: expose: #ExposeSchema
 }
 
 // Component wrapper: attaches the trait and supplies the Service name's
-// default, the component's own short DNS name (0019 D22). The default can
+// default, the component's own short DNS name (enhancement 0019). The default can
 // only live here: #ExposeSchema has no path to the owning component, and
 // this is the one site where #names is in scope.
 #Expose: c.#Component & {
@@ -84,7 +84,7 @@ import (
 	// admits it when it is DNS-1035-shaped.
 
 	// The Service's name: the ONE field the Service transformer reads, with
-	// no fallback (0019 D22). Required (`!`: a plain typed field would vet
+	// no fallback (enhancement 0019). Required (`!`: a plain typed field would vet
 	// clean while unset) and DNS-1035 typed, so a dot or a leading digit
 	// refuses at vet. Defaulted by the #Expose wrapper; an explicit value
 	// renames the Service only. See docs/name-constraints.md.

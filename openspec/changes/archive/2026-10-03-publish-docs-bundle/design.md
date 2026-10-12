@@ -107,7 +107,7 @@ One project, so no matrix. The dispatch's `mode` offers `release` only: it is th
 
 ### `release.yml`: `publish-docs` after `publish-cue`, only for an opm release
 
-`publish-cue` runs only when release-please released `opm` in this run, and sets an output `published=true` right after "Publish CUE catalog", before its non-gating "Verify the published build" step. The job's condition is that output, under `always()`, so a failed verification (an aid, not a gate, 0011 D7) does not skip the docs while a failed or skipped publish does. The tag comes from release-please's `src--tag_name` (the job's `opm_tag_name` output; the package path is `src`, the component `opm`).
+`publish-cue` runs only when release-please released `opm` in this run, and sets an output `published=true` right after "Publish CUE catalog", before its non-gating "Verify the published build" step. The job's condition is that output, under `always()`, so a failed verification (an aid, not a gate, enhancement 0011 ("A published catalog can be verified out of band")) does not skip the docs while a failed or skipped publish does. The tag comes from release-please's `src--tag_name` (the job's `opm_tag_name` output; the package path is `src`, the component `opm`).
 
 ```yaml
 publish-docs:

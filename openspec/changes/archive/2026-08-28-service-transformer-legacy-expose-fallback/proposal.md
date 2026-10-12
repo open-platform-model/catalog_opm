@@ -1,6 +1,6 @@
 ## Why
 
-`opm-v2.0.0-alpha.6` (`feat(opm)!: declare name constraints and default the expose name`, #51) turned `#ExposeSchema.name` from `name?: string` into `name!: c.#ServiceNameType`, moved the default into the `#Expose` component wrapper, and removed the Service transformer's fallback: `metadata.name` became a bare `_expose.name` read. That is correct for a component built with the alpha.6+ wrapper and wrong for every component built against a published build ≤ alpha.5, whose `expose` carries `name?: string` with no value: the alpha.6/alpha.7 transformer refuses it with `output.metadata.name: cannot reference optional field: name`, and the module loses every Service. Measured 2026-08-28: `cli/tests/integration/module-apply/testdata` and `cli/tests/e2e/testdata/handoff` (catalog alpha.3) render on an alpha.3 platform and fail on alpha.6/alpha.7; the same module re-pinned to alpha.7 renders. This violates 0010 D27 ("inside one API version a contract is additive-only … a supplier at or above the build a module compiled against is unconditionally safe") without moving `apiVersion`, and the publish compat gate compared nothing (`39 prerelease-exempt`).
+`opm-v2.0.0-alpha.6` (`feat(opm)!: declare name constraints and default the expose name`, #51) turned `#ExposeSchema.name` from `name?: string` into `name!: c.#ServiceNameType`, moved the default into the `#Expose` component wrapper, and removed the Service transformer's fallback: `metadata.name` became a bare `_expose.name` read. That is correct for a component built with the alpha.6+ wrapper and wrong for every component built against a published build ≤ alpha.5, whose `expose` carries `name?: string` with no value: the alpha.6/alpha.7 transformer refuses it with `output.metadata.name: cannot reference optional field: name`, and the module loses every Service. Measured 2026-08-28: `cli/tests/integration/module-apply/testdata` and `cli/tests/e2e/testdata/handoff` (catalog alpha.3) render on an alpha.3 platform and fail on alpha.6/alpha.7; the same module re-pinned to alpha.7 renders. This violates enhancement 0010 ("inside one API version a contract is additive-only … a supplier at or above the build a module compiled against is unconditionally safe") without moving `apiVersion`, and the publish compat gate compared nothing (`39 prerelease-exempt`).
 
 ## What Changes
 
@@ -39,7 +39,7 @@ output: k8scorev1.#Service & {
 		// the component's own #names.dns.short, the value that wrapper
 		// defaults to. The fallback is what keeps a component compiled
 		// against a build <= alpha.5 (expose.name?: string, unset) rendering
-		// on this transformer (0010 D27). List-index form: a default arm
+		// on this transformer (enhancement 0010). List-index form: a default arm
 		// would silently win over the concrete one.
 		name: [
 			if _expose.name != _|_ {_expose.name},
@@ -77,4 +77,4 @@ _testServiceLegacyExposeResolves: "\(_testServiceLegacyExposeTransformer.metadat
 
 ## Enhancement
 
-`enhancements/0010` D27 (additive-only within an apiVersion, supplier-at-or-above safety) and `enhancements/0019` D22 (the Service name is the Expose trait's name field). This change restores D27 for D22's field without changing what D22 decided. `enhancement.yaml` declares both.
+Enhancement 0010 (additive-only within an apiVersion, supplier-at-or-above safety) and enhancement 0019 (the Service name is the Expose trait's name field). This change restores the additive-only rule for that field without changing what enhancement 0019 decided. The change declared both in an `enhancement.yaml` file, since retired.

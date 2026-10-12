@@ -1,8 +1,8 @@
 ## Why
 
-`opm` 4.3.0 renders `TransformerRegistration` claims with `apiVersion: opm.opmodel.dev/v1alpha1`. That group does not exist and never will: `opm-operator` owns the CRD, and its API group is the flat `opmodel.dev` that enhancement 0002 D5 chose, rejecting kind-specific and prefixed groups at the cost of a full cluster migration. The operator shipped the CRD as `opmodel.dev/v1alpha1` (`opm-operator` PR 133), so the renderer currently emits an object no cluster can accept.
+`opm` 4.3.0 renders `TransformerRegistration` claims with `apiVersion: opm.opmodel.dev/v1alpha1`. That group does not exist and never will: `opm-operator` owns the CRD, and its API group is the flat `opmodel.dev` that enhancement 0002 ("The operator Kubernetes API group is renamed to `opmodel.dev`") chose, rejecting kind-specific and prefixed groups at the cost of a full cluster migration. The operator shipped the CRD as `opmodel.dev/v1alpha1` (`opm-operator` PR 133), so the renderer currently emits an object no cluster can accept.
 
-The prefixed spelling was never a decision. It entered through the pre-drafted shape at `enhancements/0015/contracts/contracts.cue:145` and was implemented from there; D3, D9 and D12 name the kind, its scope, its RBAC gate and its name shape, and none of them names a group.
+The prefixed spelling was never a decision. It entered through the pre-drafted shape at line 145 of the pre-drafted `contracts/contracts.cue` of enhancement 0015 and was implemented from there; the decisions of that enhancement name the kind, its scope, its RBAC gate and its name shape, and none of them names a group.
 
 ## What Changes
 
@@ -56,7 +56,7 @@ _testTransformerRegistrationOutput: {
 
 ## Impact
 
-**Release class: `fix:`** — `opm` 4.3.0 → 4.3.1. A changed transformer output is normally not additive (Principle I), but this member is `v1alpha1`, and enhancement 0010 D34 keys the promise to the level: alpha carries **no compatibility promise**, and a build may change a value without bumping. This is the case D34 exists for, and it is the same reasoning the contract's own change recorded when it shipped ("both sides are `v1alpha1`, which promises nothing, so they can still move together").
+**Release class: `fix:`** — `opm` 4.3.0 → 4.3.1. A changed transformer output is normally not additive (Principle I), but this member is `v1alpha1`, and enhancement 0010 ("Contract API versions follow the Kubernetes ladder, and the promise is keyed to the level") keys the promise to the level: alpha carries **no compatibility promise**, and a build may change a value without bumping. This is the case that rule exists for, and it is the same reasoning the contract's own change recorded when it shipped ("both sides are `v1alpha1`, which promises nothing, so they can still move together").
 
 Downstream consumers, and what each does:
 
@@ -71,4 +71,4 @@ Relies on the v2 alpha line: no. `opm` is on the v4 line and this change does no
 
 ## Enhancement
 
-`enhancements/0015` D9 (the authoring surface: the contract and the transformer that renders the CR). This change corrects the group that slice emitted; it implements no new decision. Declared in `enhancement.yaml`.
+Enhancement 0015 (the authoring surface: the contract and the transformer that renders the CR). This change corrects the group that slice emitted; it implements no new decision. The change declared it in an `enhancement.yaml` file, since retired.

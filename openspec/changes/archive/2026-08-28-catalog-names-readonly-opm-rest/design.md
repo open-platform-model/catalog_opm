@@ -33,21 +33,21 @@ With Expose required, `expose.name` (`name!`, defaulted on the wrapper) is concr
 
 **D-B. Exact-name sites are audited, not rewritten.** `namespace` (externally referenced), `crd` (`<plural>.<group>`), the two webhook configurations (patched by name at runtime), `admission_policy` policy and binding names, `role` (Role, RoleBinding, ClusterRole, ClusterRoleBinding, all `_role.name`) and `sa_resource` (via `#ToK8sServiceAccount`, `sa_helpers.cue:27`) render authored names verbatim. `namespace` and the webhooks already carry an inline `// exact` comment; `crd`, `admission_policy`, `role` and `sa_helpers` gain one. `service` reads `expose.name` and is already compliant. `configmap` and `secret` emit content-hashed per-item names through `#ImmutableName` / `#SecretImmutableName`; `pvc` emits one prefixed name per persistent volume (`pvc_transformer.cue:57`); all three stay as they are.
 
-**D-C. Two rules become text.** In `docs/name-constraints.md`: (1) the read rule with the three carve-out classes from D15; (2) "never copy `resourceName` into a label value": `app.kubernetes.io/name` and the selector labels carry the component name (`#NameType`, ≤63 runes), never `resourceName` (≤253). `CLAUDE.md`'s Naming bullet gains one sentence pointing at both.
+**D-C. Two rules become text.** In `docs/name-constraints.md`: (1) the read rule with the three carve-out classes of enhancement 0019; (2) "never copy `resourceName` into a label value": `app.kubernetes.io/name` and the selector labels carry the component name (`#NameType`, ≤63 runes), never `resourceName` (≤253). `CLAUDE.md`'s Naming bullet gains one sentence pointing at both.
 
 ## Research & Decisions
 
 ### Which opm transformers still derive a primary name
-**Context**: D15 counted five formula shapes across the catalog.
+**Context**: enhancement 0019 counted five formula shapes across the catalog.
 **Explored**: `grep` for `#moduleInstanceMetadata.name)-` and `#WorkloadName` across `opm/transformers/*_transformer.cue` and the helper files (2026-08-27): seven workloads covered by the previous slice; routes and network_policy interpolate inline; seven exact; three secondary; `service` reads `expose.name`; `container_helpers`, `pod_helpers`, `sa_helpers` derive no primary name. Verified by a read-only sweep of all 20 transformer files.
 **Decision**: five transformers in scope, seven audited, three left derived, one already compliant.
-**Rationale**: matches D15's carve-out classes one to one.
+**Rationale**: matches the carve-out classes of enhancement 0019 one to one.
 
 ### Label-copy rule enforcement
-**Context**: D19 asks the sweep to turn "safe by construction" into a contract.
+**Context**: enhancement 0019 asks the sweep to turn "safe by construction" into a contract.
 **Explored**: `core/src/transformer.cue:173`, `componentLabels` are built from the component name; no catalog transformer writes `resourceName` into a label.
 **Decision**: a documented review rule, no structural guard.
-**Rationale**: CUE cannot forbid a string copy; the docs note plus catalog review is the enforcement D15 chose for the read rule too.
+**Rationale**: CUE cannot forbid a string copy; the docs note plus catalog review is the enforcement enhancement 0019 chose for the read rule too.
 
 ## Risks / Trade-offs
 

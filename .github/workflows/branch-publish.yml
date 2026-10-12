@@ -97,10 +97,10 @@ jobs:
       - name: Check catalog
         run: task check
 
-      # branch-tag.sh derives the deterministic -dev version (0011 D15 retains
-      # it unchanged). The version is written into the WORKING TREE only — the
-      # runner's checkout, never a commit — because publish asserts that the
-      # pushed tag equals the tree's own declared Version (D18); a --version
+      # branch-tag.sh derives the deterministic -dev version, and enhancement
+      # 0011 keeps it unchanged. The version is written into the WORKING TREE
+      # only — the runner's checkout, never a commit — because publish asserts that the
+      # pushed tag equals the tree's own declared Version; a --version
       # flag diverging from the committed release version would be a refusal.
       #
       # branch-tag.sh takes the module directory (src) and the release-please

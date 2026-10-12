@@ -180,6 +180,14 @@ tasks:
     cmds:
       - bash .tasks/doc-check.sh "{{.MODULE_DIR}}" --strict
 
+  ## OpenSpec
+
+  openspec:check:
+    desc: Check that every active change declares its durable decisions and that each target file exists, and test that check
+    cmds:
+      - bash .tasks/openspec-check.sh .
+      - bash .tasks/openspec-check-test.sh
+
   ## Publishing
   #
   # Publishing goes through `opm catalog publish` (enhancement 0011) and is
@@ -276,7 +284,7 @@ tasks:
   ## Aggregate
 
   check:
-    desc: Format check, vet, listing, descriptions, rendered-output fixtures, fixture tags, INDEX freshness, the kind table generator tests, the docs bundle check, doc-comment report, and the cascade wiring check
+    desc: Format check, vet, listing, descriptions, rendered-output fixtures, fixture tags, INDEX freshness, the kind table generator tests, the docs bundle check, doc-comment report, the durable-decisions check, and the cascade wiring check
     cmds:
       - task: fmt:check
       - task: vet
@@ -288,4 +296,5 @@ tasks:
       - task: test:kindgen
       - task: docs:bundle:check
       - task: docs:check
+      - task: openspec:check
       - task: cascade:wiring:check

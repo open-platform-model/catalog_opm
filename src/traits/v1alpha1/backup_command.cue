@@ -10,7 +10,7 @@ import (
 // to the volumes resource and the command applies to the container resource,
 // and a module may want either without the other. Provider-fulfilled like
 // the policy: this catalog declares it and ships no transformer, not even a
-// stub (0010 D37).
+// stub (enhancement 0010).
 
 // A backup taken by running a command whose standard output is the backup
 // artefact. The command owns its own quiesce. Renders nothing here; a
@@ -30,7 +30,7 @@ import (
 
 	fulfilment: "provider"
 
-	// Load-bearing posture (0010 D46): an unhandled command means the
+	// Load-bearing posture (enhancement 0010): an unhandled command means the
 	// artefact is never written. A module may narrow it at the attachment
 	// site.
 	optional: bool | *false

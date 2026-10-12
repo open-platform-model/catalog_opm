@@ -55,7 +55,7 @@ No member's shape changes. The published change is metadata text and doc comment
 
 ## Impact
 
-- **Consumers.** No module, platform or `cli` fixture has to do anything. `metadata.description` is on the compatibility gate's provenance denylist (0010:D30), so a changed description is not a contract change, and no matcher reads it.
+- **Consumers.** No module, platform or `cli` fixture has to do anything. `metadata.description` is on the compatibility gate's provenance denylist (enhancement 0010, "Provenance is excluded by a Go-side operand filter over a fixed denylist"), so a changed description is not a contract change, and no matcher reads it.
 - **Release class.** Section 1 is `fix(catalog):`: it changes published text in both modules, so `opm` (stable) cuts a patch and `k8s` (beta) advances `-beta.N`. Sections 2 and 3 touch nothing under `opm/` or `k8s/` and release nothing. No member moves to a new `apiVersion` segment, and nothing is breaking.
 - **Site.** `/docs/reference/catalog-members/` keeps its URL as a section page. Two HTML planning comments in this repo's authoring guides point at the old file path and are updated; the same pointers in `opm` (`your-first-module.md`, `glossary.md`) are outside this repository and stay as they are until opm edits them. The stub's "each entry pointing at the abstraction that covers it" on `kubernetes-resources.md` is dropped (design.md, No covering-abstraction column).
 - **Toolchain.** `task check` now needs Go to run the staleness check. CI installs it from `tools/refgen/go.mod`.
@@ -63,4 +63,4 @@ No member's shape changes. The published change is metadata text and doc comment
 
 ## Enhancement
 
-None. The rules come from the owner's 2026-10-02 decisions in the workspace `STYLE.md` ("Site Pages"); enhancement 0018, which first described generated reference, was rejected. The enforcement facts the pages state cite 0010:D28, 0010:D32 and 0010:D37.
+None. The rules come from the owner's 2026-10-02 decisions in the workspace `STYLE.md` ("Site Pages"); enhancement 0018, which first described generated reference, was rejected. The enforcement facts the pages state cite enhancement 0010 ("An unresolved primitive demand is an error; a trait's optionality is stated by its catalog and overridden by the attachment", "Two providers supplying one contract is a materialize-time error" and "A contract declares where its fulfilment comes from, and a provider-fulfilled contract admits exactly one provider").

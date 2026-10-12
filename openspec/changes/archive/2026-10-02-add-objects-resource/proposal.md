@@ -89,7 +89,7 @@ A module author writes:
 
 ## Impact
 
-- **Release class.** `feat(resources)`: `opm` is on its stable line (major `@v4`) and takes a minor, `4.5.0`. No member moves to a new `apiVersion` segment; the new member starts at `v1alpha1`, where alpha promises nothing (0010 D34).
+- **Release class.** `feat(resources)`: `opm` is on its stable line (major `@v4`) and takes a minor, `4.5.0`. No member moves to a new `apiVersion` segment; the new member starts at `v1alpha1`, where alpha promises nothing (enhancement 0010, "Contract API versions follow the Kubernetes ladder, and the promise is keyed to the level").
 - **`modules` fleet and `opm-modules`.** Nothing to do. None imports the k8s catalog (checked 2026-10-02). A module that needs a custom resource can adopt `#Objects` after it pins `4.5.0`.
 - **Subscribing platforms.** A platform on `opmodel.dev/catalogs/opm@v4` gains the contract when it re-pins to `4.5.0`; nothing else changes.
 - **`cli` fixtures under `testing.opmodel.dev`.** None reached.
