@@ -32,7 +32,10 @@ unset CASCADE_RESOLVER CASCADE_ALLOW_DIRTY CASCADE_EXPECT CASCADE_SOURCE CASCADE
   CASCADE_WARNINGS CASCADE_STUB_TABLE CASCADE_STUB_LOG CASCADE_BASE
 export CASCADE_TODAY=2026-10-03
 
-GIT=(git -c user.name=cascade-test -c user.email=cascade-test@localhost -c init.defaultBranch=main)
+# Auto maintenance and gc are off: a sandbox commit would start a detached `git maintenance run --auto`
+# whose repack races the EXIT trap below ("rm: Directory not empty").
+GIT=(git -c user.name=cascade-test -c user.email=cascade-test@localhost -c init.defaultBranch=main
+  -c maintenance.auto=false -c gc.auto=0)
 
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
