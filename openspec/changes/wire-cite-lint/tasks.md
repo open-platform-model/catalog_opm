@@ -10,5 +10,5 @@
 
 ## 3. Verify and archive
 
-- [ ] 3.1 `task cite-lint`, `task check`, `openspec validate wire-cite-lint --strict`, actionlint, zizmor.
-- [ ] 3.2 Review, fix, archive.
+- [x] 3.1 `task cite-lint`, `task check`, `openspec validate wire-cite-lint --strict`, actionlint, zizmor.
+- [x] 3.2 Review, fix, archive.

@@ -24,8 +24,9 @@
   SHA-pinned actions may come before it. The step runs `task openspec:check`, which is offline.
 - **Pin move.** All five `.github` references and the check copy move together in one `ci(deps)`
   commit, as earlier pin moves did. Between `0f9c6ac2` and `2b66da51` the cascade scripts changed
-  only to accept `opm-controller` as a source name and a tag prefix; nothing here uses it, and the
-  wiring check gains the `cite-lint` kind.
+  to accept `opm-controller` as a source name and a tag prefix (the cascade receive here now also
+  reads opm-controller releases, one more API call per run) and the wiring check gains the
+  `cite-lint` kind.
 
 ## Risks / Trade-offs
 
