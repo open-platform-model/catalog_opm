@@ -302,7 +302,7 @@ tasks:
   ## Aggregate
 
   check:
-    desc: Format check, vet, listing, descriptions, rendered-output fixtures, fixture tags, INDEX freshness, the kind table generator tests, the docs bundle check, doc-comment report, the durable-decisions check, the comment rule, and the cascade wiring check
+    desc: Format check, vet, listing, descriptions, rendered-output fixtures, fixture tags, INDEX freshness, the kind table generator tests, the docs bundle check, doc-comment report, the durable-decisions check, and the cascade wiring check
     cmds:
       - task: fmt:check
       - task: vet
@@ -315,5 +315,4 @@ tasks:
       - task: docs:bundle:check
       - task: docs:check
       - task: openspec:check
-      - task: cite-lint
       - task: cascade:wiring:check

@@ -18,6 +18,7 @@
 - **One tool commit in the task.** `CITE_LINT_REF` in `Taskfile.yml` is the commit that
   `cite-lint.yml` uses as its `enh-ref` default. The wiring check does not compare the two; a
   comment in the Taskfile names the workflow.
+- **Not in `task check`.** `task check` leaves cite-lint out because the tool needs Go 1.26.9 and the repo's Go is older; CI runs it through `cite-lint.yml`.
 - **Separate job, not a step.** A reusable workflow is a job. It runs in parallel with the
   `Validate catalog` job and needs no registry.
 - **`openspec:check` as a step** after the wiring check, because the wiring check says only
