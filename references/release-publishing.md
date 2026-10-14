@@ -4,14 +4,13 @@ Covers how the catalog is released and published: release-please, the identity v
 
 ## Release flow
 
-- The module is one release-please package. Its path is `src`, its component is `opm`. Tags are `opm-vX.Y.Z`, the release branch is `release-please--branches--main--components--opm`, and the changelog is the root `CHANGELOG.md`.
+- Tags are `opm-vX.Y.Z`, the release branch is `release-please--branches--main--components--opm`, and the changelog is the root `CHANGELOG.md`.
 - Other tags stay: the retired `k8s` module's `k8s-vX.Y.Z` and the older bare `vX.Y.Z` (an earlier line of the catalog). Only `opm-v*` tags are releases of this module.
 - release-please (`release.yml`, release type `simple`) opens and updates the release PR. The same workflow then runs `opm catalog version set` on that release branch, so the PR carries the next `identity.Version`. The `chore: advance opm identity.Version to <v>` commit holds the identity file alone. The write needs no registry. Merging the PR tags the component and creates the GitHub Release.
-- Merge a release PR only when its head is the `chore: advance opm identity.Version to <v>` commit and the CI run dispatched on that head has passed: `gh pr merge <N> --squash --body '' --match-head-commit <sha>`, never `--admin`. An earlier head tags a tree whose identity still declares the previous version. `publish-cue` refuses the mismatch and the version is burned with nothing on GHCR.
 - The `publish-cue` job, gated on release-please's `src--release_created`, runs `opm catalog publish ./src --version <version>` against `ghcr.io/open-platform-model`. It runs in the workflow run that the human merge triggers, which avoids GitHub's `GITHUB_TOKEN` tag-trigger suppression. `--version` is an assertion against the version the release PR wrote: a mismatch refuses, it never overwrites.
 - After the push, the separate `verify-published` job runs `opm catalog registry check --compat` on the pushed build. It is an aid, not a gate (enhancement 0011, a published catalog can be verified out of band). It runs only when `publish-cue`'s `published` output is `true`, a finding fails only that job, and it is never a `needs` of `publish-docs` or of the notify job. Keep it out of `publish-cue`: a failing step there after the push would hide that the module shipped.
 - `ci.yml` runs the publish gates as a dry run on every PR (`opm catalog publish ./src --dry-run`). Already-published as the only refusal is tolerated, because outside a release the committed version is usually live. The tolerance keys on a refusal count, so never concatenate its output with another run's.
-- The module root carries `src/RELEASE`, one line `<version> # x-release-please-version`, rewritten by release-please through `extra-files`. It makes every release PR touch a file under the package path. release-please ignores files outside that path, and a release merge commit with no module file breaks the next-release commit boundary: measured 2026-08-31, it produced a bogus "release opm 2.0.0" PR right after `opm-v3.0.0`. Never delete or hand-edit it. It ships in the published artifact and is otherwise inert.
+- `src/RELEASE` is one line, `<version> # x-release-please-version`, rewritten by release-please through `extra-files`.
 
 ## Failed gate, burned version, skipped version
 
@@ -31,7 +30,6 @@ Covers how the catalog is released and published: release-please, the identity v
 - `secrets.RELEASE_APP_PRIVATE_KEY` is read only by the `release-please` job, which declares `environment: release` (deploys from `main` only). Never read it in another job or without that Environment (owner decisions 29 and 30).
 - Every workflow declares top-level `permissions:` (`{}`, or `contents: read` where every job only reads). Each job that needs more grants it itself, traced to a step. `release-please` holds `contents: read`, `packages: read` (GHCR login for the fixture gate) and `actions: write` (`gh workflow run ci.yml`), because its git and PR writes use the App token. `publish-cue` and `branch-publish` hold `contents: read` and `packages: write`. `Validate catalog` holds `contents: read` and `packages: read`. The repo default token is read-only, so a job that forgets a grant fails.
 - Every checkout sets `persist-credentials: false`. The identity advance, the one push, passes the App token to its own `git fetch` and `git push` as a per-command `http.extraheader` and unsets it before opm runs.
-- No Actions cache in a job that publishes (`release.yml`, `branch-publish.yml`, `docs.yml`): `actions/setup-go` sets `cache: false` and no `actions/cache` step or `type=gha` cache is added. A restored cache is an input nobody verifies. `ci.yml` may cache: it publishes nothing and holds no write grant.
 - `.github/CODEOWNERS` names the one maintainer for `.github/`, `.tasks/`, `Taskfile*.yml` and the release-please files. Owner decision 28 has the `main` ruleset require a code owner's review there; it is switched off while OPM is in beta.
 - `.github/dependabot.yml` bumps the SHA-pinned actions weekly as `ci` PRs, proposes no release younger than seven days (`cooldown`), and ignores `open-platform-model/docs-kit*` (moves with `.opm-docs-version`) and `open-platform-model/.github*` (moves by the cascade pin PR).
 - The G1 release-pin gate (`task deps:release-check`) runs inside the required `Validate catalog` job when `github.head_ref || github.ref_name` starts with `release-please--`. That covers the `pull_request` run and the run `release.yml` dispatches onto the release branch, where `head_ref` is empty. It is a step, never its own job: a job skipped by its `if:` reports as passing.
@@ -56,12 +54,10 @@ Covers how the catalog is released and published: release-please, the identity v
 
 ## Pitfalls
 
-- Merging a release PR whose head is not the advance commit: the tag is on a tree with the old identity and the version is burned.
-- Running the workspace `deps:update` or `deps:pins:opm-cli` and calling it a cascade: it ignores holds (see the cascade file).
+- Running the workspace `deps:update` or `deps:pins:opm-cli` and calling it a cascade: it ignores `.cascade-hold` and `.cascade-frozen`.
 - Leaving `autorelease: pending` on a merged release PR after a failed fixture gate: the fix run tags the broken tree.
 - Fixing a burned or skipped version with a hidden commit: no release PR opens. The fix touches `src/` as `feat`, `fix`, `perf` or `revert`.
 - Leaving `release-as` or `last-release-sha` in the config after the release is cut: it pins every later release.
-- Re-deriving the tag prefix from the directory (`src`): the prefix is the component `opm`.
 
 ## Check before you finish
 

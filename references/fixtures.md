@@ -1,10 +1,10 @@
 # Transformer fixtures and the rendered-output gate
 
-Covers where a transformer fixture lives, how it is built so that it evaluates, why `cue vet` alone is not enough, and the gates `task vet:fixtures` and `task vet:fixtures:tagged`. Naming, listing and struct-disjunction rules for members are in a separate file.
+Covers where a transformer fixture lives, how it is built so that it evaluates, why `cue vet` alone is not enough, and the gates `task vet:fixtures` and `task vet:fixtures:tagged`. 
 
 ## Where a fixture lives
 
-- A fixture lives in `<name>_fixtures.cue` beside the member's file. The file opens with the file attribute `@if(fixtures)` above the package clause. It never goes in the definition file and never in a `_test.cue` file.
+- A fixture lives in `<name>_fixtures.cue` beside the member's file. The file attribute `@if(fixtures)` above the package clause keeps it out of a plain build. It never goes in the definition file and never in a `_test.cue` file.
 - A plain build (every consumer, an editor, `cue vet ./...`) leaves tagged files out, and a tag never reaches a consumer: the loader treats every tag as unset outside the main module.
 - The cue CLI has no test mode, so it silently drops `x_test.cue` from `cue vet ./...` and the fixtures there would never be checked.
 - `task vet:fixtures:tagged` (`.tasks/fixture-tags.sh`) refuses a top-level `_test*` field in a file whose `@if(fixtures)` line is missing, commented out or compound. It is text only and offline. CI runs it in `Validate catalog` before the registry login.
@@ -25,7 +25,6 @@ Covers where a transformer fixture lives, how it is built so that it evaluates, 
 - `cue vet` does not catch the wrong spelling: the failure is incomplete-class. Measured 2026-09-14 (cue v0.17.1): export fails with `#moduleInstance.metadata undefined as #moduleInstance is incomplete (type _)` while `cue vet` exits 0. Working examples: `src/transformers/transformer_registration_transformer_fixtures.cue` and `src/transformers/pvc_transformer_fixtures.cue`.
 - The component fixture, not the context, carries the component's name. `#context.componentLabels` reads `#component.metadata.name`, so a component stub with no `metadata.name` fails export with `required field missing: name`. Do not put it back on the context as `#componentMetadata`.
 - A nested `#transform` inside a guard field needs `#moduleInstance` too. The gate's selector enumerates only top-level fixtures, so a guard such as `[if (#X.#transform & {...}).output.spec.replicas != _|_ {...}] & [3]` passes vacuously when its inner transform is incomplete. Supply the input at every call site.
-- Every transformer's fixture set includes one embedded-form component (`{res.#X, ...}`). The rule for struct disjunctions is in the authoring-rules file.
 
 ## Golden literals
 

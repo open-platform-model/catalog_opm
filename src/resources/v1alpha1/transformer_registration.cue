@@ -78,8 +78,8 @@ import (
 // break the gate. Do not add one.
 //
 // WHY this catalog cannot exercise the helper on itself: a provider-fulfilled
-// member ships no transformer here, and never a stub (CLAUDE.md, Working
-// Style), so no opm transformer requires a provider-fulfilled contract and
+// member ships no transformer here, and never a stub (AGENTS.md,
+// Repository rules), so no opm transformer requires a provider-fulfilled contract and
 // the provider set of opm's own #transformers is empty. That is the
 // correct result for opm; the helper exists for a PROVIDER catalog to
 // instantiate, and the fixtures in transformers/ supply synthetic input.

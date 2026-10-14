@@ -26,11 +26,11 @@ Release-please keeps `versioning: prerelease` with `prerelease: false` on `main`
 - The `vet:listing` gate keys on a member's `fqn` field, not on its location. A definition with no `fqn` is not a member and gets no `catalog.cue` entry.
 - A provider-fulfilled member (`fulfilment: "provider"`) ships no transformer here, and never a stub. A stub would make `opm@v4` a provider and break the contract for any real provider elsewhere.
 - Never hand-edit `Version` in `src/identity/identity.cue`, `apiVersion`, `catalogVersion` or `fqn` to chase a release. `release.yml` writes `Version` on the release PR with `opm catalog version set`.
-- Merge a catalog release PR only when its head is the `chore: advance opm identity.Version to <v>` commit and CI has passed on that head. An earlier head burns the version.
+- Merge a catalog release PR only when its head is the `chore: advance opm identity.Version to <v>` commit and CI has passed on that head: `gh pr merge <N> --squash --body '' --match-head-commit <sha>`, never `--admin`. An earlier head burns the version.
 - The opm CLI that CI installs is pinned in `.opm-cli-version` and nowhere else. No version literal for it goes under `.github/workflows/`.
-- Never delete or hand-edit `src/RELEASE`. It makes every release PR touch a file under the package path.
+- Never delete or hand-edit `src/RELEASE`. It makes every release PR touch a file under the package path. Without it a release merge commit can touch no module file, which breaks the next-release commit boundary (measured 2026-08-31: a bogus "release opm 2.0.0" PR right after `opm-v3.0.0`).
 - No Actions cache in a job that publishes (`release.yml`, `branch-publish.yml`, `docs.yml`).
-- A fixture lives in a `<name>_fixtures.cue` file that opens with `@if(fixtures)`. `cue vet` passes a fixture that stays incomplete, so `task vet:fixtures` is the real gate.
+- A fixture lives in a `<name>_fixtures.cue` file that opens with `@if(fixtures)`, so a plain build and every consumer leave it out. `task vet:fixtures` is the gate that makes it concrete.
 - Pin `language: version: "v0.17.0"` in `src/cue.mod/module.cue`. It is a consumer floor, not a toolchain pin.
 - Keep `src/INDEX.md` in sync when a definition or the module tree changes: run `task generate:index` and review the output.
 - Non-trivial catalog work goes through OpenSpec with the project-local `catalog-change` schema: proposal, design, tasks. It has no specs artifact by design: there is no `openspec/specs/` and no `specs/` inside a change, and each change's `.openspec.yaml` carries `skip_specs: true`. The definition is the spec.
@@ -104,8 +104,6 @@ CHANGELOG.md             release notes, outside the module root so they do not s
 ## Style
 
 - Follow the CUE style used across the workspace catalogs and the workspace `STYLE.md`.
-- A doc comment is at most 6 lines. Rationale goes in a `// WHY` block above it, separated by one blank line.
-- A member's `metadata.description` is the first sentence of its doc comment.
-- Do not hard-wrap prose in `.md` files.
+- A doc comment is at most 6 lines (`task docs:check` fails on more). Rationale goes in a `// WHY` block above it.
 
 @CONTEXT.md

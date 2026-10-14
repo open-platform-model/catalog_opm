@@ -9,9 +9,9 @@ set -euo pipefail
 #
 #   1. the "## Durable decisions" section must exist;
 #   2. HTML comments are removed first, so the unfilled template (a comment only) is empty;
-#   3. if what is left is not "None.", it must name a target: a path under docs/ or references/, AGENTS.md,
+#   3. if what is left is not "None.", it must name a target: a path under docs/ or references/,
 #      or the words "stays with the change";
-#   4. every docs/... path it names, in backticks or not, must exist in the tree.
+#   4. every docs/... or references/... path it names, in backticks or not, must exist in the tree.
 #
 # Run from the repo root, or pass the root as the first argument.
 
@@ -61,7 +61,7 @@ for design in "$root"/openspec/changes/*/design.md; do
         continue ;;
   esac
 
-  if ! printf '%s\n' "$section" | grep -q -E 'AGENTS\.md|docs/|references/|stays with the change'; then
+  if ! printf '%s\n' "$section" | grep -q -E 'docs/|references/|stays with the change'; then
     echo "openspec-check: $change: 'Durable decisions' names no target (docs/<note>.md, references/<topic>.md or 'stays with the change')" >&2
     fail=1
   fi

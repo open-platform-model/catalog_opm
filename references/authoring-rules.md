@@ -1,6 +1,6 @@
 # Authoring rules for catalog members
 
-Covers how to file, list, name and write a catalog member: version-segment filing, the listing rule, identity and version, name constraints, struct disjunctions, the `if` guard pitfall, provider-fulfilled members, and the Kubernetes kind table behind `objects@v1alpha1`. Fixtures, doc comments and descriptions are in separate files.
+Covers how to file, list, name and write a catalog member: version-segment filing, the listing rule, identity and version, name constraints, struct disjunctions, the `if` guard evidence, provider-fulfilled members, and the Kubernetes kind table behind `objects@v1alpha1`.
 
 ## Version-segment filing
 
@@ -19,17 +19,15 @@ Covers how to file, list, name and write a catalog member: version-segment filin
 - Use one import alias per version segment directory and group `v1alpha1` members last, in alphabetical order.
 - Listing is what makes a contract visible to a subscribing platform (enhancement 0015, `#Catalog` publishes its contracts as members). A provider-fulfilled trait is therefore listed here and implemented nowhere here.
 - `task vet:listing` diffs all four maps against the members filed under `src/<kind>/`, and fails naming the missing or extra key. Transformer keys are build-scoped, so they are compared with `id.Version` resolved. A new member's checklist gains the entry.
-- The gate keys on a member's `fqn` field, not on its location. `.tasks/listing.sh` builds the expected set by grepping for `fqn:` under each kind directory. A definition filed under `<kind>/<apiVersion>/` that declares no `fqn` is deliberately not a member, needs no `catalog.cue` entry, and must not be given one. `#PreBoundRegistration` in `src/resources/v1alpha1/transformer_registration.cue` is the case that exists.
 
 ## Identity and version
 
 - `src/identity/identity.cue` is the single source of the catalog's identity (enhancement 0010, identity lives in a committed `identity.cue`, located by schema path).
 - `ModulePath` carries the full module path with major (`opmodel.dev/catalogs/opm@v4`). `kindPrefix` derives the per-kind package paths that every member's `metadata.modulePath` and authored `fqn` use.
-- `Version` is committed as the real release version, as a CUE default. That is the shape `opm catalog version set` preserves byte for byte around the value. release-please decides the next version, and `release.yml` writes it onto the release PR through `opm catalog version set`. Never hand-edit it.
+- `Version` is committed as the real release version, as a CUE default. That is the shape `opm catalog version set` preserves byte for byte around the value. release-please decides the next version, and `release.yml` writes it onto the release PR through `opm catalog version set`.
 - Transformers interpolate `Version` into their build-keyed fqn (`.../transformers/<name>@<version>`). Primitives key their fqn by their own `apiVersion` (`.../resources/<name>@v1beta1`), which a release does not move.
 - Publishing goes through `opm catalog publish ./src` (enhancement 0011). It validates the identity package against core's `#IdentityPackage` and runs every publish gate: member FQN, trait posture, already-published, level-aware compatibility. It pushes the committed tree exactly, with no build directory and no version override.
 - On a release the workflow passes `--version` as an assertion. Branch builds first stamp the `-dev.*` version into CI's working tree with `opm catalog version set`, a checkout write and never a commit.
-- Never hand-edit `apiVersion`, `catalogVersion` or `fqn` to chase a release. Only a primitive's own breaking shape change moves its `apiVersion`, and with it the contract key.
 
 ## Name constraints and struct disjunctions
 
@@ -40,16 +38,14 @@ Covers how to file, list, name and write a catalog member: version-segment filin
 
 ## The `if` guard pitfall
 
-- Never place an `if spec.<nested>.<field> != _|_` guard inside a component's `spec` block when `<field>` is struct- or list-valued. Hoist it to component level: `if ... { spec: <field>: ... }`.
-- The in-spec form trips a CUE evaluator closedness regression ("field not allowed") present from `v0.17.0-alpha.2` onward. It is still unfixed in `v0.17.1`, the version this repo's CI uses. The hoisted form is load-bearing: do not "modernize" it away. See `docs/cue-guard-closedness-workaround.md`.
+- The hoisted form is `if ... { spec: <field>: ... }` at component level (the rule is in AGENTS.md).
+- The in-spec form trips a CUE evaluator closedness regression ("field not allowed") present from `v0.17.0-alpha.2` onward and unfixed in `v0.17.1`, the version this repo's CI uses. See `docs/cue-guard-closedness-workaround.md`.
 
 ## Provider-fulfilled members
 
-- A member declaring `fulfilment: "provider"` (enhancement 0010, a provider-fulfilled contract admits exactly one provider) ships no transformer here, and never a stub.
+- A member declaring `fulfilment: "provider"` (enhancement 0010, a provider-fulfilled contract admits exactly one provider) is listed here and implemented elsewhere (the no-stub rule is in AGENTS.md).
 - A platform carries exactly one provider of such a contract. A provider is an enabled registry entry (catalog path with its major, `opmodel.dev/catalogs/opm@v4`) whose transformers require it (core `SPEC.md` sections 2.1 and 3.4, `#contracts.providedBy`). Two transformers of one entry are one provider; two majors of one catalog are two.
-- A stub transformer here would make `opm@v4` a provider. The first real one in another catalog would become the second, and the render would refuse the contract as over-subscribed.
 - Until a platform carries an adapter, attaching the contract refuses the render naming it (enhancement 0010, an unresolved primitive demand is an error). That refusal is the designed behaviour, not a gap to paper over.
-- Listing the member in `catalog.cue` is the whole of this repo's obligation.
 
 ## The escape hatch and the kind table
 
@@ -64,11 +60,7 @@ Covers how to file, list, name and write a catalog member: version-segment filin
 ## Pitfalls
 
 - A string-literal key in a catalog map: use `(pkg.#X.metadata.fqn)`.
-- Giving a no-fqn definition a `catalog.cue` entry.
-- Putting an `if` guard inside `spec` for a struct- or list-valued field.
-- Adding a stub transformer for a provider-fulfilled contract.
 - Bumping the x/k8s.io pin without `KUBERNETES_VERSION` and `task generate:kinds`.
-- Hand-editing `Version`, `apiVersion` or `fqn` to chase a release.
 - Deriving the file location from the fqn: the segment never enters the fqn.
 
 ## Check before you finish
