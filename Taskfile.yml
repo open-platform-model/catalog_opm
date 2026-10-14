@@ -211,7 +211,7 @@ tasks:
   # Publishing goes through `opm catalog publish` (enhancement 0011) and is
   # CI-only: release.yml publishes releases, branch-publish.yml publishes
   # -dev.* branch builds. There is deliberately no publish task here — a local publish is a gated exception
-  # (Registry Policy rule 2, root AGENTS.md) and requires explicitly pointing
+  # (workspace references/registry.md) and requires explicitly pointing
   # opm at the local registry, e.g.
   #   OPM_REGISTRY='opmodel.dev/catalogs=localhost:5000+insecure,opmodel.dev=ghcr.io/open-platform-model,registry.cue.works' \
   #     opm catalog publish ./src
