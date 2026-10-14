@@ -9,7 +9,7 @@ set -euo pipefail
 #
 #   1. the "## Durable decisions" section must exist;
 #   2. HTML comments are removed first, so the unfilled template (a comment only) is empty;
-#   3. if what is left is not "None.", it must name a target: a path under docs/, AGENTS.md,
+#   3. if what is left is not "None.", it must name a target: a path under docs/ or references/, AGENTS.md,
 #      or the words "stays with the change";
 #   4. every docs/... path it names, in backticks or not, must exist in the tree.
 #
@@ -61,21 +61,21 @@ for design in "$root"/openspec/changes/*/design.md; do
         continue ;;
   esac
 
-  if ! printf '%s\n' "$section" | grep -q -E 'AGENTS\.md|docs/|stays with the change'; then
-    echo "openspec-check: $change: 'Durable decisions' names no target (docs/<note>.md, AGENTS.md or 'stays with the change')" >&2
+  if ! printf '%s\n' "$section" | grep -q -E 'AGENTS\.md|docs/|references/|stays with the change'; then
+    echo "openspec-check: $change: 'Durable decisions' names no target (docs/<note>.md, references/<topic>.md or 'stays with the change')" >&2
     fail=1
   fi
 
   while IFS= read -r path; do
     path="$(printf '%s' "$path" | sed -E 's/[.,;:)]+$//')"
     case "$path" in
-      docs|docs/|'') continue ;;  # a bare directory or a placeholder such as docs/<note>.md
+      docs|docs/|references|references/|'') continue ;;  # a bare directory or a placeholder such as docs/<note>.md
     esac
     if [ ! -e "$root/$path" ]; then
       echo "openspec-check: $change: 'Durable decisions' names $path, which does not exist" >&2
       fail=1
     fi
-  done < <(printf '%s\n' "$section" | grep -o -E 'docs/[A-Za-z0-9_./-]*' | sort -u || true)
+  done < <(printf '%s\n' "$section" | grep -o -E '(docs|references)/[A-Za-z0-9_./-]*' | sort -u || true)
 done
 
 exit "$fail"

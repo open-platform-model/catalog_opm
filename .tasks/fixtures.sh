@@ -22,7 +22,7 @@ export LC_ALL=C
 # 44 of the 47 rendered-output fixtures in the opm catalog's transformers/
 # failed export while `cue vet ./...` exited 0. `cue export -e <field>` forces
 # concreteness and is what makes the golden literals load-bearing. See
-# AGENTS.md, Working Style.
+# references/fixtures.md.
 #
 # WHY only this declaration form: sweeping every hidden `_test*` field reports
 # ~92 failures in opm, most of them component fixtures (`_test*Component`) whose
@@ -34,7 +34,7 @@ export LC_ALL=C
 # WHY -t fixtures: fixtures live in `<name>_fixtures.cue` files that open with
 # the file attribute `@if(fixtures)`, so a plain build (a consumer, an editor,
 # `cue vet ./...`) never loads them. Without the tag every field here is
-# "not found". See .tasks/fixture-tags.sh and AGENTS.md, Working Style.
+# "not found". See .tasks/fixture-tags.sh and references/fixtures.md.
 #
 # Usage (run from the repo root):
 #   bash .tasks/fixtures.sh <module_dir>      # src

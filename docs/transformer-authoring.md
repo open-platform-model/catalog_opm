@@ -141,6 +141,6 @@ scope Kubernetes accepts it at carries it:
 - **Container scope:** `#ToK8sContainer` in `container_helpers.cue`, which renders main,
   init and sidecar containers alike.
 
-Assert each scope with a presence-list guard (AGENTS.md, the fixture bullets), and give
+Assert each scope with a presence-list guard (references/fixtures.md), and give
 the pod-level fixture the new field and no other pod-level field, so the presence guard
 itself is under test.
