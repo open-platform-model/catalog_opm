@@ -75,7 +75,7 @@ jobs:
       # in release-please-config.json to the skipped PR's merge commit. Without
       # it release-please finds no tag for the manifest version, walks back to
       # bootstrap-sha and proposes a major bump. Drop the key in the PR after
-      # the next release; see AGENTS.md, Release & publishing. publish-cue
+      # the next release; see references/release-publishing.md. publish-cue
       # re-runs this check on the tag as a backstop for a missed label.
       - name: Setup CUE
         uses: cue-lang/setup-cue@a93fa358375740cd8b0078f76355512b9208acb1 # v1.0.1
@@ -245,8 +245,8 @@ jobs:
       # re-run this job. Only when a fixture itself fails is the version
       # burned; the fix must then be a feat/fix/perf/revert commit under src/.
       # A burned version has its Release, so no last-release-sha is needed
-      # (that remedy is for a skipped version); see AGENTS.md, Release &
-      # publishing.
+      # (that remedy is for a skipped version); see
+      # references/release-publishing.md.
       - name: Setup CUE
         uses: cue-lang/setup-cue@a93fa358375740cd8b0078f76355512b9208acb1 # v1.0.1
         with:

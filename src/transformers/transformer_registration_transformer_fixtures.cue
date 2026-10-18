@@ -26,7 +26,7 @@ _testTransformerRegistrationComponent: res.#TransformerRegistration & {
 // computed at the #transform site, so filling it directly leaves
 // #moduleInstance at `_` and the output never becomes concrete. `cue vet`
 // stays green either way (the failure is incomplete-class), which is why the
-// check that matters is `cue export`. See CLAUDE.md § Working Style.
+// check that matters is `cue export`. See references/fixtures.md.
 _testTransformerRegistrationOutput: (#TransformerRegistrationTransformer.#transform & {
 	#moduleInstance: {
 		metadata: {

@@ -138,7 +138,7 @@ _testObjectsOwnNamespaceTransformer: [
 	{kind: "Issuer", metadata: {name: "ca", namespace: "cert-manager"}},
 ]
 
-// Embedded form (AGENTS.md, Struct disjunctions): the wrapper embedded rather
+// Embedded form (references/authoring-rules.md, Struct disjunctions): the wrapper embedded rather
 // than unified, with a custom resource taking the instance namespace.
 _testObjectsEmbeddedComponent: {
 	res.#Objects
