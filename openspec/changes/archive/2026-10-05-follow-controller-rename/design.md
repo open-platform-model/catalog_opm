@@ -43,7 +43,7 @@ version from `testdata/parity/cue.mod/module.cue` and holds no versioned literal
 - **Hidden commit types.** The edits are comments, so `docs` is the honest class; a `fix:` to force a
   release would publish an `opm` version whose only change is wording. The text batches with the next
   functional change instead.
-- **Cite as `0015:D3`** on the touched line, per the workspace reference format. Untouched citations
+- **Cite as `(enhancement 0015)`** on the touched line, per the workspace reference format. Untouched citations
   on neighbouring lines are left for their own change.
 
 ## Risks / Trade-offs

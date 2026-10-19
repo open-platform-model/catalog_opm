@@ -1,14 +1,14 @@
 ## Why
 
 The Kubernetes controller `opm-operator` is renamed `opm-controller` (repo, image, namespace, CUE module,
-CLI noun; enhancement 0032, "The Operator Becomes the Controller", 0032:D1). The
+CLI noun). The
 owner decided there is no migration and no trace of the old name: every live reference follows. This
 catalog names the controller in six places, all comments or prose.
 
 ## What Changes
 
 - **`src/transformers/transformer_registration_transformer.cue`**: the WHY block above the GVK literals
-  says the CRD is owned by `opm-controller` (citing 0015:D3) and that the controller's
+  says the CRD is owned by `opm-controller` (citing enhancement 0015) and that the controller's
   `TransformerRegistration` CRD must match. The member's doc comment says the controller accepts the
   claim.
 - **`src/transformers/transformer_registration_transformer_fixtures.cue`**: the order-pinning comment
@@ -34,7 +34,7 @@ No member's shape, constraint, default or output changes. The reviewed surface i
 
 ```cue
 // WHY the group, version and kind below are literals: they name a CRD that
-// opm-operator owns (enhancement 0015 D3), so nothing in this catalog can
+// opm-operator owns (enhancement 0015), so nothing in this catalog can
 // derive them. The operator's TransformerRegistration CRD must match these
 
 // TransformerRegistrationTransformer renders a provider module's claim as the
@@ -45,7 +45,7 @@ No member's shape, constraint, default or output changes. The reviewed surface i
 
 ```cue
 // WHY the group, version and kind below are literals: they name a CRD that
-// opm-controller owns (0015:D3), so nothing in this catalog can derive
+// opm-controller owns (enhancement 0015), so nothing in this catalog can derive
 // them. The controller's TransformerRegistration CRD must match these
 
 // TransformerRegistrationTransformer renders a provider module's claim as the
@@ -70,5 +70,4 @@ No member's shape, constraint, default or output changes. The reviewed surface i
 
 ## Enhancement
 
-None yet. The rename's enhancement entry (amending 0006) is still a draft without a number, so there
-is no `enhancement.yaml`.
+None.
