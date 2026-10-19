@@ -1,6 +1,6 @@
 ## Context
 
-The two catalog modules, `opm/` (`opmodel.dev/catalogs/opm@v4`, 4.4.4) and `k8s/` (`opmodel.dev/catalogs/k8s@v1`, 1.0.0-beta.1), list their members in the four maps of `catalog.cue`: `opm` has 12 resources, 28 traits, 5 blueprints and 24 transformers, `k8s` 29 resources and 29 transformers. The maps are authoritative for what a platform sees (0015:D1), so the generator reads them, never the directory tree.
+The two catalog modules, `opm/` (`opmodel.dev/catalogs/opm@v4`, 4.4.4) and `k8s/` (`opmodel.dev/catalogs/k8s@v1`, 1.0.0-beta.1), list their members in the four maps of `catalog.cue`: `opm` has 12 resources, 28 traits, 5 blueprints and 24 transformers, `k8s` 29 resources and 29 transformers. The maps are authoritative for what a platform sees (enhancement 0015, "`#Catalog` publishes its contracts as members, beside its transformers"), so the generator reads them, never the directory tree.
 
 Section 1 touches every member file under `opm/resources/v1beta1/`, `opm/resources/v1alpha1/`, `opm/traits/v1beta1/`, `opm/traits/v1alpha1/`, `opm/blueprints/v1beta1/`, `k8s/resources/v1/` and `k8s/resources/v2/`, and only their `metadata.description` value and the doc comment directly above the definition. No field, default, closedness or required-field set changes, and no `apiVersion` segment moves.
 
@@ -43,7 +43,7 @@ spec: scaling: #ScalingSchema
 
 ### Marks and enforcement rows are derived, never authored
 
-A member is **served** when a transformer in the same catalog lists its FQN in `requiredResources`, `optionalResources`, `requiredTraits` or `optionalTraits`. A blueprint is served by the transformers whose `requiredLabels` its `matchLabels` answer and whose required resources and traits it composes, because no transformer can demand a blueprint (0010:D37).
+A member is **served** when a transformer in the same catalog lists its FQN in `requiredResources`, `optionalResources`, `requiredTraits` or `optionalTraits`. A blueprint is served by the transformers whose `requiredLabels` its `matchLabels` answer and whose required resources and traits it composes, because no transformer can demand a blueprint (enhancement 0010, "A contract declares where its fulfilment comes from, and a provider-fulfilled contract admits exactly one provider").
 
 | Condition | Page shows |
 | --- | --- |
@@ -58,8 +58,8 @@ Enforcement rows, each tagged with the place that refuses:
 | --- | --- | --- |
 | A value under `spec.<key>` satisfies the schema | every member | `cue` |
 | A required match label is answered | the member's `matchLabels` has a required field | `cue` |
-| Exactly one catalog on the platform provides it | `fulfilment: "provider"` | `kernel` (0010:D32) |
-| If nothing handles it, the render is refused | trait whose `optional` defaults to `false` | `kernel` (0010:D28) |
+| Exactly one catalog on the platform provides it | `fulfilment: "provider"` | `kernel` (enhancement 0010, "Two providers supplying one contract is a materialize-time error") |
+| If nothing handles it, the render is refused | trait whose `optional` defaults to `false` | `kernel` (enhancement 0010, "An unresolved primitive demand is an error; a trait's optionality is stated by its catalog and overridden by the attachment") |
 
 Nothing else is tagged or stated as a rule. `appliesTo` is listed as declared, because nothing reads it today.
 
@@ -85,7 +85,7 @@ The stamp, every `catalogVersion` and every transformer FQN carry `identity.Vers
 ### Review follow-ups
 
 - The site renders the front-matter description as the page lead, so a member page does not repeat it as a body paragraph; the summary part is that lead.
-- Decision citations in published comments (`0010 D28`, `0015 D10`, `0019 D21`, `0019 D22`) cannot be resolved by a reader, so the generator strips them from notes and from spec-block comments, as core's generator does. The linked `0010:D28` and `0010:D32` in enforcement rows stay: they resolve.
+- Decision citations in published comments (an enhancement id with a decision number, in the form `NNNN Dn`) cannot be resolved by a reader, so the generator strips them from notes and from spec-block comments, as core's generator does. The linked citations in enforcement rows (the form `NNNN:Dn`) stay: they resolve.
 - Comments that reached pages but were maintainer text move or change at the source: the `gpu` field's history becomes a `// WHY` block, role's pointer to a stripped WHY block is made self-contained, and sizing's "future VPA support" says what the empty schema is today.
 - The release-please job logs in to GHCR before regenerating, since loading the catalogs resolves core from GHCR.
 - A blueprint's served-by notes that a listed transformer can emit nothing for a component that leaves out the optional fields it renders from (the HPA transformer without `scaling.auto`).

@@ -8,11 +8,11 @@ package transformers
 //
 // Six readers name the Service: the Service transformer itself, the
 // StatefulSet's serviceName and the four route transformers' backendRefs.
-// The last five are cross-object references (0019 D22, carve-out 3) and must
+// The last five are cross-object references (enhancement 0019; carve-out 3 in docs/name-constraints.md) and must
 // be byte-identical to what the Service transformer emits, or a headless
 // Service or backend is silently pointed at nothing. The fallback arm is what
 // keeps a component compiled against a build <= alpha.5 (expose.name?:
-// string, unset) rendering (0010 D27); alpha.6 dropped it from every reader.
+// string, unset) rendering (enhancement 0010); alpha.6 dropped it from every reader.
 //
 // The list-index form is load-bearing. The obvious spelling,
 // `#comp.spec.expose.name | *#comp.#names.dns.short`, reads as "the

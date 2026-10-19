@@ -14,6 +14,9 @@ vars:
   # The docs bundles docs-kit.cue declares: catalog-opm (the Catalogs tab)
   # and catalog-opm-docs (the authored pages under docs/site/).
   DOCS_PROJECTS: catalog-opm catalog-opm-docs
+  # The commit of open-platform-model/enhancements that holds the enh tool; the
+  # enh-ref default of the .github cite-lint.yml that ci.yml calls.
+  CITE_LINT_REF: e0335b2ec44e659c0191bc3523d79d17f26f8e7d
 
 tasks:
   default:
@@ -180,12 +183,35 @@ tasks:
     cmds:
       - bash .tasks/doc-check.sh "{{.MODULE_DIR}}" --strict
 
+  ## OpenSpec
+
+  openspec:check:
+    desc: Check that every active change declares its durable decisions and that each target file exists, and test that check
+    cmds:
+      - bash .tasks/openspec-check.sh .
+      - bash .tasks/openspec-check-test.sh
+
+  ## Comment rule
+  #
+  # The shared check of the enhancements repo: a comment names an enhancement
+  # by id only beside a reason in words, never by decision number. CI runs the
+  # same rule through the cite-lint job in .github/workflows/ci.yml, which
+  # calls the reusable cite-lint.yml of the .github repo; that workflow holds
+  # the tool commit as its enh-ref default. Keep CITE_LINT_REF equal to it
+  # (compare at each .github pin move). No excludes, here or in the CI call;
+  # an exclude added to one goes into the other with a reason.
+
+  cite-lint:
+    desc: Fail on a decision number or a lone enhancement id in a Go or CUE comment (enh cite-lint at the pinned commit; needs network for go run)
+    cmds:
+      - go run github.com/open-platform-model/enhancements/tools/enh@{{.CITE_LINT_REF}} cite-lint --root .
+
   ## Publishing
   #
   # Publishing goes through `opm catalog publish` (enhancement 0011) and is
   # CI-only: release.yml publishes releases, branch-publish.yml publishes
   # -dev.* branch builds. There is deliberately no publish task here — a local publish is a gated exception
-  # (Registry Policy rule 2, root AGENTS.md) and requires explicitly pointing
+  # (workspace references/registry.md) and requires explicitly pointing
   # opm at the local registry, e.g.
   #   OPM_REGISTRY='opmodel.dev/catalogs=localhost:5000+insecure,opmodel.dev=ghcr.io/open-platform-model,registry.cue.works' \
   #     opm catalog publish ./src
@@ -276,7 +302,7 @@ tasks:
   ## Aggregate
 
   check:
-    desc: Format check, vet, listing, descriptions, rendered-output fixtures, fixture tags, INDEX freshness, the kind table generator tests, the docs bundle check, doc-comment report, and the cascade wiring check
+    desc: Format check, vet, listing, descriptions, rendered-output fixtures, fixture tags, INDEX freshness, the kind table generator tests, the docs bundle check, doc-comment report, the durable-decisions check, and the cascade wiring check
     cmds:
       - task: fmt:check
       - task: vet
@@ -288,4 +314,5 @@ tasks:
       - task: test:kindgen
       - task: docs:bundle:check
       - task: docs:check
+      - task: openspec:check
       - task: cascade:wiring:check

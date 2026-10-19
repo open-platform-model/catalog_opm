@@ -20,7 +20,7 @@
 
 ## 3. Enhancement declaration
 
-- [x] 3.1 Create `enhancement.yaml` declaring `implements: [{enhancement: "0010", decisions: [D27]}, {enhancement: "0019", decisions: [D22]}]`.
+- [x] 3.1 Create `enhancement.yaml` declaring `implements` for enhancement 0010 (the additive-only rule) and enhancement 0019 (the Service name field).
 
 ## 4. Verification
 

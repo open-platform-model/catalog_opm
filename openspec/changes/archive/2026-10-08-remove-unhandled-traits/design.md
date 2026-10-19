@@ -25,7 +25,7 @@ The two files are deleted and the two keys removed. Considered:
 
 1. Status quo: keep both. Refused by the proposal: a setting that is accepted and ignored.
 2. Keep the definitions, unlist them. `task vet:listing` refuses a member with an `fqn` that is not a key, and an importable definition that no platform can see is the same trap.
-3. Move both to `v1alpha1`. Alpha promises nothing (0010 D34), but the members would still render nothing; Principle V says to leave such a member out.
+3. Move both to `v1alpha1`. Alpha promises nothing (enhancement 0010, "Contract API versions follow the Kubernetes ladder, and the promise is keyed to the level"), but the members would still render nothing; Principle V says to leave such a member out.
 4. Delete (chosen).
 
 No closedness, default or required-field set of a remaining definition changes.

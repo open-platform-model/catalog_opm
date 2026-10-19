@@ -91,13 +91,13 @@ import (
 			metadata: {
 				// WHY: the helper's fallback arm is what keeps a component
 				// compiled against a build <= alpha.5 (expose.name?: string,
-				// unset) rendering here (0010 D27); alpha.6 dropped it and every
+				// unset) rendering here (enhancement 0010); alpha.6 dropped it and every
 				// older module lost its Services. The StatefulSet and route
 				// transformers reference this name through the same helper, so
 				// the cross-object references cannot drift.
 
 				// Service name through #ServiceName (name_helpers.cue): expose.name
-				// when the component set or defaulted it (0019 D22), else the
+				// when the component set or defaulted it (enhancement 0019), else the
 				// component's own #names.dns.short. See docs/name-constraints.md.
 				name: (#ServiceName & {#comp: #component}).out
 				namespace: #context.#moduleInstanceMetadata.namespace

@@ -1,6 +1,6 @@
 ## Why
 
-Core `v2.0.0-alpha.8` gave `#Catalog` three contract member maps (`#resources`, `#traits`, `#blueprints`, enhancement 0015 D1) so that "this catalog defines contract X" is a fact of the artifact rather than a derivation over its transformers. The maps mean nothing until the first-party catalogs populate them: the inventory core derives since `v2.0.0-alpha.9` (`#Platform.#contracts`) reads only what is listed, and a catalog that lists nothing makes the readiness answer a vacuous "fulfilled" (0015 `06-operational.md`, Rollback). Both catalogs here still pin `alpha.6`. This change bumps them and lists every member, with a gate so a member cannot be added without being listed.
+Core `v2.0.0-alpha.8` gave `#Catalog` three contract member maps (`#resources`, `#traits`, `#blueprints`, enhancement 0015 ("`#Catalog` publishes its contracts as members, beside its transformers")) so that "this catalog defines contract X" is a fact of the artifact rather than a derivation over its transformers. The maps mean nothing until the first-party catalogs populate them: the inventory core derives since `v2.0.0-alpha.9` (`#Platform.#contracts`) reads only what is listed, and a catalog that lists nothing makes the readiness answer a vacuous "fulfilled" (0015 `06-operational.md`, Rollback). Both catalogs here still pin `alpha.6`. This change bumps them and lists every member, with a gate so a member cannot be added without being listed.
 
 ## What Changes
 
@@ -80,4 +80,4 @@ Each map's pattern constraint in core stamps the member's `modulePath` (`<regist
 
 ## Enhancement
 
-`enhancements/0015` D1, the catalog half: the first-party catalogs publish their contracts as members. `enhancement.yaml` declares it.
+Enhancement 0015, the catalog half: the first-party catalogs publish their contracts as members. The change declared it in an `enhancement.yaml` file, since retired.

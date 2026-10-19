@@ -28,7 +28,7 @@ Four constraints decide the approach:
 **Non-Goals**
 
 1. Adding the replacement (`from: c.#Secret`, a transformer reading `.ref` / `.key`). Follow-up, gated on a `core` release.
-2. Changing the hand-authored Secret name to 0013 D6's `{instance}-{group}`. That formula belongs to the kernel-materialised path.
+2. Changing the hand-authored Secret name to the `{instance}-{group}` formula of enhancement 0013. That formula belongs to the kernel-materialised path.
 3. `#nameConstraint` / `#names` work: `#SecretsResource` declares no name slot and needs none.
 4. Fixing the compat gate's blindness to deleted members (a `cli` issue, see Risks).
 
@@ -36,7 +36,7 @@ Four constraints decide the approach:
 
 **D-A. Cross the major. Do not move members to `v1beta2`.**
 
-Two beta members change shape: `container` loses a field, `secrets` narrows a domain. 0010 D4 says a broken shape moves to a new `apiVersion` segment. Here that means `container@v1beta2` plus five blueprints and two traits that embed `#ContainerSchema`, while `container@v1beta1` stays published with a `from` field typed against nothing. Chosen instead: `opmodel.dev/catalogs/opm@v3`, members corrected in place, `@v2` frozen on GHCR. The gate accepts it, only the module path changes (fqns derive from `RegistryPath`), and no broken shape is carried forward. Consumers re-pin a path either way.
+Two beta members change shape: `container` loses a field, `secrets` narrows a domain. Enhancement 0010 ("A contract is keyed by its own API version; an implementation is keyed by its build") says a broken shape moves to a new `apiVersion` segment. Here that means `container@v1beta2` plus five blueprints and two traits that embed `#ContainerSchema`, while `container@v1beta1` stays published with a `from` field typed against nothing. Chosen instead: `opmodel.dev/catalogs/opm@v3`, members corrected in place, `@v2` frozen on GHCR. The gate accepts it, only the module path changes (fqns derive from `RegistryPath`), and no broken shape is carried forward. Consumers re-pin a path either way.
 
 ```cue
 // opm/cue.mod/module.cue
@@ -49,7 +49,7 @@ Version:    "3.0.0"   // written by `opm catalog version set`, not by hand
 
 **Corrected during implementation (2026-08-30).** This design first said `Version` could stay at `2.0.0` until the release PR, on the reading that core's `#IdentityPackage` does not relate `Version`'s major to `ModulePath`'s. **It does.** `core@v2.0.0-alpha.6/identity_package.cue:91` declares `VersionMajor: "v" + strings.SplitN(Version, ".", 2)[0]` and unifies it with `Major` on the next line, above a WHY block that defends the assertion explicitly. With `2.0.0` under a `@v3` path that unification is `"v2" & "v3"` = bottom, which propagates into `#CatalogMemberFQNGate.identity` and refuses **all 66 members** ("off its catalog's key space"). `task vet` stays green because it never instantiates the gate; `opm catalog publish ./opm --dry-run` refuses, and so would `ci.yml`'s per-PR dry-run, whose only tolerated refusal is already-published.
 
-So the change carries `Version: "3.0.0"`, written with `opm catalog version set 3.0.0 ./opm` — 0011 D15's sanctioned writer, so the "never hand-edit" rule holds. `release.yml` re-runs the same writer on the release PR with the version release-please decides; `feat!:` at 2.0.0 with `prerelease: false` gives 3.0.0, and the command is a documented no-op when the value already matches. With `3.0.0` committed, the dry-run reports 66 members checked / 0 refused, 27 traits / 0 refused, compat 0 refused, GO.
+So the change carries `Version: "3.0.0"`, written with `opm catalog version set 3.0.0 ./opm` — the sanctioned writer of enhancement 0011, so the "never hand-edit" rule holds. `release.yml` re-runs the same writer on the release PR with the version release-please decides; `feat!:` at 2.0.0 with `prerelease: false` gives 3.0.0, and the command is a documented no-op when the value already matches. With `3.0.0` committed, the dry-run reports 66 members checked / 0 refused, 27 traits / 0 refused, compat 0 refused, GO.
 
 `.tasks/branch-tag.sh` reads the major from `cue.mod/module.cue`, finds no `opm-v3.*` tag, and bases dev builds on `3.0.0`; `gateTagMajor` passes.
 

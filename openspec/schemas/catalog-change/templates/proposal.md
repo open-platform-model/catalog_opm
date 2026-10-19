@@ -6,7 +6,7 @@
 
 <!-- Describe what will change. Be specific about new members, modified schemas, transformer
      behavior, or removals. Mark breaking changes with **BREAKING**; a member whose shape breaks
-     moves to a new apiVersion segment directory (0010 D4). -->
+     moves to a new apiVersion segment directory (enhancement 0010, "A contract is keyed by its own API version; an implementation is keyed by its build"). -->
 
 ## Before / After
 
@@ -32,5 +32,6 @@
 
 ## Enhancement
 
-<!-- If this implements decisions from enhancements/NNNN, cite the entry and decision numbers
-     here and create enhancement.yaml in this change directory. Otherwise write "None." -->
+<!-- If the change delivers a line of an enhancement's tasks.md, one line per task:
+     "Delivers NNNN, task X.Y." Read the entry with
+     `openspec show <id>-<slug> --store opm-enhancements`. Otherwise write "None." -->

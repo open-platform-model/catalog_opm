@@ -71,7 +71,7 @@ Each requirement is satisfied by the CUE in Before / After and the transformer e
 
 ## Impact
 
-- **Members touched, staying at `v1beta1`:** `role@v1beta1` and the role transformer. Relaxing a required field to optional is additive under 0010:D27; the gate's refusal is a false positive fixed upstream (Dependencies / gates).
+- **Members touched, staying at `v1beta1`:** `role@v1beta1` and the role transformer. Relaxing a required field to optional is additive under enhancement 0010 ("Inside one API version a contract is additive-only, and both ends enforce it"); the gate's refusal is a false positive fixed upstream (Dependencies / gates).
 - **`modules` fleet, `opm-modules`:** nothing to do. Their roles all set subjects and render the same objects by construction; this is measured against the catalog's own goldens (task 1.5), not against the fleets.
 - **Subscribing platforms:** nothing to do; they pick up the minor through the release cascade.
 - **`cli` fixtures under `testing.opmodel.dev`:** nothing to do.

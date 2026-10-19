@@ -2,7 +2,7 @@
 
 ## Context
 
-See `proposal.md` § Why. The authoring rule and the measured cause are already in `CLAUDE.md` § Working Style, landed with the D9 registration contract; the working examples are `opm/transformers/transformer_registration_transformer.cue` and `opm/transformers/pvc_transformer.cue`.
+See `proposal.md` § Why. The authoring rule and the measured cause are already in `CLAUDE.md` § Working Style, landed with the registration contract (enhancement 0015); the working examples are `opm/transformers/transformer_registration_transformer.cue` and `opm/transformers/pvc_transformer.cue`.
 
 Measured 2026-09-15 (cue v0.17.1, core `v2.0.0-alpha.9`, catalog at 4.3.0), in `opm/`:
 

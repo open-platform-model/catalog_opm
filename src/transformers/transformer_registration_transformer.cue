@@ -7,12 +7,12 @@ import (
 )
 
 // WHY the group, version and kind below are literals: they name a CRD that
-// opm-controller owns (0015:D3), so nothing in this catalog can derive
-// them. The controller's TransformerRegistration CRD must match these
+// opm-controller owns (enhancement 0015), so nothing in this catalog can
+// derive them. The controller's TransformerRegistration CRD must match these
 // three strings exactly — this file and that CRD are the two sides of one
 // contract, and changing either alone breaks the other.
 // WHY the group is the bare `opmodel.dev`, with no `opm.` or kind-specific
-// prefix: enhancement 0002 D5 chose one flat group for every OPM CRD and
+// prefix: enhancement 0002 chose one flat group for every OPM CRD and
 // rejected prefixed and per-kind groups, paying a full cluster migration for
 // it. A prefixed group here would name a CRD no cluster installs, so the
 // rendered claim could never be applied (measured: `opm` 4.3.0 shipped a
@@ -21,7 +21,7 @@ import (
 // TransformerRegistrationTransformer renders a provider module's claim as the
 // cluster-scoped TransformerRegistration the controller accepts. The object's
 // name and spec.providerRef come from the rendering instance alone, so a
-// module cannot claim to be another provider (0015 D11, D12).
+// module cannot claim to be another provider (enhancement 0015).
 #TransformerRegistrationTransformer: c.#ComponentTransformer & {
 	metadata: {
 		modulePath:     id.kindPrefix.transformers
@@ -63,7 +63,7 @@ import (
 			apiVersion: "opmodel.dev/v1alpha1"
 			kind:       "TransformerRegistration"
 			metadata: {
-				// Cluster-scoped, dot-joined (0015 D12): a namespace cannot
+				// Cluster-scoped, dot-joined (enhancement 0015): a namespace cannot
 				// contain a dot, so two instances of one provider module
 				// produce two claims and the second is refused at acceptance
 				// naming the claimant, rather than fighting over one object.
@@ -76,7 +76,7 @@ import (
 				provides: _r.provides
 
 				// Stamped from the rendering instance, never authored: the
-				// provider IS the instance that rendered the claim (0015 D11).
+				// provider IS the instance that rendered the claim (enhancement 0015).
 				providerRef: {name: _i.name, namespace: _i.namespace}
 			}
 		}

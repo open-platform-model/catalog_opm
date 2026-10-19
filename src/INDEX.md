@@ -566,7 +566,7 @@ CUE module: `opmodel.dev/catalogs/opm@v4`
 | `#DisruptionBudget` | `traits/v1beta1/disruption_budget.cue` |  |
 | `#DisruptionBudgetSchema` | `traits/v1beta1/disruption_budget.cue` | Exactly one of minAvailable or maxUnavailable must be set |
 | `#DisruptionBudgetTrait` | `traits/v1beta1/disruption_budget.cue` | How many of a workload's pods must stay available during voluntary disruptions |
-| `#Expose` | `traits/v1beta1/expose.cue` | Component wrapper: attaches the trait and supplies the Service name's default, the component's own short DNS name (0019 D22) |
+| `#Expose` | `traits/v1beta1/expose.cue` | Component wrapper: attaches the trait and supplies the Service name's default, the component's own short DNS name (enhancement 0019) |
 | `#ExposeSchema` | `traits/v1beta1/expose.cue` | Service expose specification |
 | `#ExposeTrait` | `traits/v1beta1/expose.cue` | Exposes a workload's ports through a Kubernetes Service |
 | `#GracefulShutdown` | `traits/v1beta1/graceful_shutdown.cue` |  |

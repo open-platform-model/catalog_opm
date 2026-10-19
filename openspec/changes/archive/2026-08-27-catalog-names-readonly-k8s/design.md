@@ -29,9 +29,9 @@ sed -i -E 's/^(\t\t_name:)[[:space:]]+"\\\(#context\.#moduleInstanceMetadata\.na
 ```
 Expect exactly 25 hunks. Closedness, defaults, required fields: unchanged.
 
-**D-B. `object`'s prefix reads `#names.resourceName`.** `<instance>-<component>-<user>` is a secondary name with the primary name as prefix (D15's second carve-out class), so the prefix follows the override while the user segment stays verbatim; `_instName` and `_compName` (`object_transformer.cue:40-41`) become dead and are removed (the namespace read at line 56 stays on `#context`). The passthrough body's own `metadata.name` is still ignored by every raw kind; the override path is `component.metadata.resourceName`.
+**D-B. `object`'s prefix reads `#names.resourceName`.** `<instance>-<component>-<user>` is a secondary name with the primary name as prefix (the second carve-out class of enhancement 0019), so the prefix follows the override while the user segment stays verbatim; `_instName` and `_compName` (`object_transformer.cue:40-41`) become dead and are removed (the namespace read at line 56 stays on `#context`). The passthrough body's own `metadata.name` is still ignored by every raw kind; the override path is `component.metadata.resourceName`.
 
-**D-C. Carve-outs for this catalog: `apiservice`, `object` (user segment), `csidriver` (when added).** `StorageClass` stays in the sweep: an external contract via `storageClassName`, but label-shaped, so it wants the override honoured (D19).
+**D-C. Carve-outs for this catalog: `apiservice`, `object` (user segment), `csidriver` (when added).** `StorageClass` stays in the sweep: an external contract via `storageClassName`, but label-shaped, so it wants the override honoured (enhancement 0019).
 
 **D-D. Fixtures, first ones in `k8s/`.** Modelled on `opm/transformers/service_transformer.cue` and the Fixtures section of `docs/name-constraints.md`: a hidden `_test*Context` stub, a component stub with `#instance: {name, namespace, uuid}` (on the component, since `#names.resourceName` derives from `metadata.resourceName` from `#instance.name`), names pinned by interpolation and checked with `cue eval -c` (plain `cue vet` passes an incomplete guard vacuously). Scope: deployment default-named; storageclass default and override (`metadata: resourceName: "custom"` pinned to `"custom"`); apiservice with an override set, pinned to the authored name; object default. Fixtures for the other 22 kinds are not added here: the edit is identical and the four cover every distinct code path.
 
@@ -46,10 +46,10 @@ Expect exactly 25 hunks. Closedness, defaults, required fields: unchanged.
 **Rationale**: the edit is byte-identical in every file; splitting would create 25 identical PRs.
 
 ### Exact-name membership
-**Context**: D19 says the class transfers, the membership does not.
-**Explored**: D19 text and `experiments/09-name-constraint-propagation/` in `enhancements/0019`; `k8s/transformers/apiservice_transformer.cue:47` (`_as.metadata.name`), `object_transformer.cue:54`.
+**Context**: enhancement 0019 says the class transfers, the membership does not.
+**Explored**: the `catalogs/k8s` sweep text and `experiments/09-name-constraint-propagation/` in enhancement 0019; `k8s/transformers/apiservice_transformer.cue:47` (`_as.metadata.name`), `object_transformer.cue:54`.
 **Decision**: apiservice, object (user segment), csidriver.
-**Rationale**: as decided in D19 (user decision 2026-08-24).
+**Rationale**: as decided in enhancement 0019 (user decision 2026-08-24).
 
 ## Risks / Trade-offs
 

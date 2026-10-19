@@ -12,18 +12,19 @@ import (
 // WHY fulfilment is "catalog": the transformer that renders this claim ships
 // in this catalog (transformers/transformer_registration_transformer.cue), so
 // registration is self-hosting on the contract machinery it configures
-// (enhancement 0015 D9).
+// (enhancement 0015).
 //
 // WHY there is no matchLabels: the renderer selects on this contract's FQN
-// alone, so the contract introduces no matching vocabulary and D5's guard is
-// untouched. #nameConstraint stays unset for a related reason — the rendered
-// CR's name comes from the rendering instance, never from the owning
+// alone, so the contract introduces no matching vocabulary and the guard
+// against comparable predicates in one catalog-fulfilled bucket (enhancement
+// 0015) is untouched. #nameConstraint stays unset for a related reason — the
+// rendered CR's name comes from the rendering instance, never from the owning
 // component's resourceName, so this member constrains no authored name.
 
 // A provider module's claim that its catalog implements platform contracts.
 // Renders one cluster-scoped TransformerRegistration per component carrying
 // it. All three spec fields are required: a claim missing one is not a partial
-// claim, it is nothing, and failing the render loudly (0010 D28) beats
+// claim, it is nothing, and failing the render loudly (enhancement 0010) beats
 // registering an empty `provides`.
 #TransformerRegistrationResource: c.#Resource & {
 	metadata: {
@@ -44,7 +45,7 @@ import (
 		// The provider CATALOG's module path, never a module's: a catalog is
 		// what carries transformers, so a claim naming a module names nothing
 		// that could implement a contract. The controller's acceptance refuses a
-		// non-catalog artifact structurally (0015 D10), so nothing beyond the
+		// non-catalog artifact structurally (enhancement 0015), so nothing beyond the
 		// type is gated here.
 		catalog!: c.#ModulePathType
 
@@ -77,8 +78,8 @@ import (
 // break the gate. Do not add one.
 //
 // WHY this catalog cannot exercise the helper on itself: a provider-fulfilled
-// member ships no transformer here, and never a stub (CLAUDE.md, Working
-// Style), so no opm transformer requires a provider-fulfilled contract and
+// member ships no transformer here, and never a stub (AGENTS.md,
+// Repository rules), so no opm transformer requires a provider-fulfilled contract and
 // the provider set of opm's own #transformers is empty. That is the
 // correct result for opm; the helper exists for a PROVIDER catalog to
 // instantiate, and the fixtures in transformers/ supply synthetic input.
@@ -105,7 +106,7 @@ import (
 // catalog's own identity package and its own #transformers map and the module
 // authors no spec field. catalog and version come from the identity; provides
 // is core's #Catalog.provides over those transformers, so the claim cannot
-// disagree with the catalog it names (0015:D11).
+// disagree with the catalog it names (enhancement 0015).
 #PreBoundRegistration: #TransformerRegistration & {
 	// The provider catalog's identity package — `{modulePath: id.ModulePath,
 	// version: id.Version}` at the call site.

@@ -2,13 +2,13 @@
 
 ## Context
 
-See `proposal.md` § Why. The decision is `enhancements/0015` D9, with D11's stamping and D12's naming as properties of the rendered object; the pre-drafted shapes are that entry's `contracts/contracts.cue` (`#TransformerRegistrationContract`, `#RenderedRegistration`).
+See `proposal.md` § Why. The decision is in enhancement 0015, with the stamping and the naming of the claim as properties of the rendered object; the pre-drafted shapes are that entry's `contracts/contracts.cue` (`#TransformerRegistrationContract`, `#RenderedRegistration`).
 
 Current state, measured 2026-09-14 against core `v2.0.0-alpha.9` and this catalog at `4.2.0`:
 
 - `opm/resources/v1alpha1/` holds three members (`admission_policy`, `namespace`, `webhook`); `opm/transformers/` is flat, 23 transformer files, each carrying its golden fixture in the same file.
 - `#Resource.spec` is `spec!: (strings.ToCamel(metadata.#definitionName)): _`, so a member named `transformer-registration` owns `spec.transformerRegistration` and MAY declare required fields inside it.
-- Core's `#TransformerContext.#moduleInstanceMetadata` is a **projection** computed at the `#transform` site from `#moduleInstance` (0019 D12, core alpha.7). A fixture can no longer fill it directly; it supplies `#moduleInstance` and `#context.#runtimeName`.
+- Core's `#TransformerContext.#moduleInstanceMetadata` is a **projection** computed at the `#transform` site from `#moduleInstance` (enhancement 0019 ("`#TransformerContext` becomes a projection of the other two inputs; the kernel fills `#runtimeName` alone"), core alpha.7). A fixture can no longer fill it directly; it supplies `#moduleInstance` and `#context.#runtimeName`.
 - `task vet:listing` requires every member filed under a kind directory to be a key of the matching `catalog.cue` map.
 
 ## Goals / Non-Goals
@@ -21,9 +21,9 @@ Current state, measured 2026-09-14 against core `v2.0.0-alpha.9` and this catalo
 
 **Non-Goals**
 
-- D11's `#PreBoundRegistration` derivation fold (a provider catalog's export). It needs a provider catalog to live in; authored `provides` is the interim.
-- The acceptance side (D8, D10, D11 verification) and the CRD itself: opm-operator's slice.
-- Any `#Module` change, including the derived `#provides` fold D9 defers until a consumer exists.
+- The `#PreBoundRegistration` derivation fold of enhancement 0015 (a provider catalog's export). It needs a provider catalog to live in; authored `provides` is the interim.
+- The acceptance side of the claim (enhancement 0015) and the CRD itself: opm-operator's slice.
+- Any `#Module` change, including the derived `#provides` fold that enhancement 0015 defers until a consumer exists.
 - Repairing the 21 pre-existing broken fixtures (see Risks).
 
 ## Decisions
@@ -54,7 +54,7 @@ Current state, measured 2026-09-14 against core `v2.0.0-alpha.9` and this catalo
 }
 ```
 
-All three spec fields MUST be required. A claim with no `catalog` is not a partial claim, it is nothing, and D28's posture (an unsupplied demand fails the render) is the one that suits a provider module: failing loudly beats registering an empty `provides`. The definition adds no `matchLabels`, so the contract introduces no matching vocabulary and D5's guard is untouched; the renderer selects on the FQN alone.
+All three spec fields MUST be required. A claim with no `catalog` is not a partial claim, it is nothing, and the posture of enhancement 0010 (an unsupplied demand fails the render) is the one that suits a provider module: failing loudly beats registering an empty `provides`. The definition adds no `matchLabels`, so the contract introduces no matching vocabulary and the guard against comparable predicates in one catalog-fulfilled bucket (enhancement 0015) is untouched; the renderer selects on the FQN alone.
 
 `#nameConstraint` stays top (unset): the CR's name is derived from the instance, never from the owning component's `resourceName`, so this member constrains nothing.
 
@@ -76,21 +76,21 @@ All three spec fields MUST be required. A claim with no `catalog` is not a parti
 			apiVersion: "opm.opmodel.dev/v1alpha1"
 			kind:       "TransformerRegistration"
 			metadata: {
-				name:   "\(_i.namespace).\(_i.name)" // D12
+				name:   "\(_i.namespace).\(_i.name)" // enhancement 0015
 				labels: #context.labels
 			}
 			spec: {
 				catalog:  _r.catalog
 				version:  _r.version
 				provides: _r.provides
-				providerRef: {name: _i.name, namespace: _i.namespace} // D11
+				providerRef: {name: _i.name, namespace: _i.namespace} // enhancement 0015
 			}
 		}
 	}
 }
 ```
 
-`output` is a struct, not a list: one claim per component carrying the contract, which is the `StructKind` arm of core's dispatch. `providerRef` and `metadata.name` read the projected instance metadata and nothing else, so a module cannot author either; this is what makes D11's "every field derived or stamped" structural rather than a rule.
+`output` is a struct, not a list: one claim per component carrying the contract, which is the `StructKind` arm of core's dispatch. `providerRef` and `metadata.name` read the projected instance metadata and nothing else, so a module cannot author either; this is what makes the rule of enhancement 0015, "every field derived or stamped", structural rather than a rule.
 
 The group, version and kind are **literals**. They name an opm-operator CRD, so nothing in this catalog can derive them, and the operator slice must match these three strings exactly.
 
@@ -105,7 +105,7 @@ The pre-draft emits no labels. Every other transformer here stamps `#context.lab
 **Context**: The proposal's After block is a claim until something evaluates it, and the fixture convention in this repo is a golden literal in the member's own file.
 **Explored**: A throwaway CUE module pinning core `v2.0.0-alpha.9` and this catalog at `4.2.0`, holding the contract, the transformer, a component attaching the contract, and a rendered fixture (scratchpad, 2026-09-14, cue v0.17.1).
 **Decision**: The shapes above ship as written.
-**Rationale**: `cue vet` passes and `cue export` of the rendered output yields exactly D12's name and D11's stamp:
+**Rationale**: `cue vet` passes and `cue export` of the rendered output yields exactly the name and the stamp of enhancement 0015:
 
 ```json
 {
@@ -130,21 +130,21 @@ The pre-draft emits no labels. Every other transformer here stamps `#context.lab
 **Context**: The first spike copied the fixture idiom from `namespace_transformer.cue`, filling `#context: #moduleInstanceMetadata: {...}` directly.
 **Explored**: That form under `cue export`; then the form the library's own pins use (supply `#moduleInstance`, leave the projection to compute).
 **Decision**: New fixtures MUST supply `#transform.#moduleInstance` (an instance-shaped value with `metadata.{name,namespace,fqn,uuid}` and `#moduleMetadata.version`) plus `#context: #runtimeName`, and MUST NOT write `#moduleInstanceMetadata`.
-**Rationale**: since 0019 D12 that field is a projection of `#moduleInstance`, which the old form leaves as `_`. Measured: the old form fails `cue export` with `#moduleInstance.metadata undefined as #moduleInstance is incomplete (type _)`, while `cue vet` exits 0 because the failure is incomplete-class, not an error. The new form exports concretely.
+**Rationale**: since enhancement 0019 ("`#TransformerContext` becomes a projection of the other two inputs; the kernel fills `#runtimeName` alone") that field is a projection of `#moduleInstance`, which the old form leaves as `_`. Measured: the old form fails `cue export` with `#moduleInstance.metadata undefined as #moduleInstance is incomplete (type _)`, while `cue vet` exits 0 because the failure is incomplete-class, not an error. The new form exports concretely.
 
 ### `provides` is authored here, derived later
 
-**Context**: D11 says the only authored fact in the whole flow is the module's catalog dependency version, with `provides` folded from the provider catalog's own transformer map.
+**Context**: enhancement 0015 says the only authored fact in the whole flow is the module's catalog dependency version, with `provides` folded from the provider catalog's own transformer map.
 **Explored**: Shipping `#PreBoundRegistration` in this change; shipping the contract alone.
 **Decision**: The contract alone. `provides!` is a typed list a provider authors for now.
-**Rationale**: The fold reads a *provider catalog's* `#transformers` and belongs in that catalog beside its identity package, not in `catalog_opm`. No provider catalog exists yet (`catalog_k8up` is 0015's last landing), so shipping the fold here would put it where nothing can call it, against Principle V. The acceptance-side re-derivation (D11) refuses drift, so an authored list that disagrees is caught at the operator, not silently honoured.
+**Rationale**: The fold reads a *provider catalog's* `#transformers` and belongs in that catalog beside its identity package, not in `catalog_opm`. No provider catalog exists yet (`catalog_k8up` is 0015's last landing), so shipping the fold here would put it where nothing can call it, against Principle V. The acceptance-side re-derivation (enhancement 0015) refuses drift, so an authored list that disagrees is caught at the operator, not silently honoured.
 
 ## Risks / Trade-offs
 
-- [The literals `opm.opmodel.dev/v1alpha1` and `TransformerRegistration` must match a CRD that does not exist yet] -> D3 fixes the group and kind, the operator slice builds against this change, and both are `v1alpha1`, which promises nothing (0010 D34) while the two sides converge.
-- [A module attaching the contract on a cluster with no CRD fails at apply] -> the correct loud failure (0010 D28); no module attaches it today, and the provider module lands with the operator slice.
-- [`provides` can disagree with the named catalog] -> D11's acceptance re-derives and refuses drift naming both lists. Not detectable in this catalog, which never sees the provider's transformer map.
-- [**Pre-existing, out of scope**: 22 of 23 transformer fixture files no longer evaluate] -> 21 fill `#context.#moduleInstanceMetadata`, retired as an input by 0019 D12; `role_transformer.cue` supplies neither `#moduleInstance` nor `#runtimeName` and fails the same way. `cue vet` stays green in both cases because the failure is incomplete-class. Only `pvc_transformer.cue` is clean (re-measured per file during apply, 2026-09-14; the design-time count of 21 missed `role_transformer.cue`). Every golden output in this catalog has been unchecked since core alpha.7. This change does not repair them; it must not copy the pattern, and the finding needs its own change.
+- [The literals `opm.opmodel.dev/v1alpha1` and `TransformerRegistration` must match a CRD that does not exist yet] -> enhancement 0015 fixes the group and kind, the operator slice builds against this change, and both are `v1alpha1`, which promises nothing (enhancement 0010, "Contract API versions follow the Kubernetes ladder, and the promise is keyed to the level") while the two sides converge.
+- [A module attaching the contract on a cluster with no CRD fails at apply] -> the correct loud failure (enhancement 0010, "An unresolved primitive demand is an error; a trait's optionality is stated by its catalog and overridden by the attachment"); no module attaches it today, and the provider module lands with the operator slice.
+- [`provides` can disagree with the named catalog] -> the acceptance of enhancement 0015 re-derives and refuses drift naming both lists. Not detectable in this catalog, which never sees the provider's transformer map.
+- [**Pre-existing, out of scope**: 22 of 23 transformer fixture files no longer evaluate] -> 21 fill `#context.#moduleInstanceMetadata`, retired as an input by enhancement 0019 ("`#TransformerContext` becomes a projection of the other two inputs; the kernel fills `#runtimeName` alone"); `role_transformer.cue` supplies neither `#moduleInstance` nor `#runtimeName` and fails the same way. `cue vet` stays green in both cases because the failure is incomplete-class. Only `pvc_transformer.cue` is clean (re-measured per file during apply, 2026-09-14; the design-time count of 21 missed `role_transformer.cue`). Every golden output in this catalog has been unchecked since core alpha.7. This change does not repair them; it must not copy the pattern, and the finding needs its own change.
 
 ## Durable decisions
 

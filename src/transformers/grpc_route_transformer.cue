@@ -41,7 +41,7 @@ import (
 
 		_grpcRoute: #component.spec.grpcRoute
 		_name:      #component.#names.resourceName
-		// The backing Service has one authoritative name field (0019 D22), read
+		// The backing Service has one authoritative name field (enhancement 0019), read
 		// through #ServiceName so the reference cannot drift from the Service
 		// transformer's output, legacy (<= alpha.5) expose shape included.
 		_backendName: (#ServiceName & {#comp: #component}).out

@@ -20,7 +20,7 @@ The operator's CRD, the other side of this contract, is `opmodel.dev/v1alpha1` a
 
 - Any change to `#TransformerRegistrationResource`'s schema, its `apiVersion` segment, or its `catalog.cue` entry.
 - Anything about acceptance, activation or regeneration — those are the operator's, in three follow-on changes.
-- Correcting `enhancements/0015/contracts/contracts.cue:145`, which carries the same prefixed literal in a pre-drafted shape. It is a design sketch, not a published artifact; the enhancements repo owns it.
+- Correcting the pre-drafted `contracts/contracts.cue` of enhancement 0015 (line 145), which carries the same prefixed literal in a pre-drafted shape. It is a design sketch, not a published artifact; the enhancements repo owns it.
 
 ## Decisions
 
@@ -46,7 +46,7 @@ Nothing else in the file changes: `metadata.name`, `metadata.labels`, and every 
 
 ### The `WHY` block gains the reason, not just the rule
 
-The file already opens with a `WHY` block stating that the three strings are literals because nothing in a catalog can derive a CRD the operator owns. It does not say *which* group, or why a prefixed one is wrong. It gains that: the operator's API group is the flat `opmodel.dev` that enhancement 0002 D5 chose, rejecting prefixed and kind-specific groups. This is exactly the omission that produced the bug — the original author had the rule ("these are literals") without the value's source.
+The file already opens with a `WHY` block stating that the three strings are literals because nothing in a catalog can derive a CRD the operator owns. It does not say *which* group, or why a prefixed one is wrong. It gains that: the operator's API group is the flat `opmodel.dev` that enhancement 0002 ("The operator Kubernetes API group is renamed to `opmodel.dev`") chose, rejecting prefixed and kind-specific groups. This is exactly the omission that produced the bug — the original author had the rule ("these are literals") without the value's source.
 
 Per the doc-comment tiers in `CLAUDE.md`, this is rationale that must stay next to the code, so it belongs in the `WHY` block above the doc comment, not in the 6-line doc comment.
 
@@ -78,8 +78,8 @@ Per the doc-comment tiers in `CLAUDE.md`, this is rationale that must stay next 
 ## Risks / Trade-offs
 
 - [The published 4.3.0 keeps emitting the dead group until 4.3.1 releases] -> nothing consumes it: no provider catalog exists, no module attaches the contract, no fixture renders one. The window is unreachable rather than merely short.
-- [A reviewer reads a changed transformer output as breaking and asks for a major crossing] -> the proposal answers it with 0010 D34: the promise is keyed to the level, and `v1alpha1` carries none. The member's schema is untouched regardless.
-- [`enhancements/0015/contracts/contracts.cue` keeps the prefixed literal and re-seeds the bug in a later slice] -> out of scope here, but the `WHY` block now names the group's source, so the next implementer reads the correct value at the code rather than from the sketch.
+- [A reviewer reads a changed transformer output as breaking and asks for a major crossing] -> the proposal answers it with enhancement 0010 ("Contract API versions follow the Kubernetes ladder, and the promise is keyed to the level"): the promise is keyed to the level, and `v1alpha1` carries none. The member's schema is untouched regardless.
+- [the pre-drafted `contracts/contracts.cue` of enhancement 0015 keeps the prefixed literal and re-seeds the bug in a later slice] -> out of scope here, but the `WHY` block now names the group's source, so the next implementer reads the correct value at the code rather than from the sketch.
 
 ## Durable decisions
 

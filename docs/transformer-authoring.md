@@ -1,7 +1,7 @@
 # Authoring rules for transformers and provider adapters
 
 **Status:** Permanent authoring rules, measured 2026-09-13 against CUE `v0.17.1` and the
-shipped kernel during the `enhancements/0015` backup experiments
+shipped kernel during the enhancement 0015 backup experiments
 (`02-policy-and-command`). Every rule below cost a failed render or a failed platform
 build before it was written down.
 
@@ -141,6 +141,6 @@ scope Kubernetes accepts it at carries it:
 - **Container scope:** `#ToK8sContainer` in `container_helpers.cue`, which renders main,
   init and sidecar containers alike.
 
-Assert each scope with a presence-list guard (AGENTS.md, the fixture bullets), and give
+Assert each scope with a presence-list guard (references/fixtures.md), and give
 the pod-level fixture the new field and no other pod-level field, so the presence guard
 itself is under test.

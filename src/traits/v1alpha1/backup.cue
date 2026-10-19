@@ -1,5 +1,5 @@
 // Experimental abstraction candidates at v1alpha1 — alpha promises nothing
-// (enhancement 0010 D34). A shape change here is a new v1alpha2 file, never
+// (enhancement 0010). A shape change here is a new v1alpha2 file, never
 // an in-place mutation.
 package v1alpha1
 
@@ -13,8 +13,8 @@ import (
 // WHY this catalog ships no transformer for it: fulfilment "provider" says
 // the implementation is a platform's, and the declaring catalog ships none
 // — not even a stub, because a stub is a provider and the first real one
-// then becomes the second (0010 D37). Until a platform carries an adapter,
-// attaching this trait refuses the render naming the contract (0010 D28),
+// then becomes the second (enhancement 0010). Until a platform carries an adapter,
+// attaching this trait refuses the render naming the contract (enhancement 0010),
 // which is the designed behaviour.
 
 // Scheduled backup policy for a component's persistent state. Renders
@@ -34,7 +34,7 @@ import (
 
 	fulfilment: "provider"
 
-	// Load-bearing posture (0010 D46): an unhandled backup means there are
+	// Load-bearing posture (enhancement 0010): an unhandled backup means there are
 	// no backups. A module may narrow the default at the attachment site.
 	optional: bool | *false
 

@@ -75,7 +75,7 @@ jobs:
       # in release-please-config.json to the skipped PR's merge commit. Without
       # it release-please finds no tag for the manifest version, walks back to
       # bootstrap-sha and proposes a major bump. Drop the key in the PR after
-      # the next release; see AGENTS.md, Release & publishing. publish-cue
+      # the next release; see references/release-publishing.md. publish-cue
       # re-runs this check on the tag as a backstop for a missed label.
       - name: Setup CUE
         uses: cue-lang/setup-cue@a93fa358375740cd8b0078f76355512b9208acb1 # v1.0.1
@@ -123,8 +123,9 @@ jobs:
           rm -rf "${tmp}" opm-linux-amd64.tar.gz checksums.txt
 
       # Release-please decides the version; the identity file is written only by
-      # opm's own writer (enhancement 0011 D3/D15 — no x-release-please-version
-      # annotation, which would be a second writer and reintroduce drift). The
+      # opm's own writer (enhancement 0011: version authoring is a separate
+      # command — no x-release-please-version annotation, which would be a
+      # second writer and reintroduce drift). The
       # write is surgical and idempotent, so release-please force-updating its
       # branch just makes this step converge again on the next main push.
       # The write is a source edit and resolves nothing, so the step needs no
@@ -244,8 +245,8 @@ jobs:
       # re-run this job. Only when a fixture itself fails is the version
       # burned; the fix must then be a feat/fix/perf/revert commit under src/.
       # A burned version has its Release, so no last-release-sha is needed
-      # (that remedy is for a skipped version); see AGENTS.md, Release &
-      # publishing.
+      # (that remedy is for a skipped version); see
+      # references/release-publishing.md.
       - name: Setup CUE
         uses: cue-lang/setup-cue@a93fa358375740cd8b0078f76355512b9208acb1 # v1.0.1
         with:
@@ -321,7 +322,8 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       # Out-of-band verification of the build just pushed — an aid, not a gate
-      # (0011:D7): a finding fails this job for visibility, the artifact stays.
+      # (enhancement 0011 verifies a published catalog out of band): a finding
+      # fails this job for visibility, the artifact stays.
       - name: Verify the published build
         env:
           VERSION: ${{ needs.release-please.outputs.opm_version }}
@@ -385,7 +387,7 @@ jobs:
       contents: read
     steps:
       - name: Notify downstream
-        uses: open-platform-model/.github/.github/actions/cascade-notify@0f9c6ac2c9b752a79f4874f637ef9955bcf00c13 # .github main
+        uses: open-platform-model/.github/.github/actions/cascade-notify@a2a13733f34f952d81e6f08b84c743cc2efb86e9 # .github main
         with:
           tag: ${{ needs.release-please.outputs.opm_tag_name }}
           client-id: ${{ vars.CASCADE_APP_CLIENT_ID }}

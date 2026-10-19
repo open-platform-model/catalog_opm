@@ -53,7 +53,7 @@ Closedness, defaults and required fields: `#TransformerRegistration` and its res
 // catalog's own identity package and its own #transformers map and the module
 // authors no spec field. catalog and version come from the identity; provides
 // is core's #Catalog.provides over those transformers, so the claim cannot
-// disagree with the catalog it names (0015:D11).
+// disagree with the catalog it names (enhancement 0015).
 #PreBoundRegistration: #TransformerRegistration & {
 	#identity: {
 		modulePath: c.#ModulePathType
@@ -80,13 +80,13 @@ Two measured details (cue v0.17.1, core beta.4):
 - `metadata` spells out the two fields. `metadata: #identity` fails with `metadata.fqn: field not allowed`, because `#identity` is closed and `#Catalog.metadata` adds `fqn`.
 - The `let T` alias is needed because inside `_catalog` the name `#transformers` resolves to `_catalog`'s own field.
 
-`_catalog` re-applies `#Catalog`'s `#transformers` constraint to the map passed in. For the documented call site, a provider catalog's own `#transformers`, that is idempotent: the map already sits under the same constraint in its catalog. It also stamps each transformer's `metadata.catalogVersion` from `#identity.version` and `metadata.modulePath` from `#identity.modulePath`, so `#transformers` taken from a catalog other than `#identity` is a conflict (`metadata.catalogVersion: conflicting values ...`, task 2.5(b)). That keeps the 0015:D11 "cannot disagree" guarantee the helper's doc comment states.
+`_catalog` re-applies `#Catalog`'s `#transformers` constraint to the map passed in. For the documented call site, a provider catalog's own `#transformers`, that is idempotent: the map already sits under the same constraint in its catalog. It also stamps each transformer's `metadata.catalogVersion` from `#identity.version` and `metadata.modulePath` from `#identity.modulePath`, so `#transformers` taken from a catalog other than `#identity` is a conflict (`metadata.catalogVersion: conflicting values ...`, task 2.5(b)). That keeps the enhancement 0015 ("Every field of the claim is derived or stamped; the only authored fact is the module's catalog dependency version") "cannot disagree" guarantee the helper's doc comment states.
 
 The existing WHY blocks (no `fqn`, why opm cannot exercise this on itself, why it embeds) stay. The comment over the fold is replaced by one that states the durable rule: core derives the provider set, and this repository reads it and never folds it again. The `#transformers` input comment says it is typed openly because `_catalog` applies core's constraint.
 
 The `provides` doc comment on `#TransformerRegistrationResource` changes "folding the list out of the provider catalog's transformers" to "reading core's derived #Catalog.provides over the provider catalog's transformers".
 
-**D-C. The call shape does not change.** A caller that passes a catalog's identity and its `#transformers`, the documented shape, renders the same `catalog`, `version` and set of `provides` as before. Two things do change, and both are rendered-output or input changes inside `v1alpha1`, which the alpha level allows (0010:D34):
+**D-C. The call shape does not change.** A caller that passes a catalog's identity and its `#transformers`, the documented shape, renders the same `catalog`, `version` and set of `provides` as before. Two things do change, and both are rendered-output or input changes inside `v1alpha1`, which the alpha level allows (enhancement 0010, "Contract API versions follow the Kubernetes ladder, and the promise is keyed to the level"):
 
 - `provides` is sorted ascending (core's `list.Sort`), where the fold emitted insertion order. opm-operator sorts both lists before comparing (`internal/controller/transformerregistration_contracts.go`), so acceptance does not change.
 - A hand-built `#transformers` map that is not shaped like a catalog's (string keys that are not `#ImplFQNType`, or values that are not `#ComponentTransformer`s) is now refused with `field not allowed`. Only the fixtures in this repository built such maps.
@@ -157,7 +157,7 @@ The resource fixture's synthetic `{fulfilment: "provider"}` becomes a `c.#Resour
 ## Risks / Trade-offs
 
 - `provides` order changes in rendered `TransformerRegistration` objects. -> opm-operator sorts both lists before comparing (`internal/controller/transformerregistration_contracts.go`). A provider re-render is therefore an in-place spec reorder, and acceptance does not change.
-- A provider that builds `#transformers` by hand rather than passing its catalog's map is refused. -> Only this repository's fixtures did; the documented call site passes the catalog's own map. `v1alpha1` allows it (0010:D34).
+- A provider that builds `#transformers` by hand rather than passing its catalog's map is refused. -> Only this repository's fixtures did; the documented call site passes the catalog's own map. `v1alpha1` allows it (enhancement 0010, "Contract API versions follow the Kubernetes ladder, and the promise is keyed to the level").
 - The publish compatibility gate could treat the helper change as a violation. -> `#PreBoundRegistration` has no `fqn`, so the member gate does not see it, and `v1alpha1` is alpha-exempt. Task 2.6 runs `opm catalog publish ./src --dry-run`; anything other than the known `already holds` refusal stops the change and is reported.
 - `_catalog` re-unifies the whole transformer map with `#Catalog`'s constraint. -> For a real catalog's map that is idempotent, and task 2.5(a) measures it on `opm`'s own map.
 

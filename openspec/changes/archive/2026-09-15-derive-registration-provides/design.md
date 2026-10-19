@@ -23,7 +23,7 @@ Two facts shape the design:
 
 - Changing `#TransformerRegistrationResource`'s schema. `provides!` stays required.
 - A fold over a *module's* components (the `#provides` surface for a future publish gate); different fold, no consumer.
-- Anything operator-side. Its half of D11 shipped in alpha.19.
+- Anything operator-side. Its half of enhancement 0015 shipped in alpha.19.
 
 ## Decisions
 

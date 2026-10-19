@@ -79,13 +79,13 @@ The object bodies are untouched, so a role with subjects renders the same list (
 
 ### Compatibility gate
 
-**Context**: `opm catalog publish` runs the 0010:D27 additive-only walk on beta members; the release publish from main runs the same gate, and the command has no override.
+**Context**: `opm catalog publish` runs the enhancement 0010 ("Inside one API version a contract is additive-only, and both ends enforce it") additive-only walk on beta members; the release publish from main runs the same gate, and the command has no override.
 **Explored**: 2026-10-04, cli `v1.0.0-beta.7` (the `.opm-cli-version` pin), cue v0.17.1. `cli/internal/compat/compat.go` reports: field removed, field added without optional or default, field made required (optional to required only), domain narrowed, default changed or removed. Measured:
 - A local `opm catalog publish ./src --dry-run` and the CI "Publish gates dry-run" of catalog_opm PR #141 (before the split) both refuse `#RoleResource` against `opm@4.5.1`: `spec.role.subjects default changed ([{name!: string}] -> [{name!: string}])`.
 - Cause, by a Go probe on the CUE API: for `[...string] & [_, ...]`, `Default()` returns `[string]` with `hasDefault=true`, under `!` and under `?` alike, and `IsConcrete()` is true because the check is shallow. `checkDefaults` therefore compares two "defaults" no author wrote. Its subsumption fallback passes for `!` to `!` and `?` to `?`, but for `!` to `?` it fails in one direction ("value not an instance").
 - No respelling of the field in the catalog passes. `subjects?: [#RoleSubjectSchema, ...#RoleSubjectSchema]` and `subjects?: [_, ...] & [...#RoleSubjectSchema]` are refused with the same "default changed". `subjects?: list.MinItems(1) & [...#RoleSubjectSchema]` is refused twice: "default removed" and "domain narrowed". Only the unchanged `subjects!` passes.
 **Decision** (supervisor, 2026-10-04): no segment move; the gate is fixed in the cli change `fix-compat-unauthored-defaults`, and this change waits for a cli release that carries it, then bumps `.opm-cli-version` (section 2).
-**Rationale**: required to optional is none of the violation kinds 0010:D27 names, and every value the published schema accepted still unifies and renders the same objects. Moving `role` to `v1beta2` to get past a gate bug would leave a duplicate member behind for a contract that did not change. An owner exception cannot ship: there is no override, and the release publish would refuse too.
+**Rationale**: required to optional is none of the violation kinds enhancement 0010 ("Inside one API version a contract is additive-only, and both ends enforce it") names, and every value the published schema accepted still unifies and renders the same objects. Moving `role` to `v1beta2` to get past a gate bug would leave a duplicate member behind for a contract that did not change. An owner exception cannot ship: there is no override, and the release publish would refuse too.
 
 ## Risks / Trade-offs
 
