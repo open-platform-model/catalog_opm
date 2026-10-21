@@ -4,7 +4,7 @@ Covers this repo's part of the release cascade: the notify job, the receive and 
 
 ## Notify downstream
 
-- `notify-downstream` in `release.yml` is this repo's own job. It declares `environment: cascade` (`main` only). Its one step runs the pinned `cascade-notify` action with the `opm-vX.Y.Z` tag, `client-id: ${{ vars.CASCADE_APP_CLIENT_ID }}` and `private-key: ${{ secrets.CASCADE_APP_PRIVATE_KEY }}`. The action mints the `opm-cascade` App token and sends one `upstream-released` dispatch each to library, opm-operator and cli.
+- `notify-downstream` in `release.yml` is this repo's own job. It declares `environment: cascade` (`main` only). Its one step runs the pinned `cascade-notify` action with the `opm-vX.Y.Z` tag, `client-id: ${{ vars.CASCADE_APP_CLIENT_ID }}` and `private-key: ${{ secrets.CASCADE_APP_PRIVATE_KEY }}`. The action mints the `opm-cascade` App token and sends one `upstream-released` dispatch each to library, opm-controller and cli.
 - There is no reusable notify workflow: a reusable-workflow job does not see the caller's Environment secrets without `secrets: inherit`.
 - It waits only for the push: `needs: [release-please, publish-cue]`, run when `publish-cue`'s `published` is `true` and the run was not cancelled. It never waits for `verify-published` or `publish-docs`.
 - Stop switch: the repo variable `CASCADE_NOTIFY=off` skips it. Recovery: re-run a red `Notify downstream` with "Re-run failed jobs" on the Release run. Otherwise each receiver's daily sweep picks the release up within a day. A job that fails at startup has a bad pin: fix it with a pin PR.
