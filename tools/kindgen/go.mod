@@ -5,7 +5,7 @@ go 1.25.0
 require cuelang.org/go v0.17.1
 
 require (
-	cuelabs.dev/go/oci/ociregistry v0.0.0-20260601085548-328ff8e2c943 // indirect
+	cuelabs.dev/go/oci/ociregistry v0.0.0-20261008115102-396d3c6e7e0c // indirect
 	github.com/cockroachdb/apd/v3 v3.2.3 // indirect
 	github.com/emicklei/proto v1.14.3 // indirect
 	github.com/google/uuid v1.6.0 // indirect
