@@ -15,6 +15,7 @@ Router only. Facts and rules are in `AGENTS.md`.
 | Publish or fix the docs bundles, or move the docs-kit pin | `references/docs-bundles.md` | `docs-kit.cue` |
 | Write a `//` doc comment or a member description | `references/doc-comments.md` | `.tasks/` |
 | Change a site page | `docs/site/` | `STYLE.md` and `VOICE.md` at the workspace root |
+| Name a concept, or choose a word for a catalog term | `GLOSSARY.md` | `AGENTS.md` |
 | Run, format or vet | `Taskfile.yml` | `AGENTS.md` |
 | Start a feature change | `openspec/config.yaml` | `.claude/skills/` |
 | Deliver or cite an enhancement | `references/enhancements.md` at the workspace root | `openspec/config.yaml` |
