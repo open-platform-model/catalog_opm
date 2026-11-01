@@ -7,7 +7,7 @@ The CUE module `opmodel.dev/catalogs/opm@v4`, rooted at `src/`. It instantiates 
 ### The catalog and its parts
 
 **Catalog**:
-The published set of members and their transformers, listed in one manifest and versioned as one release.
+The published set of members, listed in one manifest and versioned as one release.
 _Avoid_: Library, package, registry
 
 **Catalog module**:
@@ -16,7 +16,7 @@ _Avoid_: Repo, package, "the module" (unqualified)
 
 **Member**:
 A definition that carries an `fqn` and has an entry in the catalog map: a resource, a trait, a blueprint or a transformer. A definition without an `fqn` is not a member.
-_Avoid_: Entry, item, primitive (for a transformer)
+_Avoid_: Entry, item
 
 **Catalog map**:
 The four maps in the catalog manifest, `#resources`, `#traits`, `#blueprints` and `#transformers`, each keyed by the member's `fqn`. Listing a member here is what makes it visible to a platform.
@@ -54,7 +54,7 @@ _Avoid_: Renderer, generator, controller
 
 **Contract**:
 A resource, trait or blueprint seen from the side of its consumers: the shape a module can demand and a platform must honour. The break unit of a contract is its `apiVersion`.
-_Avoid_: Interface, API, spec
+_Avoid_: Primitive, interface, API, spec
 
 **Wrapper**:
 A `#Component` definition such as `#Container` or `#StatelessWorkload` that pre-attaches members, so an author embeds it directly. Name and matching rules live on the wrapper when the member cannot compute them alone.
@@ -93,8 +93,8 @@ A member with the default `fulfilment: "catalog"`. A transformer in this catalog
 _Avoid_: Built-in, native
 
 **Provider**:
-An enabled registry entry of a platform, a catalog path with its major, whose transformers require a provider-fulfilled contract. A platform carries exactly one provider per such contract.
-_Avoid_: Plugin, backend, implementation
+An enabled registry entry of a platform, a catalog path with its major, whose transformers require a provider-fulfilled contract. A platform carries exactly one provider per such contract. The transformers of a provider are its adapters.
+_Avoid_: Adapter (for the provider itself), plugin, backend, implementation
 
 **Objects escape hatch**:
 The `objects@v1alpha1` resource, which carries a Kubernetes object that no abstraction models, as written. It replaced the retired raw passthrough module.
@@ -117,7 +117,7 @@ _Avoid_: Name validation, name rule
 ### Testing and delivery
 
 **Fixture**:
-A hidden `_test*` field in a `*_fixtures.cue` file that opens with `@if(fixtures)`. It renders a transformer's output so that the golden literals are checked.
+A hidden `_test*` field in a `*_fixtures.cue` file that opens with `@if(fixtures)`. The rendered-output kind, the one `task vet:fixtures` exports, renders a transformer's output so that the golden literals are checked.
 _Avoid_: Test, sample, example
 
 **Golden literal**:
@@ -129,5 +129,5 @@ A decision a future catalog author needs, declared in a change's design and prom
 _Avoid_: ADR, note
 
 **Docs bundle**:
-The `catalog-opm` bundle that docs-kit's `opm-docs` builds from the module. The catalog reference is built, never committed.
-_Avoid_: Docs site, reference pages
+One of the two bundles that `docs-kit.cue` declares: `catalog-opm`, which docs-kit's `opm-docs` builds from the module as the catalog reference, and `catalog-opm-docs`, which holds the authored pages under `docs/site/`. The reference is built, never committed.
+_Avoid_: Reference pages
