@@ -50,6 +50,7 @@ src/transformers/        #ComponentTransformer definitions, flat, with their fix
 src/schemas/             shared schema types and vendored Kubernetes types
 src/schemas/kinds/       generated Kubernetes kind table (tools/kindgen)
 tools/kindgen/           Go generator of the kind table (own go.mod)
+GLOSSARY.md              the domain terms of the catalog, one word per concept
 docs/                    authoring notes that outlive a change
 docs/site/               site pages (authoring/, extending/); the catalog-opm-docs bundle
 docs/catalogs/opm/       pages that ship only in the catalog-opm bundle;
