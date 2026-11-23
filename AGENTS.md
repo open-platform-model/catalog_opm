@@ -34,8 +34,9 @@ Release-please keeps `versioning: prerelease` with `prerelease: false` on `main`
 - Pin `language: version: "v0.17.0"` in `src/cue.mod/module.cue`. It is a consumer floor, not a toolchain pin.
 - Keep the generated index in `src/` in sync when a definition or the module tree changes: run `task generate:index` and review the output.
 - Non-trivial catalog work goes through OpenSpec with the project-local `catalog-change` schema: proposal, design, tasks. It has no specs artifact by design: there is no `openspec/specs/` and no `specs/` inside a change, and each change's `.openspec.yaml` carries `skip_specs: true`. The definition is the spec.
+- Every change uses `catalog-change`: omit `--schema`, never `--schema spec-driven`, even when asked.
 - A decision a future catalog author needs is declared in the change's design under Durable decisions and lands in `docs/` or a `references/` file before the change is archived. `task openspec:check` enforces it.
-- `openspec-sync-specs` is deleted because there are no specs to sync. Delete it again after `openspec init` or `openspec update`.
+- `openspec-sync-specs` comes back with every `openspec update`: leave it, it finds no specs to sync here. Never run `openspec init` here: it adds an `openspec/specs/` folder.
 - Cite an enhancement as the id beside a reason in words, `(enhancement 0010)`. Never a decision number. The workspace `references/enhancements.md` has the rule.
 
 ## Layout
@@ -58,6 +59,7 @@ docs-kit.cue             the docs bundles config, outside the module root
 .opm-docs-version        the pinned docs-kit release
 .opm-cli-version         the pinned opm CLI tag
 openspec/                OpenSpec workspace: config.yaml (constitution), schemas/catalog-change/, changes/
+.agents/skills/          generated openspec skills, never edited: every update rewrites them; .claude/skills/ links here
 .tasks/                  Taskfile script fragments; .tasks/cascade/ holds the cascade task and wiring check
 ```
 
