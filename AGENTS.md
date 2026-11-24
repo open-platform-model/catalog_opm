@@ -37,6 +37,7 @@ Release-please keeps `versioning: prerelease` with `prerelease: false` on `main`
 - Every change uses `catalog-change`: omit `--schema`, never `--schema spec-driven`, even when asked.
 - A decision a future catalog author needs is declared in the change's design under Durable decisions and lands in `docs/` or a `references/` file before the change is archived. `task openspec:check` enforces it.
 - `openspec-sync-specs` comes back with every `openspec update`: leave it, it finds no specs to sync here. Never run `openspec init` here: it adds an `openspec/specs/` folder.
+- A verify run on an OpenSpec change also applies `openspec/verify.md`, because the generated verify skill does not name that file.
 - Cite an enhancement as the id beside a reason in words, `(enhancement 0010)`. Never a decision number. The workspace `references/enhancements.md` has the rule.
 
 ## Layout
