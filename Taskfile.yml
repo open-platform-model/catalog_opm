@@ -301,6 +301,13 @@ tasks:
 
   ## Aggregate
 
+  check:commit:
+    desc: "Checks before a commit (no lint task exists here): fmt check, vet and the durable-decisions check"
+    cmds:
+      - task: fmt:check
+      - task: vet
+      - task: openspec:check
+
   check:
     desc: Format check, vet, listing, descriptions, rendered-output fixtures, fixture tags, INDEX freshness, the kind table generator tests, the docs bundle check, doc-comment report, the durable-decisions check, and the cascade wiring check
     cmds:

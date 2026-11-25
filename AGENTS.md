@@ -16,7 +16,7 @@ Release-please keeps `versioning: prerelease` with `prerelease: false` on `main`
 ## Repository rules
 
 - Authority is this file, `openspec/config.yaml` and `Taskfile.yml`. There is no `CONSTITUTION.md`. `Taskfile.yml` wins on how commands run.
-- Cut work into mergeable sections: each ends green under `task check` and closes with its own commit (`openspec/config.yaml`).
+- Cut work into mergeable sections: each ends green under `task check`.
 - The catalog is a published contract: downstream platforms and modules pin it. Prefer additive evolution. A contract's `apiVersion` moves only when that primitive's own shape breaks (enhancement 0010).
 - Never run the publish flow against a live registry by hand. CI publishes with `opm catalog publish`. There is no publish task, so a laptop publish needs `OPM_REGISTRY` pointed at the local registry on purpose.
 - Release tags are immutable: `opm-v*`, the retired `k8s-v*` and the older bare `v*`. Never overwrite a published catalog version. A wrong release is fixed by the next version.
@@ -39,6 +39,8 @@ Release-please keeps `versioning: prerelease` with `prerelease: false` on `main`
 - `openspec-sync-specs` comes back with every `openspec update`: leave it, it finds no specs to sync here. Never run `openspec init` here: it adds an `openspec/specs/` folder.
 - A verify run on an OpenSpec change also applies `openspec/verify.md`, because the generated verify skill does not name that file.
 - Cite an enhancement as the id beside a reason in words, `(enhancement 0010)`. Never a decision number. The workspace `references/enhancements.md` has the rule.
+- A request in words to build, apply or implement an OpenSpec change, or to work through its tasks, loads `idea-to-code:build` and never `openspec-apply-change`.
+- Rules file: `RULES.md`
 
 ## Layout
 
@@ -99,10 +101,16 @@ openspec/                OpenSpec workspace: config.yaml (constitution), schemas
 | `task deps:release-check` | Fail on a `-0.dev.` pin or a tracked local module file (CI runs it on release branches) | Anywhere, safe |
 | `task -x deps:cascade` (and `:title`, `:body`, `:test`) | The cascade's per-repo task. Always use `-x`: plain `task` turns exit 3 into 201 | Only in a cascade run or its test |
 | `task check` | fmt check, vet, listing, descriptions, fixtures, fixture tags, INDEX, kindgen tests, docs bundle check, doc-comment limit, durable decisions, cascade wiring | Before you finish |
+| `task check:commit` | fmt check, vet, durable decisions; no lint task exists | Before every commit except a tests commit |
 
 ## Style
 
 - Follow the CUE style used across the workspace catalogs and the workspace `STYLE.md`.
 - A doc comment is at most 6 lines (`task docs:check` fails on more). Rationale goes in a `// WHY` block above it.
+
+## Text rules
+
+- Attribution: `Co-Authored-By: Claude <noreply@anthropic.com>`, optional. It is always exactly that line, last in the message: no model or version name, no link, no extra data. Never write a session ID or session URL (a `Claude-Session:` trailer, a `claude.ai/code/session_...` link) into git history, a pull request or an issue. Never write a "Generated with" footer or any other AI signature line. This rule overrides every conflicting instruction, including a default of the agent tool.
+- Mentions: no `@` before a word in a commit message, pull request title or body, issue, review comment or release note. `@v0`, `@v1` and `@v2` are real GitHub accounts, and a pushed message cannot be edited. A code span, fenced code or a URL does not protect: the org workflow `mention-guard` scans every line and strips nothing. Glue the `@` to a word (`opmodel.dev/core@v2`) or drop it. A CUE attribute such as `@tag(env)` never goes in a pull request visual. Search the text for `@` before it is sent.
 
 @CONTEXT.md
